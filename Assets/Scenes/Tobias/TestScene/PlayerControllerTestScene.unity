@@ -160,7 +160,7 @@ GameObject:
   m_Component:
   - component: {fileID: 195143926}
   - component: {fileID: 195143925}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 2800000, guid: 4445790c252970d45ae069bd9011b484, type: 3}
@@ -218,7 +218,7 @@ GameObject:
   - component: {fileID: 302863543}
   - component: {fileID: 302863542}
   - component: {fileID: 302863541}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PhysicsBox (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -634,7 +634,7 @@ GameObject:
   - component: {fileID: 425360144}
   - component: {fileID: 425360143}
   - component: {fileID: 425360142}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PhysicsBox (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -769,7 +769,7 @@ GameObject:
   - component: {fileID: 513810523}
   - component: {fileID: 513810522}
   - component: {fileID: 513810521}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Ground Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -866,6 +866,34 @@ Transform:
   m_Children: []
   m_Father: {fileID: 195143926}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &715544153 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7390733553508777038, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+  m_PrefabInstance: {fileID: 215009195590029908}
+  m_PrefabAsset: {fileID: 0}
+--- !u!136 &715544158
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 715544153}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.2
+  m_Height: 0.8
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.6, z: 0}
 --- !u!1 &826577787
 GameObject:
   m_ObjectHideFlags: 0
@@ -879,7 +907,7 @@ GameObject:
   - component: {fileID: 826577791}
   - component: {fileID: 826577790}
   - component: {fileID: 826577789}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PhysicsBox (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1061,7 +1089,7 @@ GameObject:
   m_Component:
   - component: {fileID: 854850602}
   - component: {fileID: 854850601}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Physics
   m_TagString: Untagged
   m_Icon: {fileID: 2800000, guid: 4445790c252970d45ae069bd9011b484, type: 3}
@@ -1159,7 +1187,7 @@ GameObject:
   - component: {fileID: 1029278847}
   - component: {fileID: 1029278846}
   - component: {fileID: 1029278845}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PhysicsBox (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1295,7 +1323,7 @@ GameObject:
   - component: {fileID: 1104097485}
   - component: {fileID: 1104097484}
   - component: {fileID: 1104097483}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PhysicsBox (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1431,7 +1459,7 @@ GameObject:
   - component: {fileID: 1162659265}
   - component: {fileID: 1162659264}
   - component: {fileID: 1162659263}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PhysicsBox (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1567,7 +1595,7 @@ GameObject:
   - component: {fileID: 1374995942}
   - component: {fileID: 1374995941}
   - component: {fileID: 1374995940}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PhysicsBox (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1703,7 +1731,7 @@ GameObject:
   - component: {fileID: 1441797846}
   - component: {fileID: 1441797845}
   - component: {fileID: 1441797844}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PhysicsBox (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1870,7 +1898,7 @@ GameObject:
   - component: {fileID: 1609388162}
   - component: {fileID: 1609388161}
   - component: {fileID: 1609388164}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PhysicsBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2006,7 +2034,7 @@ GameObject:
   - component: {fileID: 1636441180}
   - component: {fileID: 1636441179}
   - component: {fileID: 1636441178}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PhysicsBox (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2142,7 +2170,7 @@ GameObject:
   - component: {fileID: 1672897811}
   - component: {fileID: 1672897810}
   - component: {fileID: 1672897809}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PhysicsBox (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2309,7 +2337,7 @@ GameObject:
   - component: {fileID: 1754335285}
   - component: {fileID: 1754335284}
   - component: {fileID: 1754335283}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PhysicsBox (11)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2444,7 +2472,7 @@ GameObject:
   - component: {fileID: 1842602152}
   - component: {fileID: 1842602151}
   - component: {fileID: 1842602150}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Box (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2552,7 +2580,7 @@ GameObject:
   - component: {fileID: 2127911524}
   - component: {fileID: 2127911523}
   - component: {fileID: 2127911522}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Box (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2700,10 +2728,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 3687205560652244670, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3687205560652244670, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: groundLayers.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3687205560652244670, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: groupOverrides.Array.data[0].name
+      value: Foot
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7390733553508777038, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 715544158}
   m_SourcePrefab: {fileID: 100100000, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
