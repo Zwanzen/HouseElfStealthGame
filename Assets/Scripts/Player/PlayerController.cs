@@ -1,4 +1,5 @@
 using System;
+using RootMotion.FinalIK;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -7,22 +8,33 @@ public class PlayerController : MonoBehaviour
 
     // State Machines
     private PlayerControlStateMachine _controlStateMachine;
+    private ProceduralSneakStateMachine _sneakStateMachine;
     
     // State Machine Contexts
     private PlayerControlContext _controlContext;
+    private ProceduralSneakContext _sneakContext;
     
     // Private variables
     [Header("Components")]
     [SerializeField] private Rigidbody _rigidbody;
+    [SerializeField] private FullBodyBipedIK _bodyIK;
     
     [Space(10f)]
-    [Header("Common Variables")]
+    [Header("Common")]
     [SerializeField] private LayerMask _groundLayers;
+    [SerializeField] private Transform _leftFootTarget;
+    [SerializeField] private Transform _rightFootTarget;
+    [SerializeField] private Transform _leftFootRestTarget;
+    [SerializeField] private Transform _rightFootRestTarget;
     
     [Space(10f)]
     [Header("Control Variables")]
     [SerializeField] private float _springStrength = 250f;
     [SerializeField] private float _springDampener = 5f;
+    
+    [Space(10f)]
+    [Header("Sneak Variables")]
+    [SerializeField] private float _sneakSpeed = 1f;
     
 
     private void Awake()
@@ -41,7 +53,8 @@ public class PlayerController : MonoBehaviour
     {
         _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
             _springStrength, _springDampener);
-        
+        _sneakContext = new ProceduralSneakContext(this, _sneakStateMachine, _bodyIK, _groundLayers,
+            _leftFootTarget, _rightFootTarget, _leftFootRestTarget, _rightFootRestTarget);
     }
     
 
@@ -50,9 +63,11 @@ public class PlayerController : MonoBehaviour
     {
         // Add the state machines to the player controller
         _controlStateMachine = this.AddComponent<PlayerControlStateMachine>();
+        _sneakStateMachine = this.AddComponent<ProceduralSneakStateMachine>();
         
         // Set the context for the state machines
         _controlStateMachine.SetContext(_controlContext);
+        _sneakStateMachine.SetContext(_sneakContext);
     }
     
     // Read-only properties

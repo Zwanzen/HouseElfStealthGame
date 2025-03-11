@@ -10,7 +10,7 @@ public class PlayerControlStateMachine : StateMachine<PlayerControlStateMachine.
 
     private PlayerControlContext _context;
 
-    // read only properties
+    // Read only properties
     public EPlayerControlState State => CurrentState.StateKey;
 
     private void InitializeStates()

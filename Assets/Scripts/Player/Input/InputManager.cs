@@ -13,10 +13,11 @@ public class InputManager : MonoBehaviour
 
     private Vector2 _moveInput;
     private Vector2 _cameraInput;
+    public float _scrollInput;
 
 
     // Read-only
-    public Vector2 MoveInput => _moveInput;
+    public Vector3 MoveInput => new Vector3(_moveInput.x, 0f, _moveInput.y);
     public Vector2 CameraInput => _cameraInput;
 
     private void Awake()
@@ -52,6 +53,7 @@ public class InputManager : MonoBehaviour
             
             _inputActions.Player.Move.performed += playerControls => _moveInput = playerControls.ReadValue<Vector2>();
             _inputActions.Player.Look.performed += i => _cameraInput = i.ReadValue<Vector2>();
+            _inputActions.Player.Scroll.performed += i => _scrollInput = i.ReadValue<float>();
         }
 
         _inputActions.Enable();

@@ -6,7 +6,6 @@ public class PlayerCameraController : MonoBehaviour
 {
     [Header("Camera Settings")] 
     [SerializeField] private Transform _followTarget;
-    [SerializeField] private float _cameraOffset = -0.05f;
     [SerializeField] private float _cameraSensitivity = 0.03f;
 
 
