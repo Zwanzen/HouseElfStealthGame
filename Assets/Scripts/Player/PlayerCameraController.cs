@@ -52,4 +52,10 @@ public class PlayerCameraController : MonoBehaviour
         _cameraYTransform.localRotation = Quaternion.Euler(0f, _yRotation, 0f);
         _cameraXTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
     }
+    
+    // Public methods
+    public Transform GetCameraYawTransform()
+    {
+        return _cameraYTransform;
+    }
 }

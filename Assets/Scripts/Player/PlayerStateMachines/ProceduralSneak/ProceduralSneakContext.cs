@@ -12,14 +12,19 @@ public class ProceduralSneakContext
     
     [Header("Common")]
     private LayerMask _groundLayers;
-    private Transform _leftFootTarget;
-    private Transform _rightFootTarget;
+    private Rigidbody _leftFootTarget;
+    private Rigidbody _rightFootTarget;
     private Transform _leftFootRestTarget;
     private Transform _rightFootRestTarget;
     
+    [Header("Sneak Variables")]
+    private float _sneakSpeed;
+    private float _sneakStepLength;
+    
     // Constructor
     public ProceduralSneakContext(PlayerController player, ProceduralSneakStateMachine stateMachine, FullBodyBipedIK bodyIK,
-        LayerMask groundLayers, Transform leftFootTarget, Transform rightFootTarget, Transform leftFootRestTarget, Transform rightFootRestTarget)
+        LayerMask groundLayers, Rigidbody leftFootTarget, Rigidbody rightFootTarget, Transform leftFootRestTarget, Transform rightFootRestTarget,
+        float sneakSpeed, float sneakStepLength)
     {
         _player = player;
         _stateMachine = stateMachine;
@@ -29,18 +34,63 @@ public class ProceduralSneakContext
         _rightFootTarget = rightFootTarget;
         _leftFootRestTarget = leftFootRestTarget;
         _rightFootRestTarget = rightFootRestTarget;
+        _sneakSpeed = sneakSpeed;
+        _sneakStepLength = sneakStepLength;
     }
     
     // Read only properties
     public PlayerController Player => _player;
     public FullBodyBipedIK BodyIK => _bodyIK;
-    public Transform LeftFoot => _leftFootTarget;
-    public Transform RightFoot => _rightFootTarget;
+    public Rigidbody LeftFoot => _leftFootTarget;
+    public Rigidbody RightFoot => _rightFootTarget;
+    public float SneakSpeed => _sneakSpeed;
+    public float SneakStepLength => _sneakStepLength;
+    
+    public Rigidbody LiftedFoot { get; set; }
+    
+    public Rigidbody PlantedFoot => GetOtherFoot(LiftedFoot);
+    
+    // Private methods
+    private Rigidbody GetOtherFoot(Rigidbody foot)
+    {
+        return foot == _leftFootTarget ? _rightFootTarget : _leftFootTarget;
+    }
     
     // Public methods
     public RaycastHit GroundCast(Vector3 position, float distance)
     {
         Physics.Raycast(position, Vector3.down, out var hit, distance, _groundLayers);
         return hit;
+    }
+    
+    public Vector3 GetFeetMiddlePoint()
+    {
+        return Vector3.Lerp(_leftFootTarget.position, _rightFootTarget.position, 0.5f);
+    }
+
+    public Vector3 GetFootGroundPosition(Rigidbody foot)
+    {
+        var footPlaceOffset = Vector3.up * 0.05f;
+        var groundCastUpOffset = Vector3.up * 0.1f;
+        return GroundCast(foot.position + groundCastUpOffset, 1f).point + footPlaceOffset;
+    }
+
+    private Vector3 _storedBodyVel;
+    public void MoveBody(Vector3 pos)
+    {
+        // Get body's current position
+        var currentPos = _player.Rigidbody.position;
+        currentPos.y = 0;
+        pos.y = 0;
+        
+        // Get the direction to move
+        var moveDir = (pos - currentPos);
+        
+        _storedBodyVel = _player.MoveRigidbody(_player.Rigidbody, moveDir, _storedBodyVel, new Vector3(1,0,1));
+    }
+
+    public void ResetBodyVel()
+    {
+        _storedBodyVel = Vector3.zero;
     }
 }

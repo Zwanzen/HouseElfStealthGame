@@ -28,14 +28,15 @@ public class StartSneakState : ProceduralSneakState
         var rightFootIK = Context.BodyIK.solver.rightFootEffector;
         
         // Set the foot targets to the current positions
+        Context.LeftFoot.linearVelocity = Vector3.zero;
+        Context.RightFoot.linearVelocity = Vector3.zero;
+        
         Context.LeftFoot.position = leftFootIK.bone.position;
         Context.RightFoot.position = rightFootIK.bone.position;
         
-        // Get the grounded positions
-        var footPlaceOffset = Vector3.up * 0.05f;
-        var groundCastUpOffset = Vector3.up * 0.1f;
-        Context.LeftFoot.position = Context.GroundCast(Context.LeftFoot.position + groundCastUpOffset, 1f).point + footPlaceOffset;
-        Context.RightFoot.position = Context.GroundCast(Context.RightFoot.position + groundCastUpOffset, 1f).point + footPlaceOffset;
+        // Set the grounded positions
+        Context.LeftFoot.position = Context.GetFootGroundPosition(Context.LeftFoot);
+        Context.RightFoot.position = Context.GetFootGroundPosition(Context.RightFoot);
         
         //Activate the foot targets
         leftFootIK.positionWeight = 1f;

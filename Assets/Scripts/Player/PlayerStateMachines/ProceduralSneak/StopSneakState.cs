@@ -22,6 +22,10 @@ public class StopSneakState : ProceduralSneakState
 
     public override void EnterState()
     {
+        // Stop velocity on the targets
+        Context.LeftFoot.linearVelocity = Vector3.zero;
+        Context.RightFoot.linearVelocity = Vector3.zero;
+        
         // Get the IK controls
         var leftFootIK = Context.BodyIK.solver.leftFootEffector;
         var rightFootIK = Context.BodyIK.solver.rightFootEffector;

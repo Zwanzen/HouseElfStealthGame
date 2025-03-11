@@ -18,14 +18,22 @@ public class PlayerController : MonoBehaviour
     [Header("Components")]
     [SerializeField] private Rigidbody _rigidbody;
     [SerializeField] private FullBodyBipedIK _bodyIK;
+    [SerializeField] private PlayerCameraController _cameraController;
     
     [Space(10f)]
     [Header("Common")]
     [SerializeField] private LayerMask _groundLayers;
-    [SerializeField] private Transform _leftFootTarget;
-    [SerializeField] private Transform _rightFootTarget;
+    [SerializeField] private Rigidbody _leftFootTarget;
+    [SerializeField] private Rigidbody _rightFootTarget;
     [SerializeField] private Transform _leftFootRestTarget;
     [SerializeField] private Transform _rightFootRestTarget;
+    
+    [SerializeField] private float _maxSpeed = 5f;
+    [SerializeField] private float _acceleration = 200f;
+    [SerializeField] private AnimationCurve _accelerationFactorFromDot;
+    [SerializeField] private float _maxAccelForce = 100f;
+    [SerializeField] private AnimationCurve _maxAccelerationForceFactorFromDot;
+    [SerializeField] private Vector3 _forceScale;
     
     [Space(10f)]
     [Header("Control Variables")]
@@ -35,6 +43,7 @@ public class PlayerController : MonoBehaviour
     [Space(10f)]
     [Header("Sneak Variables")]
     [SerializeField] private float _sneakSpeed = 1f;
+    [SerializeField] private float _sneakStepLength = 0.38f;
 
     // This is the maximum speed range for the player
     // Helps determine the speed state of the player
@@ -69,7 +78,8 @@ public class PlayerController : MonoBehaviour
         _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
             _springStrength, _springDampener);
         _sneakContext = new ProceduralSneakContext(this, _sneakStateMachine, _bodyIK, _groundLayers,
-            _leftFootTarget, _rightFootTarget, _leftFootRestTarget, _rightFootRestTarget);
+            _leftFootTarget, _rightFootTarget, _leftFootRestTarget, _rightFootRestTarget,
+            _sneakSpeed, _sneakStepLength);
     }
     
 
@@ -86,6 +96,7 @@ public class PlayerController : MonoBehaviour
     }
     
     // Read-only properties
+    public Rigidbody Rigidbody => _rigidbody;
     public static float Height => 1.0f;
     
     /// <summary>
@@ -109,7 +120,30 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public EPlayerSpeedState PlayerSpeedState => _playerSpeedState;
     
+    // Movement input based on camera direction
+    public Vector3 RelativeMoveInput => GetRelativeMoveInput();
+    
     // Private methods
+    private Vector3 GetRelativeMoveInput()
+    {
+        // Get the camera yaw transform
+        var camera = _cameraController.GetCameraYawTransform();
+        
+        // Get the camera forward & right direction
+        Vector3 cameraForward = GetComponent<Camera>().transform.forward;
+        Vector3 cameraRight = GetComponent<Camera>().transform.right;
+        
+        // Get the input direction
+        Vector3 inputDirection = InputManager.Instance.MoveInput.x * cameraRight + InputManager.Instance.MoveInput.z * cameraForward;
+        
+        // If the input direction is greater than 1, normalize it
+        if (inputDirection.magnitude > 1f)
+        {
+            inputDirection.Normalize();
+        }
+        
+        return inputDirection;
+    }
     
     // Calculates the current selected speed increment
     private void UpdateMovementSpeed(int newInput)
@@ -144,7 +178,54 @@ public class PlayerController : MonoBehaviour
             _ => EPlayerSpeedState.Sneak
         };
     }
+    
+    // Credit to https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
+    public Vector3 MoveRigidbody(Rigidbody rigidbody, Vector3 input, Vector3 sGoalVel, Vector3 forceScale)
+    {
+        Vector3 move = input;
 
+        if (move.magnitude > 1f)
+        {
+            move.Normalize();
+        }
+
+        // do dotproduct of input to current goal velocity to apply acceleration based on dot to direction (makes sharp turns better).
+        Vector3 unitVel = sGoalVel.normalized;
+
+        float velDot = Vector3.Dot(move, unitVel);
+        float accel = _acceleration * _accelerationFactorFromDot.Evaluate(velDot);
+        Vector3 goalVel = move * _maxSpeed;
+
+        // lerp goal velocity towards new calculated goal velocity.
+        sGoalVel = Vector3.MoveTowards(sGoalVel, goalVel, accel * Time.fixedDeltaTime);
+
+        // calculate needed acceleration to reach goal velocity in a single fixed update.
+        Vector3 neededAccel = (sGoalVel - rigidbody.linearVelocity) / Time.fixedDeltaTime;
+
+        // clamp the needed acceleration to max possible acceleration.
+        float maxAccel = _maxAccelForce * _maxAccelerationForceFactorFromDot.Evaluate(velDot);
+        neededAccel = Vector3.ClampMagnitude(neededAccel, maxAccel);
+
+        rigidbody.AddForce(Vector3.Scale(neededAccel * rigidbody.mass, forceScale));
+
+        // return the stored goal velocity
+        return sGoalVel;
+    }
+
+    private void OnGUI()
+    {
+        // Create a background box for better readability
+        GUI.backgroundColor = new Color(0, 0, 0, 0.7f);
+        GUI.Box(new Rect(10, 10, 250, 50), "");
+
+        GUIStyle style = new GUIStyle(GUI.skin.label);
+        style.fontSize = 14;
+        style.normal.textColor = Color.white;
+    
+        GUI.Label(new Rect(20, 15, 240, 20), $"Control State: {_controlStateMachine.State}", style);
+        GUI.Label(new Rect(20, 35, 240, 20), $"Sneak State: {_sneakStateMachine.State}", style);
+    }
+    
     private void OnDestroy()
     {
         // Unsubscribe items

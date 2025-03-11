@@ -7,11 +7,26 @@ public class PlantedSneakState : ProceduralSneakState
         Context = context;
     }
     
+    // Private variables
+
+    
     public override ProceduralSneakStateMachine.ESneakState GetNextState()
     {
         if (!Context.Player.IsGrounded)
         {
             return ProceduralSneakStateMachine.ESneakState.Stop;
+        }
+
+        if (InputManager.Instance.IsHoldingLMB)
+        {
+            Context.LiftedFoot = Context.LeftFoot;
+            return ProceduralSneakStateMachine.ESneakState.Lifted;
+        }
+        
+        if (InputManager.Instance.IsHoldingRMB)
+        {
+            Context.LiftedFoot = Context.RightFoot;
+            return ProceduralSneakStateMachine.ESneakState.Lifted;
         }
         
         return StateKey;
@@ -34,6 +49,7 @@ public class PlantedSneakState : ProceduralSneakState
 
     public override void FixedUpdateState()
     {
-        
+        Context.MoveBody(Context.GetFeetMiddlePoint());
     }
+    
 }

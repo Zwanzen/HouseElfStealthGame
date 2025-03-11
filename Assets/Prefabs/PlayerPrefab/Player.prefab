@@ -1220,16 +1220,88 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rigidbody: {fileID: 6362266510148879359}
   _bodyIK: {fileID: 5850443162775366396}
+  _cameraController: {fileID: 7239731043480668603}
   _groundLayers:
     serializedVersion: 2
     m_Bits: 8
-  _leftFootTarget: {fileID: 5404164388551602356}
-  _rightFootTarget: {fileID: 2260531130139481343}
+  _leftFootTarget: {fileID: 2366439156892988723}
+  _rightFootTarget: {fileID: 4401790746806515136}
   _leftFootRestTarget: {fileID: 2433665566816000418}
   _rightFootRestTarget: {fileID: 5883895927822524085}
+  _maxSpeed: 5
+  _acceleration: 200
+  _accelerationFactorFromDot:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: -1
+      value: 2
+      inSlope: -0.0021734277
+      outSlope: -0.0021734277
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 1
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -0.0067610545
+      outSlope: -0.0067610545
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.14260568
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _maxAccelForce: 100
+  _maxAccelerationForceFactorFromDot:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: -1
+      value: 2
+      inSlope: -0.0021734277
+      outSlope: -0.0021734277
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 1
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -0.0067610545
+      outSlope: -0.0067610545
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.14260568
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _forceScale: {x: 1, y: 0, z: 1}
   _springStrength: 250
   _springDampener: 25
   _sneakSpeed: 1
+  _sneakStepLength: 0.38
 --- !u!1 &2548466631838842504
 GameObject:
   m_ObjectHideFlags: 0
@@ -3319,6 +3391,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2260531130139481343}
+  - component: {fileID: 4401790746806515136}
   m_Layer: 9
   m_Name: RightFootTarget
   m_TagString: Untagged
@@ -3341,6 +3414,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1071785495791208455}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &4401790746806515136
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5813097341951014449}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 1
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &5828237236573140990
 GameObject:
   m_ObjectHideFlags: 0
@@ -4086,6 +4186,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5404164388551602356}
+  - component: {fileID: 2366439156892988723}
   m_Layer: 9
   m_Name: LeftFootTarget
   m_TagString: Untagged
@@ -4108,6 +4209,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1071785495791208455}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &2366439156892988723
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6482323032390787891}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 1
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &6695557598155996276
 GameObject:
   m_ObjectHideFlags: 0
@@ -4271,7 +4399,7 @@ GameObject:
   - component: {fileID: 3528165737783964562}
   m_Layer: 0
   m_Name: PlayerCamera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
