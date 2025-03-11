@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class RigidbodyDemoController : MonoBehaviour
 {
+    // Singeton instance
+    public static RigidbodyDemoController Instance;
+    
     // Private variables
     [Header("Reference")]
     [SerializeField] private Transform _cameraHolder;
@@ -39,6 +42,16 @@ public class RigidbodyDemoController : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
         _cameraTransform = _cameraHolder.GetChild(0).transform;
         Cursor.lockState = CursorLockMode.Locked;
+        
+        // Singleton instance
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
     
     private void FixedUpdate()
