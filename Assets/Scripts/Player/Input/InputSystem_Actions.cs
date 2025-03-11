@@ -93,7 +93,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             ""actions"": [
                 {
                     ""name"": ""Move"",
-                    ""type"": ""Value"",
+                    ""type"": ""PassThrough"",
                     ""id"": ""351f2ccd-1f9f-44bf-9bec-d62ac5c5f408"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
@@ -179,7 +179,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""expectedControlType"": ""Axis"",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": true
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -573,7 +573,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""id"": ""55b39621-b142-44e4-9878-82bff7a8357c"",
                     ""path"": ""<Mouse>/scroll/y"",
                     ""interactions"": """",
-                    ""processors"": ""Normalize(min=-1,max=1)"",
+                    ""processors"": ""Normalize(min=-1,max=1),Clamp(min=-1,max=1)"",
                     ""groups"": """",
                     ""action"": ""Scroll"",
                     ""isComposite"": false,

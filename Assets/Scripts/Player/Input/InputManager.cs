@@ -13,12 +13,13 @@ public class InputManager : MonoBehaviour
 
     private Vector2 _moveInput;
     private Vector2 _cameraInput;
-    public float _scrollInput;
+    private float _scrollInput;
 
 
     // Read-only
     public Vector3 MoveInput => new Vector3(_moveInput.x, 0f, _moveInput.y);
     public Vector2 CameraInput => _cameraInput;
+    public int ScrollInput => (int)_scrollInput;
 
     private void Awake()
     {
@@ -38,7 +39,11 @@ public class InputManager : MonoBehaviour
         
         SceneManager.activeSceneChanged += OnSceneChange;
     }
-
+    
+    // Event used to update the player speed state more efficiently
+    // This is called twice, but doesn't seem like it can double the value
+    public event Action<int> OnScroll;
+    
     private void OnSceneChange(Scene oldScene, Scene newScene)
     {
         // If we are loading into our world scene, enable 
@@ -53,7 +58,7 @@ public class InputManager : MonoBehaviour
             
             _inputActions.Player.Move.performed += playerControls => _moveInput = playerControls.ReadValue<Vector2>();
             _inputActions.Player.Look.performed += i => _cameraInput = i.ReadValue<Vector2>();
-            _inputActions.Player.Scroll.performed += i => _scrollInput = i.ReadValue<float>();
+            _inputActions.Player.Scroll.performed += i => OnScroll?.Invoke((int)i.ReadValue<float>());
         }
 
         _inputActions.Enable();

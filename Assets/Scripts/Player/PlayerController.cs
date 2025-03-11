@@ -35,7 +35,20 @@ public class PlayerController : MonoBehaviour
     [Space(10f)]
     [Header("Sneak Variables")]
     [SerializeField] private float _sneakSpeed = 1f;
+
+    // This is the maximum speed range for the player
+    // Helps determine the speed state of the player
+    private const int MaxSpeedRange = 12;
+    private int _currentPlayerSpeed = 5;
+    private EPlayerSpeedState _playerSpeedState;
     
+    public enum EPlayerSpeedState
+    {
+        Fast,
+        Medium,
+        Slow,
+        Sneak
+    }
 
     private void Awake()
     {
@@ -44,8 +57,10 @@ public class PlayerController : MonoBehaviour
         InitializeStateMachines();
     }
 
-    private void Update()
+    private void Start()
     {
+        InputManager.Instance.OnScroll += UpdateMovementSpeed;
+        _playerSpeedState = UpdatePlayerSpeedState();
     }
 
     // Initialize the state machine contexts
@@ -89,4 +104,50 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public bool IsGrounded => _controlStateMachine.State == PlayerControlStateMachine.EPlayerControlState.Grounded;
     
+    /// <summary>
+    /// This is the control state of the player based on the selected speed.
+    /// </summary>
+    public EPlayerSpeedState PlayerSpeedState => _playerSpeedState;
+    
+    // Private methods
+    
+    // Calculates the current selected speed increment
+    private void UpdateMovementSpeed(int newInput)
+    {
+        // Increment the speed based on the input
+        //var newInput = InputManager.Instance.ScrollInput;
+        _currentPlayerSpeed += newInput;
+        
+        // Clamp the speed to the max speed range
+        // The player should not be able to select a zero speed
+        _currentPlayerSpeed = Math.Clamp(_currentPlayerSpeed, 1, MaxSpeedRange);
+        
+        // Update the player speed state
+        _playerSpeedState = UpdatePlayerSpeedState();
+        Debug.Log(_playerSpeedState.ToString());
+    }
+    
+    // Public Methods
+    private EPlayerSpeedState UpdatePlayerSpeedState()
+    {
+        // The range is split into 4 states
+        // Fast: 12 - 10
+        // Medium: 9 - 7
+        // Slow: 6 - 4
+        // Sneak: 3 - 1
+
+        return _currentPlayerSpeed switch
+        {
+            >= 10 and <= 12 => EPlayerSpeedState.Fast,
+            >= 7 and <= 9 => EPlayerSpeedState.Medium,
+            >= 4 and <= 6 => EPlayerSpeedState.Slow,
+            _ => EPlayerSpeedState.Sneak
+        };
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe items
+        InputManager.Instance.OnScroll -= UpdateMovementSpeed;
+    }
 }

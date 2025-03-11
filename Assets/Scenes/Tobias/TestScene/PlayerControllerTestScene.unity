@@ -946,7 +946,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2067054340}
+  - {fileID: 715208859}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &715208857
@@ -978,7 +980,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31ce40b98fc3d5d4caa203817b21bb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _scrollInput: 0
 --- !u!4 &715208859
 Transform:
   m_ObjectHideFlags: 0
@@ -992,7 +993,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 710242911}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &826577787
 GameObject:
@@ -2703,7 +2704,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 710242911}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2067054341
 MonoBehaviour:
@@ -2931,8 +2932,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 222959583}
-  - {fileID: 715208859}
-  - {fileID: 2067054340}
   - {fileID: 710242911}
   - {fileID: 1707607945}
   - {fileID: 330585546}

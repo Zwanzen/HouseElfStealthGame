@@ -34,4 +34,13 @@ public class ProceduralSneakContext
     // Read only properties
     public PlayerController Player => _player;
     public FullBodyBipedIK BodyIK => _bodyIK;
+    public Transform LeftFoot => _leftFootTarget;
+    public Transform RightFoot => _rightFootTarget;
+    
+    // Public methods
+    public RaycastHit GroundCast(Vector3 position, float distance)
+    {
+        Physics.Raycast(position, Vector3.down, out var hit, distance, _groundLayers);
+        return hit;
+    }
 }

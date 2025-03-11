@@ -9,6 +9,11 @@ public class PlantedSneakState : ProceduralSneakState
     
     public override ProceduralSneakStateMachine.ESneakState GetNextState()
     {
+        if (!Context.Player.IsGrounded)
+        {
+            return ProceduralSneakStateMachine.ESneakState.Stop;
+        }
+        
         return StateKey;
     }
 
