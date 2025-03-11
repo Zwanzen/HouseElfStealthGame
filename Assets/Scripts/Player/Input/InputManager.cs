@@ -29,6 +29,11 @@ public class InputManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    private void Start()
+    {
+        DontDestroyOnLoad(gameObject);
         
         SceneManager.activeSceneChanged += OnSceneChange;
     }
