@@ -8,6 +8,7 @@ public class DemoNpc : MonoBehaviour
     [Header("Debug")] 
     [SerializeField] private bool _debugVisual = false;
     [SerializeField] private bool _enableDistanceFactor = true;
+    [SerializeField] private MeshRenderer _displayMesh;
     
     [Space(10)]
     [Header("UI")]
@@ -92,10 +93,12 @@ public class DemoNpc : MonoBehaviour
         // Start with a random offset, Important for smooth gameplay
         _lightImageTimer = Random.Range(0, _imageRate);
         
-        _renderTexture = new RenderTexture(_reselution, _reselution, 24);
+        _renderTexture = new RenderTexture(_reselution, _reselution, 24, RenderTextureFormat.ARGB32,0);
+        _renderTexture.filterMode = FilterMode.Point;
         _lightCam.targetTexture = _renderTexture;
 
-        _texture = new Texture2D(_reselution, _reselution, TextureFormat.RGBA32, false);
+        _texture = new Texture2D(_reselution, _reselution, TextureFormat.RGBA32, false, true);
+        _texture.filterMode = FilterMode.Point;
     }
 
     private void Update()
@@ -255,7 +258,7 @@ public class DemoNpc : MonoBehaviour
         // Turn on the light camera
         _lightCam.enabled = true;
         
-        Vector3 direction = _player.position - _lightCam.transform.position;
+        Vector3 direction = (_player.position - Vector3.up * 0.5f) - _lightCam.transform.position;
         direction.Normalize();
 
         Quaternion toRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
@@ -281,6 +284,8 @@ public class DemoNpc : MonoBehaviour
         _texture.ReadPixels(new Rect(0, 0, _reselution, _reselution), 0, 0);
         _texture.Apply();
 
+        // Set display mesh to the texture
+        _displayMesh.material.mainTexture = _texture;
 
         float brightness = 0;   
         int count = 0;
