@@ -1,8 +1,9 @@
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class DemoNPC : MonoBehaviour
+public class DemoNpc : MonoBehaviour
 {
     [Header("Debug")] 
     [SerializeField] private bool _debugVisual = false;
@@ -13,8 +14,9 @@ public class DemoNPC : MonoBehaviour
     
     [Space(10)]
     [Header("References")] 
-    [SerializeField] private RigidbodyDemoController _player;
+    [SerializeField] private Transform _player;
     [SerializeField] private Transform _npcEyes;
+    [SerializeField] private Camera _cam;
 
     [Space(10)] 
     [Header("Common")] 
@@ -37,8 +39,10 @@ public class DemoNPC : MonoBehaviour
     [Header("Vision Detection")]
     [SerializeField] private float _detectDistance = 10f;
     [SerializeField] private float _detectAngle = 45f;
+    [SerializeField] private AnimationCurve _angleCurve;
+    [SerializeField] private float _angleDetectionMultiplier = 1f;
     [SerializeField] private AnimationCurve _distanceCurve;
-    [SerializeField] private float _distanceDetectionValue = 1f;
+    [SerializeField] private float _distanceDetectionMultiplier = 1f;
     [Space(2)]
     [SerializeField] private float _visionMultiplier = 1f;
     [Space(2)]
@@ -47,11 +51,24 @@ public class DemoNPC : MonoBehaviour
     [SerializeField] private float _legValue = 0.1f;
     [SerializeField] private float _bodyValue = 0.4f;
 
+    [Space(10)]
+    [Header("Light Detection")]
+    [SerializeField] private AnimationCurve _lightCurve;
+    [SerializeField] private float _lightDetectionMultiplier = 1f;
+    [Space(2)]
+    [SerializeField] private float _imageRate = 0.5f;
+    [SerializeField] private int _reselution = 16;
+
+    
+    [SerializeField] private float _playerBrightness;
+    
+    private RenderTexture _renderTexture;
+    private Texture2D _texture;
+    
     private float _detection;
+    private NpcState _currentState;
     
-    private NPCState _currentState;
-    
-    public enum NPCState
+    public enum NpcState
     {
         Idle,
         Patrol,
@@ -60,13 +77,24 @@ public class DemoNPC : MonoBehaviour
     
     private void Awake()
     {
-        _currentState = NPCState.Idle;
+        _currentState = NpcState.Idle;
         InitializeLimbs();
         _fillReact = _detectionSlider.fillRect.GetComponent<Image>();
+        
+        // Light Stuff
+        // Start with a random offset, Important for smooth gameplay
+        _imageTimer = Random.Range(0, _imageRate);
+        
+        _renderTexture = new RenderTexture(_reselution, _reselution, 24);
+        _cam.targetTexture = _renderTexture;
+
+        _texture = new Texture2D(_reselution, _reselution, TextureFormat.RGBA32, false);
     }
 
     private void Update()
     {
+        HandleLightCamera();
+        
         UpdateDetection();
         HandleUI();
     }
@@ -78,7 +106,7 @@ public class DemoNPC : MonoBehaviour
         // Calculate based on a curve, exponentially increasing the value the closer the player is
         var evaluatedValue = _distanceCurve.Evaluate(distance / _detectDistance);
         // Return the multiplied evaluated value
-        return evaluatedValue * _distanceDetectionValue;
+        return evaluatedValue * _distanceDetectionMultiplier;
     }
     
     private float _decayTimer;
@@ -115,7 +143,7 @@ public class DemoNPC : MonoBehaviour
 
     private void InitializeLimbs()
     {
-        var limbs = _player.GetBodyParts();
+        var limbs = _player.GetComponent<RigidbodyDemoController>().GetBodyParts();
         
         // If limbs are not set throw an error
         if (limbs.Length != 6)
@@ -146,11 +174,11 @@ public class DemoNPC : MonoBehaviour
     private float VisionDetection()
     {
         // Check if the player is outside the detection distance
-        if (Vector3.Distance(_player.transform.position, transform.position) > _detectDistance)
+        if (Vector3.Distance(_player.position, transform.position) > _detectDistance)
             return 0;
 
         // Check if the player is outside the detection angle
-        var directionToPlayer = (_player.transform.position - transform.position).normalized;
+        var directionToPlayer = (_player.position - transform.position).normalized;
         var angle = Vector3.Angle(_npcEyes.forward, directionToPlayer);
         if (angle > _detectAngle)
             return 0;
@@ -193,6 +221,67 @@ public class DemoNPC : MonoBehaviour
             }
         }
     #endif
+    }
+    
+    private float _imageTimer;
+    
+    private void HandleLightCamera()
+    {
+        _imageTimer += Time.deltaTime;
+        if (_imageTimer < _imageRate) { return;}
+        _imageTimer = 0;
+
+        Vector3 direction = _player.position - _cam.transform.position;
+        direction.Normalize();
+
+        Quaternion toRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+        _cam.transform.rotation = toRotation;
+
+        _playerBrightness = ColorIntensity();
+    }
+    
+    private float ColorIntensity()
+    {
+        _cam.Render();
+        var previous = RenderTexture.active;
+        RenderTexture.active = _renderTexture;
+        _texture.ReadPixels(new Rect(0, 0, _reselution, _reselution), 0, 0);
+        _texture.Apply();
+
+
+        float brightness = 0;   
+        int count = 0;
+
+        // Should Find non-Workaround for this
+        NativeArray<Color32> pixels = new NativeArray<Color32>(_texture.GetPixelData<Color32>(0), Allocator.TempJob);
+        NativeArray<Color> colors = new NativeArray<Color>(pixels.Length, Allocator.TempJob);
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            colors[i] = pixels[i];
+        }
+
+        // Check the MAX value of every color, this gives a better result because
+        // technically the brightest red color is not as bright as the brightest green color.
+        // This rather looks at how shaded/bright the color is.
+        for (int i = 0; i < colors.Length; i++)
+        {
+            // If the color is magenta, skip it
+            if (Mathf.Approximately(colors[i].r, 1) && colors[i].g == 0 && Mathf.Approximately(colors[i].b, 1))
+                continue;
+            
+            float max = Mathf.Max(colors[i].r, colors[i].g, colors[i].b);
+
+            brightness += max;
+            count++;
+        }
+
+        // Important to dispose of the NativeArray for memory management
+        pixels.Dispose();
+        colors.Dispose();
+        RenderTexture.active = previous;
+        _renderTexture.Release();
+
+        return brightness /= count;
     }
     
 }
