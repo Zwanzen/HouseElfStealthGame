@@ -17,7 +17,8 @@ public class DemoNpc : MonoBehaviour
     [Header("References")] 
     [SerializeField] private Transform _player;
     [SerializeField] private Transform _npcEyes;
-    [SerializeField] private Camera _cam;
+    [SerializeField] private Camera _lightCam;
+    [SerializeField] private Camera _silhouetteCam;
 
     [Space(10)] 
     [Header("Common")] 
@@ -89,18 +90,16 @@ public class DemoNpc : MonoBehaviour
         
         // Light Stuff
         // Start with a random offset, Important for smooth gameplay
-        _imageTimer = Random.Range(0, _imageRate);
+        _lightImageTimer = Random.Range(0, _imageRate);
         
         _renderTexture = new RenderTexture(_reselution, _reselution, 24);
-        _cam.targetTexture = _renderTexture;
+        _lightCam.targetTexture = _renderTexture;
 
         _texture = new Texture2D(_reselution, _reselution, TextureFormat.RGBA32, false);
     }
 
     private void Update()
     {
-        HandleLightCamera();
-        
         UpdateDetection();
         HandleUI();
     }
@@ -201,6 +200,10 @@ public class DemoNpc : MonoBehaviour
         if (angle > _detectAngle)
             return 0;
         
+        // If we are past what's above, we are in the detection zone
+        // We only now want to get light value, heavy computations
+        HandleLightCamera();
+        
         // Linecast to each limb, and add the correlating detection value
         var valueToAdd = 0f;
         // Head
@@ -241,26 +244,38 @@ public class DemoNpc : MonoBehaviour
     #endif
     }
     
-    private float _imageTimer;
+    private float _lightImageTimer;
     
     private void HandleLightCamera()
     {
-        _imageTimer += Time.deltaTime;
-        if (_imageTimer < _imageRate) { return;}
-        _imageTimer = 0;
+        _lightImageTimer += Time.deltaTime;
+        if (_lightImageTimer < _imageRate) { return;}
+        _lightImageTimer = 0;
 
-        Vector3 direction = _player.position - _cam.transform.position;
+        // Turn on the light camera
+        _lightCam.gameObject.SetActive(true);
+        
+        Vector3 direction = _player.position - _lightCam.transform.position;
         direction.Normalize();
 
         Quaternion toRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
-        _cam.transform.rotation = toRotation;
+        _lightCam.transform.rotation = toRotation;
 
-        _playerBrightness = ColorIntensity();
+        _playerBrightness = ColorIntensity(true);
+        // Turn off the light camera
+        _lightCam.gameObject.SetActive(false);
+    }
+
+    private float _silhouetteImageTimer;
+    
+    private void HandleSilhouetteCamera()
+    {
+        
     }
     
-    private float ColorIntensity()
+    private float ColorIntensity(bool ignoreColor = false)
     {
-        _cam.Render();
+        _lightCam.Render();
         var previous = RenderTexture.active;
         RenderTexture.active = _renderTexture;
         _texture.ReadPixels(new Rect(0, 0, _reselution, _reselution), 0, 0);
@@ -283,18 +298,23 @@ public class DemoNpc : MonoBehaviour
         // This rather looks at how shaded/bright the color is.
         for (int i = 0; i < colors.Length; i++)
         {
-            // If ignored color not set, set it
-            if (!_hasIgnored)
+            // Ignore color functionality
+            if (ignoreColor)
             {
-                _ignoreRed = colors[0].r;
-                _ignoreGreen = colors[0].g;
-                _ignoreBlue = colors[0].b;
-                _hasIgnored = true;
+                // If ignored color not set, set it
+                if (!_hasIgnored)
+                {
+                    _ignoreRed = colors[0].r;
+                    _ignoreGreen = colors[0].g;
+                    _ignoreBlue = colors[0].b;
+                    _hasIgnored = true;
+                }
+                
+                // If the color is ignored, skip it
+                if (Mathf.Approximately(colors[i].r, _ignoreRed) && Mathf.Approximately(colors[i].g, _ignoreGreen) && Mathf.Approximately(colors[i].b, _ignoreBlue))
+                    continue;
             }
             
-            // If the color is ignored, skip it
-            if (Mathf.Approximately(colors[i].r, _ignoreRed) && Mathf.Approximately(colors[i].g, _ignoreGreen) && Mathf.Approximately(colors[i].b, _ignoreBlue))
-                continue;
             
             float max = Mathf.Max(colors[i].r, colors[i].g, colors[i].b);
 
