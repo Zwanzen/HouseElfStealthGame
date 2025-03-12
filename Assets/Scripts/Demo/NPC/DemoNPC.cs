@@ -7,6 +7,7 @@ public class DemoNpc : MonoBehaviour
 {
     [Header("Debug")] 
     [SerializeField] private bool _debugVisual = false;
+    [SerializeField] private bool _enableDistanceFactor = true;
     
     [Space(10)]
     [Header("UI")]
@@ -65,6 +66,11 @@ public class DemoNpc : MonoBehaviour
     private RenderTexture _renderTexture;
     private Texture2D _texture;
     
+    private bool _hasIgnored;
+    private float _ignoreRed;
+    private float _ignoreGreen;
+    private float _ignoreBlue;
+    
     private float _detection;
     private NpcState _currentState;
     
@@ -101,12 +107,24 @@ public class DemoNpc : MonoBehaviour
 
     private float GetDistanceMultiplier()
     {
+        // Check if the distance factor is enabled
+        if(!_enableDistanceFactor)
+            return 1f;
+        
         // Calculate the distance between the player and the NPC
         var distance = Vector3.Distance(_player.transform.position, transform.position);
         // Calculate based on a curve, exponentially increasing the value the closer the player is
         var evaluatedValue = _distanceCurve.Evaluate(distance / _detectDistance);
         // Return the multiplied evaluated value
         return evaluatedValue * _distanceDetectionMultiplier;
+    }
+    
+    private float GetLightMultiplier()
+    {
+        // Calculate the brightness of the player
+        var evaluatedValue = _lightCurve.Evaluate(_playerBrightness);
+        // Return the multiplied evaluated value
+        return evaluatedValue * _lightDetectionMultiplier;
     }
     
     private float _decayTimer;
@@ -120,7 +138,7 @@ public class DemoNpc : MonoBehaviour
         detectionValue += Time.deltaTime * VisionDetection();
         
         // Decreaase the detection value over time if player is not being detected
-        if (detectionValue == 0)
+        if (detectionValue <= 0)
         {
             _decayTimer += Time.deltaTime;
             // If the decay timer is greater than the decay delay, start decaying the detection value
@@ -197,7 +215,7 @@ public class DemoNpc : MonoBehaviour
         valueToAdd += LimbVisible(_body) ? _bodyValue : 0;
 
         // Calculate the detection value
-        return valueToAdd * GetDistanceMultiplier() * _visionMultiplier * _detectionSpeed;
+        return valueToAdd * GetDistanceMultiplier() * _visionMultiplier * _detectionSpeed * GetLightMultiplier();
     }
 
     private Image _fillReact;
@@ -265,8 +283,17 @@ public class DemoNpc : MonoBehaviour
         // This rather looks at how shaded/bright the color is.
         for (int i = 0; i < colors.Length; i++)
         {
-            // If the color is magenta, skip it
-            if (Mathf.Approximately(colors[i].r, 1) && colors[i].g == 0 && Mathf.Approximately(colors[i].b, 1))
+            // If ignored color not set, set it
+            if (!_hasIgnored)
+            {
+                _ignoreRed = colors[0].r;
+                _ignoreGreen = colors[0].g;
+                _ignoreBlue = colors[0].b;
+                _hasIgnored = true;
+            }
+            
+            // If the color is ignored, skip it
+            if (Mathf.Approximately(colors[i].r, _ignoreRed) && Mathf.Approximately(colors[i].g, _ignoreGreen) && Mathf.Approximately(colors[i].b, _ignoreBlue))
                 continue;
             
             float max = Mathf.Max(colors[i].r, colors[i].g, colors[i].b);
