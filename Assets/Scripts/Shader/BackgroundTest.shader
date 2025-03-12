@@ -37,7 +37,6 @@ Shader "Custom/Background"
             "IgnoreProjector" = "True"
             "UniversalMaterialType" = "Unlit"
             "RenderPipeline" = "UniversalPipeline"
-            "Queue" = "Transparent + 200"
         }
         LOD 100
         ZTest Always

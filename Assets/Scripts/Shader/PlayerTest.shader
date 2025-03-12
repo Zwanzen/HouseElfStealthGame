@@ -1,4 +1,4 @@
-Shader "Custom/ShadowTest"
+Shader "Custom/PlayerTest"
 {
     Properties
     {
@@ -85,11 +85,10 @@ Shader "Custom/ShadowTest"
             "RenderPipeline" = "UniversalPipeline"
             "UniversalMaterialType" = "Lit"
             "IgnoreProjector" = "True"
-            "Queue" = "Transparent + 100"
         }
         LOD 300
         ZTest Always
-
+        
         // ------------------------------------------------------------------
         //  Forward pass. Shades all light in a single pass. GI + emission + Fog
         Pass

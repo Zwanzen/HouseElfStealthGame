@@ -253,7 +253,7 @@ public class DemoNpc : MonoBehaviour
         _lightImageTimer = 0;
 
         // Turn on the light camera
-        _lightCam.gameObject.SetActive(true);
+        _lightCam.enabled = true;
         
         Vector3 direction = _player.position - _lightCam.transform.position;
         direction.Normalize();
@@ -263,7 +263,7 @@ public class DemoNpc : MonoBehaviour
 
         _playerBrightness = ColorIntensity(true);
         // Turn off the light camera
-        _lightCam.gameObject.SetActive(false);
+        _lightCam.enabled = false;
     }
 
     private float _silhouetteImageTimer;
