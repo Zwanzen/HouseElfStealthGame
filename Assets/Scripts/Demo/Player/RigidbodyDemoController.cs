@@ -10,6 +10,13 @@ public class RigidbodyDemoController : MonoBehaviour
     [Header("Reference")]
     [SerializeField] private Transform _cameraHolder;
     [SerializeField] private DemoInputManager _input;
+
+    [SerializeField] private Transform _head;
+    [SerializeField] private Transform _leftHand;
+    [SerializeField] private Transform _rightHand;
+    [SerializeField] private Transform _leftLeg;
+    [SerializeField] private Transform _rightLeg;
+    [SerializeField] private Transform _body;
     
     private Rigidbody _rigidbody;
     private Transform _cameraTransform;
@@ -36,6 +43,7 @@ public class RigidbodyDemoController : MonoBehaviour
     
     private float _xRotation = 0f;
     private float _yRotation = 0f;
+    
     
     private void Awake()
     {
@@ -144,5 +152,18 @@ public class RigidbodyDemoController : MonoBehaviour
         // Apply the rotation
         _cameraTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
         transform.rotation = Quaternion.Euler(0f, _yRotation, 0f);
+    }
+    
+    public Transform[] GetBodyParts()
+    {
+        return new Transform[]
+        {
+            _head,
+            _leftHand,
+            _rightHand,
+            _leftLeg,
+            _rightLeg,
+            _body
+        };
     }
 }
