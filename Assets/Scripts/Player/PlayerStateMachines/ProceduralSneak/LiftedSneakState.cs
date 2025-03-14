@@ -68,41 +68,19 @@ public class LiftedSneakState : ProceduralSneakState
         var plantedDirection = plantedFootGroundPos - Context.PlantedFoot.position;
         var liftedDirection = Context.Player.RelativeMoveInput;
         
-        /*
-    // Get the direction to the lifted foot from the planted foot
-    var footDir = Context.LiftedFoot.position - Context.PlantedFoot.position;
-    // Get the dot product of the lifted direction and foot direction
-    var dot = Vector3.Dot(liftedDirection, footDir);
-    // Now we can get the relative direction distance to be used to clamp the lifted foot
-    var relativeDistance = footDir.magnitude * dot;
-
-
-    // Clamp the lifted foot direction to not pass the step length
-    if (relativeDistance > Context.SneakStepLength)
-    {
-        liftedDirection = liftedDirection.normalized * (Context.SneakStepLength - relativeDistance);
-    }
-    */
-        
-        // Get the potential step
-        var step = liftedDirection + Context.LiftedFoot.position;
-        // Get the distance from the planted foot to the potential step
-        var stepDistance = Vector3.Distance(Context.PlantedFoot.position, step);
-        // Get the distance between the planted foot and the lifted foot
-        var footDistance = Vector3.Distance(Context.PlantedFoot.position, Context.LiftedFoot.position);
+        Debug.DrawLine(Context.PlantedFoot.position, Context.PlantedFoot.position + (liftedDirection.normalized * Context.SneakStepLength), Color.white);
         var footDir = Context.LiftedFoot.position - Context.PlantedFoot.position;
-        var dot = Vector3.Dot(liftedDirection, footDir);
-        var relativeDistance = footDir.magnitude * dot;
-        
-        Debug.DrawLine(Context.LiftedFoot.position, Context.LiftedFoot.position + liftedDirection, Color.red);
+        footDir.y = 0;
+        var pos = Context.LiftedFoot.position + liftedDirection;
+        pos.y = 0;
+        var dist = Vector3.Distance(Context.PlantedFoot.position, pos);
         // Clamp the lifted foot direction to not pass the step length
-        if (relativeDistance > Context.SneakStepLength * 0.95f)
+        if (dist > Context.SneakStepLength)
         {
-            liftedDirection = liftedDirection.normalized * (Context.SneakStepLength - relativeDistance);
+            pos = Vector3.ClampMagnitude(footDir + liftedDirection, Context.SneakStepLength);
+            pos += Context.PlantedFoot.position;
+            liftedDirection = pos - Context.LiftedFoot.position;
         }
-        Debug.DrawLine(Context.LiftedFoot.position, Context.LiftedFoot.position + liftedDirection, Color.green);
-
-        
         
         
         // Move the feet to their grounded positions
