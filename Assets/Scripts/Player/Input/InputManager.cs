@@ -49,6 +49,9 @@ public class InputManager : MonoBehaviour
     // This is called twice, but doesn't seem like it can double the value
     public event Action<int> OnScroll;
     
+    // Event to toggle sneaking
+    public event Action<bool> OnSneakPressed;
+    
     private void OnLMB(InputAction.CallbackContext context)
     {
         _isHoldingLMB = context.ReadValueAsButton();
@@ -79,6 +82,8 @@ public class InputManager : MonoBehaviour
             _inputActions.Player.LeftFoot.canceled += OnLMB;
             _inputActions.Player.RightFoot.performed += OnRMB;
             _inputActions.Player.RightFoot.canceled += OnRMB;
+            
+            _inputActions.Player.Sneak.performed += i => OnSneakPressed?.Invoke(i.ReadValueAsButton());
         }
 
         _inputActions.Enable();

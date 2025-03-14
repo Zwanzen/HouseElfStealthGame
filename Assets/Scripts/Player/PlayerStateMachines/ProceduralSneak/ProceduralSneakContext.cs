@@ -1,5 +1,6 @@
 ﻿using RootMotion.FinalIK;
 using UnityEngine;
+using static RigidbodyMovement;
 
 public class ProceduralSneakContext
 {
@@ -20,11 +21,12 @@ public class ProceduralSneakContext
     [Header("Sneak Variables")]
     private float _sneakSpeed;
     private float _sneakStepLength;
+    private MovementSettings _sneakMovementSettings;
     
     // Constructor
     public ProceduralSneakContext(PlayerController player, ProceduralSneakStateMachine stateMachine, FullBodyBipedIK bodyIK,
         LayerMask groundLayers, Rigidbody leftFootTarget, Rigidbody rightFootTarget, Transform leftFootRestTarget, Transform rightFootRestTarget,
-        float sneakSpeed, float sneakStepLength)
+        float sneakSpeed, float sneakStepLength, MovementSettings sneakMovementSettings)
     {
         _player = player;
         _stateMachine = stateMachine;
@@ -36,6 +38,7 @@ public class ProceduralSneakContext
         _rightFootRestTarget = rightFootRestTarget;
         _sneakSpeed = sneakSpeed;
         _sneakStepLength = sneakStepLength;
+        _sneakMovementSettings = sneakMovementSettings;
     }
     
     // Read only properties
@@ -86,7 +89,7 @@ public class ProceduralSneakContext
         // Get the direction to move
         var moveDir = (pos - currentPos);
         
-        _storedBodyVel = _player.MoveRigidbody(_player.Rigidbody, moveDir, _storedBodyVel, new Vector3(1,0,1));
+        _storedBodyVel = MoveRigidbody(_player.Rigidbody, moveDir, _storedBodyVel, _sneakMovementSettings);
     }
 
     public void ResetBodyVel()

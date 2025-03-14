@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AnimationCurve _maxAccelerationForceFactorFromDot;
     [SerializeField] private Vector3 _forceScale;
     
+    
     [Space(10f)]
     [Header("Control Variables")]
     [SerializeField] private float _springStrength = 250f;
@@ -44,10 +45,14 @@ public class PlayerController : MonoBehaviour
     [Header("Sneak Variables")]
     [SerializeField] private float _sneakSpeed = 1f;
     [SerializeField] private float _sneakStepLength = 0.38f;
+    [SerializeField] private RigidbodyMovement.MovementSettings _sneakMovementSettings;
+
+    
+    private bool _isSneaking;
 
     // This is the maximum speed range for the player
     // Helps determine the speed state of the player
-    private const int MaxSpeedRange = 12;
+    private const int MaxSpeedRange = 15;
     private int _currentPlayerSpeed = 5;
     private EPlayerSpeedState _playerSpeedState;
     
@@ -68,7 +73,7 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        InputManager.Instance.OnScroll += UpdateMovementSpeed;
+        InitializeInputEvents();
         _playerSpeedState = UpdatePlayerSpeedState();
     }
 
@@ -79,7 +84,7 @@ public class PlayerController : MonoBehaviour
             _springStrength, _springDampener);
         _sneakContext = new ProceduralSneakContext(this, _sneakStateMachine, _bodyIK, _groundLayers,
             _leftFootTarget, _rightFootTarget, _leftFootRestTarget, _rightFootRestTarget,
-            _sneakSpeed, _sneakStepLength);
+            _sneakSpeed, _sneakStepLength, _sneakMovementSettings);
     }
     
 
@@ -93,6 +98,14 @@ public class PlayerController : MonoBehaviour
         // Set the context for the state machines
         _controlStateMachine.SetContext(_controlContext);
         _sneakStateMachine.SetContext(_sneakContext);
+    }
+    
+    // Initialize input events
+    private void InitializeInputEvents()
+    {
+        // Subscribe to the input events
+        InputManager.Instance.OnScroll += UpdateMovementSpeed;
+        InputManager.Instance.OnSneakPressed += UpdateIsSneaking;
     }
     
     // Read-only properties
@@ -146,7 +159,7 @@ public class PlayerController : MonoBehaviour
     }
     
     // Calculates the current selected speed increment
-    private void UpdateMovementSpeed(int newInput)
+    private void UpdateMovementSpeed(int newInput = 0)
     {
         // Increment the speed based on the input
         //var newInput = InputManager.Instance.ScrollInput;
@@ -156,67 +169,60 @@ public class PlayerController : MonoBehaviour
         // The player should not be able to select a zero speed
         _currentPlayerSpeed = Math.Clamp(_currentPlayerSpeed, 1, MaxSpeedRange);
         
+        // If the player is sneaking, we clamp it to the sneak speed
+        if (_isSneaking)
+        {
+            _currentPlayerSpeed = Math.Clamp(_currentPlayerSpeed, 1, 5);
+        }
+        
         // Update the player speed state
         _playerSpeedState = UpdatePlayerSpeedState();
-        Debug.Log(_playerSpeedState.ToString());
     }
     
-    // Public Methods
     private EPlayerSpeedState UpdatePlayerSpeedState()
     {
-        // The range is split into 4 states
-        // Fast: 12 - 10
-        // Medium: 9 - 7
-        // Slow: 6 - 4
-        // Sneak: 3 - 1
+        // The range is split into 3 states,
+        // With sneak only being active when sneak is active
+    
+        // Fast: 15 - 11
+        // Medium: 10 - 6
+        // Slow: 5 - 1
 
         return _currentPlayerSpeed switch
         {
-            >= 10 and <= 12 => EPlayerSpeedState.Fast,
-            >= 7 and <= 9 => EPlayerSpeedState.Medium,
-            >= 4 and <= 6 => EPlayerSpeedState.Slow,
-            _ => EPlayerSpeedState.Sneak
+            >= 11 and <= 15 => EPlayerSpeedState.Fast,
+            >= 6 and <= 10 => EPlayerSpeedState.Medium,
+            >= 1 and <= 5 => EPlayerSpeedState.Slow,
+            _ => EPlayerSpeedState.Slow // Default case
         };
     }
-    
-    // Credit to https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
-    public Vector3 MoveRigidbody(Rigidbody rigidbody, Vector3 input, Vector3 sGoalVel, Vector3 forceScale)
+
+    private void UpdateIsSneaking(bool updated)
     {
-        Vector3 move = input;
-
-        if (move.magnitude > 1f)
+        // Toggle the sneaking input
+        if (_isSneaking && updated == true)
         {
-            move.Normalize();
+            _isSneaking = false;
         }
-
-        // do dotproduct of input to current goal velocity to apply acceleration based on dot to direction (makes sharp turns better).
-        Vector3 unitVel = sGoalVel.normalized;
-
-        float velDot = Vector3.Dot(move, unitVel);
-        float accel = _acceleration * _accelerationFactorFromDot.Evaluate(velDot);
-        Vector3 goalVel = move * _maxSpeed;
-
-        // lerp goal velocity towards new calculated goal velocity.
-        sGoalVel = Vector3.MoveTowards(sGoalVel, goalVel, accel * Time.fixedDeltaTime);
-
-        // calculate needed acceleration to reach goal velocity in a single fixed update.
-        Vector3 neededAccel = (sGoalVel - rigidbody.linearVelocity) / Time.fixedDeltaTime;
-
-        // clamp the needed acceleration to max possible acceleration.
-        float maxAccel = _maxAccelForce * _maxAccelerationForceFactorFromDot.Evaluate(velDot);
-        neededAccel = Vector3.ClampMagnitude(neededAccel, maxAccel);
-
-        rigidbody.AddForce(Vector3.Scale(neededAccel * rigidbody.mass, forceScale));
-
-        // return the stored goal velocity
-        return sGoalVel;
+        else if (!_isSneaking && updated == true)
+        {
+            _isSneaking = true;
+        }
+        else if (updated == false)
+        {
+            _isSneaking = false;
+        }
+        
+        // We need to update the player speed state
+        // to make sure the correct speed is set
+        UpdateMovementSpeed();
     }
 
     private void OnGUI()
     {
         // Create a background box for better readability
         GUI.backgroundColor = new Color(0, 0, 0, 0.7f);
-        GUI.Box(new Rect(10, 10, 250, 50), "");
+        GUI.Box(new Rect(10, 10, 250, 100), "");
 
         GUIStyle style = new GUIStyle(GUI.skin.label);
         style.fontSize = 14;
@@ -224,6 +230,8 @@ public class PlayerController : MonoBehaviour
     
         GUI.Label(new Rect(20, 15, 240, 20), $"Control State: {_controlStateMachine.State}", style);
         GUI.Label(new Rect(20, 35, 240, 20), $"Sneak State: {_sneakStateMachine.State}", style);
+        GUI.Label(new Rect(20, 55, 240, 20), $"Player Is Sneaking: {_isSneaking}", style);
+        GUI.Label(new Rect(20, 75, 240, 20), $"Player Speed State: {_playerSpeedState}", style);
     }
     
     private void OnDestroy()
