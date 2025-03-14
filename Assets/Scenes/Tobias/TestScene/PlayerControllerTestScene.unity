@@ -946,36 +946,76 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.MaxSpeed
+      propertyPath: _bodyMovementSettings.MaxSpeed
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _sneakMovementSettings.MaxSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.Acceleration
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.ForceScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.ForceScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.MaxAccelForce
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.Acceleration
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.ForceScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.ForceScale.z
-      value: 1
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.MaxAccelForce
-      value: 100
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.size
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.size
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].time
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[2].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].value
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[2].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].time
       value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[2].time
-      value: 1
+      propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].time
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.size
@@ -986,12 +1026,28 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].value
-      value: 1
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].inSlope
+      value: -0.0021734277
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[2].value
-      value: 1
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].inSlope
+      value: -0.0067610545
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].outSlope
+      value: -0.0021734277
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].inWeight
+      value: 0.14260568
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].outSlope
+      value: -0.0067610545
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[2].inWeight
+      value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].inSlope
@@ -1000,6 +1056,14 @@ PrefabInstance:
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].inSlope
       value: -0.0067610545
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].outWeight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].outWeight
+      value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].outSlope
@@ -1014,10 +1078,6 @@ PrefabInstance:
       value: -0.0067610545
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[2].inWeight
-      value: 0.33333334
-      objectReference: {fileID: 0}
-    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].outWeight
       value: 1
       objectReference: {fileID: 0}
@@ -1026,28 +1086,68 @@ PrefabInstance:
       value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[2].tangentMode
+      propertyPath: _bodyMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[2].tangentMode
       value: 34
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[0].time
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[0].time
       value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[2].time
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[2].time
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].tangentMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _sneakMovementSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].tangentMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[0].value
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[1].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[2].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[1].time
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[0].value
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[1].value
-      value: 1
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[0].inSlope
+      value: -0.0021734277
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[2].value
-      value: 1
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[1].inSlope
+      value: -0.0067610545
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[0].outSlope
+      value: -0.0021734277
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[1].inWeight
+      value: 0.14260568
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[1].outSlope
+      value: -0.0067610545
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[2].inWeight
+      value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[0].inSlope
@@ -1056,6 +1156,14 @@ PrefabInstance:
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[1].inSlope
       value: -0.0067610545
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[0].outWeight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[1].outWeight
+      value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[0].outSlope
@@ -1070,10 +1178,6 @@ PrefabInstance:
       value: -0.0067610545
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[2].inWeight
-      value: 0.33333334
-      objectReference: {fileID: 0}
-    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[0].outWeight
       value: 1
       objectReference: {fileID: 0}
@@ -1082,8 +1186,16 @@ PrefabInstance:
       value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[2].tangentMode
+      propertyPath: _bodyMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[2].tangentMode
       value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[0].tangentMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _sneakMovementSettings.MaxAccelerationForceFactorFromDot.m_Curve.Array.data[1].tangentMode
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2393979209846732484, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: m_Name

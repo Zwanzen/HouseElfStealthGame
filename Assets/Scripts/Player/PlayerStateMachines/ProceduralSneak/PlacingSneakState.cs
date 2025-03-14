@@ -23,6 +23,9 @@ public class PlacingSneakState : ProceduralSneakState
     {
         Context.LiftedFoot.position = Context.GetFootGroundPosition(Context.LiftedFoot);
         
+        Context.ResetLiftedFootGoalVel();
+        Context.ResetBodyGoalVel();
+        
         _placed = true;
     }
 

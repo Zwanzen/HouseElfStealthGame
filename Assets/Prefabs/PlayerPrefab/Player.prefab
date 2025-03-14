@@ -1302,6 +1302,77 @@ MonoBehaviour:
   _springDampener: 25
   _sneakSpeed: 1
   _sneakStepLength: 0.38
+  _sneakMovementSettings:
+    MaxSpeed: 5
+    Acceleration: 200
+    AccelerationFactorFromDot:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: -1
+        value: 2
+        inSlope: -0.0021734277
+        outSlope: -0.0021734277
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 1
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -0.0067610545
+        outSlope: -0.0067610545
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.14260568
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    MaxAccelForce: 100
+    MaxAccelerationForceFactorFromDot:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: -1
+        value: 2
+        inSlope: -0.0021734277
+        outSlope: -0.0021734277
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 1
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -0.0067610545
+        outSlope: -0.0067610545
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.14260568
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ForceScale: {x: 1, y: 0, z: 1}
 --- !u!1 &2548466631838842504
 GameObject:
   m_ObjectHideFlags: 0

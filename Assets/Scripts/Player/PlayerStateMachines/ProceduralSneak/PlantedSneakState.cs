@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using static RigidbodyMovement;
 
 public class PlantedSneakState : ProceduralSneakState
 {
@@ -34,7 +35,8 @@ public class PlantedSneakState : ProceduralSneakState
 
     public override void EnterState()
     {
-        
+        Context.ResetBodyGoalVel();
+        ResetFeetVelocities();
     }
 
     public override void ExitState()
@@ -49,7 +51,32 @@ public class PlantedSneakState : ProceduralSneakState
 
     public override void FixedUpdateState()
     {
+        UpdateFeetVelocities();
         Context.MoveBody(Context.GetFeetMiddlePoint());
+    }
+    
+    private Vector3 _sLeftFootGoalVel;
+    private Vector3 _sRightFootGoalVel;
+    // Moves both feet to their grounded positions
+    private void UpdateFeetVelocities()
+    {
+        // Get the current foot ground positions
+        var leftFootGroundPos = Context.GetFootGroundPosition(Context.LeftFoot);
+        var rightFootGroundPos = Context.GetFootGroundPosition(Context.RightFoot);
+        
+        // Get the direction to the foot ground positions
+        var leftDirection = leftFootGroundPos - Context.LeftFoot.position;
+        var rightDirection = rightFootGroundPos - Context.RightFoot.position;
+        
+        // Move the feet to their grounded positions
+        _sLeftFootGoalVel = MoveRigidbody(Context.LeftFoot, leftDirection, _sLeftFootGoalVel, Context.SneakMovementSettings);
+        _sRightFootGoalVel = MoveRigidbody(Context.RightFoot, rightDirection, _sRightFootGoalVel, Context.SneakMovementSettings);
+    }
+    
+    private void ResetFeetVelocities()
+    {
+        _sLeftFootGoalVel = Context.LeftFoot.linearVelocity;
+        _sRightFootGoalVel = Context.RightFoot.linearVelocity;
     }
     
 }

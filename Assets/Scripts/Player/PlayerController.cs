@@ -2,6 +2,7 @@ using System;
 using RootMotion.FinalIK;
 using Unity.VisualScripting;
 using UnityEngine;
+using static RigidbodyMovement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -28,13 +29,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform _leftFootRestTarget;
     [SerializeField] private Transform _rightFootRestTarget;
     
-    [SerializeField] private float _maxSpeed = 5f;
-    [SerializeField] private float _acceleration = 200f;
-    [SerializeField] private AnimationCurve _accelerationFactorFromDot;
-    [SerializeField] private float _maxAccelForce = 100f;
-    [SerializeField] private AnimationCurve _maxAccelerationForceFactorFromDot;
-    [SerializeField] private Vector3 _forceScale;
-    
+    [SerializeField] private MovementSettings _bodyMovementSettings;
     
     [Space(10f)]
     [Header("Control Variables")]
@@ -45,7 +40,7 @@ public class PlayerController : MonoBehaviour
     [Header("Sneak Variables")]
     [SerializeField] private float _sneakSpeed = 1f;
     [SerializeField] private float _sneakStepLength = 0.38f;
-    [SerializeField] private RigidbodyMovement.MovementSettings _sneakMovementSettings;
+    [SerializeField] private MovementSettings _sneakMovementSettings;
 
     
     private bool _isSneaking;
@@ -110,6 +105,7 @@ public class PlayerController : MonoBehaviour
     
     // Read-only properties
     public Rigidbody Rigidbody => _rigidbody;
+    public MovementSettings BodyMovementSettings => _bodyMovementSettings;
     public static float Height => 1.0f;
     
     /// <summary>
@@ -140,11 +136,11 @@ public class PlayerController : MonoBehaviour
     private Vector3 GetRelativeMoveInput()
     {
         // Get the camera yaw transform
-        var camera = _cameraController.GetCameraYawTransform();
+        var cam = _cameraController.GetCameraYawTransform();
         
         // Get the camera forward & right direction
-        Vector3 cameraForward = GetComponent<Camera>().transform.forward;
-        Vector3 cameraRight = GetComponent<Camera>().transform.right;
+        Vector3 cameraForward = cam.transform.forward;
+        Vector3 cameraRight = cam.transform.right;
         
         // Get the input direction
         Vector3 inputDirection = InputManager.Instance.MoveInput.x * cameraRight + InputManager.Instance.MoveInput.z * cameraForward;
