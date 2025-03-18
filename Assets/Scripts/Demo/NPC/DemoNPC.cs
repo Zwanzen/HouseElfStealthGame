@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class DemoNpc : MonoBehaviour
+public class DemoNpc : MonoBehaviour, IHear
 {
     [Header("Debug")] 
     [SerializeField] private bool _debugVisual = false;
@@ -105,6 +105,11 @@ public class DemoNpc : MonoBehaviour
     {
         UpdateDetection();
         HandleUI();
+    }
+
+    public void RespondToSound(Sound sound)
+    {
+        _detection += 10f;
     }
 
     private float GetDistanceMultiplier()
