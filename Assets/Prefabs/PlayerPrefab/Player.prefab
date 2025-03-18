@@ -217,7 +217,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 34f8b8a8c91cbe243b68fe6118be8f76, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1228,6 +1228,8 @@ MonoBehaviour:
   _rightFootTarget: {fileID: 4401790746806515136}
   _leftFootRestTarget: {fileID: 2433665566816000418}
   _rightFootRestTarget: {fileID: 5883895927822524085}
+  _leftFootSoundPlayer: {fileID: 0}
+  _rightFootSoundPlayer: {fileID: 0}
   _bodyMovementSettings:
     MaxSpeed: 5
     Acceleration: 10
@@ -1299,6 +1301,13 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     ForceScale: {x: 1, y: 0, z: 1}
+  _limbs:
+  - {fileID: 1090603355838221894}
+  - {fileID: 341242087900853312}
+  - {fileID: 6034415622424421215}
+  - {fileID: 6046078685355371040}
+  - {fileID: 835985584139236584}
+  - {fileID: 1385570495086712101}
   _springStrength: 250
   _springDampener: 25
   _sneakSpeed: 1
@@ -3270,7 +3279,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 34f8b8a8c91cbe243b68fe6118be8f76, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

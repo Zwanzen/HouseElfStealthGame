@@ -16,7 +16,7 @@ public class DemoNpc : MonoBehaviour
     
     [Space(10)]
     [Header("References")] 
-    [SerializeField] private Transform _player;
+    [SerializeField] private PlayerController _player;
     [SerializeField] private Transform _npcEyes;
     [SerializeField] private Camera _lightCam;
     [SerializeField] private Camera _silhouetteCam;
@@ -163,14 +163,7 @@ public class DemoNpc : MonoBehaviour
 
     private void InitializeLimbs()
     {
-        var limbs = _player.GetComponent<RigidbodyDemoController>().GetBodyParts();
-        
-        // If limbs are not set throw an error
-        if (limbs.Length != 6)
-        {
-            Debug.LogError("NPC limbs are not set correctly. Please set the limbs in the inspector.");
-            return;
-        }
+        var limbs = _player.Limbs;
         
         _head = limbs[0];
         _leftHand = limbs[1];
@@ -194,11 +187,11 @@ public class DemoNpc : MonoBehaviour
     private float VisionDetection()
     {
         // Check if the player is outside the detection distance
-        if (Vector3.Distance(_player.position, transform.position) > _detectDistance)
+        if (Vector3.Distance(_player.Position, transform.position) > _detectDistance)
             return 0;
 
         // Check if the player is outside the detection angle
-        var directionToPlayer = (_player.position - transform.position).normalized;
+        var directionToPlayer = (_player.Position - transform.position).normalized;
         var angle = Vector3.Angle(_npcEyes.forward, directionToPlayer);
         if (angle > _detectAngle)
             return 0;
@@ -258,7 +251,7 @@ public class DemoNpc : MonoBehaviour
         // Turn on the light camera
         _lightCam.enabled = true;
         
-        Vector3 direction = (_player.position - Vector3.up * 0.5f) - _lightCam.transform.position;
+        Vector3 direction = (_player.Position - Vector3.up * 0.5f) - _lightCam.transform.position;
         direction.Normalize();
 
         Quaternion toRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);

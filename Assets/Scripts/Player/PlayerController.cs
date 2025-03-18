@@ -31,8 +31,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform _rightFootRestTarget;
     [SerializeField] private PlayerFootSoundPlayer _leftFootSoundPlayer;
     [SerializeField] private PlayerFootSoundPlayer _rightFootSoundPlayer;
-    
     [SerializeField] private MovementSettings _bodyMovementSettings;
+    [SerializeField] private Transform[] _limbs;
     
     [Space(10f)]
     [Header("Control Variables")]
@@ -110,6 +110,11 @@ public class PlayerController : MonoBehaviour
     }
     
     // Read-only properties
+    /// <summary>
+    /// Limbs:
+    /// 0: Head, 1: Left Hand, 2: Right Hand, 3: Left Foot, 4: Right Foot, 5: Body
+    /// </summary>
+    public Transform[] Limbs => _limbs;
     public Rigidbody Rigidbody => _rigidbody;
     public MovementSettings BodyMovementSettings => _bodyMovementSettings;
     public static float Height => 1.0f;
