@@ -25,6 +25,10 @@ public class PlayerGrabController : MonoBehaviour
     
     private SpringJoint _springJoint;
     private bool _isGrabbing;
+    private bool _isDoorGrabbing;
+    private DoorController _doorController;
+    
+    private Vector3 _hitPoint;
     
     
     private void Awake()
@@ -48,7 +52,6 @@ public class PlayerGrabController : MonoBehaviour
 
     private void OnTryGrab()
     {
-        Debug.Log("Try Grab");
         if (_isGrabbing)
         {
             OnReleaseGrab();
@@ -58,11 +61,26 @@ public class PlayerGrabController : MonoBehaviour
         if (Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit hit, Mathf.Infinity,
                 _grabLayers))
         {
+            _hitPoint = hit.point;
+            if (hit.collider.tag == "Door")
+            {
+                _isDoorGrabbing = true;
+                _isGrabbing = true;
+                _doorController = hit.transform.parent.GetComponent<DoorController>();
+                _doorController.OnGrabDoor();
+                ConstructSpringJoint(_doorController.Rigidbody);
+                _springJoint.anchor = hit.point - _doorController.Rigidbody.position;
+                return;
+            }
+            
+            /*
             if (hit.rigidbody)
             {
                 ConstructSpringJoint(hit.rigidbody);
+                
                 _isGrabbing = true;
             }
+            */
         }
     }
     
@@ -70,6 +88,12 @@ public class PlayerGrabController : MonoBehaviour
     {
         if (_springJoint)
         {
+            if (_isDoorGrabbing)
+            {
+                _isDoorGrabbing = false;
+                _doorController.OnReleaseDoor();
+            }
+            
             _isGrabbing = false;
             Destroy(_springJoint);
         }
@@ -86,5 +110,12 @@ public class PlayerGrabController : MonoBehaviour
         _springJoint.damper = _springJointSettings.Damper;
         _springJoint.minDistance = _springJointSettings.MinDistance;
         _springJoint.maxDistance = _springJointSettings.MaxDistance;
+    }
+
+    private void OnDrawGizmos()
+    {
+        // Draw hit point
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(_hitPoint, 0.01f);
     }
 }

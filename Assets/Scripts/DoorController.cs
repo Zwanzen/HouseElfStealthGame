@@ -2,13 +2,14 @@ using UnityEngine;
 
 public class DoorController : MonoBehaviour
 {
-    public Transform hinge; // Rotasjonspunktet for døren
-    private bool isGrabbed = false; // Sjekker om spilleren kontrollerer døren
-    private Quaternion closedRotation; // Startrotasjonen til døren
+    public HingeJoint hinge; // Rotasjonspunktet for dï¿½ren
+    private bool _isGrabbed = false; // Sjekker om spilleren kontrollerer dï¿½ren
+    private Quaternion closedRotation; // Startrotasjonen til dï¿½ren
     private float closeThreshold = 10f; // Grense for automatisk lukking
-    public float rotationSpeed = 5f; // Hvor raskt døren roteres med musa
+    public float rotationSpeed = 5f; // Hvor raskt dï¿½ren roteres med musa
     [SerializeField] private Rigidbody _rigidbody;
 
+    private bool _isClosed;
     //Read only properties
     public Rigidbody Rigidbody => _rigidbody;
 
@@ -19,41 +20,71 @@ public class DoorController : MonoBehaviour
 
     private void Update()
     {
-        // Trykk F for å toggle dørkontroll
+        /*
+        // Trykk F for ï¿½ toggle dï¿½rkontroll
         if (Input.GetKeyDown(KeyCode.F))
         {
-            isGrabbed = !isGrabbed; // Bytter mellom å kontrollere eller ikke
+            isGrabbed = !isGrabbed; // Bytter mellom ï¿½ kontrollere eller ikke
         }
+        */
 
-        if (isGrabbed)
+        if (_isGrabbed)
         {
-            HandleDoor(); // Lar spilleren rotere døren med musa
+            //HandleDoor(); // Lar spilleren rotere dï¿½ren med musa
         }
         else
         {
-            CheckClose(); // Sjekker om døren skal lukkes automatisk
+            CheckClose(); // Sjekker om dï¿½ren skal lukkes automatisk
         }
+    }
+
+    public void OnGrabDoor()
+    {
+        Debug.Log("Grabbed door");
+        _isGrabbed = true;
+        if (_isClosed)
+        {
+            _isClosed = false;
+            hinge.limits = new JointLimits
+            {
+                min = -90,
+                max = 90
+            }; // Setter grensen for hvor mye dï¿½ren kan ï¿½pnes
+        }
+    }
+
+    public void OnReleaseDoor()
+    {
+        Debug.Log("Released door");
+        _isGrabbed = false;
     }
 
     private void HandleDoor()
     {
+        /*
         float mouseX = Input.GetAxis("Mouse X"); // Henter musebevegelse horisontalt
         Vector3 newRotation = hinge.localEulerAngles;
         newRotation.y += mouseX * rotationSpeed; // Roterer kun rundt Y-aksen
         hinge.localEulerAngles = newRotation;
+        */
     }
 
     private void CheckClose()
     {
-        float angle = Mathf.Abs(Mathf.DeltaAngle(hinge.localEulerAngles.y, 0)); // Beregner reell vinkel til 0 (lukket)
-        if (angle < closeThreshold) // Hvis døren er nesten lukket
+        float angle = Mathf.Abs(Mathf.DeltaAngle(hinge.transform.localEulerAngles.y, 0)); // Beregner reell vinkel til 0 (lukket)
+        if (angle < closeThreshold) // Hvis dï¿½ren er nesten lukket
         {
-            Close(); // Lukk døren
+            Close(); // Lukk dï¿½ren
         }
     }
 
     private void Close()
     {
-        hinge.rotation = closedRotation; // Setter døren tilbake til startposisjon
+        _isClosed = true;
+        hinge.limits = new JointLimits
+        {
+            min = 0,
+            max = 0
+        }; // Setter grensen for hvor mye dï¿½ren kan ï¿½pnes
     }
 }
