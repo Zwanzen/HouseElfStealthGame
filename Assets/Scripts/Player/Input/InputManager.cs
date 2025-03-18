@@ -55,6 +55,9 @@ public class InputManager : MonoBehaviour
     // Event to toggle sneaking
     public event Action<bool> OnSneakPressed;
     
+    // Event for interact attempt
+    public event Action OnInteract;
+    
     private void OnLMB(InputAction.CallbackContext context)
     {
         _isHoldingLMB = context.ReadValueAsButton();
@@ -95,6 +98,8 @@ public class InputManager : MonoBehaviour
 
             _inputActions.Player.Lift.performed += OnLift;
             _inputActions.Player.Lift.canceled += OnLift;
+            
+            _inputActions.Player.Interact.performed += i => OnInteract?.Invoke();
         }
 
         _inputActions.Enable();
