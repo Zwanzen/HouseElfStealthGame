@@ -21,6 +21,7 @@ public class PlacingSneakState : ProceduralSneakState
 
     public override void EnterState()
     {
+        _startPos = Context.LiftedFoot.position;
         Context.ResetLiftedFootGoalVel();
         Context.ResetBodyGoalVel();
     }
@@ -38,12 +39,22 @@ public class PlacingSneakState : ProceduralSneakState
         }
     }
 
+    private Vector3 _startPos;
+    
     public override void FixedUpdateState()
     {
         // Ground Pos
         var groundPos = Context.GetFootGroundPosition(Context.LiftedFoot);
         var direction = groundPos - Context.LiftedFoot.position;
-        Context.MoveLiftedFoot(direction);
+        
+        var maxDist = Vector3.Distance(groundPos, _startPos);
+        var distToPos = Vector3.Distance(Context.LiftedFoot.position, groundPos);
+        var lerp = distToPos / maxDist;
+
+        var maxDirection = direction.normalized * Context.SneakStepLength;
+        var lerpedDirection = Vector3.Lerp(direction, maxDirection, Context.SpeedCurve.Evaluate(lerp));
+        
+        Context.MoveLiftedFoot(lerpedDirection);
         Context.MoveBody(Context.GetFeetMiddlePoint());
     }
 }
