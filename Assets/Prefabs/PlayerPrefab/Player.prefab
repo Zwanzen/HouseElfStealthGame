@@ -1223,88 +1223,14 @@ MonoBehaviour:
   _cameraController: {fileID: 7239731043480668603}
   _groundLayers:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 1073741832
   _leftFootTarget: {fileID: 2366439156892988723}
   _rightFootTarget: {fileID: 4401790746806515136}
   _leftFootRestTarget: {fileID: 2433665566816000418}
   _rightFootRestTarget: {fileID: 5883895927822524085}
-  _maxSpeed: 5
-  _acceleration: 200
-  _accelerationFactorFromDot:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: -1
-      value: 2
-      inSlope: -0.0021734277
-      outSlope: -0.0021734277
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 1
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -0.0067610545
-      outSlope: -0.0067610545
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.14260568
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _maxAccelForce: 100
-  _maxAccelerationForceFactorFromDot:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: -1
-      value: 2
-      inSlope: -0.0021734277
-      outSlope: -0.0021734277
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 1
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -0.0067610545
-      outSlope: -0.0067610545
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.14260568
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _forceScale: {x: 1, y: 0, z: 1}
-  _springStrength: 250
-  _springDampener: 25
-  _sneakSpeed: 1
-  _sneakStepLength: 0.38
-  _sneakMovementSettings:
+  _bodyMovementSettings:
     MaxSpeed: 5
-    Acceleration: 200
+    Acceleration: 10
     AccelerationFactorFromDot:
       serializedVersion: 2
       m_Curve:
@@ -1338,7 +1264,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    MaxAccelForce: 100
+    MaxAccelForce: 30
     MaxAccelerationForceFactorFromDot:
       serializedVersion: 2
       m_Curve:
@@ -1373,6 +1299,177 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     ForceScale: {x: 1, y: 0, z: 1}
+  _springStrength: 250
+  _springDampener: 25
+  _sneakSpeed: 1
+  _sneakStepLength: 0.5
+  _bodyRotationSpeed: 100
+  _liftedMovementSettings:
+    MaxSpeed: 3
+    Acceleration: 3
+    AccelerationFactorFromDot:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: -1
+        value: 0.5
+        inSlope: 0.002853043
+        outSlope: 0.002853043
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.49761713
+      - serializedVersion: 3
+        time: 0.5
+        value: 1
+        inSlope: 0.00017058432
+        outSlope: 0.00017058432
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.99792796
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    MaxAccelForce: 200
+    MaxAccelerationForceFactorFromDot:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: -1
+        value: 0.5
+        inSlope: 0.002853043
+        outSlope: 0.002853043
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.49761713
+      - serializedVersion: 3
+        time: 0.5
+        value: 1
+        inSlope: 0.00017058432
+        outSlope: 0.00017058432
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.99792796
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ForceScale: {x: 1, y: 1, z: 1}
+  _plantedMovementSettings:
+    MaxSpeed: 5
+    Acceleration: 10
+    AccelerationFactorFromDot:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: -1
+        value: 2
+        inSlope: -0.0021734277
+        outSlope: -0.0021734277
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 1
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -0.0067610545
+        outSlope: -0.0067610545
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.14260568
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    MaxAccelForce: 30
+    MaxAccelerationForceFactorFromDot:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: -1
+        value: 2
+        inSlope: -0.0021734277
+        outSlope: -0.0021734277
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 1
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -0.0067610545
+        outSlope: -0.0067610545
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.14260568
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ForceScale: {x: 1, y: 1, z: 1}
+  _sneakSpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0.001006509
+      outSlope: 0.001006509
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.6965821
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: -0
+      outSlope: -0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 1
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &2548466631838842504
 GameObject:
   m_ObjectHideFlags: 0
@@ -5918,8 +6015,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 446943b0daa4838409da0e58baafb86d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _followTarget: {fileID: 4683760171022069345}
+  _followTarget: {fileID: 1090603355838221894}
   _cameraSensitivity: 0.03
+  _followSpeed: 100
 --- !u!1 &8861460728972866126
 GameObject:
   m_ObjectHideFlags: 0

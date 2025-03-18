@@ -18,6 +18,8 @@ public class InputManager : MonoBehaviour
     private bool _isHoldingLMB;
     private bool _isHoldingRMB;
 
+    private bool _isLifting;
+
 
     // Read-only
     public Vector3 MoveInput => new Vector3(_moveInput.x, 0f, _moveInput.y);
@@ -25,6 +27,7 @@ public class InputManager : MonoBehaviour
     public int ScrollInput => (int)_scrollInput;
     public bool IsHoldingLMB => _isHoldingLMB;
     public bool IsHoldingRMB => _isHoldingRMB;
+    public bool IsLifting => _isLifting;
 
     private void Awake()
     {
@@ -61,6 +64,11 @@ public class InputManager : MonoBehaviour
     {
         _isHoldingRMB = context.ReadValueAsButton();
     }
+
+    private void OnLift(InputAction.CallbackContext context)
+    {
+        _isLifting = context.ReadValueAsButton();
+    }
     
     private void OnSceneChange(Scene oldScene, Scene newScene)
     {
@@ -84,6 +92,9 @@ public class InputManager : MonoBehaviour
             _inputActions.Player.RightFoot.canceled += OnRMB;
             
             _inputActions.Player.Sneak.performed += i => OnSneakPressed?.Invoke(i.ReadValueAsButton());
+
+            _inputActions.Player.Lift.performed += OnLift;
+            _inputActions.Player.Lift.canceled += OnLift;
         }
 
         _inputActions.Enable();

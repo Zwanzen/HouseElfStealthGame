@@ -69,8 +69,8 @@ public class PlantedSneakState : ProceduralSneakState
         var rightDirection = rightFootGroundPos - Context.RightFoot.position;
         
         // Move the feet to their grounded positions
-        _sLeftFootGoalVel = MoveRigidbody(Context.LeftFoot, leftDirection, _sLeftFootGoalVel, Context.SneakMovementSettings);
-        _sRightFootGoalVel = MoveRigidbody(Context.RightFoot, rightDirection, _sRightFootGoalVel, Context.SneakMovementSettings);
+        _sLeftFootGoalVel = MoveRigidbody(Context.LeftFoot, leftDirection, _sLeftFootGoalVel, Context.PlantedMovementSettings);
+        _sRightFootGoalVel = MoveRigidbody(Context.RightFoot, rightDirection, _sRightFootGoalVel, Context.PlantedMovementSettings);
     }
     
     private void ResetFeetVelocities()

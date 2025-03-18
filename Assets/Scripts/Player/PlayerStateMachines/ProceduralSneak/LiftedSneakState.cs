@@ -25,8 +25,6 @@ public class LiftedSneakState : ProceduralSneakState
 
     public override void EnterState()
     {
-        Context.LiftedFoot.position = Context.GroundCast(Context.LiftedFoot.position + Vector3.up * 0.5f, 2f).point + Vector3.up * 0.2f;
-        
         // Temp
         Context.ResetBodyGoalVel();
         ResetFootsVelocities();
@@ -49,6 +47,7 @@ public class LiftedSneakState : ProceduralSneakState
         // Find the point between the lifted and planted foot
         Vector3 lerpPosition = Vector3.Lerp(Context.PlantedFoot.position, Context.LiftedFoot.position, 0.2f);
         Context.MoveBody(lerpPosition);
+        
     }
     
     private Vector3 _sPlantedFootGoalVel;
@@ -58,6 +57,8 @@ public class LiftedSneakState : ProceduralSneakState
         _sPlantedFootGoalVel = Context.PlantedFoot.linearVelocity;
         _sLiftedFootGoalVel = Context.LiftedFoot.linearVelocity;
     }
+    
+    private Vector3 _bodyDirection;
 
     private void MoveFeet()
     {
@@ -68,23 +69,71 @@ public class LiftedSneakState : ProceduralSneakState
         var plantedDirection = plantedFootGroundPos - Context.PlantedFoot.position;
         var liftedDirection = Context.Player.RelativeMoveInput;
         
-        Debug.DrawLine(Context.PlantedFoot.position, Context.PlantedFoot.position + (liftedDirection.normalized * Context.SneakStepLength), Color.white);
-        var footDir = Context.LiftedFoot.position - Context.PlantedFoot.position;
-        footDir.y = 0;
-        var pos = Context.LiftedFoot.position + liftedDirection;
-        pos.y = 0;
-        var dist = Vector3.Distance(Context.PlantedFoot.position, pos);
-        // Clamp the lifted foot direction to not pass the step length
-        if (dist > Context.SneakStepLength)
+        // Set lifted direction magnitude to step length
+        liftedDirection = liftedDirection.normalized * Context.SneakStepLength;
+        
+        // Update body if input is not zero
+        if (liftedDirection.magnitude > 0.01f)
         {
-            pos = Vector3.ClampMagnitude(footDir + liftedDirection, Context.SneakStepLength);
-            pos += Context.PlantedFoot.position;
-            liftedDirection = pos - Context.LiftedFoot.position;
+            Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
         }
         
+        // Get both foot positions
+        var liftedFootPos = Context.LiftedFoot.position;
+        liftedFootPos.y = 0;
+        var plantedFootPos = Context.PlantedFoot.position;
+        plantedFootPos.y = 0;
+        
+        var footDir = liftedFootPos - plantedFootPos;
+        var pos = liftedFootPos + liftedDirection;
+        
+        // Add y value
+        var liftHeight = Vector3.up * 0.2f;
+        if (InputManager.Instance.IsLifting)
+        {
+            liftHeight += Vector3.up * 0.15f;
+        }
+        var yPos = Context.GroundCast(Context.LiftedFoot.position + Vector3.up * 0.5f, 2f).point + liftHeight;
+        yPos.x = 0;
+        yPos.z = 0;
+        // Add the y value to the walk pos
+        pos += yPos;
+        var dirToPos = pos - Context.LiftedFoot.position;
+        liftedDirection = dirToPos;
+        
+        
+        // Get the distance to the lifted foot direction from the planted foot
+        var dist = Vector3.Distance(plantedFootPos, pos);
+
+        if(dist > Context.SneakStepLength)
+        {
+            // Clamp the lifted foot direction to not pass the step length
+            pos = Vector3.ClampMagnitude(footDir + liftedDirection, Context.SneakStepLength);
+            pos += plantedFootPos;
+            dirToPos = pos - liftedFootPos;
+            if(dirToPos.magnitude > Context.SneakStepLength)
+            {
+                dirToPos = dirToPos.normalized * Context.SneakStepLength;
+            }
+        
+            var maxDist = Context.SneakStepLength;
+            var distToPos = Vector3.Distance(liftedFootPos, pos);
+            var lerp = distToPos / maxDist;
+            if (lerp > 1f)
+            {
+                lerp = 1f;
+            }
+
+
+            var maxDirection = dirToPos.normalized * Context.SneakStepLength;
+            var lerpedDirection = Vector3.Lerp(dirToPos, maxDirection, Context.SpeedCurve.Evaluate(lerp));
+            liftedDirection = lerpedDirection;
+        }
+        
+        Debug.DrawLine(Context.LiftedFoot.position, Context.LiftedFoot.position + liftedDirection, Color.yellow);
         
         // Move the feet to their grounded positions
-        _sPlantedFootGoalVel = MoveRigidbody(Context.PlantedFoot, plantedDirection, _sPlantedFootGoalVel, Context.SneakMovementSettings);
-        _sLiftedFootGoalVel = MoveRigidbody(Context.LiftedFoot, liftedDirection, _sLiftedFootGoalVel, Context.SneakMovementSettings);
+        _sPlantedFootGoalVel = MoveRigidbody(Context.PlantedFoot, plantedDirection, _sPlantedFootGoalVel, Context.PlantedMovementSettings);
+        _sLiftedFootGoalVel = MoveRigidbody(Context.LiftedFoot, liftedDirection, _sLiftedFootGoalVel, Context.LiftedMovementSettings);
     }
 }

@@ -7,6 +7,7 @@ public class PlayerCameraController : MonoBehaviour
     [Header("Camera Settings")] 
     [SerializeField] private Transform _followTarget;
     [SerializeField] private float _cameraSensitivity = 0.03f;
+    [SerializeField] private float _followSpeed = 0.1f;
 
 
     // Private variables
@@ -36,7 +37,7 @@ public class PlayerCameraController : MonoBehaviour
 
     private void UpdatePosition()
     {
-        transform.position = _followTarget.position;
+        transform.position = Vector3.Lerp(transform.position, _followTarget.position, Time.deltaTime * _followSpeed);
     }
 
     private void HandleRotation()

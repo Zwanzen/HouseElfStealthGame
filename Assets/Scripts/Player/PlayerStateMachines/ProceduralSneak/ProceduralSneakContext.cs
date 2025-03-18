@@ -21,12 +21,15 @@ public class ProceduralSneakContext
     [Header("Sneak Variables")]
     private float _sneakSpeed;
     private float _sneakStepLength;
-    private MovementSettings _sneakMovementSettings;
+    private float _bodyRotationSpeed;
+    private MovementSettings _liftedMovementSettings;
+    private MovementSettings _plantedMovementSettings;
+    private AnimationCurve _sneakSpeedCurve;
     
     // Constructor
     public ProceduralSneakContext(PlayerController player, ProceduralSneakStateMachine stateMachine, FullBodyBipedIK bodyIK,
         LayerMask groundLayers, Rigidbody leftFootTarget, Rigidbody rightFootTarget, Transform leftFootRestTarget, Transform rightFootRestTarget,
-        float sneakSpeed, float sneakStepLength, MovementSettings sneakMovementSettings)
+        float sneakSpeed, float sneakStepLength, float bodyRotationSpeed, MovementSettings liftedMovementSettings, MovementSettings plantedMovementSettings, AnimationCurve sneakSpeedCurve)
     {
         _player = player;
         _stateMachine = stateMachine;
@@ -38,7 +41,10 @@ public class ProceduralSneakContext
         _rightFootRestTarget = rightFootRestTarget;
         _sneakSpeed = sneakSpeed;
         _sneakStepLength = sneakStepLength;
-        _sneakMovementSettings = sneakMovementSettings;
+        _bodyRotationSpeed = bodyRotationSpeed;
+        _liftedMovementSettings = liftedMovementSettings;
+        _plantedMovementSettings = plantedMovementSettings;
+        _sneakSpeedCurve = sneakSpeedCurve;
     }
     
     // Read only properties
@@ -48,7 +54,9 @@ public class ProceduralSneakContext
     public Rigidbody RightFoot => _rightFootTarget;
     public float SneakSpeed => _sneakSpeed;
     public float SneakStepLength => _sneakStepLength;
-    public MovementSettings SneakMovementSettings => _sneakMovementSettings;
+    public MovementSettings LiftedMovementSettings => _liftedMovementSettings;
+    public MovementSettings PlantedMovementSettings => _plantedMovementSettings;
+    public AnimationCurve SpeedCurve => _sneakSpeedCurve;
     
     public Rigidbody LiftedFoot { get; set; }
     
@@ -80,9 +88,9 @@ public class ProceduralSneakContext
     }
     
     private Vector3 _sLiftedFootGoalVel;
-    public void MoveLiftedFoot(Rigidbody foot, Vector3 direction)
+    public void MoveLiftedFoot(Vector3 direction)
     {
-        _sLiftedFootGoalVel = MoveRigidbody(foot, direction, _sLiftedFootGoalVel, _sneakMovementSettings);
+        _sLiftedFootGoalVel = MoveRigidbody(LiftedFoot, direction, _sLiftedFootGoalVel, _plantedMovementSettings);
     }
     
     public void ResetLiftedFootGoalVel()
@@ -109,5 +117,42 @@ public class ProceduralSneakContext
     public void ResetBodyGoalVel()
     {
         _sBodyGoalVel = _player.Rigidbody.linearVelocity;
+    }
+
+    private float _turnLerpTimer;
+    
+    public void UpdateBodyRotation(Vector3 direction)
+    {
+        if (direction == Vector3.zero)
+        {
+            _turnLerpTimer = 0;
+            return;
+        }
+        _turnLerpTimer += Time.deltaTime;
+        var rotSpeed = Mathf.Lerp(0, _bodyRotationSpeed, _turnLerpTimer);
+        
+        // Rotate the body towards the direction
+        RotateRigidbody(_player.Rigidbody, direction, rotSpeed);
+    }
+    
+    public bool FeetIsGrounded()
+    {
+        // Dist threshold to check if the feet are grounded
+        const float distThreshold = 0.05f;
+        
+        // Get grounded positions
+        var leftFootGroundPos = GetFootGroundPosition(_leftFootTarget);
+        var rightFootGroundPos = GetFootGroundPosition(_rightFootTarget);
+        
+        // Check if the feet are grounded
+        var leftFootDist = Vector3.Distance(_leftFootTarget.position, leftFootGroundPos);
+        var rightFootDist = Vector3.Distance(_rightFootTarget.position, rightFootGroundPos);
+        
+        // Check if the feet are grounded
+        if (leftFootDist < distThreshold && rightFootDist < distThreshold)
+        {
+            return true;
+        }
+        return false;
     }
 }

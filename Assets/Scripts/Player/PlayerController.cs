@@ -2,6 +2,7 @@ using System;
 using RootMotion.FinalIK;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 using static RigidbodyMovement;
 
 public class PlayerController : MonoBehaviour
@@ -40,7 +41,10 @@ public class PlayerController : MonoBehaviour
     [Header("Sneak Variables")]
     [SerializeField] private float _sneakSpeed = 1f;
     [SerializeField] private float _sneakStepLength = 0.38f;
-    [SerializeField] private MovementSettings _sneakMovementSettings;
+    [SerializeField] private float _bodyRotationSpeed = 5f;
+    [FormerlySerializedAs("_sneakMovementSettings")] [SerializeField] private MovementSettings _liftedMovementSettings;
+    [SerializeField] private MovementSettings _plantedMovementSettings;
+    [SerializeField] private AnimationCurve _sneakSpeedCurve;
 
     
     private bool _isSneaking;
@@ -79,7 +83,7 @@ public class PlayerController : MonoBehaviour
             _springStrength, _springDampener);
         _sneakContext = new ProceduralSneakContext(this, _sneakStateMachine, _bodyIK, _groundLayers,
             _leftFootTarget, _rightFootTarget, _leftFootRestTarget, _rightFootRestTarget,
-            _sneakSpeed, _sneakStepLength, _sneakMovementSettings);
+            _sneakSpeed, _sneakStepLength, _bodyRotationSpeed, _liftedMovementSettings,_plantedMovementSettings, _sneakSpeedCurve);
     }
     
 
@@ -131,7 +135,8 @@ public class PlayerController : MonoBehaviour
     
     // Movement input based on camera direction
     public Vector3 RelativeMoveInput => GetRelativeMoveInput();
-    
+    public PlayerCameraController Camera => _cameraController;
+
     // Private methods
     private Vector3 GetRelativeMoveInput()
     {

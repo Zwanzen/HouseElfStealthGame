@@ -38,7 +38,7 @@ public class StartSneakState : ProceduralSneakState
         Context.LeftFoot.position = Context.GetFootGroundPosition(Context.LeftFoot);
         Context.RightFoot.position = Context.GetFootGroundPosition(Context.RightFoot);
         
-        //Activate the foot targets
+        // Activate the foot targets
         leftFootIK.positionWeight = 1f;
         rightFootIK.positionWeight = 1f;
         

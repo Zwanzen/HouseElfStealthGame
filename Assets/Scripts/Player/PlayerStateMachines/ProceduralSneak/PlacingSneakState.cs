@@ -21,12 +21,8 @@ public class PlacingSneakState : ProceduralSneakState
 
     public override void EnterState()
     {
-        Context.LiftedFoot.position = Context.GetFootGroundPosition(Context.LiftedFoot);
-        
         Context.ResetLiftedFootGoalVel();
         Context.ResetBodyGoalVel();
-        
-        _placed = true;
     }
 
     public override void ExitState()
@@ -36,11 +32,18 @@ public class PlacingSneakState : ProceduralSneakState
 
     public override void UpdateState()
     {
-        
+        if(Context.FeetIsGrounded())
+        {
+            _placed = true;
+        }
     }
 
     public override void FixedUpdateState()
     {
-        
+        // Ground Pos
+        var groundPos = Context.GetFootGroundPosition(Context.LiftedFoot);
+        var direction = groundPos - Context.LiftedFoot.position;
+        Context.MoveLiftedFoot(direction);
+        Context.MoveBody(Context.GetFeetMiddlePoint());
     }
 }
