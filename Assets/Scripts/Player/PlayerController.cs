@@ -29,6 +29,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Rigidbody _rightFootTarget;
     [SerializeField] private Transform _leftFootRestTarget;
     [SerializeField] private Transform _rightFootRestTarget;
+    [SerializeField] private PlayerFootSoundPlayer _leftFootSoundPlayer;
+    [SerializeField] private PlayerFootSoundPlayer _rightFootSoundPlayer;
     
     [SerializeField] private MovementSettings _bodyMovementSettings;
     
@@ -136,6 +138,10 @@ public class PlayerController : MonoBehaviour
     // Movement input based on camera direction
     public Vector3 RelativeMoveInput => GetRelativeMoveInput();
     public PlayerCameraController Camera => _cameraController;
+    
+    // SOUND DEMO
+    public PlayerFootSoundPlayer LeftFootSoundPlayer => _leftFootSoundPlayer;
+    public PlayerFootSoundPlayer RightFootSoundPlayer => _rightFootSoundPlayer;
 
     // Private methods
     private Vector3 GetRelativeMoveInput()

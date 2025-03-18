@@ -18,6 +18,9 @@ public class ProceduralSneakContext
     private Transform _leftFootRestTarget;
     private Transform _rightFootRestTarget;
     
+    private PlayerFootSoundPlayer _leftFootSoundPlayer;
+    private PlayerFootSoundPlayer _rightFootSoundPlayer;
+    
     [Header("Sneak Variables")]
     private float _sneakSpeed;
     private float _sneakStepLength;
@@ -45,6 +48,10 @@ public class ProceduralSneakContext
         _liftedMovementSettings = liftedMovementSettings;
         _plantedMovementSettings = plantedMovementSettings;
         _sneakSpeedCurve = sneakSpeedCurve;
+        
+        // Initialize the foot sound players
+        _leftFootSoundPlayer = _player.LeftFootSoundPlayer;
+        _rightFootSoundPlayer = _player.RightFootSoundPlayer;
     }
     
     // Read only properties
@@ -154,5 +161,18 @@ public class ProceduralSneakContext
             return true;
         }
         return false;
+    }
+
+    public void PlaySound(Rigidbody foot)
+    {
+        // Check which foot is the reference foot
+        if (foot == _leftFootTarget)
+        {
+            _leftFootSoundPlayer.PlayFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
+        }
+        else
+        {
+            _rightFootSoundPlayer.PlayFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
+        }
     }
 }

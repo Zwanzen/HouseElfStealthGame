@@ -48,7 +48,6 @@ public class PlayerGrabController : MonoBehaviour
 
     private void OnTryGrab()
     {
-        Debug.Log("Try Grab");
         if (_isGrabbing)
         {
             OnReleaseGrab();

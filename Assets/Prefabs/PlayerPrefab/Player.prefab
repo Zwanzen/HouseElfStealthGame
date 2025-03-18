@@ -1178,7 +1178,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1071785495791208455}
   - component: {fileID: 1655285743414247464}
-  - component: {fileID: 7489831904894221768}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1471,27 +1470,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &7489831904894221768
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2393979209846732484}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb81ba2a23e192242a201890d9eeb3e5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _springJointSettings:
-    Spring: 50
-    Damper: 10
-    MinDistance: 0
-    MaxDistance: 0
-    Tolerance: 0
-  _grabLayers:
-    serializedVersion: 2
-    m_Bits: 1073741824
 --- !u!1 &2548466631838842504
 GameObject:
   m_ObjectHideFlags: 0
