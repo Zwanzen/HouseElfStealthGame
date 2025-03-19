@@ -1740,6 +1740,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1637071098861547327, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _player
+      value: 
+      objectReference: {fileID: 1973705966}
     - target: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: _minSneakSpeed
       value: 0
@@ -1756,6 +1760,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 7055368159196930230, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
+      propertyPath: _player
+      value: 
+      objectReference: {fileID: 1973705966}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1913,6 +1921,31 @@ MonoBehaviour:
   _backgroundDetectionMultiplier: 1
   _imageRate: 0.5
   _reselution: 64
+  _audioDistanceCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -0.00085976825
+      outSlope: -0.00085976825
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.8985396
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0.001704536
+      outSlope: 0.001704536
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.8998178
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _audioDistanceMultiplier: 4
   _playerBrightness: 0
   _backgroundBrightness: 0
 --- !u!135 &641809982
