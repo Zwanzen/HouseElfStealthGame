@@ -10,14 +10,16 @@ public class Sound
         Player,
     }
 
-    public Sound(Vector3 pos, float range)
+    public Sound(Vector3 pos, float range, float amplitude = 0f)
     {
         Pos = pos;
         Range = range;
+        Amplitude = amplitude;
     }
 
     public ESoundType SoundType;
     
     public readonly Vector3 Pos;
     public readonly float Range;
+    public readonly float Amplitude;
 }

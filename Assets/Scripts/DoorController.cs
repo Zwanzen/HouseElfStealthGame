@@ -51,7 +51,7 @@ public class DoorController : MonoBehaviour
         _isGrabbed = true;
         _audioSource.clip = _openClip;
         _audioSource.Play();
-        var sound = new Sound(transform.position, 2f)
+        var sound = new Sound(transform.position, 2f, 3f)
         {
             SoundType = Sound.ESoundType.Player
         };
@@ -97,7 +97,7 @@ public class DoorController : MonoBehaviour
         _isClosed = true;
         _audioSource.clip = _closeClip;
         _audioSource.Play();
-        var sound = new Sound(transform.position, 5f)
+        var sound = new Sound(transform.position, 5f, 10f)
         {
             SoundType = Sound.ESoundType.Player
         };

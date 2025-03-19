@@ -65,6 +65,11 @@ public class DemoNpc : MonoBehaviour, IHear
     [Space(2)]
     [SerializeField] private float _imageRate = 0.5f;
     [SerializeField] private int _reselution = 16;
+    
+    [Space(10)]
+    [Header("Auditory Detection")]
+    [SerializeField] private AnimationCurve _audioDistanceCurve;
+    [SerializeField] private float _audioDistanceMultiplier = 1f;
 
     
     [SerializeField] private float _playerBrightness;
@@ -139,7 +144,11 @@ public class DemoNpc : MonoBehaviour, IHear
 
     public void RespondToSound(Sound sound)
     {
-        UpdateDetection(10f);
+        // Find the amount the detection value should be increased
+        var soundDistance = Vector3.Distance(sound.Pos, transform.position);
+        var lerpValue = soundDistance / sound.Range;
+        var soundDetectionValue = sound.Amplitude * _audioDistanceCurve.Evaluate(lerpValue) * _audioDistanceMultiplier;
+        UpdateDetection(soundDetectionValue);
     }
 
     private float GetDistanceMultiplier()
