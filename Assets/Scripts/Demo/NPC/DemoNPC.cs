@@ -123,8 +123,7 @@ public class DemoNpc : MonoBehaviour, IHear
     {
         UpdateDetection();
         HandleUI();
-        
-        // Temp Rotation
+
         if (_enableTurning)
         {
             RotateToPlayer();
@@ -253,8 +252,6 @@ public class DemoNpc : MonoBehaviour, IHear
             return 0;
         
         // If we are past what's above, we are in the detection zone
-        // We only now want to get light value, heavy computations
-        HandleLightCamera();
         
         // Linecast to each limb, and add the correlating detection value
         var valueToAdd = 0f;
@@ -268,6 +265,11 @@ public class DemoNpc : MonoBehaviour, IHear
         valueToAdd += LimbVisible(_rightLeg) ? _legValue : 0;
         // Body
         valueToAdd += LimbVisible(_body) ? _bodyValue : 0;
+        
+        // We only now want to get light value, heavy computations
+        if(valueToAdd == 0)
+            return 0;
+        HandleLightCamera();
 
         // Calculate the detection value
         return valueToAdd * GetDistanceMultiplier() * _visionMultiplier * _detectionSpeed * GetLightMultiplier() * GetBackgroundMultiplier();
@@ -322,14 +324,18 @@ public class DemoNpc : MonoBehaviour, IHear
         
         // Background detection
         // Turn on the silhouette camera
-        //_silhouetteCam.enabled = true;
+        _silhouetteCam.enabled = true;
         // Set the camera to look at the player
         direction = playerPos - _silhouetteCam.transform.position; 
         toRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
         _silhouetteCam.transform.rotation = toRotation;
+        
+        // Set the clipping plane to the player
+        _silhouetteCam.nearClipPlane = Vector3.Distance(_silhouetteCam.transform.position, playerPos);
+        
         _backgroundBrightness = ColorIntensity(_silhouetteRenderTexture, false);
         // Turn off the silhouette camera
-        //_silhouetteCam.enabled = false;
+        _silhouetteCam.enabled = false;
     }
     
     private float ColorIntensity(RenderTexture rt, bool ignoreColor = false)
