@@ -109,7 +109,7 @@ public class DemoNpc : MonoBehaviour, IHear
 
     public void RespondToSound(Sound sound)
     {
-        _detection += 10f;
+        UpdateDetection(10f);
     }
 
     private float GetDistanceMultiplier()
@@ -136,9 +136,9 @@ public class DemoNpc : MonoBehaviour, IHear
     
     private float _decayTimer;
 
-    private void UpdateDetection()
+    private void UpdateDetection(float newValue = 0f)
     {
-        var detectionValue = 0f;
+        var detectionValue = newValue;
         
         
         // Add visual detection value
