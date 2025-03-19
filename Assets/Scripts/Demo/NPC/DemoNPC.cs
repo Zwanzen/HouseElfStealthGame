@@ -1,5 +1,6 @@
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -59,13 +60,18 @@ public class DemoNpc : MonoBehaviour, IHear
     [SerializeField] private AnimationCurve _lightCurve;
     [SerializeField] private float _lightDetectionMultiplier = 1f;
     [Space(2)]
+    [SerializeField] private AnimationCurve _backgroundCurve;
+    [SerializeField] private float _backgroundDetectionMultiplier = 1f;
+    [Space(2)]
     [SerializeField] private float _imageRate = 0.5f;
     [SerializeField] private int _reselution = 16;
 
     
     [SerializeField] private float _playerBrightness;
+    [SerializeField] private float _backgroundBrightness;
     
-    private RenderTexture _renderTexture;
+    private RenderTexture _lightRenderTexture;
+    private RenderTexture _silhouetteRenderTexture;
     private Texture2D _texture;
     
     private bool _hasIgnored;
@@ -93,9 +99,15 @@ public class DemoNpc : MonoBehaviour, IHear
         // Start with a random offset, Important for smooth gameplay
         _lightImageTimer = Random.Range(0, _imageRate);
         
-        _renderTexture = new RenderTexture(_reselution, _reselution, 24, RenderTextureFormat.ARGB32,0);
-        _renderTexture.filterMode = FilterMode.Point;
-        _lightCam.targetTexture = _renderTexture;
+        // Create the render texture
+        _lightRenderTexture = new RenderTexture(_reselution, _reselution, 24, RenderTextureFormat.ARGB32,0);
+        _lightRenderTexture.filterMode = FilterMode.Point;
+        // Create the render texture
+        _silhouetteRenderTexture = new RenderTexture(_reselution, _reselution, 24, RenderTextureFormat.ARGB32,0);
+        _silhouetteRenderTexture.filterMode = FilterMode.Point;
+        
+        _lightCam.targetTexture = _lightRenderTexture;
+        _silhouetteCam.targetTexture = _silhouetteRenderTexture;
 
         _texture = new Texture2D(_reselution, _reselution, TextureFormat.RGBA32, false, true);
         _texture.filterMode = FilterMode.Point;
@@ -105,6 +117,24 @@ public class DemoNpc : MonoBehaviour, IHear
     {
         UpdateDetection();
         HandleUI();
+        
+        // Temp Rotation
+        // RotateToPlayer();
+    }
+
+    private void RotateToPlayer()
+    {
+        if (_detection > 50f)
+        {
+            var pPos = _player.Position;
+            var tPos = transform.position;
+            pPos.y = 0;
+            tPos.y = 0;
+            var dir = pPos - tPos;
+            dir.Normalize();
+            var toRotation = Quaternion.LookRotation(dir, Vector3.up);
+            transform.rotation = toRotation;
+        }
     }
 
     public void RespondToSound(Sound sound)
@@ -132,6 +162,14 @@ public class DemoNpc : MonoBehaviour, IHear
         var evaluatedValue = _lightCurve.Evaluate(_playerBrightness);
         // Return the multiplied evaluated value
         return evaluatedValue * _lightDetectionMultiplier;
+    }
+
+    private float GetBackgroundMultiplier()
+    {
+        // Calculate the brightness of the background
+        var evaluatedValue = _backgroundCurve.Evaluate(_backgroundBrightness);
+        // Return the multiplied evaluated value
+        return evaluatedValue * _backgroundDetectionMultiplier;
     }
     
     private float _decayTimer;
@@ -219,7 +257,7 @@ public class DemoNpc : MonoBehaviour, IHear
         valueToAdd += LimbVisible(_body) ? _bodyValue : 0;
 
         // Calculate the detection value
-        return valueToAdd * GetDistanceMultiplier() * _visionMultiplier * _detectionSpeed * GetLightMultiplier();
+        return valueToAdd * GetDistanceMultiplier() * _visionMultiplier * _detectionSpeed * GetLightMultiplier() * GetBackgroundMultiplier();
     }
 
     private Image _fillReact;
@@ -253,37 +291,45 @@ public class DemoNpc : MonoBehaviour, IHear
         if (_lightImageTimer < _imageRate) { return;}
         _lightImageTimer = 0;
 
+        // Light detection
         // Turn on the light camera
+        
         _lightCam.enabled = true;
         
-        Vector3 direction = (_player.Position - Vector3.up * 0.5f) - _lightCam.transform.position;
+        var playerPos = _player.Position - Vector3.up * 0.5f;
+        Vector3 direction = (playerPos) - _lightCam.transform.position;
         direction.Normalize();
 
         Quaternion toRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
         _lightCam.transform.rotation = toRotation;
 
-        _playerBrightness = ColorIntensity(true);
+        _playerBrightness = ColorIntensity(_lightRenderTexture,true);
         // Turn off the light camera
         _lightCam.enabled = false;
-    }
-
-    private float _silhouetteImageTimer;
-    
-    private void HandleSilhouetteCamera()
-    {
         
+        // Background detection
+        // Turn on the silhouette camera
+        //_silhouetteCam.enabled = true;
+        // Set the camera to look at the player
+        direction = playerPos - _silhouetteCam.transform.position; 
+        toRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+        _silhouetteCam.transform.rotation = toRotation;
+        _backgroundBrightness = ColorIntensity(_silhouetteRenderTexture, false);
+        // Turn off the silhouette camera
+        //_silhouetteCam.enabled = false;
     }
     
-    private float ColorIntensity(bool ignoreColor = false)
+    private float ColorIntensity(RenderTexture rt, bool ignoreColor = false)
     {
         _lightCam.Render();
         var previous = RenderTexture.active;
-        RenderTexture.active = _renderTexture;
+        RenderTexture.active = rt;
         _texture.ReadPixels(new Rect(0, 0, _reselution, _reselution), 0, 0);
         _texture.Apply();
 
         // Set display mesh to the texture
-        _displayMesh.material.mainTexture = _texture;
+        if(!ignoreColor) 
+            _displayMesh.material.mainTexture = _texture;
 
         float brightness = 0;   
         int count = 0;
@@ -329,7 +375,7 @@ public class DemoNpc : MonoBehaviour, IHear
         pixels.Dispose();
         colors.Dispose();
         RenderTexture.active = previous;
-        _renderTexture.Release();
+        rt.Release();
 
         return brightness /= count;
     }
