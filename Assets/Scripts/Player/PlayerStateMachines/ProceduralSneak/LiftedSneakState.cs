@@ -132,8 +132,13 @@ public class LiftedSneakState : ProceduralSneakState
         
         Debug.DrawLine(Context.LiftedFoot.position, Context.LiftedFoot.position + liftedDirection, Color.yellow);
         
+        // Modify the movement settings
+        var newLiftedMovementSettings = Context.LiftedMovementSettings;
+        newLiftedMovementSettings.MaxSpeed += Context.SneakSpeed;
+        newLiftedMovementSettings.Acceleration += Mathf.Pow(Context.SneakSpeed, Context.SneakSpeed);
+        
         // Move the feet to their grounded positions
         _sPlantedFootGoalVel = MoveRigidbody(Context.PlantedFoot, plantedDirection, _sPlantedFootGoalVel, Context.PlantedMovementSettings);
-        _sLiftedFootGoalVel = MoveRigidbody(Context.LiftedFoot, liftedDirection, _sLiftedFootGoalVel, Context.LiftedMovementSettings);
+        _sLiftedFootGoalVel = MoveRigidbody(Context.LiftedFoot, liftedDirection, _sLiftedFootGoalVel, newLiftedMovementSettings);
     }
 }
