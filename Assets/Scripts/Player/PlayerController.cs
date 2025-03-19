@@ -41,7 +41,8 @@ public class PlayerController : MonoBehaviour
     
     [Space(10f)]
     [Header("Sneak Variables")]
-    [SerializeField] private float _sneakSpeed = 1f;
+    [SerializeField] private float _minSneakSpeed = 1f;
+    [SerializeField] private float _maxSneakSpeed = 2f;
     [SerializeField] private float _sneakStepLength = 0.38f;
     [SerializeField] private float _bodyRotationSpeed = 5f;
     [FormerlySerializedAs("_sneakMovementSettings")] [SerializeField] private MovementSettings _liftedMovementSettings;
@@ -85,7 +86,7 @@ public class PlayerController : MonoBehaviour
             _springStrength, _springDampener);
         _sneakContext = new ProceduralSneakContext(this, _sneakStateMachine, _bodyIK, _groundLayers,
             _leftFootTarget, _rightFootTarget, _leftFootRestTarget, _rightFootRestTarget,
-            _sneakSpeed, _sneakStepLength, _bodyRotationSpeed, _liftedMovementSettings,_plantedMovementSettings, _sneakSpeedCurve);
+            _minSneakSpeed, _maxSneakSpeed, _sneakStepLength, _bodyRotationSpeed, _liftedMovementSettings,_plantedMovementSettings, _sneakSpeedCurve);
     }
     
 
@@ -139,6 +140,12 @@ public class PlayerController : MonoBehaviour
     /// This is the control state of the player based on the selected speed.
     /// </summary>
     public EPlayerSpeedState PlayerSpeedState => _playerSpeedState;
+    
+    /// <summary>
+    /// This is the current speed of the player.
+    /// Used to control the speed of the player in the state machines.
+    /// </summary>
+    public int CurrentPlayerSpeed => _currentPlayerSpeed;
     
     // Movement input based on camera direction
     public Vector3 RelativeMoveInput => GetRelativeMoveInput();

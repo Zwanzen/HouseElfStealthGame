@@ -12,10 +12,14 @@ public class PlayerFootSoundPlayer : MonoBehaviour
     [Space(10f)]
     [Header("Foot Sounds")]
     [SerializeField] private AudioClip[] _woodFootSounds;
+    [SerializeField] private AudioClip[] _metalFootSounds;
+    [SerializeField] private AudioClip[] _carpetFootSounds;
     
     public enum EFootSoundType
     {
         Wood,
+        Metal,
+        Carpet
     }
     
     private AudioSource _audioSource;
@@ -33,6 +37,16 @@ public class PlayerFootSoundPlayer : MonoBehaviour
         {
             audioClip = _woodFootSounds[UnityEngine.Random.Range(0, _woodFootSounds.Length)];
             range = 3f;
+        }
+        else if (footSoundType == EFootSoundType.Metal)
+        {
+            audioClip = _metalFootSounds[UnityEngine.Random.Range(0, _metalFootSounds.Length)];
+            range = 6f;
+        }
+        else if (footSoundType == EFootSoundType.Carpet)
+        {
+            audioClip = _carpetFootSounds[UnityEngine.Random.Range(0, _carpetFootSounds.Length)];
+            range = 0.3f;
         }
         
         _audioSource.clip = audioClip;

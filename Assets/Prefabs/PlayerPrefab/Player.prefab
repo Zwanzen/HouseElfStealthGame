@@ -1178,6 +1178,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1071785495791208455}
   - component: {fileID: 1655285743414247464}
+  - component: {fileID: 6031514326311100110}
   m_Layer: 9
   m_Name: Player
   m_TagString: Untagged
@@ -1481,6 +1482,27 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &6031514326311100110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2393979209846732484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb81ba2a23e192242a201890d9eeb3e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _springJointSettings:
+    Spring: 100
+    Damper: 50
+    MinDistance: 0
+    MaxDistance: 0.1
+    Tolerance: 0
+  _grabLayers:
+    serializedVersion: 2
+    m_Bits: 1
 --- !u!1 &2548466631838842504
 GameObject:
   m_ObjectHideFlags: 0
@@ -1822,6 +1844,20 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 25eb21a35ab8e144db1f150882ffb10f, type: 3}
   - {fileID: 8300000, guid: 5205d3f70ccb0c244b888ae7d60f48a0, type: 3}
   - {fileID: 8300000, guid: 0e23463a1b7d4c946a9e37d378fddbf9, type: 3}
+  _metalFootSounds:
+  - {fileID: 8300000, guid: f260f7c19452bd540adfc0a496ffa83b, type: 3}
+  - {fileID: 8300000, guid: 92a7ee1112e894c4b8696c2e4bb3f2c4, type: 3}
+  - {fileID: 8300000, guid: c66028b310d0a4a4eaf90a1a0ae551e4, type: 3}
+  - {fileID: 8300000, guid: e9a344d0657ba4b49a5b9001a8a9f680, type: 3}
+  - {fileID: 8300000, guid: 0b478e07dd32a9e42afd38abf62d585f, type: 3}
+  - {fileID: 8300000, guid: 54af4535cc0a3bf4789f21c581fa583f, type: 3}
+  - {fileID: 8300000, guid: 959297297764e8548b3e063cfad4e403, type: 3}
+  - {fileID: 8300000, guid: edcea2c6b2696ec4fbdb85a556ecfbf4, type: 3}
+  _carpetFootSounds:
+  - {fileID: 8300000, guid: 1f8acf6c628502045959985e07312963, type: 3}
+  - {fileID: 8300000, guid: 2977e2e7a2d858747aec48a4c1455a60, type: 3}
+  - {fileID: 8300000, guid: 8a08ed8619931214fba5e450c07d3402, type: 3}
+  - {fileID: 8300000, guid: 7402bf014832a84488e69dc729a7d067, type: 3}
 --- !u!82 &1339860644849008393
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3812,6 +3848,20 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 25eb21a35ab8e144db1f150882ffb10f, type: 3}
   - {fileID: 8300000, guid: 5205d3f70ccb0c244b888ae7d60f48a0, type: 3}
   - {fileID: 8300000, guid: 0e23463a1b7d4c946a9e37d378fddbf9, type: 3}
+  _metalFootSounds:
+  - {fileID: 8300000, guid: f260f7c19452bd540adfc0a496ffa83b, type: 3}
+  - {fileID: 8300000, guid: 92a7ee1112e894c4b8696c2e4bb3f2c4, type: 3}
+  - {fileID: 8300000, guid: c66028b310d0a4a4eaf90a1a0ae551e4, type: 3}
+  - {fileID: 8300000, guid: e9a344d0657ba4b49a5b9001a8a9f680, type: 3}
+  - {fileID: 8300000, guid: 0b478e07dd32a9e42afd38abf62d585f, type: 3}
+  - {fileID: 8300000, guid: 54af4535cc0a3bf4789f21c581fa583f, type: 3}
+  - {fileID: 8300000, guid: 959297297764e8548b3e063cfad4e403, type: 3}
+  - {fileID: 8300000, guid: edcea2c6b2696ec4fbdb85a556ecfbf4, type: 3}
+  _carpetFootSounds:
+  - {fileID: 8300000, guid: 1f8acf6c628502045959985e07312963, type: 3}
+  - {fileID: 8300000, guid: 2977e2e7a2d858747aec48a4c1455a60, type: 3}
+  - {fileID: 8300000, guid: 8a08ed8619931214fba5e450c07d3402, type: 3}
+  - {fileID: 8300000, guid: 7402bf014832a84488e69dc729a7d067, type: 3}
 --- !u!82 &1041796678438578409
 AudioSource:
   m_ObjectHideFlags: 0

@@ -28,7 +28,7 @@ public class PlacingSneakState : ProceduralSneakState
 
     public override void ExitState()
     {
-        Context.PlaySound(Context.LiftedFoot);
+        Context.PlaySound(Context.LiftedFoot,Context.GetGroundTypeFromFoot(Context.LiftedFoot));
         _placed = false;
     }
 

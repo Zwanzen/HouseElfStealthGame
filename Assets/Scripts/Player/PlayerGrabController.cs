@@ -25,6 +25,11 @@ public class PlayerGrabController : MonoBehaviour
     
     private SpringJoint _springJoint;
     private bool _isGrabbing;
+    private bool _isDoorGrabbing;
+    private DoorController _doorController;
+    
+    private Vector3 _hitPoint;
+    private float _hitDistance;
     
     
     private void Awake()
@@ -42,7 +47,7 @@ public class PlayerGrabController : MonoBehaviour
     {
         if (_isGrabbing)
         {
-            _springJoint.connectedAnchor = _cameraTransform.position + _cameraTransform.forward;
+            _springJoint.connectedAnchor = _cameraTransform.position + _cameraTransform.forward * _hitDistance;
         }
     }
 
@@ -54,14 +59,30 @@ public class PlayerGrabController : MonoBehaviour
             return;
         }
         
-        if (Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit hit, Mathf.Infinity,
+        if (Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit hit, 1f,
                 _grabLayers))
         {
+            _hitPoint = hit.point;
+            if (hit.collider.tag == "Door")
+            {
+                _hitDistance = hit.distance;
+                _isDoorGrabbing = true;
+                _isGrabbing = true;
+                _doorController = hit.transform.parent.GetComponent<DoorController>();
+                _doorController.OnGrabDoor();
+                ConstructSpringJoint(_doorController.Rigidbody);
+                _springJoint.anchor = hit.point - _doorController.Rigidbody.position;
+                return;
+            }
+            
+            /*
             if (hit.rigidbody)
             {
                 ConstructSpringJoint(hit.rigidbody);
+                
                 _isGrabbing = true;
             }
+            */
         }
     }
     
@@ -69,6 +90,12 @@ public class PlayerGrabController : MonoBehaviour
     {
         if (_springJoint)
         {
+            if (_isDoorGrabbing)
+            {
+                _isDoorGrabbing = false;
+                _doorController.OnReleaseDoor();
+            }
+            
             _isGrabbing = false;
             Destroy(_springJoint);
         }
@@ -85,5 +112,16 @@ public class PlayerGrabController : MonoBehaviour
         _springJoint.damper = _springJointSettings.Damper;
         _springJoint.minDistance = _springJointSettings.MinDistance;
         _springJoint.maxDistance = _springJointSettings.MaxDistance;
+    }
+
+    private void OnDrawGizmos()
+    {
+        // Only run when game is playing
+        if (!Application.isPlaying)
+            return;
+        // Draw hit point
+        Gizmos.color = Color.red;
+        var pos = _cameraTransform.position + _cameraTransform.forward * _hitDistance;
+        Gizmos.DrawSphere(pos, 0.2f);
     }
 }

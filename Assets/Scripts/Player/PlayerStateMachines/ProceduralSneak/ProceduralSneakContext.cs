@@ -22,7 +22,8 @@ public class ProceduralSneakContext
     private PlayerFootSoundPlayer _rightFootSoundPlayer;
     
     [Header("Sneak Variables")]
-    private float _sneakSpeed;
+    private float _minSneakSpeed;
+    private float _maxSneakSpeed;
     private float _sneakStepLength;
     private float _bodyRotationSpeed;
     private MovementSettings _liftedMovementSettings;
@@ -32,7 +33,7 @@ public class ProceduralSneakContext
     // Constructor
     public ProceduralSneakContext(PlayerController player, ProceduralSneakStateMachine stateMachine, FullBodyBipedIK bodyIK,
         LayerMask groundLayers, Rigidbody leftFootTarget, Rigidbody rightFootTarget, Transform leftFootRestTarget, Transform rightFootRestTarget,
-        float sneakSpeed, float sneakStepLength, float bodyRotationSpeed, MovementSettings liftedMovementSettings, MovementSettings plantedMovementSettings, AnimationCurve sneakSpeedCurve)
+        float minSneakSpeed, float maxSneakSpeed, float sneakStepLength, float bodyRotationSpeed, MovementSettings liftedMovementSettings, MovementSettings plantedMovementSettings, AnimationCurve sneakSpeedCurve)
     {
         _player = player;
         _stateMachine = stateMachine;
@@ -42,7 +43,8 @@ public class ProceduralSneakContext
         _rightFootTarget = rightFootTarget;
         _leftFootRestTarget = leftFootRestTarget;
         _rightFootRestTarget = rightFootRestTarget;
-        _sneakSpeed = sneakSpeed;
+        _minSneakSpeed = minSneakSpeed;
+        _maxSneakSpeed = maxSneakSpeed;
         _sneakStepLength = sneakStepLength;
         _bodyRotationSpeed = bodyRotationSpeed;
         _liftedMovementSettings = liftedMovementSettings;
@@ -59,7 +61,7 @@ public class ProceduralSneakContext
     public FullBodyBipedIK BodyIK => _bodyIK;
     public Rigidbody LeftFoot => _leftFootTarget;
     public Rigidbody RightFoot => _rightFootTarget;
-    public float SneakSpeed => _sneakSpeed;
+    public float SneakSpeed => GetSneakSpeed();
     public float SneakStepLength => _sneakStepLength;
     public MovementSettings LiftedMovementSettings => _liftedMovementSettings;
     public MovementSettings PlantedMovementSettings => _plantedMovementSettings;
@@ -76,6 +78,15 @@ public class ProceduralSneakContext
     }
     
     // Public methods
+
+    public float GetSneakSpeed()
+    {
+        // Find the current speed modifier
+        // The max sneak speed is 3;
+        const int maxSpeedRange = 3;
+        var lerp = Mathf.Lerp(_minSneakSpeed, _maxSneakSpeed, (float)_player.CurrentPlayerSpeed/(float)maxSpeedRange);
+        return lerp;
+    }
     public RaycastHit GroundCast(Vector3 position, float distance)
     {
         Physics.Raycast(position, Vector3.down, out var hit, distance, _groundLayers);
@@ -163,16 +174,39 @@ public class ProceduralSneakContext
         return false;
     }
 
-    public void PlaySound(Rigidbody foot)
+    public PlayerFootSoundPlayer.EFootSoundType GetGroundTypeFromFoot(Rigidbody foot)
+    {
+        // Get the ground raycast
+        var footGroundCast = GroundCast(foot.position, 1f);
+        // Compare the tag of the ground
+        // Depending on what tag, return sound type
+        if (footGroundCast.collider.CompareTag("Wood"))
+        {
+            return PlayerFootSoundPlayer.EFootSoundType.Wood;
+        }
+        else if (footGroundCast.collider.CompareTag("Metal"))
+        {
+            return PlayerFootSoundPlayer.EFootSoundType.Metal;
+        }
+        else if (footGroundCast.collider.CompareTag("Carpet"))
+        {
+            return PlayerFootSoundPlayer.EFootSoundType.Carpet;
+        }
+
+        return PlayerFootSoundPlayer.EFootSoundType.Wood;
+
+    }
+
+    public void PlaySound(Rigidbody foot, PlayerFootSoundPlayer.EFootSoundType footSoundType)
     {
         // Check which foot is the reference foot
         if (foot == _leftFootTarget)
         {
-            _leftFootSoundPlayer.PlayFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
+            _leftFootSoundPlayer.PlayFootSound(footSoundType);
         }
         else
         {
-            _rightFootSoundPlayer.PlayFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
+            _rightFootSoundPlayer.PlayFootSound(footSoundType);
         }
     }
 }
