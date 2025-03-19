@@ -31,8 +31,17 @@ public class StartSneakState : ProceduralSneakState
         Context.LeftFoot.linearVelocity = Vector3.zero;
         Context.RightFoot.linearVelocity = Vector3.zero;
         
+        // Set the foot targets to the current positions
         Context.LeftFoot.position = leftFootIK.bone.position;
         Context.RightFoot.position = rightFootIK.bone.position;
+        
+        // Set the foot rotation to the rest target rotation
+        Context.LeftFoot.rotation = Context.LeftFootRestTarget.rotation;
+        Context.RightFoot.rotation = Context.RightFootRestTarget.rotation;
+        
+        // Activate the foot target rotation
+        leftFootIK.rotationWeight = 1f;
+        rightFootIK.rotationWeight = 1f;
         
         // Set the grounded positions
         Context.LeftFoot.position = Context.GetFootGroundPosition(Context.LeftFoot);
