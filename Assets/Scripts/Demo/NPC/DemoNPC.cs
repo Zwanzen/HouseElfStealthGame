@@ -9,6 +9,7 @@ public class DemoNpc : MonoBehaviour, IHear
     [Header("Debug")] 
     [SerializeField] private bool _debugVisual = false;
     [SerializeField] private bool _enableDistanceFactor = true;
+    [SerializeField] private bool _enableTurning = false;
     [SerializeField] private MeshRenderer _displayMesh;
     
     [Space(10)]
@@ -124,7 +125,10 @@ public class DemoNpc : MonoBehaviour, IHear
         HandleUI();
         
         // Temp Rotation
-        // RotateToPlayer();
+        if (_enableTurning)
+        {
+            RotateToPlayer();
+        }
     }
 
     private void RotateToPlayer()

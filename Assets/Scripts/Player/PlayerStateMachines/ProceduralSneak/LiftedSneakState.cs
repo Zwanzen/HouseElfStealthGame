@@ -76,7 +76,7 @@ public class LiftedSneakState : ProceduralSneakState
         if (liftedDirection.magnitude > 0.01f)
         {
             Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
-            Context.UpdateFootRotation(Context.LiftedFoot, liftedDirection);
+            Context.UpdateFootRotation(Context.LiftedFoot);
         }
         
         // Get both foot positions
