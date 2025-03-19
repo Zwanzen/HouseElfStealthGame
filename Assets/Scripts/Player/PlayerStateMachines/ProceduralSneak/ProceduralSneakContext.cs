@@ -155,20 +155,12 @@ public class ProceduralSneakContext
         RotateRigidbody(_player.Rigidbody, direction, rotSpeed);
     }
     
-    public void UpdateFootRotation(Rigidbody foot, Vector3 direction)
+    public void UpdateFootRotation(Rigidbody foot)
     {
-
-        // Find the foot based on the foot
-        var restFoot = foot == _leftFootTarget ? _leftFootRestTarget.rotation : _rightFootRestTarget.rotation;
-        // Get the quaternion to rotate the foot
-        var footRot = Quaternion.LookRotation(direction, Vector3.up);
-        // Add the rest rotation to the foot rotation
-        var footRotWithRest = Quaternion.Euler(footRot.eulerAngles.x, footRot.eulerAngles.y, footRot.eulerAngles.z) * restFoot;
-        // Set the foot rotation
-        foot.rotation = footRotWithRest;
+        // Check if the direction is pointing backwards from the camera forward
+        var camForward = _player.Camera.GetCameraYawTransform().forward;
         
-        
-    
+        RotateRigidbody(foot, camForward, _bodyRotationSpeed * 3f);
     }
     
     public bool FeetIsGrounded()
