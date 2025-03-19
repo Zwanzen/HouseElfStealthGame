@@ -61,6 +61,8 @@ public class ProceduralSneakContext
     public FullBodyBipedIK BodyIK => _bodyIK;
     public Rigidbody LeftFoot => _leftFootTarget;
     public Rigidbody RightFoot => _rightFootTarget;
+    public Transform LeftFootRestTarget => _leftFootRestTarget;
+    public Transform RightFootRestTarget => _rightFootRestTarget;
     public float SneakSpeed => GetSneakSpeed();
     public float SneakStepLength => _sneakStepLength;
     public MovementSettings LiftedMovementSettings => _liftedMovementSettings;
@@ -78,7 +80,7 @@ public class ProceduralSneakContext
     }
     
     // Public methods
-
+    
     public float GetSneakSpeed()
     {
         // Find the current speed modifier
@@ -151,6 +153,22 @@ public class ProceduralSneakContext
         
         // Rotate the body towards the direction
         RotateRigidbody(_player.Rigidbody, direction, rotSpeed);
+    }
+    
+    public void UpdateFootRotation(Rigidbody foot, Vector3 direction)
+    {
+
+        // Find the foot based on the foot
+        var restFoot = foot == _leftFootTarget ? _leftFootRestTarget.rotation : _rightFootRestTarget.rotation;
+        // Get the quaternion to rotate the foot
+        var footRot = Quaternion.LookRotation(direction, Vector3.up);
+        // Add the rest rotation to the foot rotation
+        var footRotWithRest = Quaternion.Euler(footRot.eulerAngles.x, footRot.eulerAngles.y, footRot.eulerAngles.z) * restFoot;
+        // Set the foot rotation
+        foot.rotation = footRotWithRest;
+        
+        
+    
     }
     
     public bool FeetIsGrounded()

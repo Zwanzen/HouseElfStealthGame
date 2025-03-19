@@ -72,10 +72,11 @@ public class LiftedSneakState : ProceduralSneakState
         // Set lifted direction magnitude to step length
         liftedDirection = liftedDirection.normalized * Context.SneakStepLength;
         
-        // Update body if input is not zero
+        // Update body and foot rot if input is not zero
         if (liftedDirection.magnitude > 0.01f)
         {
             Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
+            Context.UpdateFootRotation(Context.LiftedFoot, liftedDirection);
         }
         
         // Get both foot positions
@@ -123,14 +124,11 @@ public class LiftedSneakState : ProceduralSneakState
             {
                 lerp = 1f;
             }
-
-
+            
             var maxDirection = dirToPos.normalized * Context.SneakStepLength;
             var lerpedDirection = Vector3.Lerp(dirToPos, maxDirection, Context.SpeedCurve.Evaluate(lerp));
             liftedDirection = lerpedDirection;
         }
-        
-        Debug.DrawLine(Context.LiftedFoot.position, Context.LiftedFoot.position + liftedDirection, Color.yellow);
         
         // Modify the movement settings
         var newLiftedMovementSettings = Context.LiftedMovementSettings;
