@@ -1345,13 +1345,13 @@ MonoBehaviour:
   - {fileID: 1385570495086712101}
   _springStrength: 250
   _springDampener: 25
-  _minSneakSpeed: 0
+  _minSneakSpeed: 1
   _maxSneakSpeed: 2
   _sneakStepLength: 0.5
   _bodyRotationSpeed: 100
   _liftedMovementSettings:
-    MaxSpeed: 3
-    Acceleration: 3
+    MaxSpeed: 5
+    Acceleration: 10
     AccelerationFactorFromDot:
       serializedVersion: 2
       m_Curve:
@@ -1864,7 +1864,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff2e2b0da0cbba84182c60d6a4b1afd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _player: {fileID: 1655285743414247464}
+  _player: {fileID: 0}
   _minVolume: 0.1
   _maxVolume: 0.2
   _minPitch: 0.8
@@ -3869,7 +3869,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff2e2b0da0cbba84182c60d6a4b1afd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _player: {fileID: 1655285743414247464}
+  _player: {fileID: 0}
   _minVolume: 0.1
   _maxVolume: 0.2
   _minPitch: 0.8

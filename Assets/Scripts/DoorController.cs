@@ -20,8 +20,6 @@ public class DoorController : MonoBehaviour
     //Read only properties
     public Rigidbody Rigidbody => _rigidbody;
 
-    private bool _started;
-
     private void Start()
     {
         closedRotation = Quaternion.Euler(0, 0, 0); // Lukket posisjon = 0 grader
@@ -45,8 +43,6 @@ public class DoorController : MonoBehaviour
         {
             CheckClose(); // Sjekker om d�ren skal lukkes automatisk
         }
-        
-        _started = true;
     }
 
     public void OnGrabDoor()
@@ -99,17 +95,13 @@ public class DoorController : MonoBehaviour
     private void Close()
     {
         _isClosed = true;
-        if (_started)
+        _audioSource.clip = _closeClip;
+        _audioSource.Play();
+        var sound = new Sound(transform.position, 5f, 10f)
         {
-            _audioSource.clip = _closeClip;
-            _audioSource.Play();
-            var sound = new Sound(transform.position, 5f, 10f)
-            {
-                SoundType = Sound.ESoundType.Player
-            };
-            Sounds.MakeSound(sound);
-        }
-
+            SoundType = Sound.ESoundType.Player
+        };
+        Sounds.MakeSound(sound);
         hinge.limits = new JointLimits
         {
             min = 0,
