@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -154,6 +155,22 @@ public class DemoNpc : MonoBehaviour, IHear
         UpdateDetection(soundDetectionValue);
     }
 
+    private Dictionary<LoopingSoundPlayer, Sound> _loopingSounds = new Dictionary<LoopingSoundPlayer, Sound>();
+    
+    [SerializeField] private bool _isMasked;
+    
+    public void RespondToLoopingSound(LoopingSoundPlayer player, Sound sound)
+    {
+        _isMasked = true;
+    }
+
+    public void StopRespondToLoopingSound(LoopingSoundPlayer player, Sound sound)
+    {
+        _isMasked = false;
+    }
+
+    
+
     private float GetDistanceMultiplier()
     {
         // Check if the distance factor is enabled
@@ -189,7 +206,10 @@ public class DemoNpc : MonoBehaviour, IHear
     private void UpdateDetection(float newValue = 0f)
     {
         var detectionValue = newValue;
-        
+        if (_isMasked)
+        {
+            detectionValue = 0;
+        }
         
         // Add visual detection value
         detectionValue += Time.deltaTime * VisionDetection();
@@ -334,6 +354,7 @@ public class DemoNpc : MonoBehaviour, IHear
         _silhouetteCam.nearClipPlane = Vector3.Distance(_silhouetteCam.transform.position, playerPos);
         
         _backgroundBrightness = ColorIntensity(_silhouetteRenderTexture, false);
+        Debug.Log(_backgroundBrightness);
         // Turn off the silhouette camera
         _silhouetteCam.enabled = false;
     }
