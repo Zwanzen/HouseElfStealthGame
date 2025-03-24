@@ -116,12 +116,6 @@ public class PlayerGrabController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // Only run when game is playing
-        if (!Application.isPlaying)
-            return;
-        // Draw hit point
-        Gizmos.color = Color.red;
-        var pos = _cameraTransform.position + _cameraTransform.forward * _hitDistance;
-        Gizmos.DrawSphere(pos, 0.2f);
+
     }
 }

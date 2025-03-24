@@ -35,6 +35,8 @@ public class IdleSneakState : ProceduralSneakState
 
     public override void FixedUpdateState()
     {
-        
+        // Set the feet target positions to the feet positions
+        Context.LeftFoot.position = Context.BodyIK.references.leftFoot.position;
+        Context.RightFoot.position = Context.BodyIK.references.rightFoot.position;
     }
 }

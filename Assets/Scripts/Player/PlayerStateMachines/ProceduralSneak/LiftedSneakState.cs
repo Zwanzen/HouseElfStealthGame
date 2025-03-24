@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.VisualScripting;
+using UnityEngine;
 using static RigidbodyMovement;
 
 public class LiftedSneakState : ProceduralSneakState
@@ -85,20 +86,43 @@ public class LiftedSneakState : ProceduralSneakState
         var plantedFootPos = Context.PlantedFoot.position;
         plantedFootPos.y = 0;
         
+        // Get the wanted position of the lifted foot after the step
         var footDir = liftedFootPos - plantedFootPos;
         var pos = liftedFootPos + liftedDirection;
         
-        // Add y value
-        var liftHeight = Vector3.up * 0.2f;
-        if (InputManager.Instance.IsLifting)
+        var isLifting = InputManager.Instance.IsLifting;
+        var baseHeight = Context.PlantedFoot.position.y + Context.FootPlaceOffset;
+
+        if (!isLifting)
         {
-            liftHeight += Vector3.up * 0.15f;
+            // If we are not lifting:
+            // The further the foot is from the planted foot, the more the ground height matters
+            var footDist = Vector3.Distance(liftedFootPos, plantedFootPos);
+            // This distance should not be greater than the step length
+            // We use this to lerp between planted pos and the ground pos
+            baseHeight = Mathf.Lerp(Context.PlantedFoot.position.y, Context.GetFootGroundPosition(Context.LiftedFoot).y, footDist/Context.SneakStepLength);
         }
-        var yPos = Context.GroundCast(Context.LiftedFoot.position + Vector3.up * 0.5f, 2f).point + liftHeight;
-        yPos.x = 0;
-        yPos.z = 0;
-        // Add the y value to the walk pos
-        pos += yPos;
+        
+        // Add y value
+        var addedLiftHeight = 0.2f;
+        if (isLifting)
+        {
+            addedLiftHeight += 0.15f;
+        }
+        
+        // Ground cast to see if foot is too close to the ground
+        if(Physics.CheckSphere(liftedFootPos, 0.01f, Context.GroundLayers))
+            addedLiftHeight += PlayerController.HeightThreshold;
+        
+        // Combine the height values
+        float height = baseHeight + addedLiftHeight;
+        
+        // Clamp the height to not go above or below the step height relative to the planted foot
+        var plantedFootHeight = Context.PlantedFoot.position.y + Context.FootPlaceOffset;
+        height = Mathf.Clamp(height, plantedFootHeight - Context.SneakStepHeight, plantedFootHeight + Context.SneakStepHeight);
+        
+        // Add the height to the walk pos
+        pos += Vector3.up * height;
         var dirToPos = pos - Context.LiftedFoot.position;
         liftedDirection = dirToPos;
         

@@ -11,18 +11,23 @@ public class PlayerControlContext
     
     [Header("Common")]
     private readonly LayerMask _groundLayers;
+    private readonly Rigidbody _leftFootTarget;
+    private readonly Rigidbody _rightFootTarget;
     
     [Header("Control Variables")]
     private readonly float _springStrength;
     private readonly float _springDampener;
     
     // Constructor
-    public PlayerControlContext(PlayerController player, PlayerControlStateMachine stateMachine, Rigidbody rigidbody, LayerMask groundLayers, float springStrength, float springDampener)
+    public PlayerControlContext(PlayerController player, PlayerControlStateMachine stateMachine, Rigidbody rigidbody, LayerMask groundLayers,
+        Rigidbody leftFootTarget, Rigidbody rightFootTarget, float springStrength, float springDampener)
     {
         _player = player;
         _stateMachine = stateMachine;
         _rigidbody = rigidbody;
         _groundLayers = groundLayers;
+        _leftFootTarget = leftFootTarget;
+        _rightFootTarget = rightFootTarget;
         _springStrength = springStrength;
         _springDampener = springDampener;
     }
@@ -30,42 +35,42 @@ public class PlayerControlContext
     // Read-only properties
     public PlayerController Player => _player;
     
+    // Private methods
+    private Vector3 GetLowestFootPosition()
+    {
+        // Get the lowest foot position
+        Vector3 leftFootPos = _leftFootTarget.position;
+        Vector3 rightFootPos = _rightFootTarget.position;
+        return leftFootPos.y < rightFootPos.y ? leftFootPos : rightFootPos;
+    }
+    
     // Public methods
     public bool IsGrounded()
     {
-        // Check if the player is grounded
-        return Physics.Raycast(Player.Position, Vector3.down, PlayerController.Height + PlayerController.HeightThreshold, _groundLayers);
+        // Check if the feet are grounded using CheckSphere
+        return Physics.CheckSphere(_leftFootTarget.position, PlayerController.HeightThreshold, _groundLayers) ||
+               Physics.CheckSphere(_rightFootTarget.position, PlayerController.HeightThreshold, _groundLayers);
     }
 
     // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
     public void RigidbodyFloat()
     {
         const float multiplier = 2f;
-        if (!Physics.Raycast(Player.Position, Vector3.down, out var hit, PlayerController.Height * multiplier, _groundLayers)) return;
+        //if (!Physics.Raycast(Player.Position, Vector3.down, out var hit, PlayerController.Height * multiplier, _groundLayers)) return;
         var vel = _rigidbody.linearVelocity;
 
-        var otherVel = Vector3.zero;
-        var hitBody = hit.rigidbody;
-        if (hitBody)
-        {
-            otherVel = hitBody.linearVelocity;
-        }
-
         var relDirVel = Vector3.Dot(Vector3.down, vel);
-        var otherDirVel = Vector3.Dot(Vector3.down, otherVel);
 
-        var relVel = relDirVel - otherDirVel;
-
-        var x = hit.distance - (PlayerController.Height + 0.02f);
+        var relVel = relDirVel;
+        
+        // Calculate the distance from player to lowest foot
+        var footPos = new Vector3(Player.Position.x, GetLowestFootPosition().y, Player.Position.z);
+        var footDistance = Vector3.Distance(Player.Position, footPos);
+        
+        var x = footDistance - (PlayerController.Height + 0.02f);
 
         var springForce = (x * _springStrength) - (relVel * _springDampener);
         _rigidbody.AddForce(Vector3.down * springForce);
-
-        // Add force to the hit rigidbody
-        if (hitBody)
-        {
-            hitBody.AddForceAtPosition(Vector3.up * springForce, hit.point);
-        }
     }
     
 }

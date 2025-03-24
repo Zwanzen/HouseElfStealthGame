@@ -44,6 +44,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _minSneakSpeed = 1f;
     [SerializeField] private float _maxSneakSpeed = 2f;
     [SerializeField] private float _sneakStepLength = 0.38f;
+    [SerializeField] private float _sneakStepHeight = 0.5f;
     [SerializeField] private float _bodyRotationSpeed = 5f;
     [FormerlySerializedAs("_sneakMovementSettings")] [SerializeField] private MovementSettings _liftedMovementSettings;
     [SerializeField] private MovementSettings _plantedMovementSettings;
@@ -83,10 +84,10 @@ public class PlayerController : MonoBehaviour
     private void InitializeStateMachineContexts()
     {
         _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
-            _springStrength, _springDampener);
+             _leftFootTarget, _rightFootTarget, _springStrength, _springDampener);
         _sneakContext = new ProceduralSneakContext(this, _sneakStateMachine, _bodyIK, _groundLayers,
             _leftFootTarget, _rightFootTarget, _leftFootRestTarget, _rightFootRestTarget,
-            _minSneakSpeed, _maxSneakSpeed, _sneakStepLength, _bodyRotationSpeed, _liftedMovementSettings,_plantedMovementSettings, _sneakSpeedCurve);
+            _minSneakSpeed, _maxSneakSpeed, _sneakStepLength,_sneakStepHeight, _bodyRotationSpeed, _liftedMovementSettings,_plantedMovementSettings, _sneakSpeedCurve);
     }
     
 

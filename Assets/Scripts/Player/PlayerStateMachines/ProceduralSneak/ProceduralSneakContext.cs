@@ -25,6 +25,7 @@ public class ProceduralSneakContext
     private float _minSneakSpeed;
     private float _maxSneakSpeed;
     private float _sneakStepLength;
+    private float _sneakStepHeight;
     private float _bodyRotationSpeed;
     private MovementSettings _liftedMovementSettings;
     private MovementSettings _plantedMovementSettings;
@@ -33,7 +34,7 @@ public class ProceduralSneakContext
     // Constructor
     public ProceduralSneakContext(PlayerController player, ProceduralSneakStateMachine stateMachine, FullBodyBipedIK bodyIK,
         LayerMask groundLayers, Rigidbody leftFootTarget, Rigidbody rightFootTarget, Transform leftFootRestTarget, Transform rightFootRestTarget,
-        float minSneakSpeed, float maxSneakSpeed, float sneakStepLength, float bodyRotationSpeed, MovementSettings liftedMovementSettings, MovementSettings plantedMovementSettings, AnimationCurve sneakSpeedCurve)
+        float minSneakSpeed, float maxSneakSpeed, float sneakStepLength, float sneakStepHeight, float bodyRotationSpeed, MovementSettings liftedMovementSettings, MovementSettings plantedMovementSettings, AnimationCurve sneakSpeedCurve)
     {
         _player = player;
         _stateMachine = stateMachine;
@@ -46,6 +47,7 @@ public class ProceduralSneakContext
         _minSneakSpeed = minSneakSpeed;
         _maxSneakSpeed = maxSneakSpeed;
         _sneakStepLength = sneakStepLength;
+        _sneakStepHeight = sneakStepHeight;
         _bodyRotationSpeed = bodyRotationSpeed;
         _liftedMovementSettings = liftedMovementSettings;
         _plantedMovementSettings = plantedMovementSettings;
@@ -58,13 +60,17 @@ public class ProceduralSneakContext
     
     // Read only properties
     public PlayerController Player => _player;
+    public LayerMask GroundLayers => _groundLayers;
     public FullBodyBipedIK BodyIK => _bodyIK;
     public Rigidbody LeftFoot => _leftFootTarget;
     public Rigidbody RightFoot => _rightFootTarget;
+    public float FootPlaceOffset =>  0.05f;
+
     public Transform LeftFootRestTarget => _leftFootRestTarget;
     public Transform RightFootRestTarget => _rightFootRestTarget;
     public float SneakSpeed => GetSneakSpeed();
     public float SneakStepLength => _sneakStepLength;
+    public float SneakStepHeight => _sneakStepHeight;
     public MovementSettings LiftedMovementSettings => _liftedMovementSettings;
     public MovementSettings PlantedMovementSettings => _plantedMovementSettings;
     public AnimationCurve SpeedCurve => _sneakSpeedCurve;
@@ -102,9 +108,8 @@ public class ProceduralSneakContext
 
     public Vector3 GetFootGroundPosition(Rigidbody foot)
     {
-        var footPlaceOffset = Vector3.up * 0.05f;
         var groundCastUpOffset = Vector3.up * 0.1f;
-        return GroundCast(foot.position + groundCastUpOffset, 1f).point + footPlaceOffset;
+        return GroundCast(foot.position + groundCastUpOffset, 1f).point + (Vector3.up * FootPlaceOffset);
     }
     
     private Vector3 _sLiftedFootGoalVel;
@@ -187,7 +192,8 @@ public class ProceduralSneakContext
     public PlayerFootSoundPlayer.EFootSoundType GetGroundTypeFromFoot(Rigidbody foot)
     {
         // Get the ground raycast
-        var footGroundCast = GroundCast(foot.position, 1f);
+        var threshold = Vector3.up * 0.1f;
+        var footGroundCast = GroundCast(foot.position + threshold, 1f + threshold.magnitude);
         // Compare the tag of the ground
         // Depending on what tag, return sound type
         if (footGroundCast.collider.CompareTag("Wood"))
