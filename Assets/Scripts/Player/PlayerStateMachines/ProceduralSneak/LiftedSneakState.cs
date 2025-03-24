@@ -148,7 +148,7 @@ public class LiftedSneakState : ProceduralSneakState
         }
         
         // Add y value
-        var addedLiftHeight = 0.2f;
+        var addedLiftHeight = 0.05f;
         if (isLifting)
         {
             addedLiftHeight += 0.15f;
