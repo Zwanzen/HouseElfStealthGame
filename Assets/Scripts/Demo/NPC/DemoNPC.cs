@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -69,6 +70,7 @@ public class DemoNpc : MonoBehaviour, IHear
     
     [Space(10)]
     [Header("Auditory Detection")]
+    [SerializeField] private float _soundDecayRate = 0.5f;
     [SerializeField] private AnimationCurve _audioDistanceCurve;
     [SerializeField] private float _audioDistanceMultiplier = 1f;
 
@@ -97,6 +99,8 @@ public class DemoNpc : MonoBehaviour, IHear
     
     private void Awake()
     {
+        _heardSounds = new List<Sound>();
+        
         _currentState = NpcState.Idle;
         InitializeLimbs();
         _fillReact = _detectionSlider.fillRect.GetComponent<Image>();
@@ -128,6 +132,8 @@ public class DemoNpc : MonoBehaviour, IHear
         {
             RotateToPlayer();
         }
+        
+        UpdateStoredSounds();
     }
 
     private void RotateToPlayer()
@@ -145,13 +151,86 @@ public class DemoNpc : MonoBehaviour, IHear
         }
     }
 
+    private List<Sound> _heardSounds;
+    
     public void RespondToSound(Sound sound)
+    {
+        // If it is a looping sound
+        if (_heardSounds.Contains(sound))
+            return;
+        
+        var soundCurrentVolume = GetSoundCurrentVolume(sound);
+        if(soundCurrentVolume <= 0)
+            return;
+        
+        // Find out if there is a sound louder than the current one
+        var shouldAdd = true;
+        if (_heardSounds.Count > 0)
+        {
+            foreach (var s in _heardSounds)
+            {
+                if(s.CurrentVolume > soundCurrentVolume)
+                {
+                    shouldAdd = false;
+                    break;
+                }
+            }
+        }
+        if (!shouldAdd) return;
+            
+        sound.CurrentVolume = soundCurrentVolume;
+        _heardSounds.Add(sound);
+        if (sound.SoundType == Sound.ESoundType.Player)
+        {
+            UpdateDetection(soundCurrentVolume);
+        }
+    }
+    
+    private float GetSoundCurrentVolume(Sound sound)
     {
         // Find the amount the detection value should be increased
         var soundDistance = Vector3.Distance(sound.Pos, transform.position);
         var lerpValue = soundDistance / sound.Range;
         var soundDetectionValue = sound.Amplitude * _audioDistanceCurve.Evaluate(lerpValue) * _audioDistanceMultiplier;
-        UpdateDetection(soundDetectionValue);
+        
+        return soundDetectionValue;
+    }
+    
+    private void UpdateStoredSounds()
+    {
+        if(_heardSounds.Count == 0)
+            return;
+        
+        // Create a temporary list to store sounds that need to be removed
+        List<Sound> soundsToRemove = new List<Sound>();
+
+        foreach (var s in _heardSounds)
+        {
+            if (s.Loop)
+            {
+                // Update the sound volume
+                s.CurrentVolume = GetSoundCurrentVolume(s);
+            }
+            else
+            {
+                // Decrease the sound volume over time
+                s.CurrentVolume -= Time.deltaTime * _soundDecayRate;
+            }
+
+            
+            // Check if the sound is still valid
+            if (s.CurrentVolume <= 0)
+            {
+                _heardSounds.Remove(s);
+            }
+        }
+        
+        // Now remove all the sounds in the removal list
+        foreach (var sound in soundsToRemove)
+        {
+            _heardSounds.Remove(sound);
+        }
+
     }
 
     private float GetDistanceMultiplier()

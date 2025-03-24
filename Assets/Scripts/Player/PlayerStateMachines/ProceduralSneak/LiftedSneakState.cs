@@ -94,6 +94,8 @@ public class LiftedSneakState : ProceduralSneakState
         var footForward = Quaternion.AngleAxis(lerpAngle, _sCameraRight) * _sCameraForward;
         footForward.Normalize();
 
+        if(footForward == Vector3.zero)
+            return;
         
         RotateRigidbody(Context.LiftedFoot, footForward, 500f);
     }
