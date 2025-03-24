@@ -78,8 +78,8 @@ public class LiftedSneakState : ProceduralSneakState
         }
         
         // Update the lifted foot pitch
-        var minPitch = 80f;
-        var maxPitch = -80f;
+        var minPitch = 85f;
+        var maxPitch = -85f;
         
         var minRelDist = -Context.SneakStepLength;
         var maxRelDist = Context.SneakStepLength;
@@ -128,12 +128,7 @@ public class LiftedSneakState : ProceduralSneakState
         var plantedFootPos = Context.PlantedFoot.position;
         plantedFootPos.y = 0;
         
-        // Get the wanted position of the lifted foot after the step
-        var footDir = liftedFootPos - plantedFootPos;
-        var pos = liftedFootPos + liftedDirection;
-        
-
-        
+        // Height calculation
         var isLifting = InputManager.Instance.IsLifting;
         var baseHeight = Context.PlantedFoot.position.y + Context.FootPlaceOffset;
 
@@ -165,8 +160,21 @@ public class LiftedSneakState : ProceduralSneakState
         var plantedFootHeight = Context.PlantedFoot.position.y + Context.FootPlaceOffset;
         height = Mathf.Clamp(height, plantedFootHeight - Context.SneakStepHeight, plantedFootHeight + Context.SneakStepHeight);
         
+        // Project the lifted direction onto the ground normal
+        var cast = Context.GroundCast(Context.LiftedFoot.position, height + Context.FootPlaceOffset * 1.5f);
+        var groundNormal = cast.normal;
+        liftedDirection = Vector3.ProjectOnPlane(liftedDirection, groundNormal);
+        
+        // Get the wanted position of the lifted foot after the step
+        var footDir = liftedFootPos - plantedFootPos;
+        var pos = liftedFootPos + liftedDirection;
+        
         // Add the height to the walk pos
         pos += Vector3.up * height;
+        // Clamp the position to not go above or below the step height relative to the planted foot
+        pos.y = Mathf.Clamp(pos.y, plantedFootHeight - Context.SneakStepHeight, plantedFootHeight + Context.SneakStepHeight);
+        
+        // Update the lifted foot direction
         var dirToPos = pos - Context.LiftedFoot.position;
         liftedDirection = dirToPos;
         
