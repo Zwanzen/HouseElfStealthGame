@@ -26,24 +26,27 @@ public class LiftedSneakState : ProceduralSneakState
 
     public override void EnterState()
     {
-        // Temp
         Context.ResetBodyGoalVel();
         ResetFootsVelocities();
+        
+        // get the start angle
+        _startAngle = Context.LiftedFoot.transform.localRotation.x;
     }
 
     public override void ExitState()
     {
-        
+        _liftTimer = 0f;
     }
 
     public override void UpdateState()
     {
-        
+        _liftTimer += Time.deltaTime;
     }
 
     public override void FixedUpdateState()
     {
         MoveFeet();
+        HandleFootRotation();
         
         // Find the point between the lifted and planted foot
         Vector3 lerpPosition = Vector3.Lerp(Context.PlantedFoot.position, Context.LiftedFoot.position, 0.2f);
@@ -59,8 +62,44 @@ public class LiftedSneakState : ProceduralSneakState
         _sLiftedFootGoalVel = Context.LiftedFoot.linearVelocity;
     }
     
-    private Vector3 _bodyDirection;
+    private Vector3 _sCameraForward;
+    private Vector3 _sCameraRight;
+    private float _liftTimer;
+    private float _startAngle;
+    private void HandleFootRotation()
+    {
+        var isMoving = InputManager.Instance.MoveInput.magnitude > 0.01f;
+        
+        // Store the camera forward direction if we are moving
+        if (isMoving)
+        {
+            _sCameraForward = Context.Player.Camera.GetCameraYawTransform().forward;
+            _sCameraRight = Context.Player.Camera.GetCameraYawTransform().right;
+        }
+        
+        // Update the lifted foot pitch
+        var minPitch = 80f;
+        var maxPitch = -80f;
+        
+        var minRelDist = -Context.SneakStepLength;
+        var maxRelDist = Context.SneakStepLength;
+        var relDist = RelativeDistanceInDirection(Context.PlantedFoot.position, Context.LiftedFoot.position, Context.Player.Camera.GetCameraYawTransform().forward);
+        
+        // Lerp Foot Pitch
+        var angle = Mathf.Lerp(minPitch, maxPitch, Mathf.InverseLerp(minRelDist, maxRelDist, relDist));
+        var lerpAngle = Mathf.Lerp(_startAngle, angle, Context.PlaceSpeedCurve.Evaluate(_liftTimer / 0.20f));
+        
+        
+        // Rotate the camForward direction around the foot's right direction
+        var footForward = Quaternion.AngleAxis(lerpAngle, _sCameraRight) * _sCameraForward;
+        footForward.Normalize();
 
+        
+        RotateRigidbody(Context.LiftedFoot, footForward, 500f);
+    }
+    
+    private Vector3 _bodyDirection;
+    
     private void MoveFeet()
     {
         // Get the planted foot ground position
@@ -77,8 +116,11 @@ public class LiftedSneakState : ProceduralSneakState
         if (liftedDirection.magnitude > 0.01f)
         {
             Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
-            Context.UpdateFootRotation(Context.LiftedFoot);
         }
+        // Update the planted foot ground normal no matter what
+        Context.UpdateFootGroundNormal(Context.PlantedFoot);
+        
+
         
         // Get both foot positions
         var liftedFootPos = Context.LiftedFoot.position;
@@ -89,6 +131,8 @@ public class LiftedSneakState : ProceduralSneakState
         // Get the wanted position of the lifted foot after the step
         var footDir = liftedFootPos - plantedFootPos;
         var pos = liftedFootPos + liftedDirection;
+        
+
         
         var isLifting = InputManager.Instance.IsLifting;
         var baseHeight = Context.PlantedFoot.position.y + Context.FootPlaceOffset;
@@ -162,5 +206,17 @@ public class LiftedSneakState : ProceduralSneakState
         // Move the feet to their grounded positions
         _sPlantedFootGoalVel = MoveRigidbody(Context.PlantedFoot, plantedDirection, _sPlantedFootGoalVel, Context.PlantedMovementSettings);
         _sLiftedFootGoalVel = MoveRigidbody(Context.LiftedFoot, liftedDirection, _sLiftedFootGoalVel, newLiftedMovementSettings);
+    }
+    
+    private float RelativeDistanceInDirection(Vector3 from, Vector3 to, Vector3 direction)
+    {
+        // Get the direction from the from position to the to position
+        var dir = to - from;
+        
+        // Get the dot product of the direction and the dir
+        var dot = Vector3.Dot(dir.normalized, direction.normalized);
+        
+        // Multiply the direction magnitude by the dot product
+        return dir.magnitude * dot;
     }
 }

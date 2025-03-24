@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using static RigidbodyMovement;
 
 public class PlacingSneakState : ProceduralSneakState
 {
@@ -8,6 +9,8 @@ public class PlacingSneakState : ProceduralSneakState
     }
 
     private bool _placed;
+    private RaycastHit _cast;
+    private Vector3 _placeNormal;
     
     public override ProceduralSneakStateMachine.ESneakState GetNextState()
     {
@@ -24,6 +27,8 @@ public class PlacingSneakState : ProceduralSneakState
         _startPos = Context.LiftedFoot.position;
         Context.ResetLiftedFootGoalVel();
         Context.ResetBodyGoalVel();
+        _cast = Context.GroundCast(Context.LiftedFoot.position, 1f);
+        _placeNormal = _cast.normal;
     }
 
     public override void ExitState()
@@ -57,5 +62,22 @@ public class PlacingSneakState : ProceduralSneakState
         
         Context.MoveLiftedFoot(lerpedDirection);
         Context.MoveBody(Context.GetFeetMiddlePoint());
+        Context.UpdateFootGroundNormal(Context.PlantedFoot);
+        HandleFootRotation();
+    }
+    
+    private void HandleFootRotation()
+    {
+        var foot = Context.LiftedFoot;
+        var footForward = foot.transform.forward;
+        var direction = Vector3.ProjectOnPlane(footForward, _placeNormal);
+        
+        // Lerp speed based on distance to ground
+        var dist = Vector3.Distance(foot.position, _cast.point);
+        var maxDist = _cast.distance;
+        
+        var lerpSpeed = Mathf.Lerp(500f, 0f, Context.PlaceSpeedCurve.Evaluate(dist / maxDist));
+        
+        RotateRigidbody(foot,direction, lerpSpeed);
     }
 }

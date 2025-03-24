@@ -53,6 +53,8 @@ public class PlantedSneakState : ProceduralSneakState
     {
         UpdateFeetVelocities();
         Context.MoveBody(Context.GetFeetMiddlePoint());
+        Context.UpdateFootGroundNormal(Context.LeftFoot);
+        Context.UpdateFootGroundNormal(Context.RightFoot);
     }
     
     private Vector3 _sLeftFootGoalVel;

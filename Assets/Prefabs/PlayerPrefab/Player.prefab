@@ -1345,13 +1345,14 @@ MonoBehaviour:
   - {fileID: 1385570495086712101}
   _springStrength: 250
   _springDampener: 25
-  _minSneakSpeed: 1
+  _minSneakSpeed: 0
   _maxSneakSpeed: 2
   _sneakStepLength: 0.5
+  _sneakStepHeight: 0.5
   _bodyRotationSpeed: 100
   _liftedMovementSettings:
-    MaxSpeed: 5
-    Acceleration: 10
+    MaxSpeed: 3
+    Acceleration: 3
     AccelerationFactorFromDot:
       serializedVersion: 2
       m_Curve:
@@ -1515,6 +1516,30 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  _placeSpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -0.0067079742
+      outSlope: -0.0067079742
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.89858687
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 3.4487154
+      outSlope: 3.4487154
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.028262675
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &6031514326311100110
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1522,7 +1547,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2393979209846732484}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cb81ba2a23e192242a201890d9eeb3e5, type: 3}
   m_Name: 
@@ -1864,7 +1889,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff2e2b0da0cbba84182c60d6a4b1afd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _player: {fileID: 0}
+  _player: {fileID: 1655285743414247464}
   _minVolume: 0.1
   _maxVolume: 0.2
   _minPitch: 0.8
@@ -3869,7 +3894,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff2e2b0da0cbba84182c60d6a4b1afd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _player: {fileID: 0}
+  _player: {fileID: 1655285743414247464}
   _minVolume: 0.1
   _maxVolume: 0.2
   _minPitch: 0.8

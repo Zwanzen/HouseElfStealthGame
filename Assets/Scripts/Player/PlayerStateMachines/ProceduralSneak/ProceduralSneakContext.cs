@@ -30,11 +30,13 @@ public class ProceduralSneakContext
     private MovementSettings _liftedMovementSettings;
     private MovementSettings _plantedMovementSettings;
     private AnimationCurve _sneakSpeedCurve;
+    private AnimationCurve _placeSpeedCurve;
     
     // Constructor
     public ProceduralSneakContext(PlayerController player, ProceduralSneakStateMachine stateMachine, FullBodyBipedIK bodyIK,
         LayerMask groundLayers, Rigidbody leftFootTarget, Rigidbody rightFootTarget, Transform leftFootRestTarget, Transform rightFootRestTarget,
-        float minSneakSpeed, float maxSneakSpeed, float sneakStepLength, float sneakStepHeight, float bodyRotationSpeed, MovementSettings liftedMovementSettings, MovementSettings plantedMovementSettings, AnimationCurve sneakSpeedCurve)
+        float minSneakSpeed, float maxSneakSpeed, float sneakStepLength, float sneakStepHeight, float bodyRotationSpeed, MovementSettings liftedMovementSettings,
+        MovementSettings plantedMovementSettings, AnimationCurve sneakSpeedCurve, AnimationCurve placeSpeedCurve)
     {
         _player = player;
         _stateMachine = stateMachine;
@@ -52,6 +54,7 @@ public class ProceduralSneakContext
         _liftedMovementSettings = liftedMovementSettings;
         _plantedMovementSettings = plantedMovementSettings;
         _sneakSpeedCurve = sneakSpeedCurve;
+        _placeSpeedCurve = placeSpeedCurve;
         
         // Initialize the foot sound players
         _leftFootSoundPlayer = _player.LeftFootSoundPlayer;
@@ -74,6 +77,7 @@ public class ProceduralSneakContext
     public MovementSettings LiftedMovementSettings => _liftedMovementSettings;
     public MovementSettings PlantedMovementSettings => _plantedMovementSettings;
     public AnimationCurve SpeedCurve => _sneakSpeedCurve;
+    public AnimationCurve PlaceSpeedCurve => _placeSpeedCurve;
     
     public Rigidbody LiftedFoot { get; set; }
     
@@ -160,12 +164,23 @@ public class ProceduralSneakContext
         RotateRigidbody(_player.Rigidbody, direction, rotSpeed);
     }
     
-    public void UpdateFootRotation(Rigidbody foot)
+    public void UpdateFootGroundNormal(Rigidbody foot)
     {
-        // Check if the direction is pointing backwards from the camera forward
-        var camForward = _player.Camera.GetCameraYawTransform().forward;
+        // Project the foot's forward direction onto the ground
+        var cast = GroundCast(foot.position + (FootPlaceOffset * Vector3.up), FootPlaceOffset * 3f);
+        var groundNormal = cast.normal;
+        var footForward = foot.transform.forward;
         
-        RotateRigidbody(foot, camForward, _bodyRotationSpeed * 3f);
+        var direction = Vector3.ProjectOnPlane(footForward, groundNormal);
+        
+        // Get the distance from the ground
+        var dist = Vector3.Distance(foot.position + Vector3.up * FootPlaceOffset, cast.point);
+        var maxDist = FootPlaceOffset * 3f;
+        
+        var lerpSpeed = Mathf.Lerp(0, _bodyRotationSpeed * 8f, dist / maxDist);
+        
+        
+        RotateRigidbody(foot,direction, lerpSpeed);
     }
     
     public bool FeetIsGrounded()
