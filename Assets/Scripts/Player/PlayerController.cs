@@ -1,4 +1,5 @@
 using System;
+using RootMotion.Dynamics;
 using RootMotion.FinalIK;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -21,6 +22,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Rigidbody _rigidbody;
     [SerializeField] private FullBodyBipedIK _bodyIK;
     [SerializeField] private PlayerCameraController _cameraController;
+    [SerializeField] private PuppetMaster _puppetMaster;
     
     [Space(10f)]
     [Header("Common")]
@@ -84,7 +86,7 @@ public class PlayerController : MonoBehaviour
     // Initialize the state machine contexts
     private void InitializeStateMachineContexts()
     {
-        _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
+        _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _puppetMaster, _groundLayers,
              _leftFootTarget, _rightFootTarget, _springStrength, _springDampener);
         _sneakContext = new ProceduralSneakContext(this, _sneakStateMachine, _bodyIK, _groundLayers,
             _leftFootTarget, _rightFootTarget, _leftFootRestTarget, _rightFootRestTarget,

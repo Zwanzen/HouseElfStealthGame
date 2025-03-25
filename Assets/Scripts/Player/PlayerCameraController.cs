@@ -37,7 +37,16 @@ public class PlayerCameraController : MonoBehaviour
 
     private void UpdatePosition()
     {
-        transform.position = Vector3.Lerp(transform.position, _followTarget.position, Time.deltaTime * _followSpeed);
+        if (_player.IsGrounded)
+        {
+            transform.position = Vector3.Lerp(transform.position, _followTarget.position, Time.deltaTime * _followSpeed);
+        }
+        else
+        {
+            transform.position = Vector3.Lerp(transform.position, _player.Position, Time.deltaTime * _followSpeed);
+        }
+            
+        
     }
 
     private void HandleRotation()

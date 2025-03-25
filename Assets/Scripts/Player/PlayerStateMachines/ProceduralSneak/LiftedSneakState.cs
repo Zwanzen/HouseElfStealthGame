@@ -11,6 +11,11 @@ public class LiftedSneakState : ProceduralSneakState
     
     public override ProceduralSneakStateMachine.ESneakState GetNextState()
     {
+        if (!Context.Player.IsGrounded)
+        {
+            return ProceduralSneakStateMachine.ESneakState.Stop;
+        }
+        
         if(!InputManager.Instance.IsHoldingLMB && Context.LiftedFoot == Context.LeftFoot)
         {
             return ProceduralSneakStateMachine.ESneakState.Placing;
@@ -94,6 +99,8 @@ public class LiftedSneakState : ProceduralSneakState
         var footForward = Quaternion.AngleAxis(lerpAngle, _sCameraRight) * _sCameraForward;
         footForward.Normalize();
 
+        if(footForward == Vector3.zero)
+            return;
         
         RotateRigidbody(Context.LiftedFoot, footForward, 500f);
     }

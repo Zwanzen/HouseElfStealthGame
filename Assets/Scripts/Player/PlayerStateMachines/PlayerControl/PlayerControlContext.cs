@@ -1,3 +1,5 @@
+using RootMotion.Dynamics;
+using RootMotion.FinalIK;
 using UnityEngine;
 
 public class PlayerControlContext
@@ -8,6 +10,7 @@ public class PlayerControlContext
     private readonly PlayerController _player;
     private PlayerControlStateMachine _stateMachine;
     private readonly Rigidbody _rigidbody;
+    private PuppetMaster _puppetMaster;
     
     [Header("Common")]
     private readonly LayerMask _groundLayers;
@@ -19,12 +22,14 @@ public class PlayerControlContext
     private readonly float _springDampener;
     
     // Constructor
-    public PlayerControlContext(PlayerController player, PlayerControlStateMachine stateMachine, Rigidbody rigidbody, LayerMask groundLayers,
+    public PlayerControlContext(PlayerController player, PlayerControlStateMachine stateMachine, Rigidbody rigidbody,
+        PuppetMaster puppetMaster, LayerMask groundLayers,
         Rigidbody leftFootTarget, Rigidbody rightFootTarget, float springStrength, float springDampener)
     {
         _player = player;
         _stateMachine = stateMachine;
         _rigidbody = rigidbody;
+        _puppetMaster = puppetMaster;
         _groundLayers = groundLayers;
         _leftFootTarget = leftFootTarget;
         _rightFootTarget = rightFootTarget;
@@ -34,6 +39,9 @@ public class PlayerControlContext
     
     // Read-only properties
     public PlayerController Player => _player;
+    public PuppetMaster PuppetMaster => _puppetMaster;
+    public Rigidbody LeftFootTarget => _leftFootTarget;
+    public Rigidbody RightFootTarget => _rightFootTarget;
     
     // Private methods
     private Vector3 GetLowestFootPosition()

@@ -34,6 +34,10 @@ public class StopSneakState : ProceduralSneakState
         leftFootIK.positionWeight = 0f;
         rightFootIK.positionWeight = 0f;
         
+        // Deactivate the foot rotation
+        leftFootIK.rotationWeight = 0f;
+        rightFootIK.rotationWeight = 0f;
+        
         _hasStopped = true;
     }
 

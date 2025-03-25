@@ -9,10 +9,13 @@ public class PlayerGroundedState : PlayerControlState
 
     public override PlayerControlStateMachine.EPlayerControlState GetNextState()
     {
-        if (!Context.IsGrounded())
+        var dist = Vector3.Distance(Context.LeftFootTarget.position, Context.RightFootTarget.position);
+        
+        if (!Context.IsGrounded() || dist > 0.8f)
         {
             return PlayerControlStateMachine.EPlayerControlState.Falling;
         }
+
 
         return StateKey;
     }

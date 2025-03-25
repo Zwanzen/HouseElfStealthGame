@@ -14,6 +14,11 @@ public class PlacingSneakState : ProceduralSneakState
     
     public override ProceduralSneakStateMachine.ESneakState GetNextState()
     {
+        if (!Context.Player.IsGrounded)
+        {
+            return ProceduralSneakStateMachine.ESneakState.Stop;
+        }
+        
         if (_placed)
         {
             return ProceduralSneakStateMachine.ESneakState.Planted;
@@ -33,7 +38,8 @@ public class PlacingSneakState : ProceduralSneakState
 
     public override void ExitState()
     {
-        Context.PlaySound(Context.LiftedFoot,Context.GetGroundTypeFromFoot(Context.LiftedFoot));
+        if(Context.Player.IsGrounded)
+            Context.PlaySound(Context.LiftedFoot,Context.GetGroundTypeFromFoot(Context.LiftedFoot));
         _placed = false;
     }
 
