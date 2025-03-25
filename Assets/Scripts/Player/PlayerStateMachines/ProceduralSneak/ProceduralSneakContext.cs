@@ -147,21 +147,17 @@ public class ProceduralSneakContext
     {
         _sBodyGoalVel = _player.Rigidbody.linearVelocity;
     }
-
-    private float _turnLerpTimer;
     
     public void UpdateBodyRotation(Vector3 direction)
     {
         if (direction == Vector3.zero)
         {
-            _turnLerpTimer = 0;
             return;
         }
-        _turnLerpTimer += Time.deltaTime;
-        var rotSpeed = Mathf.Lerp(0, _bodyRotationSpeed, _turnLerpTimer);
+
         
         // Rotate the body towards the direction
-        RotateRigidbody(_player.Rigidbody, direction, rotSpeed);
+        RotateRigidbody(_player.Rigidbody, direction, _bodyRotationSpeed);
     }
     
     public void UpdateFootGroundNormal(Rigidbody foot)

@@ -221,7 +221,7 @@ public class DemoNpc : MonoBehaviour, IHear
             // Check if the sound is still valid
             if (s.CurrentVolume <= 0)
             {
-                _heardSounds.Remove(s);
+                soundsToRemove.Add(s);
             }
         }
         
