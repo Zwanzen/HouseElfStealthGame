@@ -1705,8 +1705,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _collisionSound:
   - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
-  _collisionThreshold: 1
-  _timeBetweenSounds: 0.1
+  _maxCollisionForce: 10
+  _minCollisionForce: 0.5
+  _timeBetweenSounds: 0.2
+  _volumeCollisionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -0.002512617
+      outSlope: -0.002512617
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.9985079
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 3.1883638
+      outSlope: 3.1883638
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.04603827
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &599737212
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3285,8 +3310,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _collisionSound:
   - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
-  _collisionThreshold: 1
-  _timeBetweenSounds: 0.1
+  _maxCollisionForce: 10
+  _minCollisionForce: 0.5
+  _timeBetweenSounds: 0.2
+  _volumeCollisionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -0.002512617
+      outSlope: -0.002512617
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.9985079
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 3.1883638
+      outSlope: 3.1883638
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.04603827
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1119874526
 GameObject:
   m_ObjectHideFlags: 0
@@ -3438,8 +3488,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _collisionSound:
   - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
-  _collisionThreshold: 1
-  _timeBetweenSounds: 0.1
+  _maxCollisionForce: 10
+  _minCollisionForce: 0.5
+  _timeBetweenSounds: 0.2
+  _volumeCollisionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -0.002512617
+      outSlope: -0.002512617
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.9985079
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 3.1883638
+      outSlope: 3.1883638
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.04603827
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1162659261
 GameObject:
   m_ObjectHideFlags: 0
@@ -3591,8 +3666,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _collisionSound:
   - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
-  _collisionThreshold: 1
-  _timeBetweenSounds: 0.1
+  _maxCollisionForce: 10
+  _minCollisionForce: 0.5
+  _timeBetweenSounds: 0.2
+  _volumeCollisionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -0.002512617
+      outSlope: -0.002512617
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.9985079
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 3.1883638
+      outSlope: 3.1883638
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.04603827
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1193250802
 GameObject:
   m_ObjectHideFlags: 0
@@ -4194,8 +4294,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _collisionSound:
   - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
-  _collisionThreshold: 1
-  _timeBetweenSounds: 0.1
+  _maxCollisionForce: 10
+  _minCollisionForce: 0.5
+  _timeBetweenSounds: 0.2
+  _volumeCollisionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -0.002512617
+      outSlope: -0.002512617
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.9985079
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 3.1883638
+      outSlope: 3.1883638
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.04603827
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1443412939
 GameObject:
   m_ObjectHideFlags: 0
@@ -4689,8 +4814,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _collisionSound:
   - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
-  _collisionThreshold: 1
-  _timeBetweenSounds: 0.1
+  _maxCollisionForce: 10
+  _minCollisionForce: 0.5
+  _timeBetweenSounds: 0.2
+  _volumeCollisionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -0.002512617
+      outSlope: -0.002512617
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.9985079
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 3.1883638
+      outSlope: 3.1883638
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.04603827
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1636441176
 GameObject:
   m_ObjectHideFlags: 0
@@ -5350,8 +5500,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _collisionSound:
   - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
-  _collisionThreshold: 1
-  _timeBetweenSounds: 0.1
+  _maxCollisionForce: 10
+  _minCollisionForce: 0.5
+  _timeBetweenSounds: 0.2
+  _volumeCollisionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -0.002512617
+      outSlope: -0.002512617
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.9985079
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 3.1883638
+      outSlope: 3.1883638
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.04603827
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1754335281
 GameObject:
   m_ObjectHideFlags: 0
@@ -5854,8 +6029,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _collisionSound:
   - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
-  _collisionThreshold: 1
-  _timeBetweenSounds: 0.1
+  _maxCollisionForce: 10
+  _minCollisionForce: 0.5
+  _timeBetweenSounds: 0.2
+  _volumeCollisionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -0.002512617
+      outSlope: -0.002512617
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.9985079
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 3.1883638
+      outSlope: 3.1883638
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.04603827
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &1973705966 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
