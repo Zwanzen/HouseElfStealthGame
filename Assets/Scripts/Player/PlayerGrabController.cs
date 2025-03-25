@@ -1,6 +1,7 @@
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [Serializable]
 public struct SpringJointSettings
@@ -21,9 +22,20 @@ public class PlayerGrabController : MonoBehaviour
     [SerializeField]
     private SpringJointSettings _springJointSettings;
     [SerializeField] private LayerMask _grabLayers;
-
     private PlayerController _player;
+    
+    [FormerlySerializedAs("_MaxLineWidth")]
+    [Space(10f)]
+    [Header("Line Renderer")]
+    [SerializeField] private float _startWidth = 0.1f;
+    [SerializeField] private float _endWidth = 0.01f;
+    [SerializeField] private float _lineRenderSpeed = 1.50f;
+    [SerializeField] private float _lineRenderDuration = 0.35f;
+    [SerializeField] private AnimationCurve _lineScaleCurve;
+
     private LineRenderer _lineRenderer;
+    private float _lineRenderTimer;
+    
     
     private Transform _cameraTransform;
     private SpringJoint _springJoint;
@@ -70,6 +82,39 @@ public class PlayerGrabController : MonoBehaviour
             _lineRenderer.SetPosition(0, _cameraTransform.position + _cameraTransform.forward * _currentGrabDistance);
             _lineRenderer.SetPosition(1, _springJoint.transform.position);
         }
+        else
+        {
+            // Move linerender index 0 towards index 1
+            _lineRenderer.SetPosition(0, Vector3.Lerp(_lineRenderer.GetPosition(0), _lineRenderer.GetPosition(1), Time.deltaTime * 5f));
+        }
+        
+        HandleLineRenderer();
+    }
+    
+    private void HandleLineRenderer()
+    {
+        Debug.Log(_lineRenderTimer);
+        
+        if (_isGrabbing)
+        {
+            _lineRenderTimer += Time.deltaTime * _lineRenderSpeed;
+        }else
+        {
+            _lineRenderTimer -= Time.deltaTime * _lineRenderSpeed;
+        }
+
+        var lerp = _lineRenderTimer / _lineRenderDuration;
+        _lineRenderer.startWidth = Mathf.Lerp(0f, _endWidth, _lineScaleCurve.Evaluate(lerp));
+        _lineRenderer.endWidth = Mathf.Lerp(0f, _startWidth, _lineScaleCurve.Evaluate(lerp));
+
+        _lineRenderTimer = Mathf.Clamp(_lineRenderTimer, 0f, 1f);
+        if(_lineRenderTimer <= 0f)
+        {
+            _lineRenderer.enabled = false;
+        }else
+        {
+            _lineRenderer.enabled = true;
+        }
     }
 
     private void OnTryGrab()
@@ -91,7 +136,6 @@ public class PlayerGrabController : MonoBehaviour
         _doorController = hit.transform.parent.GetComponent<DoorController>();
         _doorController.OnGrabDoor();
         ConstructSpringJoint(_doorController.Rigidbody);
-        _lineRenderer.enabled = true;
     }
     
     private void OnReleaseGrab()
@@ -100,7 +144,6 @@ public class PlayerGrabController : MonoBehaviour
         {
             if (_isDoorGrabbing)
             {
-                _lineRenderer.enabled = false;
                 _isDoorGrabbing = false;
                 _doorController.OnReleaseDoor();
             }
