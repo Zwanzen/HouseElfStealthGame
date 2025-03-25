@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class DoorController : MonoBehaviour
@@ -9,37 +10,25 @@ public class DoorController : MonoBehaviour
     
     [Space(20f)]
     [Header("Components")]
-    public HingeJoint hinge; // Rotasjonspunktet for d�ren
-    private bool _isGrabbed = false; // Sjekker om spilleren kontrollerer d�ren
-    private Quaternion closedRotation; // Startrotasjonen til d�ren
+    [SerializeField] HingeJoint _hinge; // Rotasjonspunktet for d�ren
     private float closeThreshold = 10f; // Grense for automatisk lukking
-    public float rotationSpeed = 5f; // Hvor raskt d�ren roteres med musa
-    [SerializeField] private Rigidbody _rigidbody;
-
+    
+    private Rigidbody _rigidbody;
+    private bool _isGrabbed;
     private bool _isClosed;
+    
     //Read only properties
     public Rigidbody Rigidbody => _rigidbody;
+    public HingeJoint Hinge => _hinge;
 
-    private void Start()
+    private void Awake()
     {
-        closedRotation = Quaternion.Euler(0, 0, 0); // Lukket posisjon = 0 grader
+        _rigidbody = _hinge.GetComponent<Rigidbody>();
     }
 
     private void Update()
     {
-        /*
-        // Trykk F for � toggle d�rkontroll
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            isGrabbed = !isGrabbed; // Bytter mellom � kontrollere eller ikke
-        }
-        */
-
-        if (_isGrabbed)
-        {
-            //HandleDoor(); // Lar spilleren rotere d�ren med musa
-        }
-        else if(!_isClosed)
+        if(!_isClosed && !_isGrabbed)
         {
             CheckClose(); // Sjekker om d�ren skal lukkes automatisk
         }
@@ -59,7 +48,7 @@ public class DoorController : MonoBehaviour
         if (_isClosed)
         {
             _isClosed = false;
-            hinge.limits = new JointLimits
+            _hinge.limits = new JointLimits
             {
                 min = -90,
                 max = 90
@@ -72,7 +61,7 @@ public class DoorController : MonoBehaviour
         Debug.Log("Released door");
         _isGrabbed = false;
     }
-
+    
     private void HandleDoor()
     {
         /*
@@ -85,7 +74,7 @@ public class DoorController : MonoBehaviour
 
     private void CheckClose()
     {
-        float angle = Mathf.Abs(Mathf.DeltaAngle(hinge.transform.localEulerAngles.y, 0)); // Beregner reell vinkel til 0 (lukket)
+        float angle = Mathf.Abs(Mathf.DeltaAngle(_hinge.transform.localEulerAngles.y, 0)); // Beregner reell vinkel til 0 (lukket)
         if (angle < closeThreshold) // Hvis d�ren er nesten lukket
         {
             Close(); // Lukk d�ren
@@ -102,7 +91,7 @@ public class DoorController : MonoBehaviour
             SoundType = Sound.ESoundType.Player
         };
         Sounds.MakeSound(sound);
-        hinge.limits = new JointLimits
+        _hinge.limits = new JointLimits
         {
             min = 0,
             max = 0

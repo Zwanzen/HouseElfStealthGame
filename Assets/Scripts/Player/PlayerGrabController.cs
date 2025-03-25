@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [Serializable]
@@ -15,39 +16,59 @@ public struct SpringJointSettings
 public class PlayerGrabController : MonoBehaviour
 {
     [Header("Settings")]
+    [SerializeField] private float _maxGrabDistance = 1f;
+    [Space(10f)]
     [SerializeField]
     private SpringJointSettings _springJointSettings;
-
     [SerializeField] private LayerMask _grabLayers;
-    
+
     private PlayerController _player;
-    private Transform _cameraTransform;
+    private LineRenderer _lineRenderer;
     
+    private Transform _cameraTransform;
     private SpringJoint _springJoint;
     private bool _isGrabbing;
     private bool _isDoorGrabbing;
     private DoorController _doorController;
-    
-    private Vector3 _hitPoint;
-    private float _hitDistance;
+    private float _currentGrabDistance;
     
     
     private void Awake()
     {
-        _player = GetComponent<PlayerController>();
         _cameraTransform = Camera.main.transform;
+        _player = GetComponent<PlayerController>();
+        _lineRenderer = GetComponent<LineRenderer>();
+        _lineRenderer.enabled = false;
+    }
+    
+    private void UpdateGrabDistance(int scroll)
+    {
+        if(!_isGrabbing) return;
+        float intToFloat = 0f;
+        if (scroll == 1)
+        {
+            intToFloat = 0.1f;
+        }else if (scroll == -1)
+        {
+            intToFloat = -0.1f;
+        }
+        _currentGrabDistance += intToFloat;
+        _currentGrabDistance = Mathf.Clamp(_currentGrabDistance, 0.5f, _maxGrabDistance);
     }
 
     private void Start()
     {
         InputManager.Instance.OnInteract += OnTryGrab;
+        InputManager.Instance.OnScroll += UpdateGrabDistance;
     }
 
     private void Update()
     {
         if (_isGrabbing)
         {
-            _springJoint.connectedAnchor = _cameraTransform.position + _cameraTransform.forward * _hitDistance;
+            _springJoint.connectedAnchor = _cameraTransform.position + _cameraTransform.forward * _currentGrabDistance;
+            _lineRenderer.SetPosition(0, _cameraTransform.position + _cameraTransform.forward * _currentGrabDistance);
+            _lineRenderer.SetPosition(1, _springJoint.transform.position);
         }
     }
 
@@ -58,32 +79,19 @@ public class PlayerGrabController : MonoBehaviour
             OnReleaseGrab();
             return;
         }
+
+        if (!Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit hit, _maxGrabDistance,
+                _grabLayers)) return;
         
-        if (Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit hit, 1f,
-                _grabLayers))
-        {
-            _hitPoint = hit.point;
-            if (hit.collider.tag == "Door")
-            {
-                _hitDistance = hit.distance;
-                _isDoorGrabbing = true;
-                _isGrabbing = true;
-                _doorController = hit.transform.parent.GetComponent<DoorController>();
-                _doorController.OnGrabDoor();
-                ConstructSpringJoint(_doorController.Rigidbody);
-                _springJoint.anchor = hit.point - _doorController.Rigidbody.position;
-                return;
-            }
-            
-            /*
-            if (hit.rigidbody)
-            {
-                ConstructSpringJoint(hit.rigidbody);
-                
-                _isGrabbing = true;
-            }
-            */
-        }
+        if (!hit.collider.CompareTag("Door")) return;
+        
+        _currentGrabDistance = hit.distance;
+        _isDoorGrabbing = true;
+        _isGrabbing = true;
+        _doorController = hit.transform.parent.GetComponent<DoorController>();
+        _doorController.OnGrabDoor();
+        ConstructSpringJoint(_doorController.Rigidbody);
+        _lineRenderer.enabled = true;
     }
     
     private void OnReleaseGrab()
@@ -92,6 +100,7 @@ public class PlayerGrabController : MonoBehaviour
         {
             if (_isDoorGrabbing)
             {
+                _lineRenderer.enabled = false;
                 _isDoorGrabbing = false;
                 _doorController.OnReleaseDoor();
             }
@@ -112,10 +121,13 @@ public class PlayerGrabController : MonoBehaviour
         _springJoint.damper = _springJointSettings.Damper;
         _springJoint.minDistance = _springJointSettings.MinDistance;
         _springJoint.maxDistance = _springJointSettings.MaxDistance;
+        _springJoint.anchor = Vector3.zero;
     }
-
-    private void OnDrawGizmos()
+    
+    private void OnDestroy()
     {
-
+        // Unsubscribe from input
+        InputManager.Instance.OnInteract -= OnTryGrab;
+        InputManager.Instance.OnInteract -= OnTryGrab;
     }
 }
