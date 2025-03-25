@@ -36,7 +36,6 @@ public class CollisionSoundPlayer : MonoBehaviour
             _audioSource.clip = _collisionSound[Random.Range(0, _collisionSound.Length)];
             var lerp = collision.relativeVelocity.magnitude / _maxCollisionForce;
             var volume = Mathf.Lerp(0.01f, 0.2f, _volumeCollisionCurve.Evaluate(lerp));
-            Debug.Log(lerp);
             _audioSource.volume = volume;
             _audioSource.pitch = Random.Range(0.9f, 1.1f);
             _audioSource.Play();
