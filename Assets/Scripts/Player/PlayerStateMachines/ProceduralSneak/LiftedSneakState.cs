@@ -146,7 +146,11 @@ public class LiftedSneakState : ProceduralSneakState
             var footDist = Vector3.Distance(liftedFootPos, plantedFootPos);
             // This distance should not be greater than the step length
             // We use this to lerp between planted pos and the ground pos
-            baseHeight = Mathf.Lerp(Context.PlantedFoot.position.y, Context.GetFootGroundPosition(Context.LiftedFoot).y, footDist/Context.SneakStepLength);
+            var groundHeight = Context.PlantedFoot.position.y;
+            if(Physics.Raycast(Context.LiftedFoot.position, Vector3.down, out var hit,
+                   Context.SneakStepHeight, Context.GroundLayers))
+                groundHeight = hit.point.y;
+            baseHeight = Mathf.Lerp(Context.PlantedFoot.position.y, groundHeight, footDist/Context.SneakStepLength);
         }
         
         // Add y value

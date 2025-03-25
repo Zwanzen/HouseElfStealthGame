@@ -56,8 +56,8 @@ public class PlayerControlContext
     public bool IsGrounded()
     {
         // Check if the feet are grounded using CheckSphere
-        return Physics.CheckSphere(_leftFootTarget.position, PlayerController.HeightThreshold, _groundLayers) ||
-               Physics.CheckSphere(_rightFootTarget.position, PlayerController.HeightThreshold, _groundLayers);
+        return Physics.CheckSphere(_leftFootTarget.position, 0.8f, _groundLayers) ||
+               Physics.CheckSphere(_rightFootTarget.position, 0.8f, _groundLayers);
     }
 
     // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl

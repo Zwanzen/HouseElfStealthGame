@@ -55,6 +55,7 @@ public class PlayerController : MonoBehaviour
 
     
     private bool _isSneaking;
+    private bool _isStumble;
 
     // This is the maximum speed range for the player
     // Helps determine the speed state of the player
@@ -142,6 +143,11 @@ public class PlayerController : MonoBehaviour
     public bool IsGrounded => _controlStateMachine.State == PlayerControlStateMachine.EPlayerControlState.Grounded;
     
     /// <summary>
+    /// If the player tries to place feet and there is no ground.
+    /// </summary>
+    public bool IsStumble => _isStumble;
+    
+    /// <summary>
     /// This is the control state of the player based on the selected speed.
     /// </summary>
     public EPlayerSpeedState PlayerSpeedState => _playerSpeedState;
@@ -159,6 +165,7 @@ public class PlayerController : MonoBehaviour
     // SOUND DEMO
     public PlayerFootSoundPlayer LeftFootSoundPlayer => _leftFootSoundPlayer;
     public PlayerFootSoundPlayer RightFootSoundPlayer => _rightFootSoundPlayer;
+    
 
     // Private methods
     private Vector3 GetRelativeMoveInput()
@@ -240,6 +247,12 @@ public class PlayerController : MonoBehaviour
         // We need to update the player speed state
         // to make sure the correct speed is set
         UpdateMovementSpeed();
+    }
+    
+    // Public methods
+    public void SetPlayerStumble(bool isStumble)
+    {
+        _isStumble = isStumble;
     }
 
     private void OnGUI()

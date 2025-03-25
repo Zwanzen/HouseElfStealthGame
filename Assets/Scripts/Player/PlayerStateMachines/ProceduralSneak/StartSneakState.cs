@@ -32,8 +32,13 @@ public class StartSneakState : ProceduralSneakState
         Context.RightFoot.linearVelocity = Vector3.zero;
         
         // Set the foot targets to the current positions
-        Context.LeftFoot.position = leftFootIK.bone.position;
-        Context.RightFoot.position = rightFootIK.bone.position;
+        Context.LeftFoot.position = Context.LeftFootRestTarget.position;
+        Context.RightFoot.position = Context.RightFootRestTarget.position;
+        
+        // Set rotation to camera forward
+        Quaternion forward = Quaternion.LookRotation(Context.Player.Camera.GetCameraYawTransform().forward, Vector3.up);
+        Context.LeftFoot.rotation = forward;
+        Context.RightFoot.rotation = forward;
         
         // Activate the foot target rotation
         leftFootIK.rotationWeight = 1f;

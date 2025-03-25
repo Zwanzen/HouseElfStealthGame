@@ -8,6 +8,7 @@ public class PlacingSneakState : ProceduralSneakState
         Context = context;
     }
 
+    private bool _validPlacement;
     private bool _placed;
     private RaycastHit _cast;
     private Vector3 _placeNormal;
@@ -29,34 +30,68 @@ public class PlacingSneakState : ProceduralSneakState
 
     public override void EnterState()
     {
+        _validPlacement = false;
+        _placed = false;
         _startPos = Context.LiftedFoot.position;
         Context.ResetLiftedFootGoalVel();
         Context.ResetBodyGoalVel();
-        _cast = Context.GroundCast(Context.LiftedFoot.position, 1f);
-        _placeNormal = _cast.normal;
+        
+        // Check if the foot placement is valid
+        if (Physics.SphereCast(Context.LiftedFoot.position, Context.FootPlaceOffset, Vector3.down, out var hit,
+                Context.SneakStepHeight * 0.9f, Context.GroundLayers))
+        {
+            _validPlacement = true;
+            _cast = hit;
+            _placeNormal = _cast.normal;
+        }
     }
 
     public override void ExitState()
     {
-        if(Context.Player.IsGrounded)
+        if(_validPlacement)
             Context.PlaySound(Context.LiftedFoot,Context.GetGroundTypeFromFoot(Context.LiftedFoot));
-        _placed = false;
     }
 
     public override void UpdateState()
     {
-        if(Context.FeetIsGrounded())
+        var footPos = new Vector3(Context.LiftedFoot.position.x, Context.LiftedFoot.position.y - Context.FootPlaceOffset, Context.LiftedFoot.position.z);
+        var distToGround = Vector3.Distance(footPos, _checkCast.point);
+        if (distToGround < 0.05f)
         {
             _placed = true;
         }
     }
 
     private Vector3 _startPos;
+    private RaycastHit _checkCast;
     
     public override void FixedUpdateState()
     {
+        Physics.Raycast(Context.LiftedFoot.position + Vector3.up, Vector3.down, out _checkCast, 10f, Context.GroundLayers);
+        
+        if (_validPlacement)
+        {
+            MoveToValidPosition();
+        }
+        else
+        {
+            Context.MoveLiftedFoot(Vector3.down);
+            var distFromStart = Vector3.Distance(Context.LiftedFoot.position, _startPos);
+            if (distFromStart > Context.SneakStepHeight * 0.8f)
+            {
+                Context.Player.SetPlayerStumble(true);
+            }
+        }
+        
+        Context.MoveBody(Context.GetFeetMiddlePoint());
+        Context.UpdateFootGroundNormal(Context.PlantedFoot);
+        HandleFootRotation();
+    }
+
+    private void MoveToValidPosition()
+    {
         // Ground Pos
-        var groundPos = Context.GetFootGroundPosition(Context.LiftedFoot);
+        var groundPos = _checkCast.point; //Context.GetFootGroundPosition(Context.LiftedFoot);
         var direction = groundPos - Context.LiftedFoot.position;
         
         var maxDist = Vector3.Distance(groundPos, _startPos);
@@ -67,9 +102,6 @@ public class PlacingSneakState : ProceduralSneakState
         var lerpedDirection = Vector3.Lerp(direction, maxDirection, Context.SpeedCurve.Evaluate(lerp));
         
         Context.MoveLiftedFoot(lerpedDirection);
-        Context.MoveBody(Context.GetFeetMiddlePoint());
-        Context.UpdateFootGroundNormal(Context.PlantedFoot);
-        HandleFootRotation();
     }
     
     private void HandleFootRotation()

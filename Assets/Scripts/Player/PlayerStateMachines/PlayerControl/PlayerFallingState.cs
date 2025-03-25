@@ -23,6 +23,7 @@ public class PlayerFallingState : PlayerControlState
         _timer = 0f;
         _canGetUp = false;
         Context.PuppetMaster.state = PuppetMaster.State.Dead;
+        Context.Player.SetPlayerStumble(false);
     }
 
     public override void ExitState()
@@ -46,7 +47,11 @@ public class PlayerFallingState : PlayerControlState
     public override void FixedUpdateState()
     {
         if (!_canGetUp)
+        {
             Context.Player.Rigidbody.position = Context.PuppetMaster.transform.GetChild(0).position;
+            var rotation = Quaternion.LookRotation(Context.Player.Camera.GetCameraYawTransform().forward, Vector3.up);
+            Context.Player.Rigidbody.transform.rotation = rotation;
+        }
         Context.RigidbodyFloat();
     }
 }

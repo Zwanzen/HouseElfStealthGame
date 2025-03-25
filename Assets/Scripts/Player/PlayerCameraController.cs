@@ -24,9 +24,6 @@ public class PlayerCameraController : MonoBehaviour
         _player = GetComponentInParent<PlayerController>();
         _cameraYTransform = transform;
         _cameraXTransform = transform.GetChild(0);
-        
-        // Set the initial rotation
-        _yRotation = _player.transform.eulerAngles.y;
     }
 
     private void Update()
