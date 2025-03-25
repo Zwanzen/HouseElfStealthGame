@@ -93,8 +93,6 @@ public class PlayerGrabController : MonoBehaviour
     
     private void HandleLineRenderer()
     {
-        Debug.Log(_lineRenderTimer);
-        
         if (_isGrabbing)
         {
             _lineRenderTimer += Time.deltaTime * _lineRenderSpeed;

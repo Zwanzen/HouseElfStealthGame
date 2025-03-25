@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class DoorController : MonoBehaviour
@@ -24,6 +25,20 @@ public class DoorController : MonoBehaviour
     private void Awake()
     {
         _rigidbody = _hinge.GetComponent<Rigidbody>();
+    }
+
+    private void Start()
+    {
+        float angle = Mathf.Abs(Mathf.DeltaAngle(_hinge.transform.localEulerAngles.y, 0)); // Beregner reell vinkel til 0 (lukket)
+        if (angle < closeThreshold) // Hvis d�ren er nesten lukket
+        {
+            _isClosed = true;
+            _hinge.limits = new JointLimits
+            {
+                min = 0,
+                max = 0
+            };
+        }
     }
 
     private void Update()
@@ -95,6 +110,6 @@ public class DoorController : MonoBehaviour
         {
             min = 0,
             max = 0
-        }; // Setter grensen for hvor mye d�ren kan �pnes
+        };
     }
 }

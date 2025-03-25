@@ -1567,6 +1567,7 @@ GameObject:
   - component: {fileID: 596958392}
   - component: {fileID: 596958391}
   - component: {fileID: 596958390}
+  - component: {fileID: 596958394}
   m_Layer: 30
   m_Name: PhysicsBox (13)
   m_TagString: Untagged
@@ -1690,6 +1691,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 596958388}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &596958394
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 596958388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collisionSound:
+  - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
+  _collisionThreshold: 1
+  _timeBetweenSounds: 0.1
 --- !u!1001 &599737212
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1700,7 +1717,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1071785495791208455, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.985
+      value: 2.11
       objectReference: {fileID: 0}
     - target: {fileID: 1071785495791208455, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1708,7 +1725,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1071785495791208455, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.666
+      value: 3.32
       objectReference: {fileID: 0}
     - target: {fileID: 1071785495791208455, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1741,146 +1758,6 @@ PrefabInstance:
     - target: {fileID: 2393979209846732484, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_CastShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 34f8b8a8c91cbe243b68fe6118be8f76, type: 2}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_Parameters.numCapVertices
-      value: 9
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_Parameters.colorGradient.ctime1
-      value: 964
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_Parameters.colorGradient.ctime2
-      value: 65535
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_Parameters.colorGradient.key1.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_Parameters.colorGradient.key1.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_Parameters.colorGradient.key1.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_Parameters.colorGradient.key2.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_Parameters.colorGradient.key2.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_Parameters.colorGradient.key2.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_Parameters.colorGradient.m_ColorSpace
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3619952174386208278, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: m_Parameters.colorGradient.m_NumColorKeys
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _startWidth
-      value: 0.06
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineRenderSpeed
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineRenderDuration
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[1].time
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[2].time
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[0].value
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[1].value
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[2].value
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[0].inSlope
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[1].inSlope
-      value: 3.3313844
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[2].inSlope
-      value: 0.9985705
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[0].outSlope
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[1].inWeight
-      value: 0.021612644
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[1].outSlope
-      value: 3.3313844
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[2].inWeight
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[2].outSlope
-      value: 0.9985705
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[0].outWeight
-      value: 0.9509559
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[1].outWeight
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[0].tangentMode
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6031514326311100110, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
-      propertyPath: _lineScaleCurve.m_Curve.Array.data[1].tangentMode
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3270,6 +3147,7 @@ GameObject:
   - component: {fileID: 1104097485}
   - component: {fileID: 1104097484}
   - component: {fileID: 1104097483}
+  - component: {fileID: 1104097487}
   m_Layer: 30
   m_Name: PhysicsBox (3)
   m_TagString: Untagged
@@ -3393,6 +3271,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1104097481}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1104097487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1104097481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collisionSound:
+  - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
+  _collisionThreshold: 1
+  _timeBetweenSounds: 0.1
 --- !u!1 &1119874526
 GameObject:
   m_ObjectHideFlags: 0
@@ -3406,6 +3300,7 @@ GameObject:
   - component: {fileID: 1119874530}
   - component: {fileID: 1119874529}
   - component: {fileID: 1119874528}
+  - component: {fileID: 1119874532}
   m_Layer: 30
   m_Name: PhysicsBox (14)
   m_TagString: Untagged
@@ -3529,6 +3424,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1119874526}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1119874532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1119874526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collisionSound:
+  - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
+  _collisionThreshold: 1
+  _timeBetweenSounds: 0.1
 --- !u!1 &1162659261
 GameObject:
   m_ObjectHideFlags: 0
@@ -3542,6 +3453,7 @@ GameObject:
   - component: {fileID: 1162659265}
   - component: {fileID: 1162659264}
   - component: {fileID: 1162659263}
+  - component: {fileID: 1162659267}
   m_Layer: 30
   m_Name: PhysicsBox (1)
   m_TagString: Untagged
@@ -3665,6 +3577,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1162659261}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1162659267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1162659261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collisionSound:
+  - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
+  _collisionThreshold: 1
+  _timeBetweenSounds: 0.1
 --- !u!1 &1193250802
 GameObject:
   m_ObjectHideFlags: 0
@@ -4128,6 +4056,7 @@ GameObject:
   - component: {fileID: 1441797846}
   - component: {fileID: 1441797845}
   - component: {fileID: 1441797844}
+  - component: {fileID: 1441797848}
   m_Layer: 30
   m_Name: PhysicsBox (2)
   m_TagString: Untagged
@@ -4251,6 +4180,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1441797842}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1441797848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1441797842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collisionSound:
+  - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
+  _collisionThreshold: 1
+  _timeBetweenSounds: 0.1
 --- !u!1 &1443412939
 GameObject:
   m_ObjectHideFlags: 0
@@ -4606,6 +4551,7 @@ GameObject:
   - component: {fileID: 1609388162}
   - component: {fileID: 1609388161}
   - component: {fileID: 1609388164}
+  - component: {fileID: 1609388165}
   m_Layer: 30
   m_Name: PhysicsBox
   m_TagString: Untagged
@@ -4729,6 +4675,22 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1609388165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1609388159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collisionSound:
+  - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
+  _collisionThreshold: 1
+  _timeBetweenSounds: 0.1
 --- !u!1 &1636441176
 GameObject:
   m_ObjectHideFlags: 0
@@ -5250,6 +5212,7 @@ GameObject:
   - component: {fileID: 1716780943}
   - component: {fileID: 1716780942}
   - component: {fileID: 1716780941}
+  - component: {fileID: 1716780945}
   m_Layer: 30
   m_Name: PhysicsBox (15)
   m_TagString: Untagged
@@ -5373,6 +5336,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1716780939}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1716780945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1716780939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collisionSound:
+  - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
+  _collisionThreshold: 1
+  _timeBetweenSounds: 0.1
 --- !u!1 &1754335281
 GameObject:
   m_ObjectHideFlags: 0
@@ -5737,6 +5716,7 @@ GameObject:
   - component: {fileID: 1890992011}
   - component: {fileID: 1890992010}
   - component: {fileID: 1890992009}
+  - component: {fileID: 1890992013}
   m_Layer: 30
   m_Name: PhysicsBox (12)
   m_TagString: Untagged
@@ -5860,6 +5840,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1890992007}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1890992013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1890992007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collisionSound:
+  - {fileID: 8300000, guid: 83f24e4d00b840545898cf2d1c308261, type: 3}
+  _collisionThreshold: 1
+  _timeBetweenSounds: 0.1
 --- !u!114 &1973705966 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1655285743414247464, guid: 38b98cf1c7da63a43a8059ffb967034a, type: 3}
