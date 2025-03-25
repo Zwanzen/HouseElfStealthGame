@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6125759598908852719}
   - component: {fileID: 8259094131199910916}
   - component: {fileID: 6768518634009069621}
+  - component: {fileID: -5057662024897805845}
   m_Layer: 0
   m_Name: CarpetCornerDecorated
   m_TagString: Untagged
@@ -40,7 +41,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3279456196973161302}
-  m_Mesh: {fileID: -6999840085203838296, guid: be0e75163145e7946a2fdef01f8c54ab, type: 3}
+  m_Mesh: {fileID: -6999840085203838296, guid: 581e4b5548bbb6541898583f5403995b, type: 3}
 --- !u!23 &6768518634009069621
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -86,3 +87,24 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &-5057662024897805845
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3279456196973161302}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 0.02, z: 1}
+  m_Center: {x: 0, y: 0.01, z: 0}
