@@ -215,17 +215,15 @@ public class ProceduralSneakContext
         // Compare the tag of the ground
         // Depending on what tag, return sound type
         if (footGroundCast.collider.CompareTag("Wood"))
-        {
             return PlayerFootSoundPlayer.EFootSoundType.Wood;
-        }
-        else if (footGroundCast.collider.CompareTag("Metal"))
-        {
-            return PlayerFootSoundPlayer.EFootSoundType.Metal;
-        }
-        else if (footGroundCast.collider.CompareTag("Carpet"))
-        {
-            return PlayerFootSoundPlayer.EFootSoundType.Carpet;
-        }
+        if (footGroundCast.collider.CompareTag("Metal"))
+             return PlayerFootSoundPlayer.EFootSoundType.Metal;
+        if (footGroundCast.collider.CompareTag("Carpet"))
+             return PlayerFootSoundPlayer.EFootSoundType.Carpet;
+        if (footGroundCast.collider.CompareTag("Water"))
+                return PlayerFootSoundPlayer.EFootSoundType.Water;
+        if (footGroundCast.collider.CompareTag("Stone"))
+            return PlayerFootSoundPlayer.EFootSoundType.Stone;
 
         return PlayerFootSoundPlayer.EFootSoundType.Wood;
 

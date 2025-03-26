@@ -18,12 +18,16 @@ public class PlayerFootSoundPlayer : MonoBehaviour
     [SerializeField] private AudioClip[] _woodFootSounds;
     [SerializeField] private AudioClip[] _metalFootSounds;
     [SerializeField] private AudioClip[] _carpetFootSounds;
+    [SerializeField] private AudioClip[] _stoneFootSounds;
+    [SerializeField] private AudioClip[] _waterFootSounds;
     
     public enum EFootSoundType
     {
         Wood,
         Metal,
-        Carpet
+        Carpet,
+        Stone,
+        Water
     }
     
     private AudioSource _audioSource;
@@ -56,6 +60,18 @@ public class PlayerFootSoundPlayer : MonoBehaviour
             range = 0.3f;
             amplitude = 1f;
         }
+        else if (footSoundType == EFootSoundType.Stone)
+        {
+            audioClip = _stoneFootSounds[UnityEngine.Random.Range(0, _stoneFootSounds.Length)];
+            range = 3f;
+            amplitude = 5f;
+        }
+        else if (footSoundType == EFootSoundType.Water)
+        {
+            audioClip = _waterFootSounds[UnityEngine.Random.Range(0, _waterFootSounds.Length)];
+            range = 5f;
+            amplitude = 10f;
+        } 
         
         // Calculate volume modifier based on current player speed
         var playerSpeed = _player.CurrentPlayerSpeed;
@@ -72,8 +88,8 @@ public class PlayerFootSoundPlayer : MonoBehaviour
         
         
         // Calculate new range and amplitude based on speed
-        range += (range/2) * speedLerp;      
-        amplitude += (amplitude/2) * speedLerp;
+        range = Mathf.Lerp(range/2f, range, speedLerp);      
+        amplitude = Mathf.Lerp(amplitude/2f, amplitude, speedLerp);
         
         _audioSource.clip = audioClip;
         _audioSource.volume = randomVolume;
