@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3665892203483122395}
   - component: {fileID: 5213054147324811688}
   - component: {fileID: 5391846082606407266}
-  - component: {fileID: 325768284320766175}
+  - component: {fileID: -9089854273496507798}
   m_Layer: 0
   m_Name: SupportBeamAttachmentArched
   m_TagString: Untagged
@@ -41,7 +41,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6853149648861820756}
-  m_Mesh: {fileID: -8076441613434054974, guid: be0e75163145e7946a2fdef01f8c54ab, type: 3}
+  m_Mesh: {fileID: -8076441613434054974, guid: 23f5ce2fba1dea448a99fd9af74e71da, type: 3}
 --- !u!23 &5391846082606407266
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -87,7 +87,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &325768284320766175
+--- !u!64 &-9089854273496507798
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -106,6 +106,6 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: -8076441613434054974, guid: be0e75163145e7946a2fdef01f8c54ab, type: 3}
+  m_Mesh: {fileID: -8076441613434054974, guid: 23f5ce2fba1dea448a99fd9af74e71da, type: 3}
