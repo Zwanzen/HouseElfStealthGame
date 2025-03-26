@@ -214,8 +214,6 @@ public class DemoNpc : MonoBehaviour, IHear
         if(_heardSounds.Count == 0)
             return;
         
-        Debug.Log(_heardSounds.Count);
-        
         // Create a temporary list to store sounds that need to be removed
         List<Sound> soundsToRemove = new List<Sound>();
 

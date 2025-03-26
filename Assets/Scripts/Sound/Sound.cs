@@ -29,7 +29,7 @@ public class Sound
     
     public Vector3 Pos;
     public readonly float Range;
-    public readonly float Amplitude;
+    public float Amplitude;
     public readonly bool Loop;
     
     public float CurrentVolume;
