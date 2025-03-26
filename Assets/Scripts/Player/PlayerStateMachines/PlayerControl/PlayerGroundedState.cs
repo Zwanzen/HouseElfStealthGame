@@ -8,7 +8,7 @@ public class PlayerGroundedState : PlayerControlState
     }
 
     private bool _shouldFall;
-    private const float FallTimeThreshold = 0.1f;
+    private const float FallTimeThreshold = 0.15f;
 
     public override PlayerControlStateMachine.EPlayerControlState GetNextState()
     {

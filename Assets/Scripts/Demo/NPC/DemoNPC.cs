@@ -214,6 +214,8 @@ public class DemoNpc : MonoBehaviour, IHear
         if(_heardSounds.Count == 0)
             return;
         
+        Debug.Log(_heardSounds.Count);
+        
         // Create a temporary list to store sounds that need to be removed
         List<Sound> soundsToRemove = new List<Sound>();
 
@@ -226,13 +228,15 @@ public class DemoNpc : MonoBehaviour, IHear
             }
             else
             {
+                // Lerp the sound volume towards 0
+                s.CurrentVolume = Mathf.Lerp(s.CurrentVolume, 0, Time.deltaTime * _soundDecayRate);
                 // Decrease the sound volume over time
-                s.CurrentVolume -= Time.deltaTime * _soundDecayRate;
+                //s.CurrentVolume -= Time.deltaTime * _soundDecayRate;
             }
 
             
             // Check if the sound is still valid
-            if (s.CurrentVolume <= 0)
+            if (s.CurrentVolume <= 0.1f)
             {
                 soundsToRemove.Add(s);
             }
@@ -423,7 +427,7 @@ public class DemoNpc : MonoBehaviour, IHear
         _silhouetteCam.transform.rotation = toRotation;
         
         // Set the clipping plane to the player
-        _silhouetteCam.nearClipPlane = Vector3.Distance(_silhouetteCam.transform.position, playerPos);
+        _silhouetteCam.nearClipPlane = Vector3.Distance(_silhouetteCam.transform.position, playerPos) - 0.1f;
         
         _backgroundBrightness = ColorIntensity(_silhouetteCam, _silhouetteRenderTexture, _silhouetteTexture, false);
         // Turn off the silhouette camera

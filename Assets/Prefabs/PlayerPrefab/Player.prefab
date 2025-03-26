@@ -2076,7 +2076,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3528731894941497204
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3047,7 +3047,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &9200671716166760633
 Transform:
   m_ObjectHideFlags: 0
@@ -4151,6 +4151,7 @@ GameObject:
   - component: {fileID: 6023698084890014069}
   - component: {fileID: 3750843210715445357}
   - component: {fileID: 7936183973313459118}
+  - component: {fileID: 4511982832649744223}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -4242,6 +4243,20 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &4511982832649744223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5394818842806538344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 430fd586f1f313e4cac7228928614e4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: 108
+  _objectToToggle: {fileID: 3528731894941497204}
 --- !u!1 &5442354531956780101
 GameObject:
   m_ObjectHideFlags: 0
