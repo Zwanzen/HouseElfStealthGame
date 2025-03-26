@@ -7,11 +7,14 @@ public class PlayerGroundedState : PlayerControlState
         Context = context;
     }
 
+    private bool _shouldFall;
+    private const float FallTimeThreshold = 0.1f;
+
     public override PlayerControlStateMachine.EPlayerControlState GetNextState()
     {
         var dist = Vector3.Distance(Context.LeftFootTarget.position, Context.RightFootTarget.position);
         
-        if (!Context.IsGrounded() || dist > 0.8f || Context.Player.IsStumble)
+        if (_shouldFall || dist > 0.8f || Context.Player.IsStumble)
         {
             return PlayerControlStateMachine.EPlayerControlState.Falling;
         }
@@ -22,6 +25,8 @@ public class PlayerGroundedState : PlayerControlState
 
     public override void EnterState()
     {
+        _shouldFall = false;
+        _timer = FallTimeThreshold;
     }
 
 
@@ -30,9 +35,20 @@ public class PlayerGroundedState : PlayerControlState
 
     }
 
+    private float _timer;
     public override void UpdateState()
     {
-        
+        if (!Context.IsGrounded())
+        {
+            _timer -= Time.deltaTime;
+            if (_timer <= 0)
+            {
+                _shouldFall = true;
+            }
+        }else
+        {
+            _timer = FallTimeThreshold;
+        }
     }
 
     public override void FixedUpdateState()

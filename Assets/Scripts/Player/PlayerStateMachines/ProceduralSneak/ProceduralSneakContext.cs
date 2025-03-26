@@ -205,6 +205,13 @@ public class ProceduralSneakContext
         // Get the ground raycast
         var threshold = Vector3.up * 0.1f;
         var footGroundCast = GroundCast(foot.position + threshold, 1f + threshold.magnitude);
+        
+        // Check if the raycast hit something
+        if (!footGroundCast.collider)
+        {
+            return PlayerFootSoundPlayer.EFootSoundType.Wood;
+        }
+        
         // Compare the tag of the ground
         // Depending on what tag, return sound type
         if (footGroundCast.collider.CompareTag("Wood"))

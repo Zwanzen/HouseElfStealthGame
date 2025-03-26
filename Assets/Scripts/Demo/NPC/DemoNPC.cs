@@ -287,7 +287,7 @@ public class DemoNpc : MonoBehaviour, IHear
         detectionValue += Time.deltaTime * VisionDetection();
         
         // Decreaase the detection value over time if player is not being detected
-        if (detectionValue <= 0.5f)
+        if (detectionValue <= 0.01f)
         {
             _decayTimer += Time.deltaTime;
             // If the decay timer is greater than the decay delay, start decaying the detection value
