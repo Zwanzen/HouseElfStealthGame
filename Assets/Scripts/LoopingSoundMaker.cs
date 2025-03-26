@@ -32,6 +32,7 @@ public class LoopingSoundMaker : MonoBehaviour
             if(_soundTimer >= 30f)
             {
                 _loopingSound.Amplitude = 0f;
+                Sounds.MakeSound(_loopingSound);
                 _isLoud = false;
             }
             MakeSound();
