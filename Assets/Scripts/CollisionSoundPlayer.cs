@@ -7,11 +7,15 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(Collider), typeof(Rigidbody))]
 public class CollisionSoundPlayer : MonoBehaviour
 {
+    [SerializeField] private Sound.ESoundType _soundType;
+    [SerializeField] private float _soundRange = 3f;
+    [SerializeField] private float _soundAmplitude = 2f;
     [SerializeField] private AudioClip[] _collisionSound;
     [SerializeField] private float _maxCollisionForce = 50f;
     [SerializeField] private float _minCollisionForce = 0.2f;
     [SerializeField] private float _timeBetweenSounds = 0.1f;
     [SerializeField] private AnimationCurve _volumeCollisionCurve;
+    [SerializeField] private AnimationCurve _amplitudeCollisionCurve;
     private float _timer;
     
     private AudioSource _audioSource;
@@ -38,8 +42,21 @@ public class CollisionSoundPlayer : MonoBehaviour
             var volume = Mathf.Lerp(0.01f, 0.2f, _volumeCollisionCurve.Evaluate(lerp));
             _audioSource.volume = volume;
             _audioSource.pitch = Random.Range(0.9f, 1.1f);
+            
+            MakeSound(_amplitudeCollisionCurve.Evaluate(lerp));
             _audioSource.Play();
             _timer = _timeBetweenSounds;
         }
+    }
+
+    private void MakeSound(float lerp)
+    {
+        var volume = Mathf.Lerp(0.1f, _soundAmplitude * 1.5f, lerp);
+        var range = Mathf.Lerp(0.1f, _soundRange * 1.5f, lerp);
+        var sound = new Sound(transform.position, range, volume)
+        {
+            SoundType = _soundType
+        };
+        Sounds.MakeSound(sound);
     }
 }

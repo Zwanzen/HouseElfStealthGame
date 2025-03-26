@@ -1,17 +1,21 @@
 using System.Collections.Generic;
+using TMPro;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.AI;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class DemoNpc : MonoBehaviour, IHear
 {
     [Header("Debug")] 
+    [SerializeField] private bool _enableSoundReaction = true;
     [SerializeField] private bool _debugVisual = false;
     [SerializeField] private bool _enableDistanceFactor = true;
     [SerializeField] private bool _enableTurning = false;
-    [SerializeField] private MeshRenderer _displayMesh;
+    
+    [SerializeField] private Image _lightImage;
+    [SerializeField] private Image _backgroundImage;
+    private TextMeshProUGUI _lightText;
+    private TextMeshProUGUI _backgroundText;
     
     [Space(10)]
     [Header("UI")]
@@ -80,7 +84,8 @@ public class DemoNpc : MonoBehaviour, IHear
     
     private RenderTexture _lightRenderTexture;
     private RenderTexture _silhouetteRenderTexture;
-    private Texture2D _texture;
+    private Texture2D _lightTexture;
+    private Texture2D _silhouetteTexture;
     
     private bool _hasIgnored;
     private float _ignoreRed;
@@ -119,8 +124,12 @@ public class DemoNpc : MonoBehaviour, IHear
         _lightCam.targetTexture = _lightRenderTexture;
         _silhouetteCam.targetTexture = _silhouetteRenderTexture;
 
-        _texture = new Texture2D(_reselution, _reselution, TextureFormat.RGBA32, false, true);
-        _texture.filterMode = FilterMode.Point;
+        _lightTexture = new Texture2D(_reselution, _reselution, TextureFormat.RGBA32, false, true);
+        _lightTexture.filterMode = FilterMode.Point;
+        _silhouetteTexture = new Texture2D(_reselution, _reselution, TextureFormat.RGBA32, false, true);
+        _silhouetteTexture.filterMode = FilterMode.Point;
+        _lightText = _lightImage.GetComponentInChildren<TextMeshProUGUI>();
+        _backgroundText = _backgroundImage.GetComponentInChildren<TextMeshProUGUI>();
     }
 
     private void Update()
@@ -155,6 +164,10 @@ public class DemoNpc : MonoBehaviour, IHear
     
     public void RespondToSound(Sound sound)
     {
+        // For debugging purposes
+        if(!_enableSoundReaction)
+            return;
+        
         // If it is a looping sound
         if (_heardSounds.Contains(sound))
             return;
@@ -274,7 +287,7 @@ public class DemoNpc : MonoBehaviour, IHear
         detectionValue += Time.deltaTime * VisionDetection();
         
         // Decreaase the detection value over time if player is not being detected
-        if (detectionValue <= 0)
+        if (detectionValue <= 0.5f)
         {
             _decayTimer += Time.deltaTime;
             // If the decay timer is greater than the decay delay, start decaying the detection value
@@ -351,30 +364,30 @@ public class DemoNpc : MonoBehaviour, IHear
         HandleLightCamera();
 
         // Calculate the detection value
-        return valueToAdd * GetDistanceMultiplier() * _visionMultiplier * _detectionSpeed * GetLightMultiplier() * GetBackgroundMultiplier();
+        return valueToAdd * GetDistanceMultiplier() * _visionMultiplier * _detectionSpeed * (GetLightMultiplier() + GetBackgroundMultiplier());
     }
 
     private Image _fillReact;
     
     private void HandleUI()
     {
-    #if UNITY_EDITOR
-        // Only enable the slider if this gameObject is selected in the editor
-        if (_detectionSlider != null)
-        {
+        // Update the color based on the value
+        var color = Color.Lerp(Color.green, Color.red, _detection / 100f);
+        _fillReact.color = color;
+        _detectionSlider.value = _detection / 100f;
+        
+        // If the this is selected, show the images
+        #if UNITY_EDITOR
             bool isSelected = UnityEditor.Selection.activeGameObject == this.gameObject;
-            _detectionSlider.gameObject.SetActive(isSelected);
-            
-            // Update the slider value when active
             if (isSelected)
             {
-                // Update the color based on the value
-                var color = Color.Lerp(Color.green, Color.red, _detection / 100f);
-                _fillReact.color = color;
-                _detectionSlider.value = _detection / 100f;
+                _lightImage.sprite = Sprite.Create(_lightTexture, new Rect(0, 0, _reselution, _reselution), Vector2.zero);
+                _backgroundImage.sprite = Sprite.Create(_silhouetteTexture, new Rect(0, 0, _reselution, _reselution), Vector2.zero);
+                _lightText.text = "Light: " + _playerBrightness.ToString("F2");
+                _backgroundText.text = "Background: " + _backgroundBrightness.ToString("F2");
             }
-        }
-    #endif
+
+        #endif
     }
     
     private float _lightImageTimer;
@@ -397,7 +410,7 @@ public class DemoNpc : MonoBehaviour, IHear
         Quaternion toRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
         _lightCam.transform.rotation = toRotation;
 
-        _playerBrightness = ColorIntensity(_lightRenderTexture,true);
+        _playerBrightness = ColorIntensity(_lightCam, _lightRenderTexture, _lightTexture,true);
         // Turn off the light camera
         _lightCam.enabled = false;
         
@@ -412,28 +425,24 @@ public class DemoNpc : MonoBehaviour, IHear
         // Set the clipping plane to the player
         _silhouetteCam.nearClipPlane = Vector3.Distance(_silhouetteCam.transform.position, playerPos);
         
-        _backgroundBrightness = ColorIntensity(_silhouetteRenderTexture, false);
+        _backgroundBrightness = ColorIntensity(_silhouetteCam, _silhouetteRenderTexture, _silhouetteTexture, false);
         // Turn off the silhouette camera
         _silhouetteCam.enabled = false;
     }
     
-    private float ColorIntensity(RenderTexture rt, bool ignoreColor = false)
+    private float ColorIntensity(Camera cam, RenderTexture rt,Texture2D tex, bool ignoreColor = false)
     {
-        _lightCam.Render();
+        cam.Render();
         var previous = RenderTexture.active;
         RenderTexture.active = rt;
-        _texture.ReadPixels(new Rect(0, 0, _reselution, _reselution), 0, 0);
-        _texture.Apply();
-
-        // Set display mesh to the texture
-        if(!ignoreColor) 
-            _displayMesh.material.mainTexture = _texture;
-
+        tex.ReadPixels(new Rect(0, 0, _reselution, _reselution), 0, 0);
+        tex.Apply();
+        
         float brightness = 0;   
         int count = 0;
 
         // Should Find non-Workaround for this
-        NativeArray<Color32> pixels = new NativeArray<Color32>(_texture.GetPixelData<Color32>(0), Allocator.TempJob);
+        NativeArray<Color32> pixels = new NativeArray<Color32>(tex.GetPixelData<Color32>(0), Allocator.TempJob);
         NativeArray<Color> colors = new NativeArray<Color>(pixels.Length, Allocator.TempJob);
         for (int i = 0; i < pixels.Length; i++)
         {
