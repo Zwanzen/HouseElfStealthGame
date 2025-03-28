@@ -41,7 +41,8 @@ public class PlayerCameraController : MonoBehaviour
     {
         if (_player.IsGrounded)
         {
-            transform.position = Vector3.Lerp(transform.position, _followTarget.position, Time.deltaTime * _followSpeed);
+            transform.position = _followTarget.position;
+            //transform.position = Vector3.Lerp(transform.position, _followTarget.position, Time.deltaTime * _followSpeed);
         }
         else
         {

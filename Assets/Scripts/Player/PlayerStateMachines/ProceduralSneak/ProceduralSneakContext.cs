@@ -99,6 +99,7 @@ public class ProceduralSneakContext
         var lerp = Mathf.Lerp(_minSneakSpeed, _maxSneakSpeed, (float)_player.CurrentPlayerSpeed/(float)maxSpeedRange);
         return lerp;
     }
+    
     public RaycastHit GroundCast(Vector3 position, float distance)
     {
         Physics.Raycast(position, Vector3.down, out var hit, distance, _groundLayers);
