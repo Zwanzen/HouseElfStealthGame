@@ -14,7 +14,7 @@ public class PlayerGroundedState : PlayerControlState
     {
         var dist = Vector3.Distance(Context.LeftFootTarget.position, Context.RightFootTarget.position);
         
-        if (_shouldFall || dist > 0.8f || Context.Player.IsStumble)
+        if (_shouldFall || dist > 2f || Context.Player.IsStumble)
         {
             return PlayerControlStateMachine.EPlayerControlState.Falling;
         }
