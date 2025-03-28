@@ -123,6 +123,11 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public Transform[] Limbs => _limbs;
     public Rigidbody Rigidbody => _rigidbody;
+    
+    // Sneaking Properties
+    public Rigidbody LeftFootTarget => _leftFootTarget;
+    public Rigidbody RightFootTarget => _rightFootTarget;
+    public float StepLength => _sneakStepLength;
     public MovementSettings BodyMovementSettings => _bodyMovementSettings;
     public static float Height => 1.0f;
     
