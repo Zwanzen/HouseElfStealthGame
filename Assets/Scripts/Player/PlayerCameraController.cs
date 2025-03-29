@@ -48,8 +48,6 @@ public class PlayerCameraController : MonoBehaviour
         {
             transform.position = Vector3.Lerp(transform.position, _player.Position, Time.deltaTime * _followSpeed);
         }
-            
-        
     }
 
     private void HandleRotation()
@@ -86,4 +84,6 @@ public class PlayerCameraController : MonoBehaviour
     {
         return _cameraYTransform;
     }
+    
+    public float CameraX => _xRotation;
 }

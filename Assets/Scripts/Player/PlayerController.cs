@@ -115,15 +115,20 @@ public class PlayerController : MonoBehaviour
 
         var lerp = _imageScaleCurve.Evaluate(dist);
         
-        _wantedLScale = Mathf.Lerp(MinImageScale, MaxImageScale, lerp);
-        _wantedRScale = Mathf.Lerp(MaxImageScale, MinImageScale, lerp);
+        // Downwards lerp
+        var angle = _cameraController.CameraX - 40f;
+        var angleValue = Mathf.Lerp(1, 0, angle/20f);
+        Debug.Log(_cameraController.CameraX);
         
-        var maxColor = new Color(255, 255, 255, 0.5f);
+        _wantedLScale = Mathf.Lerp(MinImageScale, MaxImageScale, lerp) * angleValue;
+        _wantedRScale = Mathf.Lerp(MaxImageScale, MinImageScale, lerp) * angleValue;
+        
+        var maxColor = new Color(255, 255, 255, 0.5f * angleValue);
         var minColor = new Color(255, 255, 255, 0f);
         
         _wantedLColor = Color.Lerp(minColor, maxColor, lerp);
         _wantedRColor = Color.Lerp(maxColor, minColor, lerp);
-
+        
         var lerpSpeed = 5f;
         
         // Lerp the scale to the wanted scale
