@@ -8,7 +8,8 @@ public class PlayerCameraController : MonoBehaviour
     [SerializeField] private AnimationCurve _cameraStepCurve;
     [SerializeField] private float _cameraLerpSpeed = 0.1f;
     [SerializeField] private Transform _followTarget;
-    [SerializeField] private float _cameraSensitivity = 0.03f;
+    [SerializeField] private float _cameraSensitivityPC = 0.03f;
+    [SerializeField] private float _cameraSensitivityController = 1f;
     [SerializeField] private float _followSpeed = 0.1f;
 
 
@@ -52,9 +53,12 @@ public class PlayerCameraController : MonoBehaviour
 
     private void HandleRotation()
     {
+        // Get the camera sensitivity based on the input device
+        var sensitivity = _cameraSensitivityPC;
+        
         // Get the camera input
-        _yRotation += InputManager.Instance.CameraInput.x * _cameraSensitivity;
-        _xRotation -= InputManager.Instance.CameraInput.y * _cameraSensitivity;
+        _yRotation += InputManager.Instance.CameraInput.x * sensitivity;
+        _xRotation -= InputManager.Instance.CameraInput.y * sensitivity;
         
         // Clamp the x rotation
         _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);

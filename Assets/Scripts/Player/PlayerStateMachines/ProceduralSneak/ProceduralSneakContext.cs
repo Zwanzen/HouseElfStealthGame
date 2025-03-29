@@ -156,9 +156,28 @@ public class ProceduralSneakContext
             return;
         }
 
+        // Other direction
+        var otherDir = _player.RelativeMoveInput;
+        // Get the dot between camera and other direction
+        var dot = Vector3.Dot(_player.Camera.GetCameraYawTransform().forward.normalized, otherDir.normalized);
+        if (dot < -0.2f)
+            otherDir = -otherDir;
+        
+        // Downwards lerp
+        var angle = _player.Camera.CameraX;
+        var dir = Vector3.Lerp(otherDir, direction, angle/60f);
+        
+        // Get the dot between the lerped direction and the player's forward direction
+        var dot2 = Vector3.Dot(dir.normalized, _player.Rigidbody.transform.forward.normalized);
+        
+        // if the dot is less than 0.5, we need to rotate the body towards camera forward first
+        if (dot2 < 0)
+        {
+            dir = _player.Camera.GetCameraYawTransform().forward;
+        }
         
         // Rotate the body towards the direction
-        RotateRigidbody(_player.Rigidbody, direction, _bodyRotationSpeed);
+        RotateRigidbody(_player.Rigidbody, dir, _bodyRotationSpeed);
     }
     
     public void UpdateFootGroundNormal(Rigidbody foot)

@@ -62,6 +62,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AnimationCurve _imageScaleCurve;
     [SerializeField] private Image _leftImage;
     [SerializeField] private Image _rightImage;
+    [SerializeField] private Transform _leanTarget;
+    [SerializeField] private Transform _leanRestTarget;
     
     private float _wantedLScale;
     private float _wantedRScale;
@@ -101,6 +103,18 @@ public class PlayerController : MonoBehaviour
     }
 
     private void Update()
+    {
+        var targetPos = _leanRestTarget.position;
+        if(_sneakStateMachine.State == ProceduralSneakStateMachine.ESneakState.Planted)
+            targetPos += RelativeMoveInput.normalized * 0.15f;
+        
+        _leanTarget.position = Vector3.Lerp(_leanTarget.position, targetPos, Time.deltaTime * 3f);
+        
+        
+        HandleStepUI();
+    }
+
+    private void HandleStepUI()
     {
         var lFootPos = LeftFootTarget.position;
         var rFootPos = RightFootTarget.position;

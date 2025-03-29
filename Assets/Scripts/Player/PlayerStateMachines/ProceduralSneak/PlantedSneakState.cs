@@ -52,9 +52,16 @@ public class PlantedSneakState : ProceduralSneakState
     public override void FixedUpdateState()
     {
         UpdateFeetVelocities();
-        Context.MoveBody(Context.GetFeetMiddlePoint());
+        HandleBodyPosition();
         Context.UpdateFootGroundNormal(Context.LeftFoot);
         Context.UpdateFootGroundNormal(Context.RightFoot);
+    }
+
+    private void HandleBodyPosition()
+    {
+        var pos = Context.GetFeetMiddlePoint();
+        pos += Context.Player.RelativeMoveInput.normalized * 0.05f;
+        Context.MoveBody(pos);
     }
     
     private Vector3 _sLeftFootGoalVel;
