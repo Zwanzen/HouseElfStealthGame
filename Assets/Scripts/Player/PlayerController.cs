@@ -4,6 +4,7 @@ using RootMotion.FinalIK;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 using static RigidbodyMovement;
 
 public class PlayerController : MonoBehaviour
@@ -53,6 +54,21 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AnimationCurve _sneakSpeedCurve;
     [SerializeField] private AnimationCurve _placeSpeedCurve;
 
+    [Space(10f)] [Header("Temp")] 
+    [SerializeField] private RectTransform _leftClick;
+    [SerializeField] private RectTransform _rightClick;
+    [SerializeField] private float MinImageScale = 0.5f;
+    [SerializeField] private float MaxImageScale = 1.5f;
+    [SerializeField] private AnimationCurve _imageScaleCurve;
+    [SerializeField] private Image _leftImage;
+    [SerializeField] private Image _rightImage;
+    
+    private float _wantedLScale;
+    private float _wantedRScale;
+    
+    private Color _wantedLColor;
+    private Color _wantedRColor;
+
     
     private bool _isSneaking;
     private bool _isStumble;
@@ -82,6 +98,41 @@ public class PlayerController : MonoBehaviour
     {
         InitializeInputEvents();
         _playerSpeedState = UpdatePlayerSpeedState();
+    }
+
+    private void Update()
+    {
+        var lFootPos = LeftFootTarget.position;
+        var rFootPos = RightFootTarget.position;
+        
+        var feetDir = rFootPos - lFootPos;
+        var relativeDir = _cameraController.GetCameraYawTransform().forward;
+        if(RelativeMoveInput.magnitude > 0)
+            relativeDir = RelativeMoveInput;
+        var feetDot = Vector3.Dot(feetDir, relativeDir);
+        var dist = feetDir.magnitude * feetDot;
+        dist = Mathf.Clamp(dist, -StepLength, StepLength);
+
+        var lerp = _imageScaleCurve.Evaluate(dist);
+        
+        _wantedLScale = Mathf.Lerp(MinImageScale, MaxImageScale, lerp);
+        _wantedRScale = Mathf.Lerp(MaxImageScale, MinImageScale, lerp);
+        
+        var maxColor = new Color(255, 255, 255, 0.5f);
+        var minColor = new Color(255, 255, 255, 0f);
+        
+        _wantedLColor = Color.Lerp(minColor, maxColor, lerp);
+        _wantedRColor = Color.Lerp(maxColor, minColor, lerp);
+
+        var lerpSpeed = 5f;
+        
+        // Lerp the scale to the wanted scale
+        _leftClick.localScale = Vector3.Lerp(_leftClick.localScale, Vector3.one * _wantedLScale, Time.deltaTime * lerpSpeed);
+        _rightClick.localScale = Vector3.Lerp(_rightClick.localScale, Vector3.one * _wantedRScale, Time.deltaTime * lerpSpeed);
+        
+        // Lerp the color to the wanted color
+        _leftImage.color = Color.Lerp(_leftImage.color, _wantedLColor, Time.deltaTime * lerpSpeed * 10f);
+        _rightImage.color = Color.Lerp(_rightImage.color, _wantedRColor, Time.deltaTime * lerpSpeed * 10f);
     }
 
     // Initialize the state machine contexts
