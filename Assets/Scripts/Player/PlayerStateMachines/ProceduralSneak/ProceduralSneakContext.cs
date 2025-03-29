@@ -242,4 +242,18 @@ public class ProceduralSneakContext
             _rightFootSoundPlayer.PlayFootSound(footSoundType);
         }
     }
+
+    // Makes virtual sound
+    public void MakeSound(Rigidbody foot, PlayerFootSoundPlayer.EFootSoundType footSoundType)
+    {
+        // Check which foot is the reference foot
+        if (foot == _leftFootTarget)
+        {
+            _leftFootSoundPlayer.MakeFootSound(footSoundType);
+        }
+        else
+        {
+            _rightFootSoundPlayer.MakeFootSound(footSoundType);
+        }
+    }
 }

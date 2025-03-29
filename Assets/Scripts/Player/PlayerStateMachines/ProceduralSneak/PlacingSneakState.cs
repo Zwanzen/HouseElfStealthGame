@@ -44,6 +44,9 @@ public class PlacingSneakState : ProceduralSneakState
             _cast = hit;
             _placeNormal = _cast.normal;
         }
+        
+        if(_validPlacement)
+            Context.MakeSound(Context.LiftedFoot,Context.GetGroundTypeFromFoot(Context.LiftedFoot));
     }
 
     public override void ExitState()

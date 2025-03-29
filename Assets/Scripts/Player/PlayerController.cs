@@ -118,7 +118,6 @@ public class PlayerController : MonoBehaviour
         // Downwards lerp
         var angle = _cameraController.CameraX - 40f;
         var angleValue = Mathf.Lerp(1, 0, angle/20f);
-        Debug.Log(_cameraController.CameraX);
         
         _wantedLScale = Mathf.Lerp(MinImageScale, MaxImageScale, lerp) * angleValue;
         _wantedRScale = Mathf.Lerp(MaxImageScale, MinImageScale, lerp) * angleValue;
