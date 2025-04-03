@@ -12,11 +12,13 @@ public class PlayerController : MonoBehaviour
 
     // State Machines
     private PlayerControlStateMachine _controlStateMachine;
-    private ProceduralSneakStateMachine _sneakStateMachine;
+    private FootControlStateMachine _leftFootStateMachine;
+    private FootControlStateMachine _rightFootStateMachine;
     
     // State Machine Contexts
     private PlayerControlContext _controlContext;
-    private ProceduralSneakContext _sneakContext;
+    private FootControlContext _leftFootContext;
+    private FootControlContext _rightFootContext;
     
     // Private variables
     [Header("Components")]
@@ -36,11 +38,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerFootSoundPlayer _rightFootSoundPlayer;
     [SerializeField] private MovementSettings _bodyMovementSettings;
     [SerializeField] private Transform[] _limbs;
-    
+
     [Space(10f)]
-    [Header("Control Variables")]
+    [Header("Body Variables")]
     [SerializeField] private float _springStrength = 250f;
     [SerializeField] private float _springDampener = 5f;
+    [SerializeField] private float _bodyRotationSpeed = 5f;
+    
+    [Space(10f)] 
+    [Header("Foot Control")] 
+    [SerializeField] private Foot _leftFoot;
+    [SerializeField] private Foot _rightFoot;
+    [SerializeField] private float _stepLength = 0.5f;
+    [SerializeField] private float _stepHeight = 0.5f;
+
     
     [Space(10f)]
     [Header("Sneak Variables")]
@@ -48,7 +59,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _maxSneakSpeed = 2f;
     [SerializeField] private float _sneakStepLength = 0.38f;
     [SerializeField] private float _sneakStepHeight = 0.5f;
-    [SerializeField] private float _bodyRotationSpeed = 5f;
     [FormerlySerializedAs("_sneakMovementSettings")] [SerializeField] private MovementSettings _liftedMovementSettings;
     [SerializeField] private MovementSettings _plantedMovementSettings;
     [SerializeField] private AnimationCurve _sneakSpeedCurve;
@@ -70,7 +80,6 @@ public class PlayerController : MonoBehaviour
     
     private Color _wantedLColor;
     private Color _wantedRColor;
-
     
     private bool _isSneaking;
     private bool _isStumble;
@@ -104,13 +113,6 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        var targetPos = _leanRestTarget.position;
-        if(_sneakStateMachine.State == ProceduralSneakStateMachine.ESneakState.Planted)
-            targetPos += RelativeMoveInput.normalized * 0.15f;
-        
-        _leanTarget.position = Vector3.Lerp(_leanTarget.position, targetPos, Time.deltaTime * 3f);
-        
-        
         HandleStepUI();
     }
 
@@ -158,10 +160,10 @@ public class PlayerController : MonoBehaviour
     {
         _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _puppetMaster, _groundLayers,
              _leftFootTarget, _rightFootTarget, _springStrength, _springDampener);
-        _sneakContext = new ProceduralSneakContext(this, _sneakStateMachine, _bodyIK, _groundLayers,
-            _leftFootTarget, _rightFootTarget, _leftFootRestTarget, _rightFootRestTarget,
-            _minSneakSpeed, _maxSneakSpeed, _sneakStepLength,_sneakStepHeight, _bodyRotationSpeed, _liftedMovementSettings,
-            _plantedMovementSettings, _sneakSpeedCurve, _placeSpeedCurve);
+        _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
+            _leftFoot, _rightFoot, _stepLength, _stepHeight);
+        _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
+            _rightFoot, _leftFoot, _stepLength, _stepHeight);
     }
     
 
@@ -170,11 +172,13 @@ public class PlayerController : MonoBehaviour
     {
         // Add the state machines to the player controller
         _controlStateMachine = this.AddComponent<PlayerControlStateMachine>();
-        _sneakStateMachine = this.AddComponent<ProceduralSneakStateMachine>();
+        _leftFootStateMachine = this.AddComponent<FootControlStateMachine>();
+        _rightFootStateMachine = this.AddComponent<FootControlStateMachine>();
         
         // Set the context for the state machines
         _controlStateMachine.SetContext(_controlContext);
-        _sneakStateMachine.SetContext(_sneakContext);
+        _leftFootStateMachine.SetContext(_leftFootContext);
+        _rightFootStateMachine.SetContext(_rightFootContext);
     }
     
     // Initialize input events
@@ -340,9 +344,8 @@ public class PlayerController : MonoBehaviour
         style.normal.textColor = Color.white;
     
         GUI.Label(new Rect(20, 15, 240, 20), $"Control State: {_controlStateMachine.State}", style);
-        GUI.Label(new Rect(20, 35, 240, 20), $"Sneak State: {_sneakStateMachine.State}", style);
-        GUI.Label(new Rect(20, 55, 240, 20), $"Player Is Sneaking: {_isSneaking}", style);
-        GUI.Label(new Rect(20, 75, 240, 20), $"Player Speed State: {_playerSpeedState}", style);
+        GUI.Label(new Rect(20, 35, 240, 20), $"Player Speed: {_leftFootStateMachine.State}", style);
+        GUI.Label(new Rect(20, 55, 240, 20), $"Sneak Speed: {_rightFootStateMachine.State}", style);
     }
     
     private void OnDestroy()

@@ -1,4 +1,6 @@
-﻿public class FootPlantedState : FootControlState
+﻿using UnityEngine;
+
+public class FootPlantedState : FootControlState
 {
     public FootPlantedState(FootControlContext context, FootControlStateMachine.EFootState key) : base(context, key)
     {
@@ -24,5 +26,8 @@
 
     public override void FixedUpdateState()
     {
+
+        Context.FootGroundCast(out var hit);
+        Context.MoveFootToPosition(hit.point + Context.FootPlaceOffset);
     }
 }
