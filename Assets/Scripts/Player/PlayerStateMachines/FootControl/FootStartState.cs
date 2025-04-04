@@ -31,8 +31,10 @@ public class FootStartState : FootControlState
         Context.Foot.Target.rotation = forward;
         
         // Now we place the foot on the ground
-        if (Context.FootGroundCast(out var hit))
+        if (Physics.SphereCast(Context.Foot.Target.position + Vector3.up, Context.FootRadius, Vector3.down, out var hit, Context.StepHeight + 1f, Context.GroundLayers))
+        {
             Context.Foot.Target.position = hit.point + Context.FootPlaceOffset;
+        }
         
         // Enable the foot weights
         Context.FootIKEffector.positionWeight = 1f;

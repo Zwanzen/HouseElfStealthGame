@@ -1,4 +1,6 @@
-﻿public class FootLiftedState : FootControlState
+﻿using UnityEngine;
+
+public class FootLiftedState : FootControlState
 {
     public FootLiftedState(FootControlContext context, FootControlStateMachine.EFootState key) : base(context, key)
     {
@@ -7,6 +9,9 @@
 
     public override FootControlStateMachine.EFootState GetNextState()
     {
+        if (!Context.IsFootLifting)
+            return FootControlStateMachine.EFootState.Falling;
+        
         return StateKey;
     }
     
@@ -24,5 +29,8 @@
 
     public override void FixedUpdateState()
     {
+        var pos = Context.Foot.Target.position + Vector3.up * 0.15f + Context.Player.RelativeMoveInput.normalized;
+        var dir = (pos - Context.Foot.Target.position);
+        Context.MoveFootToPosition(dir);
     }
 }

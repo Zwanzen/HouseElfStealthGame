@@ -1,4 +1,6 @@
-﻿public class FootFallingState : FootControlState
+﻿using UnityEngine;
+
+public class FootFallingState : FootControlState
 {
     public FootFallingState(FootControlContext context, FootControlStateMachine.EFootState key) : base(context, key)
     {
@@ -24,6 +26,8 @@
 
     public override void FixedUpdateState()
     {
-        Context.MoveFootToPosition(Context.Foot.RestTarget.position);
+        var dirToRest = new Vector3(Context.Foot.RestTarget.position.x, 0, Context.Foot.RestTarget.position.z);
+        dirToRest += Vector3.down;
+        Context.MoveFootToPosition(Vector3.down);
     } 
 }

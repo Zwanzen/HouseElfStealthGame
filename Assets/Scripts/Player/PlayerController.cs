@@ -30,10 +30,6 @@ public class PlayerController : MonoBehaviour
     [Space(10f)]
     [Header("Common")]
     [SerializeField] private LayerMask _groundLayers;
-    [SerializeField] private Rigidbody _leftFootTarget;
-    [SerializeField] private Rigidbody _rightFootTarget;
-    [SerializeField] private Transform _leftFootRestTarget;
-    [SerializeField] private Transform _rightFootRestTarget;
     [SerializeField] private PlayerFootSoundPlayer _leftFootSoundPlayer;
     [SerializeField] private PlayerFootSoundPlayer _rightFootSoundPlayer;
     [SerializeField] private MovementSettings _bodyMovementSettings;
@@ -100,7 +96,8 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        // Initialize the state machine contexts first, SMs depend on them
+        // Order of initialization is important
+        CreateStateMachines();
         InitializeStateMachineContexts();
         InitializeStateMachines();
     }
@@ -159,22 +156,28 @@ public class PlayerController : MonoBehaviour
     private void InitializeStateMachineContexts()
     {
         _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _puppetMaster, _groundLayers,
-             _leftFootTarget, _rightFootTarget, _springStrength, _springDampener);
+             _leftFoot, _rightFoot, _springStrength, _springDampener, _bodyMovementSettings);
         _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
             _leftFoot, _rightFoot, _stepLength, _stepHeight);
         _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
             _rightFoot, _leftFoot, _stepLength, _stepHeight);
     }
-    
 
-    // Adding and initializing the state machines with contexts
-    private void InitializeStateMachines()
+    private void CreateStateMachines()
     {
         // Add the state machines to the player controller
         _controlStateMachine = this.AddComponent<PlayerControlStateMachine>();
         _leftFootStateMachine = this.AddComponent<FootControlStateMachine>();
         _rightFootStateMachine = this.AddComponent<FootControlStateMachine>();
         
+        // Give the foot structs reference to the state machines
+        _leftFoot.StateMachine = _leftFootStateMachine;
+        _rightFoot.StateMachine = _rightFootStateMachine;
+    }
+
+    // Adding and initializing the state machines with contexts
+    private void InitializeStateMachines()
+    {
         // Set the context for the state machines
         _controlStateMachine.SetContext(_controlContext);
         _leftFootStateMachine.SetContext(_leftFootContext);
@@ -198,8 +201,8 @@ public class PlayerController : MonoBehaviour
     public Rigidbody Rigidbody => _rigidbody;
     
     // Sneaking Properties
-    public Rigidbody LeftFootTarget => _leftFootTarget;
-    public Rigidbody RightFootTarget => _rightFootTarget;
+    public Rigidbody LeftFootTarget => _leftFoot.Target;
+    public Rigidbody RightFootTarget => _rightFoot.Target;
     public float StepLength => _sneakStepLength;
     public MovementSettings BodyMovementSettings => _bodyMovementSettings;
     public static float Height => 1.0f;
@@ -344,8 +347,10 @@ public class PlayerController : MonoBehaviour
         style.normal.textColor = Color.white;
     
         GUI.Label(new Rect(20, 15, 240, 20), $"Control State: {_controlStateMachine.State}", style);
-        GUI.Label(new Rect(20, 35, 240, 20), $"Player Speed: {_leftFootStateMachine.State}", style);
-        GUI.Label(new Rect(20, 55, 240, 20), $"Sneak Speed: {_rightFootStateMachine.State}", style);
+        GUI.Label(new Rect(20, 35, 240, 20), $"Left Foot State: {_leftFootStateMachine.State}", style);
+        GUI.Label(new Rect(20, 55, 240, 20), $"Right Foot State: {_rightFootStateMachine.State}", style);
+        GUI.Label(new Rect(20, 75, 240, 20), $"Left State: {_leftFoot.StateMachine.State}", style);
+        GUI.Label(new Rect(20, 95, 240, 20), $"Right State: {_rightFoot.StateMachine.State}", style);
     }
     
     private void OnDestroy()

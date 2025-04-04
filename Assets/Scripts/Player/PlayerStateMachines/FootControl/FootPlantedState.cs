@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using static CircleLineIntersection;
 
 public class FootPlantedState : FootControlState
 {
@@ -9,6 +10,12 @@ public class FootPlantedState : FootControlState
 
     public override FootControlStateMachine.EFootState GetNextState()
     {
+        if(!Context.IsFootGrounded)
+            return FootControlStateMachine.EFootState.Falling;
+        
+        if (Context.IsFootLifting)
+            return FootControlStateMachine.EFootState.Lifted;
+        
         return StateKey;
     }
     
@@ -26,8 +33,12 @@ public class FootPlantedState : FootControlState
 
     public override void FixedUpdateState()
     {
-
-        Context.FootGroundCast(out var hit);
-        Context.MoveFootToPosition(hit.point + Context.FootPlaceOffset);
+        var dir = Vector3.zero;
+        if (Context.FootGroundCast(out var hit))
+        {
+            var pos = hit.point + Context.FootPlaceOffset;
+            dir = (pos - Context.Foot.Target.position);
+        }
+        Context.MoveFootToPosition(dir);
     }
 }

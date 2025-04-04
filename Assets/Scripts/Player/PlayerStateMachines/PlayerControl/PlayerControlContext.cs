@@ -1,6 +1,6 @@
 using RootMotion.Dynamics;
-using RootMotion.FinalIK;
 using UnityEngine;
+using static RigidbodyMovement;
 
 public class PlayerControlContext
 {
@@ -14,41 +14,43 @@ public class PlayerControlContext
     
     [Header("Common")]
     private readonly LayerMask _groundLayers;
-    private readonly Rigidbody _leftFootTarget;
-    private readonly Rigidbody _rightFootTarget;
+    private readonly Foot _leftFoot;
+    private readonly Foot _rightFoot;
     
     [Header("Control Variables")]
     private readonly float _springStrength;
     private readonly float _springDampener;
+    private MovementSettings _bodyMovementSettings;
     
     // Constructor
     public PlayerControlContext(PlayerController player, PlayerControlStateMachine stateMachine, Rigidbody rigidbody,
         PuppetMaster puppetMaster, LayerMask groundLayers,
-        Rigidbody leftFootTarget, Rigidbody rightFootTarget, float springStrength, float springDampener)
+        Foot leftFoot, Foot rightFoot, float springStrength, float springDampener, MovementSettings bodyMovementSettings)
     {
         _player = player;
         _stateMachine = stateMachine;
         _rigidbody = rigidbody;
         _puppetMaster = puppetMaster;
         _groundLayers = groundLayers;
-        _leftFootTarget = leftFootTarget;
-        _rightFootTarget = rightFootTarget;
+        _leftFoot = leftFoot;
+        _rightFoot = rightFoot;
         _springStrength = springStrength;
         _springDampener = springDampener;
+        _bodyMovementSettings = bodyMovementSettings;
     }
     
     // Read-only properties
     public PlayerController Player => _player;
     public PuppetMaster PuppetMaster => _puppetMaster;
-    public Rigidbody LeftFootTarget => _leftFootTarget;
-    public Rigidbody RightFootTarget => _rightFootTarget;
+    public Foot LeftFoot => _leftFoot;
+    public Foot RightFoot => _rightFoot;
     
     // Private methods
     private Vector3 GetLowestFootPosition()
     {
         // Get the lowest foot position
-        Vector3 leftFootPos = _leftFootTarget.position;
-        Vector3 rightFootPos = _rightFootTarget.position;
+        Vector3 leftFootPos = _leftFoot.Target.position;
+        Vector3 rightFootPos = _rightFoot.Target.position;
         return leftFootPos.y < rightFootPos.y ? leftFootPos : rightFootPos;
     }
     
@@ -56,8 +58,8 @@ public class PlayerControlContext
     public bool IsGrounded()
     {
         // Check if the feet are grounded using CheckSphere
-        return Physics.CheckSphere(_leftFootTarget.position, 0.8f, _groundLayers) ||
-               Physics.CheckSphere(_rightFootTarget.position, 0.8f, _groundLayers);
+        return Physics.CheckSphere(_leftFoot.Target.position, 0.8f, _groundLayers) ||
+               Physics.CheckSphere(_rightFoot.Target.position, 0.8f, _groundLayers);
     }
 
     // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
@@ -80,5 +82,46 @@ public class PlayerControlContext
         var springForce = (x * _springStrength) - (relVel * _springDampener);
         _rigidbody.AddForce(Vector3.down * springForce);
     }
+    
+    private Vector3 _sBodyGoalVel;
+    public void MoveBody(Vector3 targetPosition)
+    {
+        var currentPos = Player.Position;
+        currentPos.y = 0f;
+        var dir = targetPosition - currentPos;
+        if(dir.magnitude > 1f)
+            dir.Normalize();
+        _sBodyGoalVel = MoveRigidbody(Player.Rigidbody, dir, _sBodyGoalVel, _bodyMovementSettings);
+    }
+
+    public void ResetBodyGoal()
+    {
+        _sBodyGoalVel = Vector3.zero;
+    }
+
+    public Vector3 BetweenFeet(float lerp)
+    {
+        var pos = Vector3.Lerp(_leftFoot.Target.position, _rightFoot.Target.position, lerp);
+        pos.y = 0;
+        return pos;
+    }
+
+    public float FeetLerp()
+    {
+        var falling = FootControlStateMachine.EFootState.Falling;
+        if (_leftFoot.StateMachine.State == falling)
+        {
+            return 0.8f;
+        }
+
+        if (_rightFoot.StateMachine.State == falling)
+        {
+            return 0.2f;
+        }
+
+        return 0.5f;
+    }
+    
+
     
 }

@@ -12,7 +12,7 @@ public class PlayerGroundedState : PlayerControlState
 
     public override PlayerControlStateMachine.EPlayerControlState GetNextState()
     {
-        var dist = Vector3.Distance(Context.LeftFootTarget.position, Context.RightFootTarget.position);
+        var dist = Vector3.Distance(Context.LeftFoot.Target.position, Context.RightFoot.Target.position);
         
         if (_shouldFall || dist > 2f || Context.Player.IsStumble)
         {
@@ -27,6 +27,7 @@ public class PlayerGroundedState : PlayerControlState
     {
         _shouldFall = false;
         _timer = FallTimeThreshold;
+        Context.ResetBodyGoal();
     }
 
 
@@ -54,5 +55,6 @@ public class PlayerGroundedState : PlayerControlState
     public override void FixedUpdateState()
     {
         Context.RigidbodyFloat();
+        Context.MoveBody(Context.BetweenFeet(Context.FeetLerp()));
     }
 }
