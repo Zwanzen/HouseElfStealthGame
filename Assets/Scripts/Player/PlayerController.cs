@@ -47,6 +47,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Foot _rightFoot;
     [SerializeField] private float _stepLength = 0.5f;
     [SerializeField] private float _stepHeight = 0.5f;
+    [SerializeField] private MovementSettings _liftedSettings;
 
     
     [Space(10f)]
@@ -158,9 +159,9 @@ public class PlayerController : MonoBehaviour
         _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _puppetMaster, _groundLayers,
              _leftFoot, _rightFoot, _springStrength, _springDampener, _bodyMovementSettings);
         _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
-            _leftFoot, _rightFoot, _stepLength, _stepHeight);
+            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings);
         _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
-            _rightFoot, _leftFoot, _stepLength, _stepHeight);
+            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings);
     }
 
     private void CreateStateMachines()

@@ -2786,7 +2786,6 @@ Transform:
   m_LocalScale: {x: 0.99820495, y: 0.9980571, z: 1.00375}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2673513234895787968}
   - {fileID: 7021654511261243296}
   m_Father: {fileID: 8704234093846715098}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -7231,12 +7230,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6308523610698236660}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.82564664, y: -0.000060625352, z: 0.000039117396, w: 0.5641876}
-  m_LocalPosition: {x: -0.0058095558, y: 0.0025652754, z: 0.012942802}
-  m_LocalScale: {x: 0.999957, y: 1.0018786, z: 0.9981427}
+  m_LocalRotation: {x: 0.00000022351739, y: -0.000000029802319, z: -2.1739052e-10, w: 1}
+  m_LocalPosition: {x: -0.07019988, y: 0.03889993, z: -0.050500065}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3279649289980368200}
+  m_Father: {fileID: 5876555448918461783}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &8717372955083570061
 Rigidbody:
@@ -8179,8 +8178,9 @@ Transform:
   m_Children:
   - {fileID: 4580998064026768922}
   - {fileID: 6490764243175453169}
-  - {fileID: 5291634521288966764}
+  - {fileID: 2673513234895787968}
   - {fileID: 3314784217368357616}
+  - {fileID: 5291634521288966764}
   - {fileID: 2767158085878487817}
   - {fileID: 3117501619708651148}
   m_Father: {fileID: 0}
@@ -8299,6 +8299,23 @@ MonoBehaviour:
     StateMachine: {fileID: 0}
   _stepLength: 0.8
   _stepHeight: 0.5
+  _liftedSettings:
+    MaxSpeed: 0
+    Acceleration: 0
+    AccelerationFactorFromDot:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    MaxAccelForce: 0
+    MaxAccelerationForceFactorFromDot:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ForceScale: {x: 0, y: 0, z: 0}
   _minSneakSpeed: 0
   _maxSneakSpeed: 2
   _sneakStepLength: 0.5
@@ -9222,6 +9239,7 @@ GameObject:
   - component: {fileID: 3314784217368357616}
   - component: {fileID: 3055334636737662310}
   - component: {fileID: 7492866123552045129}
+  - component: {fileID: 1090167734062428001}
   m_Layer: 9
   m_Name: RightFootTarget
   m_TagString: Untagged
@@ -9237,8 +9255,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7954606105340166336}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.000000007450578, y: 0.000000029802312, z: 0.0000000021638966, w: 1}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9252,7 +9270,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7954606105340166336}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 10
   m_Drag: 1
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -9292,6 +9310,108 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.07, y: 0.06, z: 0.14}
   m_Center: {x: 0, y: -0.01, z: 0.06}
+--- !u!153 &1090167734062428001
+ConfigurableJoint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7954606105340166336}
+  serializedVersion: 4
+  m_ConnectedBody: {fileID: 4605436378223024658}
+  m_ConnectedArticulationBody: {fileID: 0}
+  m_Anchor: {x: 0, y: 0, z: 0}
+  m_Axis: {x: 1, y: 0, z: 0}
+  m_AutoConfigureConnectedAnchor: 0
+  m_ConnectedAnchor: {x: 0, y: 0, z: 0}
+  m_SecondaryAxis: {x: 0, y: 1, z: 0}
+  m_XMotion: 0
+  m_YMotion: 0
+  m_ZMotion: 0
+  m_AngularXMotion: 2
+  m_AngularYMotion: 2
+  m_AngularZMotion: 2
+  m_LinearLimitSpring:
+    spring: 0
+    damper: 0
+  m_LinearLimit:
+    limit: 0
+    bounciness: 0
+    contactDistance: 0
+  m_AngularXLimitSpring:
+    spring: 0
+    damper: 0
+  m_LowAngularXLimit:
+    limit: 0
+    bounciness: 0
+    contactDistance: 0
+  m_HighAngularXLimit:
+    limit: 0
+    bounciness: 0
+    contactDistance: 0
+  m_AngularYZLimitSpring:
+    spring: 0
+    damper: 0
+  m_AngularYLimit:
+    limit: 0
+    bounciness: 0
+    contactDistance: 0
+  m_AngularZLimit:
+    limit: 0
+    bounciness: 0
+    contactDistance: 0
+  m_TargetPosition: {x: 0, y: 0, z: 0}
+  m_TargetVelocity: {x: 0, y: 0, z: 0}
+  m_XDrive:
+    serializedVersion: 4
+    positionSpring: 0
+    positionDamper: 0
+    maximumForce: 3.4028233e+38
+    useAcceleration: 0
+  m_YDrive:
+    serializedVersion: 4
+    positionSpring: 0
+    positionDamper: 0
+    maximumForce: 3.4028233e+38
+    useAcceleration: 0
+  m_ZDrive:
+    serializedVersion: 4
+    positionSpring: 0
+    positionDamper: 0
+    maximumForce: 3.4028233e+38
+    useAcceleration: 0
+  m_TargetRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_TargetAngularVelocity: {x: 0, y: 0, z: 0}
+  m_RotationDriveMode: 0
+  m_AngularXDrive:
+    serializedVersion: 4
+    positionSpring: 0
+    positionDamper: 0
+    maximumForce: 3.4028233e+38
+    useAcceleration: 0
+  m_AngularYZDrive:
+    serializedVersion: 4
+    positionSpring: 0
+    positionDamper: 0
+    maximumForce: 3.4028233e+38
+    useAcceleration: 0
+  m_SlerpDrive:
+    serializedVersion: 4
+    positionSpring: 0
+    positionDamper: 0
+    maximumForce: 3.4028233e+38
+    useAcceleration: 0
+  m_ProjectionMode: 0
+  m_ProjectionDistance: 0.1
+  m_ProjectionAngle: 180
+  m_ConfiguredInWorldSpace: 0
+  m_SwapBodies: 0
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_EnableCollision: 0
+  m_EnablePreprocessing: 1
+  m_MassScale: 1
+  m_ConnectedMassScale: 1
 --- !u!1 &7980766315630704895
 GameObject:
   m_ObjectHideFlags: 0

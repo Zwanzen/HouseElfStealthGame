@@ -17,6 +17,7 @@ public class FootLiftedState : FootControlState
     
     public override void EnterState()
     {
+        Context.ResetGoalVelocity();
     }
 
     public override void ExitState()
@@ -29,7 +30,9 @@ public class FootLiftedState : FootControlState
 
     public override void FixedUpdateState()
     {
-        var pos = Context.Foot.Target.position + Vector3.up * 0.15f + Context.Player.RelativeMoveInput.normalized;
+        var footPos = Context.Foot.Target.position;
+        footPos.y = Context.OtherFoot.Target.position.y + 0.15f;
+        var pos = footPos + Context.Player.RelativeMoveInput.normalized;
         var dir = (pos - Context.Foot.Target.position);
         Context.MoveFootToPosition(dir);
     }

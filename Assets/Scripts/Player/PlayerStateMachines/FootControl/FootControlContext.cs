@@ -36,9 +36,10 @@ public class FootControlContext
     [Header("Foot Control Variables")]
     private readonly float _stepLength;
     private readonly float _stepHeight;
+    private RigidbodyMovement.MovementSettings _movementSettings;
     
     public FootControlContext(PlayerController player, FullBodyBipedIK bodyIK, PlayerFootSoundPlayer footSoundPlayer,
-        LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight)
+        LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight, RigidbodyMovement.MovementSettings movementSettings)
     {
         _player = player;
         _bodyIK = bodyIK;
@@ -48,6 +49,7 @@ public class FootControlContext
         _otherFoot = otherFoot;
         _stepLength = stepLength;
         _stepHeight = stepHeight;
+        _movementSettings = movementSettings;
     }
     
     // Read only properties
@@ -124,6 +126,7 @@ public class FootControlContext
         return fromTo.magnitude * dot;
     }
     
+    private Vector3 _sGoalVelocity;
     public void MoveFootToPosition(Vector3 direction)
     {
         // Move the foot to position using its rigidbody
@@ -135,6 +138,11 @@ public class FootControlContext
                 out var result))
             direction = OtherFoot.Target.position - Foot.Target.position;
 
-        Foot.Target.linearVelocity = direction;
+        _foot.Target.linearVelocity = direction * _movementSettings.Acceleration;
+    }
+    
+    public void ResetGoalVelocity()
+    {
+        _sGoalVelocity = Vector3.zero;
     }
 }
