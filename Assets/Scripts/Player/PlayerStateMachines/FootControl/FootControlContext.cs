@@ -17,6 +17,7 @@ public struct Foot
     public Rigidbody Target;
     public Transform RestTarget;
     public EFootSide Side;
+    [HideInInspector]
     public FootControlStateMachine StateMachine;
 }
 

@@ -25,7 +25,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Rigidbody _rigidbody;
     [SerializeField] private FullBodyBipedIK _bodyIK;
     [SerializeField] private PlayerCameraController _cameraController;
-    [SerializeField] private PuppetMaster _puppetMaster;
     
     [Space(10f)]
     [Header("Common")]
@@ -156,7 +155,7 @@ public class PlayerController : MonoBehaviour
     // Initialize the state machine contexts
     private void InitializeStateMachineContexts()
     {
-        _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _puppetMaster, _groundLayers,
+        _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
              _leftFoot, _rightFoot, _springStrength, _springDampener, _bodyMovementSettings);
         _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
             _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings);

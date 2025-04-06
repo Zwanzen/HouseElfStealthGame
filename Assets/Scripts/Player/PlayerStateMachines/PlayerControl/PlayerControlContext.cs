@@ -10,7 +10,6 @@ public class PlayerControlContext
     private readonly PlayerController _player;
     private PlayerControlStateMachine _stateMachine;
     private readonly Rigidbody _rigidbody;
-    private PuppetMaster _puppetMaster;
     
     [Header("Common")]
     private readonly LayerMask _groundLayers;
@@ -23,14 +22,12 @@ public class PlayerControlContext
     private MovementSettings _bodyMovementSettings;
     
     // Constructor
-    public PlayerControlContext(PlayerController player, PlayerControlStateMachine stateMachine, Rigidbody rigidbody,
-        PuppetMaster puppetMaster, LayerMask groundLayers,
+    public PlayerControlContext(PlayerController player, PlayerControlStateMachine stateMachine, Rigidbody rigidbody, LayerMask groundLayers,
         Foot leftFoot, Foot rightFoot, float springStrength, float springDampener, MovementSettings bodyMovementSettings)
     {
         _player = player;
         _stateMachine = stateMachine;
         _rigidbody = rigidbody;
-        _puppetMaster = puppetMaster;
         _groundLayers = groundLayers;
         _leftFoot = leftFoot;
         _rightFoot = rightFoot;
@@ -41,7 +38,6 @@ public class PlayerControlContext
     
     // Read-only properties
     public PlayerController Player => _player;
-    public PuppetMaster PuppetMaster => _puppetMaster;
     public Foot LeftFoot => _leftFoot;
     public Foot RightFoot => _rightFoot;
     
