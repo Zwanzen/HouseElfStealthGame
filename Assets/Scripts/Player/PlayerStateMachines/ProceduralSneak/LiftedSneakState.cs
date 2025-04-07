@@ -31,9 +31,6 @@ public class LiftedSneakState : ProceduralSneakState
 
     public override void EnterState()
     {
-        Context.ResetBodyGoalVel();
-        ResetFootsVelocities();
-        
         // get the start angle
         _startAngle = Context.LiftedFoot.transform.localRotation.x;
     }
@@ -57,14 +54,6 @@ public class LiftedSneakState : ProceduralSneakState
         Vector3 lerpPosition = Vector3.Lerp(Context.PlantedFoot.position, Context.LiftedFoot.position, 0.2f);
         Context.MoveBody(lerpPosition);
         
-    }
-    
-    private Vector3 _sPlantedFootGoalVel;
-    private Vector3 _sLiftedFootGoalVel;
-    private void ResetFootsVelocities()
-    {
-        _sPlantedFootGoalVel = Context.PlantedFoot.linearVelocity;
-        _sLiftedFootGoalVel = Context.LiftedFoot.linearVelocity;
     }
     
     private Vector3 _forward;
@@ -232,8 +221,8 @@ public class LiftedSneakState : ProceduralSneakState
         newLiftedMovementSettings.Acceleration += Mathf.Pow(Context.SneakSpeed, Context.SneakSpeed);
         
         // Move the feet to their grounded positions
-        _sPlantedFootGoalVel = MoveRigidbody(Context.PlantedFoot, plantedDirection, _sPlantedFootGoalVel, Context.PlantedMovementSettings);
-        _sLiftedFootGoalVel = MoveRigidbody(Context.LiftedFoot, liftedDirection, _sLiftedFootGoalVel, newLiftedMovementSettings);
+        MoveRigidbody(Context.PlantedFoot, plantedDirection, Context.PlantedMovementSettings);
+        MoveRigidbody(Context.LiftedFoot, liftedDirection, newLiftedMovementSettings);
     }
     
     private float RelativeDistanceInDirection(Vector3 from, Vector3 to, Vector3 direction)

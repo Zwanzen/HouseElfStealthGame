@@ -117,18 +117,11 @@ public class ProceduralSneakContext
         return GroundCast(foot.position + groundCastUpOffset, 1f).point + (Vector3.up * FootPlaceOffset);
     }
     
-    private Vector3 _sLiftedFootGoalVel;
     public void MoveLiftedFoot(Vector3 direction)
     {
-        _sLiftedFootGoalVel = MoveRigidbody(LiftedFoot, direction, _sLiftedFootGoalVel, _plantedMovementSettings);
+        MoveRigidbody(LiftedFoot, direction, _plantedMovementSettings);
     }
     
-    public void ResetLiftedFootGoalVel()
-    {
-        _sLiftedFootGoalVel = LiftedFoot.linearVelocity;
-    }
-    
-    private Vector3 _sBodyGoalVel;
     public void MoveBody(Vector3 pos)
     {
         // Get body's current position
@@ -139,14 +132,7 @@ public class ProceduralSneakContext
         // Get the direction to move
         var moveDir = (pos - currentPos);
         
-        _sBodyGoalVel = MoveRigidbody(_player.Rigidbody, moveDir, _sBodyGoalVel, _player.BodyMovementSettings);
-    }
-
-    // I think we should set the stored goal velocity to the current velocity of the body
-    // when we start moving the body
-    public void ResetBodyGoalVel()
-    {
-        _sBodyGoalVel = _player.Rigidbody.linearVelocity;
+        MoveRigidbody(_player.Rigidbody, moveDir, _player.BodyMovementSettings);
     }
     
     public void UpdateBodyRotation(Vector3 direction)

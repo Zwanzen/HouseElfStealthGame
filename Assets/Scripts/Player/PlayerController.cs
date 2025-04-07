@@ -158,9 +158,9 @@ public class PlayerController : MonoBehaviour
         _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
              _leftFoot, _rightFoot, _springStrength, _springDampener, _bodyMovementSettings);
         _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
-            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings);
+            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings, _sneakSpeedCurve);
         _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
-            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings);
+            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings, _sneakSpeedCurve);
     }
 
     private void CreateStateMachines()

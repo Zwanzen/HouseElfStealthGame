@@ -40,6 +40,7 @@ public class PlayerControlContext
     public PlayerController Player => _player;
     public Foot LeftFoot => _leftFoot;
     public Foot RightFoot => _rightFoot;
+    public LayerMask GroundLayers => _groundLayers;
     
     // Private methods
     private Vector3 GetLowestFootPosition()
@@ -62,24 +63,25 @@ public class PlayerControlContext
     public void RigidbodyFloat()
     {
         const float multiplier = 2f;
-        //if (!Physics.Raycast(Player.Position, Vector3.down, out var hit, PlayerController.Height * multiplier, _groundLayers)) return;
+        if (!Physics.Raycast(Player.Position, Vector3.down, out var hit, PlayerController.Height * multiplier, _groundLayers)) return;
         var vel = _rigidbody.linearVelocity;
 
         var relDirVel = Vector3.Dot(Vector3.down, vel);
 
         var relVel = relDirVel;
         
+        /*
         // Calculate the distance from player to lowest foot
         var footPos = new Vector3(Player.Position.x, GetLowestFootPosition().y, Player.Position.z);
         var footDistance = Vector3.Distance(Player.Position, footPos);
+        */
         
-        var x = footDistance - (PlayerController.Height + 0.02f);
+        var x = hit.distance - (PlayerController.Height + 0.02f);
 
         var springForce = (x * _springStrength) - (relVel * _springDampener);
         _rigidbody.AddForce(Vector3.down * springForce);
     }
     
-    private Vector3 _sBodyGoalVel;
     public void MoveBody(Vector3 targetPosition)
     {
         var currentPos = Player.Position;
@@ -87,12 +89,7 @@ public class PlayerControlContext
         var dir = targetPosition - currentPos;
         if(dir.magnitude > 1f)
             dir.Normalize();
-        _sBodyGoalVel = MoveRigidbody(Player.Rigidbody, dir, _sBodyGoalVel, _bodyMovementSettings);
-    }
-
-    public void ResetBodyGoal()
-    {
-        _sBodyGoalVel = Vector3.zero;
+        MoveRigidbody(Player.Rigidbody, dir, _bodyMovementSettings);
     }
 
     public Vector3 BetweenFeet(float lerp)
@@ -104,16 +101,15 @@ public class PlayerControlContext
 
     public float FeetLerp()
     {
-        var falling = FootControlStateMachine.EFootState.Falling;
-        if (_leftFoot.StateMachine.State == falling)
-        {
-            return 0.8f;
-        }
+        // Find out what foot is lifting
+        var leftLift = _leftFoot.StateMachine.State == FootControlStateMachine.EFootState.Lifted;
+        var rightLift = _rightFoot.StateMachine.State == FootControlStateMachine.EFootState.Lifted;
 
-        if (_rightFoot.StateMachine.State == falling)
-        {
+        if (leftLift)
+            return 0.8f;
+        
+        if (rightLift)
             return 0.2f;
-        }
 
         return 0.5f;
     }

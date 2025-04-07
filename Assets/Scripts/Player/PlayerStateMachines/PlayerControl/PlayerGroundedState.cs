@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 
 public class PlayerGroundedState : PlayerControlState
@@ -27,7 +28,6 @@ public class PlayerGroundedState : PlayerControlState
     {
         _shouldFall = false;
         _timer = FallTimeThreshold;
-        Context.ResetBodyGoal();
     }
 
 

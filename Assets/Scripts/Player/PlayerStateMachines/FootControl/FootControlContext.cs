@@ -2,6 +2,7 @@
 using RootMotion.FinalIK;
 using UnityEngine;
 using static CircleLineIntersection;
+using static RigidbodyMovement;
 
 [Serializable]
 public struct Foot
@@ -38,9 +39,11 @@ public class FootControlContext
     private readonly float _stepLength;
     private readonly float _stepHeight;
     private RigidbodyMovement.MovementSettings _movementSettings;
+    private AnimationCurve _speedCurve;
     
     public FootControlContext(PlayerController player, FullBodyBipedIK bodyIK, PlayerFootSoundPlayer footSoundPlayer,
-        LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight, RigidbodyMovement.MovementSettings movementSettings)
+        LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight, RigidbodyMovement.MovementSettings movementSettings,
+        AnimationCurve speedCurve)
     {
         _player = player;
         _bodyIK = bodyIK;
@@ -51,6 +54,7 @@ public class FootControlContext
         _stepLength = stepLength;
         _stepHeight = stepHeight;
         _movementSettings = movementSettings;
+        _speedCurve = speedCurve;
     }
     
     // Read only properties
@@ -65,6 +69,7 @@ public class FootControlContext
     public float FootRadius => 0.05f;
     public bool IsFootGrounded => GetFootGrounded();
     public bool IsFootLifting => GetIsLifting();
+    public AnimationCurve SpeedCurve => _speedCurve;
     
     // Private methods
     private IKEffector GetEffector()
@@ -81,9 +86,10 @@ public class FootControlContext
     {
         var LMB = InputManager.Instance.IsHoldingLMB;
         var RMB = InputManager.Instance.IsHoldingRMB;
-        if(LMB && Foot.Side == Foot.EFootSide.Left)
+        var otherLifted = OtherFoot.StateMachine.State == FootControlStateMachine.EFootState.Lifted;
+        if(LMB && Foot.Side == Foot.EFootSide.Left && !otherLifted)
             return true;
-        if(RMB && Foot.Side == Foot.EFootSide.Right)
+        if(RMB && Foot.Side == Foot.EFootSide.Right && !otherLifted)
             return true;
         return false;
     }
@@ -127,23 +133,17 @@ public class FootControlContext
         return fromTo.magnitude * dot;
     }
     
-    private Vector3 _sGoalVelocity;
     public void MoveFootToPosition(Vector3 direction)
     {
         // Move the foot to position using its rigidbody
         if(direction.magnitude > 1)
             direction.Normalize();
-        
+        /*
         if (!CalculateIntersectionPoint(OtherFoot.Target.position, StepLength,
                 Foot.Target.position, Vector3.down,
                 out var result))
             direction = OtherFoot.Target.position - Foot.Target.position;
-
-        _foot.Target.linearVelocity = direction * _movementSettings.Acceleration;
-    }
-    
-    public void ResetGoalVelocity()
-    {
-        _sGoalVelocity = Vector3.zero;
+        */
+        MoveRigidbody(Foot.Target, direction, _movementSettings);
     }
 }

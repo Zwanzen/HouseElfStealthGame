@@ -35,8 +35,6 @@ public class PlantedSneakState : ProceduralSneakState
 
     public override void EnterState()
     {
-        Context.ResetBodyGoalVel();
-        ResetFeetVelocities();
     }
 
     public override void ExitState()
@@ -63,9 +61,7 @@ public class PlantedSneakState : ProceduralSneakState
         pos += Context.Player.RelativeMoveInput.normalized * 0.05f;
         Context.MoveBody(pos);
     }
-    
-    private Vector3 _sLeftFootGoalVel;
-    private Vector3 _sRightFootGoalVel;
+
     // Moves both feet to their grounded positions
     private void UpdateFeetVelocities()
     {
@@ -78,14 +74,8 @@ public class PlantedSneakState : ProceduralSneakState
         var rightDirection = rightFootGroundPos - Context.RightFoot.position;
         
         // Move the feet to their grounded positions
-        _sLeftFootGoalVel = MoveRigidbody(Context.LeftFoot, leftDirection, _sLeftFootGoalVel, Context.PlantedMovementSettings);
-        _sRightFootGoalVel = MoveRigidbody(Context.RightFoot, rightDirection, _sRightFootGoalVel, Context.PlantedMovementSettings);
-    }
-    
-    private void ResetFeetVelocities()
-    {
-        _sLeftFootGoalVel = Context.LeftFoot.linearVelocity;
-        _sRightFootGoalVel = Context.RightFoot.linearVelocity;
+        MoveRigidbody(Context.LeftFoot, leftDirection, Context.PlantedMovementSettings);
+        MoveRigidbody(Context.RightFoot, rightDirection, Context.PlantedMovementSettings);
     }
     
 }
