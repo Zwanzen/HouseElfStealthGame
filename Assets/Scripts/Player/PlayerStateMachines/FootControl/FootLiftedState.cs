@@ -49,24 +49,32 @@ public class FootLiftedState : FootControlState
         var wantedInputPos = wantedHeightPos + Context.Player.RelativeMoveInput.normalized;
         
         // *** TEMP ***
-        if (Context.BothInputsPressed)
-        {
-            // If the foot is behind the other foot,
-            // We want to move this foot towards an offset to the side of the other foot
-            var distBehind = Context.RelativeDistanceInDirection(footPos, otherFootPos, Context.Player.RelativeMoveInput.normalized);
-            Debug.Log(distBehind);
-            var right = Vector3.Cross(Context.Player.RelativeMoveInput.normalized, Vector3.up) * (Context.FootRadius * 2f);
-            if(Context.Foot.Side == Foot.EFootSide.Left)
-                right = -right;
-            //wantedInputPos = new Vector3(otherFootPos.x, wantedHeight, otherFootPos.z) + right;
-        }
+        // If the foot is behind the other foot,
+        // We want to move this foot towards an offset to the side of the other foot
+        var distBehind = Context.RelativeDistanceInDirection(footPos, otherFootPos, Context.Player.RelativeMoveInput.normalized);
+        var right = -Vector3.Cross(Context.Player.RelativeMoveInput.normalized, Vector3.up) * (Context.FootRadius * 4f);
+        
+        // If the foot is on the left side, we want it to move to the left
+        if(Context.Foot.Side == Foot.EFootSide.Left)
+            right = -right;
+        
+        // If walking backwards, we want to move the foot to the other side
+        var dot = Vector3.Dot(Context.Player.Camera.GetCameraYawTransform().forward.normalized, Context.Player.RelativeMoveInput.normalized);
+        if (dot < -0.2f)
+            right = -right;
+        
+        // The position to the side of the other foot
+        var offsetPos = new Vector3(otherFootPos.x, wantedHeight, otherFootPos.z) + right;
+        
+        // We lerp our input position with the offset position based on how far behind the foot is
+        var wantedPos = Vector3.Lerp(wantedInputPos, offsetPos, distBehind/(Context.StepLength * 0.2f));
         
         // Depending on our distance to the wanted height compared to our current height
         // We lerp what position we want to go to
         var currentHeight = footPos.y - otherFootPos.y;
         var maxHeight = wantedHeight - otherFootPos.y;
         var posLerp = currentHeight / maxHeight;
-        var pos = Vector3.Lerp(wantedHeightPos, wantedInputPos, posLerp);
+        var pos = Vector3.Lerp(wantedHeightPos, wantedPos, posLerp);
         
         // We get the direction towards the wanted position
         var dir = pos - footPos;
