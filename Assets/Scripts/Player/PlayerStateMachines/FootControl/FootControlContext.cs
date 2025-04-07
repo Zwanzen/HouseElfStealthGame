@@ -40,10 +40,11 @@ public class FootControlContext
     private readonly float _stepHeight;
     private RigidbodyMovement.MovementSettings _movementSettings;
     private AnimationCurve _speedCurve;
+    private AnimationCurve _placeCurve;
     
     public FootControlContext(PlayerController player, FullBodyBipedIK bodyIK, PlayerFootSoundPlayer footSoundPlayer,
         LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight, RigidbodyMovement.MovementSettings movementSettings,
-        AnimationCurve speedCurve)
+        AnimationCurve speedCurve, AnimationCurve placeCurve)
     {
         _player = player;
         _bodyIK = bodyIK;
@@ -55,6 +56,7 @@ public class FootControlContext
         _stepHeight = stepHeight;
         _movementSettings = movementSettings;
         _speedCurve = speedCurve;
+        _placeCurve = placeCurve;
     }
     
     // Read only properties
@@ -70,6 +72,8 @@ public class FootControlContext
     public bool IsFootGrounded => GetFootGrounded();
     public bool IsFootLifting => GetIsLifting();
     public AnimationCurve SpeedCurve => _speedCurve;
+    public AnimationCurve PlaceCurve => _placeCurve;
+    public bool BothInputsPressed => InputManager.Instance.IsHoldingLMB && InputManager.Instance.IsHoldingRMB;
     
     // Private methods
     private IKEffector GetEffector()
@@ -132,17 +136,41 @@ public class FootControlContext
         var dot = Vector3.Dot(direction.normalized, fromTo.normalized);
         return fromTo.magnitude * dot;
     }
-    
+
+
+    private float _lastMoveTime;
+    private float _lerp;
     public void MoveFootToPosition(Vector3 direction)
     {
         // Move the foot to position using its rigidbody
         if(direction.magnitude > 1)
             direction.Normalize();
         /*
-        if (!CalculateIntersectionPoint(OtherFoot.Target.position, StepLength,
-                Foot.Target.position, Vector3.down,
-                out var result))
-            direction = OtherFoot.Target.position - Foot.Target.position;
+
+        // Calculate time since last call
+        float currentTime = Time.time;
+        float deltaTime = currentTime - _lastMoveTime;
+
+        // If the direction is zero, we decrease the lerp value
+        if(direction.magnitude < 0.1f)
+            deltaTime = -deltaTime;
+
+        // If it's been a while since last call, save negative time instead
+        var timeToDecay = 0.2f;
+        if (deltaTime > timeToDecay)
+            deltaTime = -deltaTime;
+
+        _lastMoveTime = currentTime;
+
+        // Update lerp value over time
+        float lerpSpeed = 2f; // Adjust this value to control acceleration rate
+        _lerp = Mathf.Clamp01(_lerp + deltaTime * lerpSpeed);
+
+        // Lerp between 0 and max speed
+        var newSpeed = Mathf.Lerp(0f, _movementSettings.MaxSpeed, _lerp);
+
+        var newMovementSettings = _movementSettings;
+        newMovementSettings.MaxSpeed = newSpeed;
         */
         MoveRigidbody(Foot.Target, direction, _movementSettings);
     }

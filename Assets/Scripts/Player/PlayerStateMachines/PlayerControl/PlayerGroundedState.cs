@@ -56,5 +56,8 @@ public class PlayerGroundedState : PlayerControlState
     {
         Context.RigidbodyFloat();
         Context.MoveBody(Context.BetweenFeet(Context.FeetLerp()));
+        
+        if(Context.Player.RelativeMoveInput != Vector3.zero)
+            Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
     }
 }

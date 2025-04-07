@@ -105,15 +105,56 @@ public class PlayerControlContext
         var leftLift = _leftFoot.StateMachine.State == FootControlStateMachine.EFootState.Lifted;
         var rightLift = _rightFoot.StateMachine.State == FootControlStateMachine.EFootState.Lifted;
 
+        var dist = Vector3.Distance(_leftFoot.Target.position, _rightFoot.Target.position);
+        var start = _player.StepLength * 0.7f;
+
         if (leftLift)
-            return 0.8f;
-        
+        {
+            var lerp = dist - start;
+            lerp /= _player.StepLength;
+            return Mathf.Lerp(0.8f, 0.5f, lerp);
+        }
+
         if (rightLift)
-            return 0.2f;
+        {
+            var lerp = dist - start;
+            lerp /= _player.StepLength;
+            return Mathf.Lerp(0.2f, 0.5f, lerp);
+        }
 
         return 0.5f;
     }
     
+    public void UpdateBodyRotation(Vector3 direction)
+    {
+        if (direction == Vector3.zero)
+        {
+            return;
+        }
+
+        // Other direction
+        var otherDir = _player.RelativeMoveInput;
+        // Get the dot between camera and other direction
+        var dot = Vector3.Dot(_player.Camera.GetCameraYawTransform().forward.normalized, otherDir.normalized);
+        if (dot < -0.2f)
+            otherDir = -otherDir;
+        
+        // Downwards lerp
+        var angle = _player.Camera.CameraX;
+        var dir = Vector3.Lerp(otherDir, direction, angle/60f);
+        
+        // Get the dot between the lerped direction and the player's forward direction
+        var dot2 = Vector3.Dot(dir.normalized, _player.Rigidbody.transform.forward.normalized);
+        
+        // if the dot is less than 0.5, we need to rotate the body towards camera forward first
+        if (dot2 < 0)
+        {
+            dir = _player.Camera.GetCameraYawTransform().forward;
+        }
+        
+        // Rotate the body towards the direction
+        RotateRigidbody(_player.Rigidbody, dir, 200f);
+    }
 
     
 }
