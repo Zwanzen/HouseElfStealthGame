@@ -13,7 +13,7 @@ public class FootLiftedState : FootControlState
         if (!Context.IsFootLifting)
             return FootControlStateMachine.EFootState.Placing;
         
-        if (GetDistanceFromOtherFoot() > Context.StepLength)
+        if (GetDistanceFromOtherFoot() > Context.StepLength && Context.BothInputsPressed)
             return FootControlStateMachine.EFootState.Placing;
         
         return StateKey;
@@ -42,6 +42,10 @@ public class FootLiftedState : FootControlState
 
         // We want the foot to move upwards as much as possible first
         var wantedHeight = otherFootPos.y + 0.15f;
+        // If lift is pressed, add height
+        if (InputManager.Instance.IsLifting)
+            wantedHeight += 0.2f; 
+        
         var wantedHeightPos = new Vector3(footPos.x, wantedHeight, footPos.z);
         
         // We also calculate the input position based on the player input

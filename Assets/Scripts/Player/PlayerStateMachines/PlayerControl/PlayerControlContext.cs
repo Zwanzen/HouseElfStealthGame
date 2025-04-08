@@ -70,13 +70,13 @@ public class PlayerControlContext
 
         var relVel = relDirVel;
         
-        /*
+        
         // Calculate the distance from player to lowest foot
         var footPos = new Vector3(Player.Position.x, GetLowestFootPosition().y, Player.Position.z);
         var footDistance = Vector3.Distance(Player.Position, footPos);
-        */
         
-        var x = hit.distance - (PlayerController.Height + 0.02f);
+        
+        var x = footDistance - (PlayerController.Height + 0.02f);
 
         var springForce = (x * _springStrength) - (relVel * _springDampener);
         _rigidbody.AddForce(Vector3.down * springForce);
