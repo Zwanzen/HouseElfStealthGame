@@ -4955,6 +4955,7 @@ GameObject:
   - component: {fileID: 4525149680156537970}
   - component: {fileID: 8890392872380230359}
   - component: {fileID: 1515475897424997371}
+  - component: {fileID: 8983130544525541703}
   m_Layer: 30
   m_Name: ChandelierCandleLight
   m_TagString: Untagged
@@ -5066,3 +5067,21 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!114 &8983130544525541703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8405076476843826763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6546b1d9188776e44ae03cdaac260e0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lightSource: {fileID: 8890392872380230359}
+  intensityBase: 1
+  intensityVariation: 0.3
+  flickerSpeed: 1
+  positionJitter: 0.01
+  jitterSpeed: 1
