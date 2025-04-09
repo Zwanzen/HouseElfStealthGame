@@ -50,12 +50,12 @@ public class FootPlacingState : FootControlState
     public override void FixedUpdateState()
     {
         MoveToGround();
-        HandleFootRotation();
+        //HandleFootRotation();
     }
     
     private void MoveToGround()
     {
-        var dir = Vector3.zero;
+        var dir = Vector3.down;
         if (Context.FootGroundCast(out var hit))
         {
             var pos = hit.point + Context.FootPlaceOffset;

@@ -75,8 +75,13 @@ public class PlayerControlContext
         var footPos = new Vector3(Player.Position.x, GetLowestFootPosition().y, Player.Position.z);
         var footDistance = Vector3.Distance(Player.Position, footPos);
         
-        
-        var x = footDistance - (PlayerController.Height + 0.02f);
+        var footPlaceOffset = 0.02f;
+        /*
+        var distBetweenFeet = Vector3.Distance(_leftFoot.Target.position, _rightFoot.Target.position);
+        var lerp = distBetweenFeet / _player.StepLength;
+        var height = Mathf.Lerp(PlayerController.Height, PlayerController.Height * 0.95f, lerp);
+        */
+        var x = footDistance - (PlayerController.Height + footPlaceOffset);
 
         var springForce = (x * _springStrength) - (relVel * _springDampener);
         _rigidbody.AddForce(Vector3.down * springForce);

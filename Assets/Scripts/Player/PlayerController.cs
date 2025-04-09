@@ -47,18 +47,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _stepLength = 0.5f;
     [SerializeField] private float _stepHeight = 0.5f;
     [SerializeField] private MovementSettings _liftedSettings;
+    [SerializeField] private AnimationCurve _speedCurve;
+    [SerializeField] private AnimationCurve _heightCurve;
+    [SerializeField] private AnimationCurve _placeSpeedCurve;
+
+
 
     
     [Space(10f)]
     [Header("Sneak Variables")]
     [SerializeField] private float _minSneakSpeed = 1f;
     [SerializeField] private float _maxSneakSpeed = 2f;
-    [SerializeField] private float _sneakStepLength = 0.38f;
-    [SerializeField] private float _sneakStepHeight = 0.5f;
-    [FormerlySerializedAs("_sneakMovementSettings")] [SerializeField] private MovementSettings _liftedMovementSettings;
-    [SerializeField] private MovementSettings _plantedMovementSettings;
-    [SerializeField] private AnimationCurve _sneakSpeedCurve;
-    [SerializeField] private AnimationCurve _placeSpeedCurve;
+
 
     [Space(10f)] [Header("Temp")] 
     [SerializeField] private RectTransform _leftClick;
@@ -158,9 +158,9 @@ public class PlayerController : MonoBehaviour
         _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
              _leftFoot, _rightFoot, _springStrength, _springDampener, _bodyMovementSettings);
         _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
-            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings, _sneakSpeedCurve, _placeSpeedCurve);
+            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings, _speedCurve, _heightCurve, _placeSpeedCurve);
         _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
-            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings, _sneakSpeedCurve, _placeSpeedCurve);
+            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings, _speedCurve, _heightCurve, _placeSpeedCurve);
     }
 
     private void CreateStateMachines()
@@ -203,7 +203,7 @@ public class PlayerController : MonoBehaviour
     // Sneaking Properties
     public Rigidbody LeftFootTarget => _leftFoot.Target;
     public Rigidbody RightFootTarget => _rightFoot.Target;
-    public float StepLength => _sneakStepLength;
+    public float StepLength => _stepLength;
     public MovementSettings BodyMovementSettings => _bodyMovementSettings;
     public static float Height => 1.0f;
     

@@ -42,10 +42,12 @@ public class FootLiftedState : FootControlState
 
         // We want the foot to move upwards as much as possible first
         var wantedHeight = otherFootPos.y + 0.15f;
+        
         // If lift is pressed, add height
         if (InputManager.Instance.IsLifting)
             wantedHeight += 0.2f; 
         
+        // This is the current position of the foot, but at the wanted height
         var wantedHeightPos = new Vector3(footPos.x, wantedHeight, footPos.z);
         
         // We also calculate the input position based on the player input
@@ -69,6 +71,8 @@ public class FootLiftedState : FootControlState
         
         // The position to the side of the other foot
         var offsetPos = new Vector3(otherFootPos.x, wantedHeight, otherFootPos.z) + right;
+        offsetPos = wantedInputPos;
+
         
         // We lerp our input position with the offset position based on how far behind the foot is
         var wantedPos = Vector3.Lerp(wantedInputPos, offsetPos, distBehind/(Context.StepLength * 0.2f));
@@ -77,23 +81,62 @@ public class FootLiftedState : FootControlState
         // We lerp what position we want to go to
         var currentHeight = footPos.y - otherFootPos.y;
         var maxHeight = wantedHeight - otherFootPos.y;
+        // Doesn't start to lerp until we are 50% of the way to the max height
         var posLerp = currentHeight / maxHeight;
-        var pos = Vector3.Lerp(wantedHeightPos, wantedPos, posLerp);
+        var pos = Vector3.Lerp(wantedHeightPos, wantedPos, Context.HeightCurve.Evaluate(posLerp));
         
         // We get the direction towards the wanted position
-        var dir = pos - footPos;
+        var dirToPos = pos - footPos;
+        Debug.DrawLine(otherFootPos, pos, Color.green);
+
+
+        // Now clamp if we are going out of step length
+        if (Vector3.Distance(pos, otherFootPos) > Context.StepLength)
+            pos = ClampedFootPosition(footPos, otherFootPos, dirToPos);
+        
+        Debug.DrawLine(footPos, pos, Color.red);
+
+        // Update dir to pos because we might have changed the position
+        dirToPos = pos - footPos;
         
         // Before we move, we change the dir magnitude based on the current one
         // This will keep the speed based on distance and curve
-        var mag = dir.magnitude;
-        var breakDistance = 0.1f;
+        var mag = dirToPos.magnitude;
+        var breakDistance = 0.05f;
         var magLerp = mag / breakDistance;
-        dir.Normalize();
-        dir *= Context.SpeedCurve.Evaluate(magLerp);
+        dirToPos.Normalize();
+        dirToPos *= Context.SpeedCurve.Evaluate(magLerp);
         
-        Context.MoveFootToPosition(dir);
+        Context.MoveFootToPosition(dirToPos);
         HandleFootRotation();
     }
+    
+    private Vector3 ClampedFootPosition(Vector3 footPos, Vector3 otherFootPos, Vector3 direction)
+    {
+        // Offset the start position of the line to avoid not finding an intersection point when we should
+        var lineStart = footPos - direction.normalized;
+        
+        // Dir from other foot to pos
+        var otherDir = (direction + footPos) - otherFootPos;
+            
+        // We check the other intersection point now, in case the normal one fails, this one will never fail
+        CalculateIntersectionPoint(otherFootPos, Context.StepLength, otherFootPos, otherDir.normalized,
+            out var otherFootIntersect);
+        
+        // If we don't fail, we should use this intersection point for more accurate movement
+        if (!CalculateIntersectionPoint(otherFootPos, Context.StepLength, lineStart, direction.normalized,
+                out var footIntersect))
+            return otherFootIntersect;
+        
+        // Only start lerping when we are close enough to the edge
+        var startDist = Context.StepLength * 0.1f;
+        var distToIntersect = Vector3.Distance(footPos, footIntersect);
+        var lerp = distToIntersect / startDist;
+        
+        // The closer we are to the edge, the more we want to use the other foot intersection point
+        return Vector3.Lerp(otherFootIntersect, footIntersect, lerp);
+    }
+    
     
     private Vector3 _forward;
     private Vector3 _right;
@@ -131,6 +174,8 @@ public class FootLiftedState : FootControlState
         var angle = Mathf.Lerp(minPitch, maxPitch, Mathf.InverseLerp(minRelDist, maxRelDist, relDist));
         var lerpAngle = Mathf.Lerp(_startAngle, angle, Context.PlaceCurve.Evaluate(_liftTimer / 0.20f));
         
+        // *** TMEP ***
+        lerpAngle = _startAngle;
         
         // Rotate the camForward direction around the foot's right direction
         var footForward = Quaternion.AngleAxis(lerpAngle, _right) * _forward;
