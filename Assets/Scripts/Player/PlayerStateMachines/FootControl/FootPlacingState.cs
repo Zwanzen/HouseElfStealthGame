@@ -56,11 +56,6 @@ public class FootPlacingState : FootControlState
     private void MoveToGround()
     {
         var dir = Vector3.down;
-        if (Context.FootGroundCast(out var hit))
-        {
-            var pos = hit.point + Context.FootPlaceOffset;
-            dir = (pos - Context.Foot.Target.position);
-        }
         // Before we move, we change the dir magnitude based on the current one
         // This will keep the speed based on distance and curve
         var mag = dir.magnitude;

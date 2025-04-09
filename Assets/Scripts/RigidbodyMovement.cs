@@ -9,7 +9,7 @@ public static class RigidbodyMovement
         public float MaxSpeed;
         public float Acceleration;
         public float Deceleration;
-        //public AnimationCurve AccelerationFactorFromDot;
+        public AnimationCurve AccelerationFactorFromDot;
         //public float MaxAccelForce;
         //public AnimationCurve MaxAccelerationForceFactorFromDot;
         public Vector3 ForceScale;
@@ -41,6 +41,10 @@ public static class RigidbodyMovement
         // Use deceleration value if specified and there's no input, otherwise use acceleration.
         bool isDecelerating = moveInput == Vector3.zero && settings.Deceleration > 0f;
         var actualAcceleration = isDecelerating ? settings.Deceleration : settings.Acceleration;
+        
+        // Multiply the acceleration by the factor from the animation curve based on the dot product of the current and target velocity.
+        var dot = Vector3.Dot(currentVelocity.normalized, targetVelocity.normalized);
+        actualAcceleration *= settings.AccelerationFactorFromDot.Evaluate(dot);
 
         // 5. Calculate Acceleration Needed (and Clamp)
         // Calculate the acceleration required *this frame* to bridge the velocity difference.
