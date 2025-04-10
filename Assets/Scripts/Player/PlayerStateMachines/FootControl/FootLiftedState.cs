@@ -73,8 +73,6 @@ public class FootLiftedState : FootControlState
         // We lerp our input position with the offset position based on how far behind the foot is
         var distBehind = Context.RelativeDistanceInDirection(footPos, otherFootPos, input.normalized);
         var wantedPos = Vector3.Lerp(wantedInputPos, offsetPos, Context.OffsetCurve.Evaluate(distBehind/Context.StepLength));
-        // *** TEMP ***
-
         
         // Depending on our distance to the wanted height compared to our current height
         // We lerp what position we want to go to
@@ -114,6 +112,7 @@ public class FootLiftedState : FootControlState
     private bool ScanGroundObject(Vector3 input, out float height)
     {
         var footPos = Context.Foot.Target.position;
+        var otherFootPos = Context.OtherFoot.Target.position;
         height = 0f;
         var defaultValues = Context.FootCastValues;
         
@@ -122,7 +121,7 @@ public class FootLiftedState : FootControlState
         var rotation = defaultValues.Rotation;
         
         // How much we should check forwards
-        var forwardCheck = size.z * 2f;
+        var forwardCheck = size.z * 1.5f;
         // How much we should check side to side
         var sideCheck = 0.1f;
         
@@ -138,8 +137,6 @@ public class FootLiftedState : FootControlState
             size.x = sideCheck;
             size.z = forwardCheck;
         }
-        
-
         
         // Height 
         var footSize = size.y;
@@ -158,12 +155,22 @@ public class FootLiftedState : FootControlState
                 closestPoint + Vector3.down, Vector3.up, out var highestPoint))
         {
             var highest = highestPoint.y - footSize;
-            Debug.DrawLine(highestPoint, highestPoint + Vector3.down, Color.red);
-            // If there is space, we can return true
+            // If there is space above, we can return true
             if (highest > height)
             {
+                // *** TODO ***
+                // We also want to make sure we arent setting the height so
+                // that we try to go through an object above
+                // create a small check upwards also
+                if(otherFootPos.y -0.20f > height)
+                    height = otherFootPos.y - 0.20f;
+                
                 return true;
             }
+            
+            // Check if we are actually on the ground
+            if(Context.IsFootGrounded)
+                return true;
             
             // If it's too high, we want to check a smaller box
             position = defaultValues.Position;
@@ -192,8 +199,10 @@ public class FootLiftedState : FootControlState
             } 
             
             // If we don't hit anything, no ground
-        }
-        
+        }        
+
+        /*
+        // *** NOT REALLY DOING ANYTHING ***
         // Check if it is too low
         if (!CalculateIntersectionPoint(Context.OtherFoot.Target.position, Context.StepLength,
                 closestPoint + Vector3.up, Vector3.down, out var lowestPoint))
@@ -201,10 +210,17 @@ public class FootLiftedState : FootControlState
         
         var lowest = lowestPoint.y + footSize;
         // If it is high enough, we can return true
-        if(height > lowest)
+        if (height > lowest)
+        {
+            // We also dont want to set the height to the lowest point
+            // We want to set it to a fixed height
+            height = Context.OtherFoot.Target.position.y - 0.15f;
+            // But clamp it so that it doesn't go below the lowest point
+            if (height < lowest)
+                height = lowest;
             return true;
-        
-
+        }
+        */
 
         return false; // Out of bounds
     }

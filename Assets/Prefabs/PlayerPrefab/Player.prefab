@@ -1163,6 +1163,7 @@ GameObject:
   - component: {fileID: 1123331334865201709}
   - component: {fileID: 2648459860100371894}
   - component: {fileID: 5942876573651856225}
+  - component: {fileID: 33694817915065860}
   m_Layer: 9
   m_Name: FOOT.TARGET.L
   m_TagString: Untagged
@@ -1233,6 +1234,23 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.07, y: 0.06, z: 0.2}
   m_Center: {x: 0, y: -0.01, z: 0.06}
+--- !u!114 &33694817915065860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 923914128698992341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6bcb1fdfee06ce4ab07940266f0f520, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _forceMultiplier: 1
+  _maxForce: 5
+  _objectLayer:
+    serializedVersion: 2
+    m_Bits: 1073741824
 --- !u!1 &947164202671920193
 GameObject:
   m_ObjectHideFlags: 0
@@ -1623,7 +1641,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: dd5ce6d246092ed449659e6a1c6ad15d, type: 2}
+  - {fileID: 2100000, guid: 34f8b8a8c91cbe243b68fe6118be8f76, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1880,7 +1898,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: dd5ce6d246092ed449659e6a1c6ad15d, type: 2}
+  - {fileID: 2100000, guid: 34f8b8a8c91cbe243b68fe6118be8f76, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3366,7 +3384,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: dd5ce6d246092ed449659e6a1c6ad15d, type: 2}
+  - {fileID: 2100000, guid: 34f8b8a8c91cbe243b68fe6118be8f76, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3835,7 +3853,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: dd5ce6d246092ed449659e6a1c6ad15d, type: 2}
+  - {fileID: 2100000, guid: 34f8b8a8c91cbe243b68fe6118be8f76, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4094,7 +4112,34 @@ MonoBehaviour:
     Deceleration: 0
     AccelerationFactorFromDot:
       serializedVersion: 2
-      m_Curve: []
+      m_Curve:
+      - serializedVersion: 3
+        time: -1
+        value: 2
+        inSlope: 0.0002141022
+        outSlope: 0.0002141022
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.997762
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -0.00070191285
+        outSlope: -0.00070191285
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.99777997
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -4121,12 +4166,12 @@ MonoBehaviour:
     Collider: {fileID: 3247732386027773977}
     Side: 1
     StateMachine: {fileID: 0}
-  _stepLength: 0.6
+  _stepLength: 0.7
   _stepHeight: 0.5
   _liftedSettings:
     MaxSpeed: 1.5
-    Acceleration: 200
-    Deceleration: 200
+    Acceleration: 25
+    Deceleration: 25
     AccelerationFactorFromDot:
       serializedVersion: 2
       m_Curve:
@@ -4238,6 +4283,39 @@ MonoBehaviour:
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.02530229
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _offsetCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2.6176026
+      outSlope: 2.6176026
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.25519535
+    - serializedVersion: 3
+      time: 0.10058187
+      value: 1.0010476
+      inSlope: 0.004238345
+      outSlope: 0.004238345
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.9940688
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: -0
+      outSlope: -0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 1
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -5926,6 +6004,7 @@ GameObject:
   - component: {fileID: 8943841612903081066}
   - component: {fileID: 7148958524230573474}
   - component: {fileID: 3247732386027773977}
+  - component: {fileID: 5296579081574074740}
   m_Layer: 9
   m_Name: FOOT.TARGET.R
   m_TagString: Untagged
@@ -5996,6 +6075,23 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.07, y: 0.06, z: 0.2}
   m_Center: {x: 0, y: -0.01, z: 0.06}
+--- !u!114 &5296579081574074740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6519018212051452448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6bcb1fdfee06ce4ab07940266f0f520, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _forceMultiplier: 1
+  _maxForce: 5
+  _objectLayer:
+    serializedVersion: 2
+    m_Bits: 1073741824
 --- !u!1 &6526384064095785845
 GameObject:
   m_ObjectHideFlags: 0
