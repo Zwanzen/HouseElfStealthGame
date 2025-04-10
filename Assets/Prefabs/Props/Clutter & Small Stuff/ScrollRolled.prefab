@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 1466433161874309554}
   - component: {fileID: 7745902833557372164}
   - component: {fileID: 3488725351989031959}
-  - component: {fileID: -6603830637426288561}
   - component: {fileID: 850954941609344104}
+  - component: {fileID: 2956944356995158892}
   m_Layer: 0
   m_Name: ScrollRolled
   m_TagString: Untagged
@@ -88,28 +88,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &-6603830637426288561
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8375956949550292731}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -7326613349866519247, guid: f1896cbee205fdc40bed85ce01d94d58, type: 3}
 --- !u!54 &850954941609344104
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -137,3 +115,26 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!136 &2956944356995158892
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8375956949550292731}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.040861584
+  m_Height: 0.45009258
+  m_Direction: 1
+  m_Center: {x: 0.0052902736, y: -0.0000462085, z: -0.0011897888}
