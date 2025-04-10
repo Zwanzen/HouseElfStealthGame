@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 
 public class PlayerGroundedState : PlayerControlState
@@ -12,9 +13,9 @@ public class PlayerGroundedState : PlayerControlState
 
     public override PlayerControlStateMachine.EPlayerControlState GetNextState()
     {
-        var dist = Vector3.Distance(Context.LeftFootTarget.position, Context.RightFootTarget.position);
+        var dist = Vector3.Distance(Context.LeftFoot.Target.position, Context.RightFoot.Target.position);
         
-        if (_shouldFall || dist > 0.8f || Context.Player.IsStumble)
+        if (_shouldFall || dist > 2f || Context.Player.IsStumble)
         {
             return PlayerControlStateMachine.EPlayerControlState.Falling;
         }
@@ -54,5 +55,9 @@ public class PlayerGroundedState : PlayerControlState
     public override void FixedUpdateState()
     {
         Context.RigidbodyFloat();
+        Context.MoveBody(Context.BetweenFeet(Context.FeetLerp()));
+        
+        if(Context.Player.RelativeMoveInput != Vector3.zero)
+            Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
     }
 }

@@ -33,4 +33,8 @@ public class Sound
     public readonly bool Loop;
     
     public float CurrentVolume;
+    
+    // NPC
+    public float BufferTime;
+    public float Duration = 20f;
 }

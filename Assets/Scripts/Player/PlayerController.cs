@@ -4,6 +4,7 @@ using RootMotion.FinalIK;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 using static RigidbodyMovement;
 
 public class PlayerController : MonoBehaviour
@@ -11,48 +12,71 @@ public class PlayerController : MonoBehaviour
 
     // State Machines
     private PlayerControlStateMachine _controlStateMachine;
-    private ProceduralSneakStateMachine _sneakStateMachine;
+    private FootControlStateMachine _leftFootStateMachine;
+    private FootControlStateMachine _rightFootStateMachine;
     
     // State Machine Contexts
     private PlayerControlContext _controlContext;
-    private ProceduralSneakContext _sneakContext;
+    private FootControlContext _leftFootContext;
+    private FootControlContext _rightFootContext;
     
     // Private variables
     [Header("Components")]
     [SerializeField] private Rigidbody _rigidbody;
     [SerializeField] private FullBodyBipedIK _bodyIK;
     [SerializeField] private PlayerCameraController _cameraController;
-    [SerializeField] private PuppetMaster _puppetMaster;
     
     [Space(10f)]
     [Header("Common")]
     [SerializeField] private LayerMask _groundLayers;
-    [SerializeField] private Rigidbody _leftFootTarget;
-    [SerializeField] private Rigidbody _rightFootTarget;
-    [SerializeField] private Transform _leftFootRestTarget;
-    [SerializeField] private Transform _rightFootRestTarget;
     [SerializeField] private PlayerFootSoundPlayer _leftFootSoundPlayer;
     [SerializeField] private PlayerFootSoundPlayer _rightFootSoundPlayer;
     [SerializeField] private MovementSettings _bodyMovementSettings;
     [SerializeField] private Transform[] _limbs;
-    
+
     [Space(10f)]
-    [Header("Control Variables")]
+    [Header("Body Variables")]
     [SerializeField] private float _springStrength = 250f;
     [SerializeField] private float _springDampener = 5f;
+    [SerializeField] private float _bodyRotationSpeed = 5f;
+    
+    [Space(10f)] 
+    [Header("Foot Control")] 
+    [SerializeField] private Foot _leftFoot;
+    [SerializeField] private Foot _rightFoot;
+    [SerializeField] private float _stepLength = 0.5f;
+    [SerializeField] private float _stepHeight = 0.5f;
+    [SerializeField] private MovementSettings _liftedSettings;
+    [SerializeField] private AnimationCurve _speedCurve;
+    [SerializeField] private AnimationCurve _heightCurve;
+    [SerializeField] private AnimationCurve _placeSpeedCurve;
+    [SerializeField] private AnimationCurve _offsetCurve;
+
+
+
     
     [Space(10f)]
     [Header("Sneak Variables")]
     [SerializeField] private float _minSneakSpeed = 1f;
     [SerializeField] private float _maxSneakSpeed = 2f;
-    [SerializeField] private float _sneakStepLength = 0.38f;
-    [SerializeField] private float _sneakStepHeight = 0.5f;
-    [SerializeField] private float _bodyRotationSpeed = 5f;
-    [FormerlySerializedAs("_sneakMovementSettings")] [SerializeField] private MovementSettings _liftedMovementSettings;
-    [SerializeField] private MovementSettings _plantedMovementSettings;
-    [SerializeField] private AnimationCurve _sneakSpeedCurve;
-    [SerializeField] private AnimationCurve _placeSpeedCurve;
 
+
+    [Space(10f)] [Header("Temp")] 
+    [SerializeField] private RectTransform _leftClick;
+    [SerializeField] private RectTransform _rightClick;
+    [SerializeField] private float MinImageScale = 0.5f;
+    [SerializeField] private float MaxImageScale = 1.5f;
+    [SerializeField] private AnimationCurve _imageScaleCurve;
+    [SerializeField] private Image _leftImage;
+    [SerializeField] private Image _rightImage;
+    [SerializeField] private Transform _leanTarget;
+    [SerializeField] private Transform _leanRestTarget;
+    
+    private float _wantedLScale;
+    private float _wantedRScale;
+    
+    private Color _wantedLColor;
+    private Color _wantedRColor;
     
     private bool _isSneaking;
     private bool _isStumble;
@@ -73,7 +97,8 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        // Initialize the state machine contexts first, SMs depend on them
+        // Order of initialization is important
+        CreateStateMachines();
         InitializeStateMachineContexts();
         InitializeStateMachines();
     }
@@ -84,28 +109,82 @@ public class PlayerController : MonoBehaviour
         _playerSpeedState = UpdatePlayerSpeedState();
     }
 
+    private void Update()
+    {
+        HandleStepUI();
+    }
+
+    private void HandleStepUI()
+    {
+        var lFootPos = LeftFootTarget.position;
+        var rFootPos = RightFootTarget.position;
+        
+        var feetDir = rFootPos - lFootPos;
+        var relativeDir = _cameraController.GetCameraYawTransform().forward;
+        if(RelativeMoveInput.magnitude > 0)
+            relativeDir = RelativeMoveInput;
+        var feetDot = Vector3.Dot(feetDir, relativeDir);
+        var dist = feetDir.magnitude * feetDot;
+        dist = Mathf.Clamp(dist, -StepLength, StepLength);
+
+        var lerp = _imageScaleCurve.Evaluate(dist);
+        
+        // Downwards lerp
+        var angle = _cameraController.CameraX - 40f;
+        var angleValue = Mathf.Lerp(1, 0, angle/20f);
+        
+        _wantedLScale = Mathf.Lerp(MinImageScale, MaxImageScale, lerp) * angleValue;
+        _wantedRScale = Mathf.Lerp(MaxImageScale, MinImageScale, lerp) * angleValue;
+        
+        var maxColor = new Color(255, 255, 255, 0.5f * angleValue);
+        var minColor = new Color(255, 255, 255, 0f);
+        
+        _wantedLColor = Color.Lerp(minColor, maxColor, lerp);
+        _wantedRColor = Color.Lerp(maxColor, minColor, lerp);
+        
+        var lerpSpeed = 5f;
+        
+        // Lerp the scale to the wanted scale
+        _leftClick.localScale = Vector3.Lerp(_leftClick.localScale, Vector3.one * _wantedLScale, Time.deltaTime * lerpSpeed);
+        _rightClick.localScale = Vector3.Lerp(_rightClick.localScale, Vector3.one * _wantedRScale, Time.deltaTime * lerpSpeed);
+        
+        // Lerp the color to the wanted color
+        _leftImage.color = Color.Lerp(_leftImage.color, _wantedLColor, Time.deltaTime * lerpSpeed * 10f);
+        _rightImage.color = Color.Lerp(_rightImage.color, _wantedRColor, Time.deltaTime * lerpSpeed * 10f);
+    }
+
     // Initialize the state machine contexts
     private void InitializeStateMachineContexts()
     {
-        _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _puppetMaster, _groundLayers,
-             _leftFootTarget, _rightFootTarget, _springStrength, _springDampener);
-        _sneakContext = new ProceduralSneakContext(this, _sneakStateMachine, _bodyIK, _groundLayers,
-            _leftFootTarget, _rightFootTarget, _leftFootRestTarget, _rightFootRestTarget,
-            _minSneakSpeed, _maxSneakSpeed, _sneakStepLength,_sneakStepHeight, _bodyRotationSpeed, _liftedMovementSettings,
-            _plantedMovementSettings, _sneakSpeedCurve, _placeSpeedCurve);
+        _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
+             _leftFoot, _rightFoot, _springStrength, _springDampener, _bodyMovementSettings);
+        _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
+            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings, _speedCurve, _heightCurve, _placeSpeedCurve,
+            _offsetCurve);
+        _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
+            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings, _speedCurve, _heightCurve, _placeSpeedCurve,
+            _offsetCurve);
     }
-    
+
+    private void CreateStateMachines()
+    {
+        // Add the state machines to the player controller
+        _controlStateMachine = this.AddComponent<PlayerControlStateMachine>();
+        _leftFootStateMachine = this.AddComponent<FootControlStateMachine>();
+        _rightFootStateMachine = this.AddComponent<FootControlStateMachine>();
+        
+        // Give the foot structs reference to the state machines
+        _leftFoot.StateMachine = _leftFootStateMachine;
+        _rightFoot.StateMachine = _rightFootStateMachine;
+    }
 
     // Adding and initializing the state machines with contexts
     private void InitializeStateMachines()
     {
-        // Add the state machines to the player controller
-        _controlStateMachine = this.AddComponent<PlayerControlStateMachine>();
-        _sneakStateMachine = this.AddComponent<ProceduralSneakStateMachine>();
-        
         // Set the context for the state machines
         _controlStateMachine.SetContext(_controlContext);
-        _sneakStateMachine.SetContext(_sneakContext);
+        _leftFootStateMachine.SetContext(_leftFootContext);
+        _rightFootStateMachine.SetContext(_rightFootContext);
     }
     
     // Initialize input events
@@ -123,6 +202,11 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public Transform[] Limbs => _limbs;
     public Rigidbody Rigidbody => _rigidbody;
+    
+    // Sneaking Properties
+    public Rigidbody LeftFootTarget => _leftFoot.Target;
+    public Rigidbody RightFootTarget => _rightFoot.Target;
+    public float StepLength => _stepLength;
     public MovementSettings BodyMovementSettings => _bodyMovementSettings;
     public static float Height => 1.0f;
     
@@ -266,9 +350,10 @@ public class PlayerController : MonoBehaviour
         style.normal.textColor = Color.white;
     
         GUI.Label(new Rect(20, 15, 240, 20), $"Control State: {_controlStateMachine.State}", style);
-        GUI.Label(new Rect(20, 35, 240, 20), $"Sneak State: {_sneakStateMachine.State}", style);
-        GUI.Label(new Rect(20, 55, 240, 20), $"Player Is Sneaking: {_isSneaking}", style);
-        GUI.Label(new Rect(20, 75, 240, 20), $"Player Speed State: {_playerSpeedState}", style);
+        GUI.Label(new Rect(20, 35, 240, 20), $"Left Foot State: {_leftFootStateMachine.State}", style);
+        GUI.Label(new Rect(20, 55, 240, 20), $"Right Foot State: {_rightFootStateMachine.State}", style);
+        GUI.Label(new Rect(20, 75, 240, 20), $"Left State: {_leftFoot.StateMachine.State}", style);
+        GUI.Label(new Rect(20, 95, 240, 20), $"Right State: {_rightFoot.StateMachine.State}", style);
     }
     
     private void OnDestroy()

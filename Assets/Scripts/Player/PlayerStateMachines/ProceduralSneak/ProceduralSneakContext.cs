@@ -99,6 +99,7 @@ public class ProceduralSneakContext
         var lerp = Mathf.Lerp(_minSneakSpeed, _maxSneakSpeed, (float)_player.CurrentPlayerSpeed/(float)maxSpeedRange);
         return lerp;
     }
+    
     public RaycastHit GroundCast(Vector3 position, float distance)
     {
         Physics.Raycast(position, Vector3.down, out var hit, distance, _groundLayers);
@@ -116,18 +117,11 @@ public class ProceduralSneakContext
         return GroundCast(foot.position + groundCastUpOffset, 1f).point + (Vector3.up * FootPlaceOffset);
     }
     
-    private Vector3 _sLiftedFootGoalVel;
     public void MoveLiftedFoot(Vector3 direction)
     {
-        _sLiftedFootGoalVel = MoveRigidbody(LiftedFoot, direction, _sLiftedFootGoalVel, _plantedMovementSettings);
+        MoveRigidbody(LiftedFoot, direction, _plantedMovementSettings);
     }
     
-    public void ResetLiftedFootGoalVel()
-    {
-        _sLiftedFootGoalVel = LiftedFoot.linearVelocity;
-    }
-    
-    private Vector3 _sBodyGoalVel;
     public void MoveBody(Vector3 pos)
     {
         // Get body's current position
@@ -138,14 +132,7 @@ public class ProceduralSneakContext
         // Get the direction to move
         var moveDir = (pos - currentPos);
         
-        _sBodyGoalVel = MoveRigidbody(_player.Rigidbody, moveDir, _sBodyGoalVel, _player.BodyMovementSettings);
-    }
-
-    // I think we should set the stored goal velocity to the current velocity of the body
-    // when we start moving the body
-    public void ResetBodyGoalVel()
-    {
-        _sBodyGoalVel = _player.Rigidbody.linearVelocity;
+        MoveRigidbody(_player.Rigidbody, moveDir, _player.BodyMovementSettings);
     }
     
     public void UpdateBodyRotation(Vector3 direction)
@@ -155,9 +142,28 @@ public class ProceduralSneakContext
             return;
         }
 
+        // Other direction
+        var otherDir = _player.RelativeMoveInput;
+        // Get the dot between camera and other direction
+        var dot = Vector3.Dot(_player.Camera.GetCameraYawTransform().forward.normalized, otherDir.normalized);
+        if (dot < -0.2f)
+            otherDir = -otherDir;
+        
+        // Downwards lerp
+        var angle = _player.Camera.CameraX;
+        var dir = Vector3.Lerp(otherDir, direction, angle/60f);
+        
+        // Get the dot between the lerped direction and the player's forward direction
+        var dot2 = Vector3.Dot(dir.normalized, _player.Rigidbody.transform.forward.normalized);
+        
+        // if the dot is less than 0.5, we need to rotate the body towards camera forward first
+        if (dot2 < 0)
+        {
+            dir = _player.Camera.GetCameraYawTransform().forward;
+        }
         
         // Rotate the body towards the direction
-        RotateRigidbody(_player.Rigidbody, direction, _bodyRotationSpeed);
+        RotateRigidbody(_player.Rigidbody, dir, _bodyRotationSpeed);
     }
     
     public void UpdateFootGroundNormal(Rigidbody foot)
@@ -239,6 +245,20 @@ public class ProceduralSneakContext
         else
         {
             _rightFootSoundPlayer.PlayFootSound(footSoundType);
+        }
+    }
+
+    // Makes virtual sound
+    public void MakeSound(Rigidbody foot, PlayerFootSoundPlayer.EFootSoundType footSoundType)
+    {
+        // Check which foot is the reference foot
+        if (foot == _leftFootTarget)
+        {
+            _leftFootSoundPlayer.MakeFootSound(footSoundType);
+        }
+        else
+        {
+            _rightFootSoundPlayer.MakeFootSound(footSoundType);
         }
     }
 }

@@ -1,6 +1,6 @@
 using RootMotion.Dynamics;
-using RootMotion.FinalIK;
 using UnityEngine;
+using static RigidbodyMovement;
 
 public class PlayerControlContext
 {
@@ -10,45 +10,44 @@ public class PlayerControlContext
     private readonly PlayerController _player;
     private PlayerControlStateMachine _stateMachine;
     private readonly Rigidbody _rigidbody;
-    private PuppetMaster _puppetMaster;
     
     [Header("Common")]
     private readonly LayerMask _groundLayers;
-    private readonly Rigidbody _leftFootTarget;
-    private readonly Rigidbody _rightFootTarget;
+    private readonly Foot _leftFoot;
+    private readonly Foot _rightFoot;
     
     [Header("Control Variables")]
     private readonly float _springStrength;
     private readonly float _springDampener;
+    private MovementSettings _bodyMovementSettings;
     
     // Constructor
-    public PlayerControlContext(PlayerController player, PlayerControlStateMachine stateMachine, Rigidbody rigidbody,
-        PuppetMaster puppetMaster, LayerMask groundLayers,
-        Rigidbody leftFootTarget, Rigidbody rightFootTarget, float springStrength, float springDampener)
+    public PlayerControlContext(PlayerController player, PlayerControlStateMachine stateMachine, Rigidbody rigidbody, LayerMask groundLayers,
+        Foot leftFoot, Foot rightFoot, float springStrength, float springDampener, MovementSettings bodyMovementSettings)
     {
         _player = player;
         _stateMachine = stateMachine;
         _rigidbody = rigidbody;
-        _puppetMaster = puppetMaster;
         _groundLayers = groundLayers;
-        _leftFootTarget = leftFootTarget;
-        _rightFootTarget = rightFootTarget;
+        _leftFoot = leftFoot;
+        _rightFoot = rightFoot;
         _springStrength = springStrength;
         _springDampener = springDampener;
+        _bodyMovementSettings = bodyMovementSettings;
     }
     
     // Read-only properties
     public PlayerController Player => _player;
-    public PuppetMaster PuppetMaster => _puppetMaster;
-    public Rigidbody LeftFootTarget => _leftFootTarget;
-    public Rigidbody RightFootTarget => _rightFootTarget;
+    public Foot LeftFoot => _leftFoot;
+    public Foot RightFoot => _rightFoot;
+    public LayerMask GroundLayers => _groundLayers;
     
     // Private methods
     private Vector3 GetLowestFootPosition()
     {
         // Get the lowest foot position
-        Vector3 leftFootPos = _leftFootTarget.position;
-        Vector3 rightFootPos = _rightFootTarget.position;
+        Vector3 leftFootPos = _leftFoot.Target.position;
+        Vector3 rightFootPos = _rightFoot.Target.position;
         return leftFootPos.y < rightFootPos.y ? leftFootPos : rightFootPos;
     }
     
@@ -56,8 +55,8 @@ public class PlayerControlContext
     public bool IsGrounded()
     {
         // Check if the feet are grounded using CheckSphere
-        return Physics.CheckSphere(_leftFootTarget.position, 0.8f, _groundLayers) ||
-               Physics.CheckSphere(_rightFootTarget.position, 0.8f, _groundLayers);
+        return Physics.CheckSphere(_leftFoot.Target.position, 0.8f, _groundLayers) ||
+               Physics.CheckSphere(_rightFoot.Target.position, 0.8f, _groundLayers);
     }
 
     // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
@@ -71,14 +70,96 @@ public class PlayerControlContext
 
         var relVel = relDirVel;
         
+        
         // Calculate the distance from player to lowest foot
         var footPos = new Vector3(Player.Position.x, GetLowestFootPosition().y, Player.Position.z);
         var footDistance = Vector3.Distance(Player.Position, footPos);
         
-        var x = footDistance - (PlayerController.Height + 0.02f);
+        var footPlaceOffset = 0.02f;
+        /*
+        var distBetweenFeet = Vector3.Distance(_leftFoot.Target.position, _rightFoot.Target.position);
+        var lerp = distBetweenFeet / _player.StepLength;
+        var height = Mathf.Lerp(PlayerController.Height, PlayerController.Height * 0.95f, lerp);
+        */
+        var x = footDistance - (PlayerController.Height + footPlaceOffset);
 
         var springForce = (x * _springStrength) - (relVel * _springDampener);
         _rigidbody.AddForce(Vector3.down * springForce);
     }
+    
+    public void MoveBody(Vector3 targetPosition)
+    {
+        var currentPos = Player.Position;
+        currentPos.y = 0f;
+        var dir = targetPosition - currentPos;
+        if(dir.magnitude > 1f)
+            dir.Normalize();
+        MoveRigidbody(Player.Rigidbody, dir, _bodyMovementSettings);
+    }
+
+    public Vector3 BetweenFeet(float lerp)
+    {
+        var pos = Vector3.Lerp(_leftFoot.Target.position, _rightFoot.Target.position, lerp);
+        pos.y = 0;
+        return pos;
+    }
+
+    public float FeetLerp()
+    {
+        // Find out what foot is lifting
+        var leftLift = _leftFoot.StateMachine.State == FootControlStateMachine.EFootState.Lifted;
+        var rightLift = _rightFoot.StateMachine.State == FootControlStateMachine.EFootState.Lifted;
+
+        var dist = Vector3.Distance(_leftFoot.Target.position, _rightFoot.Target.position);
+        var start = _player.StepLength * 0.7f;
+
+        if (leftLift)
+        {
+            var lerp = dist - start;
+            lerp /= _player.StepLength;
+            return Mathf.Lerp(0.8f, 0.5f, lerp);
+        }
+
+        if (rightLift)
+        {
+            var lerp = dist - start;
+            lerp /= _player.StepLength;
+            return Mathf.Lerp(0.2f, 0.5f, lerp);
+        }
+
+        return 0.5f;
+    }
+    
+    public void UpdateBodyRotation(Vector3 direction)
+    {
+        if (direction == Vector3.zero)
+        {
+            return;
+        }
+
+        // Other direction
+        var otherDir = _player.RelativeMoveInput;
+        // Get the dot between camera and other direction
+        var dot = Vector3.Dot(_player.Camera.GetCameraYawTransform().forward.normalized, otherDir.normalized);
+        if (dot < -0.2f)
+            otherDir = -otherDir;
+        
+        // Downwards lerp
+        var angle = _player.Camera.CameraX;
+        var dir = Vector3.Lerp(otherDir, direction, angle/60f);
+        
+        // Get the dot between the lerped direction and the player's forward direction
+        var dot2 = Vector3.Dot(dir.normalized, _player.Rigidbody.transform.forward.normalized);
+        
+        // if the dot is less than 0.5, we need to rotate the body towards camera forward first
+        if (dot2 < 0)
+        {
+            dir = _player.Camera.GetCameraYawTransform().forward;
+        }
+        
+        // Rotate the body towards the direction
+        RotateRigidbody(_player.Rigidbody, dir, 200f);
+    }
+
     
 }

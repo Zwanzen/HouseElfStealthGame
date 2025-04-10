@@ -78,6 +78,7 @@ public class InputManager : MonoBehaviour
         // If we are loading into our world scene, enable 
         //if(newScene.buildIndex ==)
     }
+    
 
     private void OnEnable()
     {

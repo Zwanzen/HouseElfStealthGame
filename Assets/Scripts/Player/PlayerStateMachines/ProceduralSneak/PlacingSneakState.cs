@@ -33,8 +33,6 @@ public class PlacingSneakState : ProceduralSneakState
         _validPlacement = false;
         _placed = false;
         _startPos = Context.LiftedFoot.position;
-        Context.ResetLiftedFootGoalVel();
-        Context.ResetBodyGoalVel();
         
         // Check if the foot placement is valid
         if (Physics.SphereCast(Context.LiftedFoot.position, Context.FootPlaceOffset, Vector3.down, out var hit,
@@ -44,6 +42,9 @@ public class PlacingSneakState : ProceduralSneakState
             _cast = hit;
             _placeNormal = _cast.normal;
         }
+        
+        if(_validPlacement)
+            Context.MakeSound(Context.LiftedFoot,Context.GetGroundTypeFromFoot(Context.LiftedFoot));
     }
 
     public override void ExitState()

@@ -31,9 +31,6 @@ public class LiftedSneakState : ProceduralSneakState
 
     public override void EnterState()
     {
-        Context.ResetBodyGoalVel();
-        ResetFootsVelocities();
-        
         // get the start angle
         _startAngle = Context.LiftedFoot.transform.localRotation.x;
     }
@@ -59,16 +56,8 @@ public class LiftedSneakState : ProceduralSneakState
         
     }
     
-    private Vector3 _sPlantedFootGoalVel;
-    private Vector3 _sLiftedFootGoalVel;
-    private void ResetFootsVelocities()
-    {
-        _sPlantedFootGoalVel = Context.PlantedFoot.linearVelocity;
-        _sLiftedFootGoalVel = Context.LiftedFoot.linearVelocity;
-    }
-    
-    private Vector3 _sCameraForward;
-    private Vector3 _sCameraRight;
+    private Vector3 _forward;
+    private Vector3 _right;
     private float _liftTimer;
     private float _startAngle;
     private void HandleFootRotation()
@@ -78,8 +67,17 @@ public class LiftedSneakState : ProceduralSneakState
         // Store the camera forward direction if we are moving
         if (isMoving)
         {
-            _sCameraForward = Context.Player.Camera.GetCameraYawTransform().forward;
-            _sCameraRight = Context.Player.Camera.GetCameraYawTransform().right;
+            // Other direction
+            var otherDir = Context.Player.RelativeMoveInput.normalized;
+            var dot = Vector3.Dot(Context.Player.Camera.GetCameraYawTransform().forward.normalized, otherDir.normalized);
+            if (dot < -0.2f)
+                otherDir = -otherDir;
+            
+            // Downwards lerp
+            var camAngle = Context.Player.Camera.CameraX;
+            _forward = Vector3.Lerp(otherDir, Context.Player.Camera.GetCameraYawTransform().forward.normalized, camAngle/60f);
+            
+            _right = Vector3.Lerp(-Vector3.Cross(otherDir, Vector3.up), Context.Player.Camera.GetCameraYawTransform().right.normalized, camAngle/60f);
         }
         
         // Update the lifted foot pitch
@@ -88,7 +86,7 @@ public class LiftedSneakState : ProceduralSneakState
         
         var minRelDist = -Context.SneakStepLength;
         var maxRelDist = Context.SneakStepLength;
-        var relDist = RelativeDistanceInDirection(Context.PlantedFoot.position, Context.LiftedFoot.position, Context.Player.Camera.GetCameraYawTransform().forward);
+        var relDist = RelativeDistanceInDirection(Context.PlantedFoot.position, Context.LiftedFoot.position, _forward);
         
         // Lerp Foot Pitch
         var angle = Mathf.Lerp(minPitch, maxPitch, Mathf.InverseLerp(minRelDist, maxRelDist, relDist));
@@ -96,7 +94,7 @@ public class LiftedSneakState : ProceduralSneakState
         
         
         // Rotate the camForward direction around the foot's right direction
-        var footForward = Quaternion.AngleAxis(lerpAngle, _sCameraRight) * _sCameraForward;
+        var footForward = Quaternion.AngleAxis(lerpAngle, _right) * _forward;
         footForward.Normalize();
 
         if(footForward == Vector3.zero)
@@ -223,8 +221,8 @@ public class LiftedSneakState : ProceduralSneakState
         newLiftedMovementSettings.Acceleration += Mathf.Pow(Context.SneakSpeed, Context.SneakSpeed);
         
         // Move the feet to their grounded positions
-        _sPlantedFootGoalVel = MoveRigidbody(Context.PlantedFoot, plantedDirection, _sPlantedFootGoalVel, Context.PlantedMovementSettings);
-        _sLiftedFootGoalVel = MoveRigidbody(Context.LiftedFoot, liftedDirection, _sLiftedFootGoalVel, newLiftedMovementSettings);
+        MoveRigidbody(Context.PlantedFoot, plantedDirection, Context.PlantedMovementSettings);
+        MoveRigidbody(Context.LiftedFoot, liftedDirection, newLiftedMovementSettings);
     }
     
     private float RelativeDistanceInDirection(Vector3 from, Vector3 to, Vector3 direction)

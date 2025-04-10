@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using Unity.Collections;
 using UnityEngine;
@@ -77,6 +78,7 @@ public class DemoNpc : MonoBehaviour, IHear
     [SerializeField] private float _soundDecayRate = 0.5f;
     [SerializeField] private AnimationCurve _audioDistanceCurve;
     [SerializeField] private float _audioDistanceMultiplier = 1f;
+    [SerializeField] private float _playerBufferTime = 0.1f;
 
     
     [SerializeField] private float _playerBrightness;
@@ -105,6 +107,7 @@ public class DemoNpc : MonoBehaviour, IHear
     private void Awake()
     {
         _heardSounds = new List<Sound>();
+        _soundsToDetect = new List<Sound>();
         
         _currentState = NpcState.Idle;
         InitializeLimbs();
@@ -161,6 +164,7 @@ public class DemoNpc : MonoBehaviour, IHear
     }
 
     private List<Sound> _heardSounds;
+    private List<Sound> _soundsToDetect;
     
     public void RespondToSound(Sound sound)
     {
@@ -175,6 +179,28 @@ public class DemoNpc : MonoBehaviour, IHear
         var soundCurrentVolume = GetSoundCurrentVolume(sound);
         if(soundCurrentVolume <= 0)
             return;
+        
+        // If this sound is not a player sound
+        // And its louder than a sound in sounds to detect
+        // We want to remove that sound
+        if (sound.SoundType != Sound.ESoundType.Player && _soundsToDetect.Count > 0)
+        {
+            List<Sound> soundsToRemove = new List<Sound>();
+            
+            foreach (var s in _soundsToDetect)
+            {
+                if (s.CurrentVolume < soundCurrentVolume)
+                {
+                    soundsToRemove.Add(s);
+                }
+            }
+            
+            // Now remove all the sounds in the removal list
+            foreach (var soundToRemove in soundsToRemove)
+            {
+                _soundsToDetect.Remove(soundToRemove);
+            }
+        }
         
         // Find out if there is a sound louder than the current one
         var shouldAdd = true;
@@ -192,10 +218,18 @@ public class DemoNpc : MonoBehaviour, IHear
         if (!shouldAdd) return;
             
         sound.CurrentVolume = soundCurrentVolume;
-        _heardSounds.Add(sound);
         if (sound.SoundType == Sound.ESoundType.Player)
         {
-            UpdateDetection(soundCurrentVolume);
+            //UpdateDetection(soundCurrentVolume);
+            // If a player sound is detected,
+            // we want to add the sound to the sounds to detect
+            // this gives us a buffer time to possibly not detect the sound
+            sound.BufferTime = _playerBufferTime;
+            _soundsToDetect.Add(sound);
+        }
+        else
+        {
+            _heardSounds.Add(sound);
         }
     }
     
@@ -211,6 +245,54 @@ public class DemoNpc : MonoBehaviour, IHear
     
     private void UpdateStoredSounds()
     {
+        // First update and check if there is a sound to be heard
+        if (_soundsToDetect.Count > 0)
+        {
+            // Update the timer for each sound
+            List<Sound> soundsToProcess = new List<Sound>();
+            
+            foreach (var sound in _soundsToDetect)
+            {
+                // Decrease the buffer time
+                sound.BufferTime -= Time.deltaTime;
+                
+                // Check if the sound is still valid
+                if (sound.BufferTime <= 0)
+                {
+                    soundsToProcess.Add(sound);
+                }
+            }
+    
+            // Now process and remove the sounds that have expired
+            foreach (var sound in soundsToProcess)
+            {
+                // Find out if there is a sound louder than the current one
+                var shouldAdd = true;
+                if (_heardSounds.Count > 0)
+                {
+                    foreach (var s in _heardSounds)
+                    {
+                        if(s.CurrentVolume > sound.CurrentVolume)
+                        {
+                            shouldAdd = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (shouldAdd)
+                {
+                    // Add the sound to the heard sounds list
+                    _heardSounds.Add(sound);
+                    // Update the detection value
+                    UpdateDetection(sound.CurrentVolume);
+                }
+
+                // Remove from the buffer dictionary
+                _soundsToDetect.Remove(sound);
+            }
+        }
+        
         if(_heardSounds.Count == 0)
             return;
         
@@ -228,13 +310,14 @@ public class DemoNpc : MonoBehaviour, IHear
             {
                 // Lerp the sound volume towards 0
                 s.CurrentVolume = Mathf.Lerp(s.CurrentVolume, 0, Time.deltaTime * _soundDecayRate);
+                s.Duration -= Time.deltaTime;
                 // Decrease the sound volume over time
                 //s.CurrentVolume -= Time.deltaTime * _soundDecayRate;
             }
 
             
             // Check if the sound is still valid
-            if (s.CurrentVolume <= 0.1f)
+            if (s.CurrentVolume <= 0.1f || s.Duration <= 0f)
             {
                 soundsToRemove.Add(s);
             }
@@ -401,10 +484,6 @@ public class DemoNpc : MonoBehaviour, IHear
         _lightImageTimer = 0;
 
         // Light detection
-        // Turn on the light camera
-        
-        _lightCam.enabled = true;
-        
         var playerPos = _player.Position - Vector3.up * 0.5f;
         Vector3 direction = (playerPos) - _lightCam.transform.position;
         direction.Normalize();
@@ -413,12 +492,9 @@ public class DemoNpc : MonoBehaviour, IHear
         _lightCam.transform.rotation = toRotation;
 
         _playerBrightness = ColorIntensity(_lightCam, _lightRenderTexture, _lightTexture,true);
-        // Turn off the light camera
-        _lightCam.enabled = false;
+
         
         // Background detection
-        // Turn on the silhouette camera
-        _silhouetteCam.enabled = true;
         // Set the camera to look at the player
         direction = playerPos - _silhouetteCam.transform.position; 
         toRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
@@ -428,8 +504,6 @@ public class DemoNpc : MonoBehaviour, IHear
         _silhouetteCam.nearClipPlane = Vector3.Distance(_silhouetteCam.transform.position, playerPos) - 0.1f;
         
         _backgroundBrightness = ColorIntensity(_silhouetteCam, _silhouetteRenderTexture, _silhouetteTexture, false);
-        // Turn off the silhouette camera
-        _silhouetteCam.enabled = false;
     }
     
     private float ColorIntensity(Camera cam, RenderTexture rt,Texture2D tex, bool ignoreColor = false)

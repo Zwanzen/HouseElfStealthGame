@@ -8,61 +8,64 @@ public static class RigidbodyMovement
     {
         public float MaxSpeed;
         public float Acceleration;
+        public float Deceleration;
         public AnimationCurve AccelerationFactorFromDot;
-        public float MaxAccelForce;
-        public AnimationCurve MaxAccelerationForceFactorFromDot;
+        //public float MaxAccelForce;
+        //public AnimationCurve MaxAccelerationForceFactorFromDot;
         public Vector3 ForceScale;
-
-        public MovementSettings(
-            float maxSpeed,
-            float acceleration,
-            AnimationCurve accelerationFactorFromDot,
-            float maxAccelForce,
-            AnimationCurve maxAccelerationForceFactorFromDot,
-            Vector3 forceScale)
-        {
-            MaxSpeed = maxSpeed;
-            Acceleration = acceleration;
-            AccelerationFactorFromDot = accelerationFactorFromDot;
-            MaxAccelForce = maxAccelForce;
-            MaxAccelerationForceFactorFromDot = maxAccelerationForceFactorFromDot;
-            ForceScale = forceScale;
-        }
     }
     
-    
-    // Credit to https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
-    // Modified
-    public static Vector3 MoveRigidbody(Rigidbody rb, Vector3 input, Vector3 sGoalVel, MovementSettings settings)
+    public static void MoveRigidbody(Rigidbody rb, Vector3 moveInput, MovementSettings settings)
     {
-        Vector3 move = input;
+        // 1. Determine Target Velocity
+        // Calculate the velocity we *want* to achieve based on input and max speed.
+        // We primarily control movement on the XZ plane.
+        Vector3 targetVelocity = moveInput * settings.MaxSpeed;
 
-        if (move.magnitude > 1f)
-        {
-            move.Normalize();
-        }
+        // Optional: Preserve existing vertical velocity (e.g., for jumping/gravity)
+        // If you are handling jumping/gravity elsewhere, you might want to do this:
+        // targetVelocity.y = rb.velocity.y;
+        // Or, if you want this script to ONLY affect XZ movement:
+        // targetVelocity.y = 0; // Explicitly set target Y velocity to 0
 
-        // do dotproduct of input to current goal velocity to apply acceleration based on dot to direction (makes sharp turns better).
-        Vector3 unitVel = sGoalVel.normalized;
+        // 2. Calculate Current Velocity (on the controlled plane)
+        Vector3 currentVelocity = rb.linearVelocity;
+        // If only controlling XZ, ignore the current Y velocity in our calculation
+        // currentVelocity.y = 0; // Uncomment if targetVelocity.y is also 0
 
-        float velDot = Vector3.Dot(move, unitVel);
-        float accel = settings.Acceleration * settings.AccelerationFactorFromDot.Evaluate(velDot);
-        Vector3 goalVel = move * settings.MaxSpeed;
+        // 3. Calculate Velocity Difference
+        // Find the gap between where we are and where we want to be.
+        Vector3 velocityDifference = targetVelocity - currentVelocity;
 
-        // lerp goal velocity towards new calculated goal velocity.
-        sGoalVel = Vector3.MoveTowards(sGoalVel, goalVel, accel * Time.fixedDeltaTime);
+        // 4. Determine Acceleration Rate
+        // Use deceleration value if specified and there's no input, otherwise use acceleration.
+        bool isDecelerating = moveInput == Vector3.zero && settings.Deceleration > 0f;
+        var actualAcceleration = isDecelerating ? settings.Deceleration : settings.Acceleration;
+        
+        // Multiply the acceleration by the factor from the animation curve based on the dot product of the current and target velocity.
+        var dot = Vector3.Dot(currentVelocity.normalized, targetVelocity.normalized);
+        actualAcceleration *= settings.AccelerationFactorFromDot.Evaluate(dot);
 
-        // calculate needed acceleration to reach goal velocity in a single fixed update.
-        Vector3 neededAccel = (sGoalVel - rb.linearVelocity) / Time.fixedDeltaTime;
+        // 5. Calculate Acceleration Needed (and Clamp)
+        // Calculate the acceleration required *this frame* to bridge the velocity difference.
+        Vector3 accelerationRequired = velocityDifference / Time.fixedDeltaTime;
 
-        // clamp the needed acceleration to max possible acceleration.
-        float maxAccel = settings.MaxAccelForce * settings.MaxAccelerationForceFactorFromDot.Evaluate(velDot);
-        neededAccel = Vector3.ClampMagnitude(neededAccel, maxAccel);
+        // Clamp the magnitude of the required acceleration to our defined max acceleration rate.
+        // This ensures we don't exceed the desired acceleration/deceleration.
+        Vector3 actualAccelerationVector = Vector3.ClampMagnitude(accelerationRequired, actualAcceleration);
 
-        rb.AddForce(Vector3.Scale(neededAccel * rb.mass, settings.ForceScale));
+        // 6. Apply Force
+        // Use ForceMode.Acceleration: applies the acceleration directly, ignoring the Rigidbody's mass.
+        // This makes our 'acceleration' and 'deceleration' values directly control the rate of speed change.
+        // *** SELF NOTE ***
+        // I multiply with force scale to allow for different force scales on different axes.
+        rb.AddForce(Vector3.Scale(actualAccelerationVector, settings.ForceScale), ForceMode.Acceleration);
 
-        // return the stored goal velocity
-        return sGoalVel;
+        // --- Optional Debugging ---
+        // Draw rays in the Scene view to visualize vectors
+        // Debug.DrawRay(transform.position, targetVelocity, Color.green);    // Target velocity
+        // Debug.DrawRay(transform.position, rb.velocity, Color.blue);      // Current velocity
+        // Debug.DrawRay(transform.position, actualAccelerationVector, Color.red); // Applied acceleration
     }
     
     // Rotates the rigidbody towards direction based on a rotation speed
