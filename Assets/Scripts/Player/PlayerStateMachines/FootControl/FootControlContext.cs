@@ -114,7 +114,7 @@ public class FootControlContext
         // Get the size of the box collider 
         var size = _foot.Collider.size / 2f;
         // Reduce the size slightly
-        size *= 0.99f;
+        size *= 0.98f;
         
         // Get the y-axis rotation of the foot
         var rotation = _foot.Target.rotation;

@@ -199,7 +199,7 @@ ConfigurableJoint:
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
   m_MassScale: 1
-  m_ConnectedMassScale: 1
+  m_ConnectedMassScale: 0.4
 --- !u!114 &8360856224323137919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2982,7 +2982,7 @@ ConfigurableJoint:
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
   m_MassScale: 1
-  m_ConnectedMassScale: 1
+  m_ConnectedMassScale: 0.4
 --- !u!114 &1913844544103336837
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4167,11 +4167,11 @@ MonoBehaviour:
     Side: 1
     StateMachine: {fileID: 0}
   _stepLength: 0.7
-  _stepHeight: 0.5
+  _stepHeight: 0.45
   _liftedSettings:
     MaxSpeed: 1.5
-    Acceleration: 25
-    Deceleration: 25
+    Acceleration: 16
+    Deceleration: 16
     AccelerationFactorFromDot:
       serializedVersion: 2
       m_Curve:
@@ -6539,7 +6539,7 @@ ConfigurableJoint:
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
   m_MassScale: 1
-  m_ConnectedMassScale: 1
+  m_ConnectedMassScale: 0.4
 --- !u!114 &5642748052533875672
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7111,7 +7111,7 @@ ConfigurableJoint:
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
   m_MassScale: 1
-  m_ConnectedMassScale: 1
+  m_ConnectedMassScale: 0.4
 --- !u!114 &7069107135743496890
 MonoBehaviour:
   m_ObjectHideFlags: 0

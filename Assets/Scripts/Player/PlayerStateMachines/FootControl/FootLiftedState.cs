@@ -158,10 +158,9 @@ public class FootLiftedState : FootControlState
             // If there is space above, we can return true
             if (highest > height)
             {
-                // *** TODO ***
-                // We also want to make sure we arent setting the height so
-                // that we try to go through an object above
-                // create a small check upwards also
+                // If the thing we are trying to step on is lower than the other foot,
+                // We don't want to put our foot directly on it
+                // So we limit how far down we can go
                 if(otherFootPos.y -0.20f > height)
                     height = otherFootPos.y - 0.20f;
                 

@@ -19,15 +19,22 @@ public class FootPlantedState : FootControlState
         return StateKey;
     }
     
+    private static RigidbodyConstraints PlacedConstraints => GetPlacedConstraints();
+    private static RigidbodyConstraints LiftedConstraints => RigidbodyConstraints.FreezeRotation;
+    
     public override void EnterState()
     {
-        Context.Foot.Target.isKinematic = true;
+        //Context.Foot.Target.isKinematic = true;
         Context.FootSoundPlayer.PlayFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
+        var rb = Context.Foot.Target;
+        rb.constraints = PlacedConstraints;
     }
 
     public override void ExitState()
     {
-        Context.Foot.Target.isKinematic = false;
+        //Context.Foot.Target.isKinematic = false;
+        var rb = Context.Foot.Target;
+        rb.constraints = LiftedConstraints;
     }
 
     public override void UpdateState()
@@ -36,17 +43,18 @@ public class FootPlantedState : FootControlState
 
     public override void FixedUpdateState()
     {
-        //MoveToGround();
+        MoveToGround();
+    }
+    
+    private static RigidbodyConstraints GetPlacedConstraints()
+    {
+        return RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezeRotation;
     }
 
     private void MoveToGround()
     {
-        var dir = Vector3.zero;
-        if (Context.FootGroundCast(out var hit))
-        {
-            var pos = hit.point + Context.FootPlaceOffset;
-            dir = (pos - Context.Foot.Target.position);
-        }
+        var dir = Vector3.down;
+
         // Before we move, we change the dir magnitude based on the current one
         // This will keep the speed based on distance and curve
         var mag = dir.magnitude;

@@ -52,10 +52,34 @@ public class FootPlacingState : FootControlState
         MoveToGround();
         //HandleFootRotation();
     }
+
+    private bool CheckStuckOnLedge(out RaycastHit hit)
+    {
+        // Do a box cast to check if the foot is stuck on a ledge
+        var position = Context.FootCastValues.Position;
+        var size = Context.FootCastValues.Size;
+        var rotation = Context.FootCastValues.Rotation;
+        
+        position.y += size.y;
+        size *= 1.04f;
+
+        return Physics.BoxCast(position, size, Vector3.down, out hit, rotation, size.y * 1.5f,
+            Context.GroundLayers);
+    }
     
     private void MoveToGround()
     {
         var dir = Vector3.down;
+        // Check if the foot is stuck on a ledge
+        if (CheckStuckOnLedge(out var stuckHit))
+        {
+            // If the foot is stuck on a ledge, move it away
+            var other = stuckHit.collider.ClosestPoint(Context.Foot.Target.position);
+            dir = (Context.Foot.Target.position + Vector3.down - other).normalized;
+            Context.MoveFootToPosition(dir);
+            return;
+        }
+
         // Before we move, we change the dir magnitude based on the current one
         // This will keep the speed based on distance and curve
         var mag = dir.magnitude;
