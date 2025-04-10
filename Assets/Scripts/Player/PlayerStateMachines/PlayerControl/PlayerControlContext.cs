@@ -63,7 +63,7 @@ public class PlayerControlContext
     public void RigidbodyFloat()
     {
         const float multiplier = 2f;
-        if (!Physics.Raycast(Player.Position, Vector3.down, out var hit, PlayerController.Height * multiplier, _groundLayers)) return;
+        //if (!Physics.Raycast(Player.Position, Vector3.down, out var hit, PlayerController.Height * multiplier, _groundLayers)) return;
         var vel = _rigidbody.linearVelocity;
 
         var relDirVel = Vector3.Dot(Vector3.down, vel);

@@ -44,10 +44,11 @@ public class FootControlContext
     private AnimationCurve _speedCurve;
     private AnimationCurve _heightCurve;
     private AnimationCurve _placeCurve;
+    private AnimationCurve _offsetCurve;
     
     public FootControlContext(PlayerController player, FullBodyBipedIK bodyIK, PlayerFootSoundPlayer footSoundPlayer,
         LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight, RigidbodyMovement.MovementSettings movementSettings,
-        AnimationCurve speedCurve, AnimationCurve heightCurve, AnimationCurve placeCurve)
+        AnimationCurve speedCurve, AnimationCurve heightCurve, AnimationCurve placeCurve, AnimationCurve offsetCurve)
     {
         _player = player;
         _bodyIK = bodyIK;
@@ -61,12 +62,14 @@ public class FootControlContext
         _speedCurve = speedCurve;
         _heightCurve = heightCurve;
         _placeCurve = placeCurve;
+        _offsetCurve = offsetCurve;
     }
     
     // Read only properties
     public PlayerController Player => _player;
     public BoxCastValues FootCastValues => GetBoxCastValues();
     public IKEffector FootIKEffector => GetEffector();
+    public PlayerFootSoundPlayer FootSoundPlayer => _footSoundPlayer;
     public Foot Foot => _foot;
     public Foot OtherFoot => _otherFoot;
     public float StepLength => _stepLength;
@@ -79,6 +82,7 @@ public class FootControlContext
     public AnimationCurve SpeedCurve => _speedCurve;
     public AnimationCurve HeightCurve => _heightCurve;
     public AnimationCurve PlaceCurve => _placeCurve;
+    public AnimationCurve OffsetCurve => _offsetCurve;
     public bool BothInputsPressed => InputManager.Instance.IsHoldingLMB && InputManager.Instance.IsHoldingRMB;
     
     // Private methods
@@ -165,8 +169,6 @@ public class FootControlContext
         
         // This is the length between the foot and the max step length/intersection point
         var maxDistance = (result - footPos).magnitude;
-        
-        Debug.DrawLine(footPos, footPos + Vector3.down * maxDistance, Color.red);
         
         // Because sphere cast does not account for already overlapping colliders,
         // we check if the foot is already on the ground using overlap sphere

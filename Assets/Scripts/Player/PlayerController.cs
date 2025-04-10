@@ -50,6 +50,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AnimationCurve _speedCurve;
     [SerializeField] private AnimationCurve _heightCurve;
     [SerializeField] private AnimationCurve _placeSpeedCurve;
+    [SerializeField] private AnimationCurve _offsetCurve;
 
 
 
@@ -158,9 +159,11 @@ public class PlayerController : MonoBehaviour
         _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
              _leftFoot, _rightFoot, _springStrength, _springDampener, _bodyMovementSettings);
         _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
-            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings, _speedCurve, _heightCurve, _placeSpeedCurve);
+            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings, _speedCurve, _heightCurve, _placeSpeedCurve,
+            _offsetCurve);
         _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
-            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings, _speedCurve, _heightCurve, _placeSpeedCurve);
+            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings, _speedCurve, _heightCurve, _placeSpeedCurve,
+            _offsetCurve);
     }
 
     private void CreateStateMachines()
