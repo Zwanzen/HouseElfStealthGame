@@ -165,6 +165,20 @@ public class FootLiftedState : FootControlState
                 if(otherFootPos.y -0.20f > height)
                     height = otherFootPos.y - 0.20f;
                 
+                // Do a check to see if there is anything above
+                position = defaultValues.Position;
+                size = defaultValues.Size;
+                rotation = defaultValues.Rotation;
+                position.y -= size.y;
+                var dist = height - position.y;
+                
+                // If we hit it, we set the height to the hit point - foot size
+                // -0.15f is to nullify the lifting default height
+                if(Physics.BoxCast(position, size, Vector3.up, out var upHit, rotation,
+                       dist + size.y,
+                       Context.GroundLayers))
+                    height = otherFootPos.y;
+                
                 return true;
             }
             
