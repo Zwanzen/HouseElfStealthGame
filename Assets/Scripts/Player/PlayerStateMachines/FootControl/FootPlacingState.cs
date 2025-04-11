@@ -45,8 +45,6 @@ public class FootPlacingState : FootControlState
     {
         var dir = Vector3.down;
         // Check if the foot is stuck on a ledge
-        
-        /*
         if (Context.CheckStuckOnLedge(out var stuckHit) && !Context.IsFootGrounded)
         {
             // If the foot is stuck on a ledge, move it away
@@ -55,8 +53,7 @@ public class FootPlacingState : FootControlState
             Context.MoveFootToPosition(dir);
             return;
         }
-        */
-        
+
         // Before we move, we change the dir magnitude based on the current one
         // This will keep the speed based on distance and curve
         var mag = dir.magnitude;
