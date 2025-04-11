@@ -19,22 +19,25 @@ public class FootPlantedState : FootControlState
         return StateKey;
     }
     
+    private Rigidbody _rb;
     private static RigidbodyConstraints PlacedConstraints => GetPlacedConstraints();
     private static RigidbodyConstraints LiftedConstraints => RigidbodyConstraints.FreezeRotation;
+    
     
     public override void EnterState()
     {
         //Context.Foot.Target.isKinematic = true;
         Context.FootSoundPlayer.PlayFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
-        var rb = Context.Foot.Target;
-        rb.constraints = PlacedConstraints;
+        _rb = Context.Foot.Target;
+        _rb.constraints = PlacedConstraints;
     }
 
+    
     public override void ExitState()
     {
         //Context.Foot.Target.isKinematic = false;
-        var rb = Context.Foot.Target;
-        rb.constraints = LiftedConstraints;
+        _rb = Context.Foot.Target;
+        _rb.constraints = LiftedConstraints;
     }
 
     public override void UpdateState()
@@ -53,7 +56,26 @@ public class FootPlantedState : FootControlState
 
     private void MoveToGround()
     {
+        var footPos = Context.Foot.Target.position;
+        var otherFootPos = Context.OtherFoot.Target.position;
         var dir = Vector3.down;
+        
+        
+        
+        if (Context.OtherFoot.SM.State == FootControlStateMachine.EFootState.Falling)
+        {
+            _rb.constraints = LiftedConstraints;
+
+            var dirToOtherFoot = otherFootPos - footPos;
+            var right = -Vector3.Cross(dirToOtherFoot, Vector3.up) * 0.1f;
+            
+            var distToOtherFoot = dirToOtherFoot.magnitude;
+            dir = Vector3.Lerp(dir, right, distToOtherFoot);
+        }
+        else
+        {
+            _rb.constraints = PlacedConstraints;
+        }
 
         // Before we move, we change the dir magnitude based on the current one
         // This will keep the speed based on distance and curve

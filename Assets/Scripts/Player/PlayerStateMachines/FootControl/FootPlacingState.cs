@@ -12,8 +12,13 @@ public class FootPlacingState : FootControlState
         if(Context.IsFootGrounded)
             return FootControlStateMachine.EFootState.Planted;
         
+        if(_shouldFall)
+            return FootControlStateMachine.EFootState.Falling;
+        
         return StateKey;
     }
+
+    private bool _shouldFall;
     
     private bool _validPlacement;
     private bool _placed;
@@ -25,18 +30,11 @@ public class FootPlacingState : FootControlState
     
     public override void EnterState()
     {
+        _shouldFall = false;
+        CheckForFall();
         _validPlacement = false;
         _placed = false;
         _startPos = Context.Foot.Target.position;
-        
-        // Check if the foot placement is valid
-        if (Physics.SphereCast(Context.Foot.Target.position, Context.FootPlaceOffset.magnitude, Vector3.down, out var hit,
-                Context.StepHeight * 0.9f, Context.GroundLayers))
-        {
-            _validPlacement = true;
-            _cast = hit;
-            _placeNormal = _cast.normal;
-        }
     }
 
     public override void ExitState()
@@ -49,29 +47,60 @@ public class FootPlacingState : FootControlState
 
     public override void FixedUpdateState()
     {
+        CheckForFall();
         MoveToGround();
         //HandleFootRotation();
     }
 
-    private bool CheckStuckOnLedge(out RaycastHit hit)
+    private void CheckForFall()
     {
-        // Do a box cast to check if the foot is stuck on a ledge
-        var position = Context.FootCastValues.Position;
-        var size = Context.FootCastValues.Size;
-        var rotation = Context.FootCastValues.Rotation;
+        // Check if the foot has ground
+        var hasGround = Context.FootGroundCast();
+        // Check if the foot is below the other foot
+        var foot = Context.Foot.Target.position;
+        var otherFoot = Context.OtherFoot.Target.position;
+        var dist = Vector3.Distance(foot, otherFoot);
+        var isBelow = foot.y < otherFoot.y;
         
+        // Check if the foot is below the other foot and has no ground
+        if (!hasGround)
+        {
+            _shouldFall = true;
+        }
+    }
+    
+    private bool CheckForGround()
+    {
+        var defaultValues = Context.FootCastValues;
+        var position = defaultValues.Position;
+        var size = defaultValues.Size;
+        var rotation = defaultValues.Rotation;
         position.y += size.y;
-        size *= 1.04f;
 
-        return Physics.BoxCast(position, size, Vector3.down, out hit, rotation, size.y * 1.5f,
-            Context.GroundLayers);
+        var foot = Context.Foot.Target.position;
+        var otherFoot = Context.OtherFoot.Target.position;
+        var lineStart = foot + Vector3.up;
+        
+        var dist = 0f;
+        CircleLineIntersection.CalculateIntersectionPoint(otherFoot, Context.StepLength, lineStart, Vector3.down, out var intersectionPoint);
+        dist = Vector3.Distance(foot, intersectionPoint);
+        
+        // Check if the foot placement is valid
+        if (Physics.BoxCast(position, size, Vector3.down, out _cast, rotation, dist, Context.GroundLayers))
+        {
+            _validPlacement = true;
+            _placeNormal = _cast.normal;
+            return true;
+        }
+
+        return false;
     }
     
     private void MoveToGround()
     {
         var dir = Vector3.down;
         // Check if the foot is stuck on a ledge
-        if (CheckStuckOnLedge(out var stuckHit))
+        if (Context.CheckStuckOnLedge(out var stuckHit) && !Context.IsFootGrounded)
         {
             // If the foot is stuck on a ledge, move it away
             var other = stuckHit.collider.ClosestPoint(Context.Foot.Target.position);

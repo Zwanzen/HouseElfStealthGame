@@ -2,6 +2,7 @@
 using RootMotion.FinalIK;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Serialization;
 using static CircleLineIntersection;
 using static RigidbodyMovement;
 
@@ -20,8 +21,8 @@ public struct Foot
     public Transform RestTarget;
     public BoxCollider Collider;
     public EFootSide Side;
-    [HideInInspector]
-    public FootControlStateMachine StateMachine;
+    [FormerlySerializedAs("StateMachine")] [HideInInspector]
+    public FootControlStateMachine SM;
 }
 
 public class FootControlContext
@@ -135,7 +136,7 @@ public class FootControlContext
     {
         var LMB = InputManager.Instance.IsHoldingLMB;
         var RMB = InputManager.Instance.IsHoldingRMB;
-        var otherPlanted = OtherFoot.StateMachine.State == FootControlStateMachine.EFootState.Planted;
+        var otherPlanted = OtherFoot.SM.State == FootControlStateMachine.EFootState.Planted;
         if(LMB && Foot.Side == Foot.EFootSide.Left && otherPlanted)
             return true;
         if(RMB && Foot.Side == Foot.EFootSide.Right && otherPlanted)
@@ -170,13 +171,50 @@ public class FootControlContext
         // This is the length between the foot and the max step length/intersection point
         var maxDistance = (result - footPos).magnitude;
         
-        // Because sphere cast does not account for already overlapping colliders,
-        // we check if the foot is already on the ground using overlap sphere
-        // Implement this if we need it ^
+        var defaultValues = FootCastValues;
+        var position = defaultValues.Position;
+        var size = defaultValues.Size;
+        var rotation = defaultValues.Rotation;
+        position.y += size.y;
         
         // We use a sphere cast to check with a radius downwards
         var upOffset = Vector3.up * _foot.Collider.size.y;
-        if(!Physics.BoxCast(FootCastValues.Position + upOffset, FootCastValues.Size, Vector3.down, out hit, FootCastValues.Rotation, maxDistance + upOffset.magnitude, GroundLayers))
+        if(!Physics.BoxCast(position, size, Vector3.down, out hit, rotation, maxDistance + size.y, GroundLayers))
+            return false;
+        
+        return true;
+    }
+    
+    public bool FootGroundCast()
+    {
+        // We need to move the start pos of the ray backwards relative to the line direction
+        var lineDir = Vector3.down;
+        var footPos = Foot.Target.position;
+        var otherFootPos = OtherFoot.Target.position;
+        
+        // Now we set the line start backwards
+        // If the foot passed the radius, we still get the intersection point
+        var offsetLineStart = footPos - lineDir;
+        
+        // We need to dynamically calculate the distance to the ground
+        // based on the feet positions to not overshoot the step height
+        // We use a custom-made CircleLineIntersection to calculate the distance
+        if (!CalculateIntersectionPoint(otherFootPos, StepLength, offsetLineStart, lineDir,
+                out var result))
+            result = footPos; // This will make the max distance 0
+        
+        // This is the length between the foot and the max step length/intersection point
+        var maxDistance = (result - footPos).magnitude;
+        
+        var defaultValues = FootCastValues;
+        var position = defaultValues.Position;
+        var size = defaultValues.Size;
+        var rotation = defaultValues.Rotation;
+        position.y += size.y;
+        
+        // We use a sphere cast to check with a radius downwards
+        var upOffset = Vector3.up * _foot.Collider.size.y;
+        if(!Physics.BoxCast(position, size, Vector3.down, rotation, maxDistance + size.y, GroundLayers))
             return false;
         
         return true;
@@ -197,33 +235,21 @@ public class FootControlContext
         // Move the foot to position using its rigidbody
         if(direction.magnitude > 1)
             direction.Normalize();
-        /*
-
-        // Calculate time since last call
-        float currentTime = Time.time;
-        float deltaTime = currentTime - _lastMoveTime;
-
-        // If the direction is zero, we decrease the lerp value
-        if(direction.magnitude < 0.1f)
-            deltaTime = -deltaTime;
-
-        // If it's been a while since last call, save negative time instead
-        var timeToDecay = 0.2f;
-        if (deltaTime > timeToDecay)
-            deltaTime = -deltaTime;
-
-        _lastMoveTime = currentTime;
-
-        // Update lerp value over time
-        float lerpSpeed = 2f; // Adjust this value to control acceleration rate
-        _lerp = Mathf.Clamp01(_lerp + deltaTime * lerpSpeed);
-
-        // Lerp between 0 and max speed
-        var newSpeed = Mathf.Lerp(0f, _movementSettings.MaxSpeed, _lerp);
-
-        var newMovementSettings = _movementSettings;
-        newMovementSettings.MaxSpeed = newSpeed;
-        */
         MoveRigidbody(Foot.Target, direction, _movementSettings);
+    }
+    
+    public bool CheckStuckOnLedge(out RaycastHit hit)
+    {
+        // Do a box cast to check if the foot is stuck on a ledge
+        var position = FootCastValues.Position;
+        var size = FootCastValues.Size;
+        var rotation = FootCastValues.Rotation;
+        
+        position.y += size.y;
+        var scale = 1.04f;
+        size = new Vector3(size.x * scale, size.y, size.z * scale);
+
+        return Physics.BoxCast(position, size, Vector3.down, out hit, rotation, size.y * 1.5f,
+            GroundLayers);
     }
 }

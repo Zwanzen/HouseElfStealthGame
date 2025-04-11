@@ -9,7 +9,10 @@ public class FootFallingState : FootControlState
     
     public override FootControlStateMachine.EFootState GetNextState()
     {
-        return Context.IsFootGrounded ? FootControlStateMachine.EFootState.Planted : StateKey;
+        if(Context.IsFootGrounded)
+            return FootControlStateMachine.EFootState.Planted;
+
+        return StateKey;
     }
     
     public override void EnterState()
@@ -26,8 +29,39 @@ public class FootFallingState : FootControlState
 
     public override void FixedUpdateState()
     {
-        var dirToRest = new Vector3(Context.Foot.RestTarget.position.x, 0, Context.Foot.RestTarget.position.z);
-        dirToRest += Vector3.down;
-        Context.MoveFootToPosition(Vector3.down);
+        MoveToGround();
     } 
+    
+
+    
+    private void MoveToGround()
+    {
+        var xzFootPos = Context.Foot.Target.position;
+        xzFootPos.y = 0f;
+        var xzRestPos = Context.Foot.RestTarget.position;
+        xzRestPos.y = 0f;
+        var dirToRest = xzRestPos - xzFootPos;
+        var dir = Vector3.down;
+        // Check if the foot is stuck on a ledge
+        if (Context.CheckStuckOnLedge(out var stuckHit) && !Context.IsFootGrounded)
+        {
+            // If the foot is stuck on a ledge, move it away
+            var other = stuckHit.collider.ClosestPoint(Context.Foot.Target.position);
+            dir = (Context.Foot.Target.position + Vector3.down - other).normalized;
+            Context.MoveFootToPosition(dir);
+            return;
+        }
+        var dirMag = dirToRest.magnitude;
+        dir = Vector3.Lerp(dir, dirToRest + Vector3.down, dirMag);
+
+        // Before we move, we change the dir magnitude based on the current one
+        // This will keep the speed based on distance and curve
+        var mag = dir.magnitude;
+        var breakDistance = 0.1f;
+        var magLerp = mag / breakDistance;
+        dir.Normalize();
+        dir *= Context.SpeedCurve.Evaluate(magLerp);
+        
+        Context.MoveFootToPosition(dir);
+    }
 }
