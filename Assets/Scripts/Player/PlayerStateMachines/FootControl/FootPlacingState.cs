@@ -16,6 +16,7 @@ public class FootPlacingState : FootControlState
         return StateKey;
     }
 
+    private bool _validPlacement;
     private RaycastHit _cast;
     private Vector3 _placeNormal;
     
@@ -24,6 +25,9 @@ public class FootPlacingState : FootControlState
     
     public override void EnterState()
     {
+        _validPlacement = CheckValidPlacement();
+        if(!_validPlacement)
+            Context.Player.Camera.Stumble();
         _startPos = Context.Foot.Target.position;
     }
 
@@ -41,11 +45,33 @@ public class FootPlacingState : FootControlState
         HandleRotation();
     }
     
+    private bool CheckValidPlacement()
+    {
+        return Context.FootGroundCast();
+    }
+    
     private void MoveToGround()
     {
         var dir = Vector3.down;
+        if (!_validPlacement)
+        {
+            var safePos = Context.LastSafePosition + (0.1f * Vector3.up);
+            var dirToSafe = safePos - Context.Foot.Target.position;
+            
+            var xzSafePos = safePos;
+            xzSafePos.y = 0f;
+            var xzFootPos = Context.Foot.Target.position;
+            xzFootPos.y = 0f;
+            var safeMag = (xzSafePos - xzFootPos).magnitude;
+            
+            var downDistance = Context.FootRadius;
+            var lerp = safeMag / downDistance;
+            dir = Vector3.Lerp(dir, dirToSafe, lerp);
+        }
+
+        
         // Check if the foot is stuck on a ledge
-        if (Context.CheckStuckOnLedge(out var stuckHit) && !Context.IsFootGrounded)
+        if (Context.CheckStuckOnLedge(out var stuckHit) && !Context.IsFootGrounded && _validPlacement)
         {
             // If the foot is stuck on a ledge, move it away
             var other = stuckHit.collider.ClosestPoint(Context.Foot.Target.position);

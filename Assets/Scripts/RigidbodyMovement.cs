@@ -17,6 +17,9 @@ public static class RigidbodyMovement
     
     public static void MoveRigidbody(Rigidbody rb, Vector3 moveInput, MovementSettings settings)
     {
+        if(moveInput.magnitude > 1f)
+            moveInput.Normalize();
+        
         // 1. Determine Target Velocity
         // Calculate the velocity we *want* to achieve based on input and max speed.
         // We primarily control movement on the XZ plane.

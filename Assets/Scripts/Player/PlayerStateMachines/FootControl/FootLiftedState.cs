@@ -18,6 +18,8 @@ public class FootLiftedState : FootControlState
         
         return StateKey;
     }
+
+    private Vector3 _storedPos;
     
     public override void EnterState()
     {
@@ -41,7 +43,7 @@ public class FootLiftedState : FootControlState
         var footPos = Context.Foot.Target.position;
         var otherFootPos = Context.OtherFoot.Target.position;
         var input = Context.Player.RelativeMoveInput;
-
+        
         var baseFootLiftedHeight = 0.15f;
         var wantedHeight = otherFootPos.y + baseFootLiftedHeight;
         
@@ -105,7 +107,16 @@ public class FootLiftedState : FootControlState
         dirToPos.Normalize();
         dirToPos *= Context.SpeedCurve.Evaluate(magLerp);
         
-        Context.MoveFootToPosition(dirToPos);
+        //Context.MoveFootToPosition(dirToPos);
+        var settings = Context.MovementSettings;
+        if (input == Vector3.zero)
+        {
+            var settingsMaxSpeed = Mathf.Lerp(0.1f, 0.2f, mag);
+            settings.MaxSpeed *= settingsMaxSpeed;
+        }
+
+        RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dirToPos, settings);
+
         HandleFootRotation();
     }
     
@@ -178,12 +189,16 @@ public class FootLiftedState : FootControlState
                        Context.GroundLayers))
                     height = otherFootPos.y;
                 
+                Context.LastSafePosition = hit.point;
                 return true;
             }
             
             // Check if we are actually on the ground
-            if(Context.IsFootGrounded)
+            if (Context.IsFootGrounded)
+            {
+                Context.LastSafePosition = hit.point;
                 return true;
+            }
             
             // If it's too high, we want to check a smaller box
             position = defaultValues.Position;
@@ -207,7 +222,10 @@ public class FootLiftedState : FootControlState
             
                     // If it has space, we can return true
                     if (highest > height)
+                    {
+                        Context.LastSafePosition = heightHit.point;
                         return true;
+                    }
                 }
             } 
             

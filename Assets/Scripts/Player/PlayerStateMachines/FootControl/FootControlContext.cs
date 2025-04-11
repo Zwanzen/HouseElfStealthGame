@@ -85,6 +85,9 @@ public class FootControlContext
     public AnimationCurve PlaceCurve => _placeCurve;
     public AnimationCurve OffsetCurve => _offsetCurve;
     public bool BothInputsPressed => InputManager.Instance.IsHoldingLMB && InputManager.Instance.IsHoldingRMB;
+    public MovementSettings MovementSettings => _movementSettings;
+    
+    public Vector3 LastSafePosition { get; set; }
     
     // Private methods
     private IKEffector GetEffector()
