@@ -50,6 +50,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _stepLength = 0.5f;
     [SerializeField] private float _stepHeight = 0.5f;
     [SerializeField] private MovementSettings _liftedSettings;
+    [SerializeField] private MovementSettings _placeSettings;
     [SerializeField] private AnimationCurve _speedCurve;
     [SerializeField] private AnimationCurve _heightCurve;
     [SerializeField] private AnimationCurve _placeSpeedCurve;
@@ -160,11 +161,11 @@ public class PlayerController : MonoBehaviour
              _lowestBodyHeight);
         
         _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
-            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings, _speedCurve, _heightCurve, _placeSpeedCurve,
-            _offsetCurve);
+            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings, _placeSettings, _speedCurve, _heightCurve, 
+            _placeSpeedCurve, _offsetCurve);
         _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
-            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings, _speedCurve, _heightCurve, _placeSpeedCurve,
-            _offsetCurve);
+            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings, _placeSettings, _speedCurve, _heightCurve, 
+            _placeSpeedCurve, _offsetCurve);
     }
 
     private void CreateStateMachines()

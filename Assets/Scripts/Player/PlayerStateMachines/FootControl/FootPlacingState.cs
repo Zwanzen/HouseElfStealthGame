@@ -53,9 +53,11 @@ public class FootPlacingState : FootControlState
     private void MoveToGround()
     {
         var dir = Vector3.down;
+        var settingsToUse = Context.MovementSettings;
         if (!_validPlacement)
         {
-            var safePos = Context.LastSafePosition + (0.1f * Vector3.up);
+            settingsToUse = Context.PlacementSettings;
+            var safePos = Context.LastSafePosition + (0.3f * Vector3.up);
             var dirToSafe = safePos - Context.Foot.Target.position;
             
             var xzSafePos = safePos;
@@ -69,7 +71,7 @@ public class FootPlacingState : FootControlState
             dir = Vector3.Lerp(dir, dirToSafe, lerp);
         }
 
-        
+        /*
         // Check if the foot is stuck on a ledge
         if (Context.CheckStuckOnLedge(out var stuckHit) && !Context.IsFootGrounded && _validPlacement)
         {
@@ -79,7 +81,7 @@ public class FootPlacingState : FootControlState
             Context.MoveFootToPosition(dir);
             return;
         }
-
+        */
         // Before we move, we change the dir magnitude based on the current one
         // This will keep the speed based on distance and curve
         var mag = dir.magnitude;
@@ -88,7 +90,7 @@ public class FootPlacingState : FootControlState
         dir.Normalize();
         dir *= Context.SpeedCurve.Evaluate(magLerp);
         
-        Context.MoveFootToPosition(dir);
+        RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dir, settingsToUse);
     }
     private void HandleRotation()
     {

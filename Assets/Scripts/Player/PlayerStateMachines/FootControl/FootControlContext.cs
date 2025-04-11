@@ -41,15 +41,16 @@ public class FootControlContext
     [Header("Foot Control Variables")]
     private readonly float _stepLength;
     private readonly float _stepHeight;
-    private RigidbodyMovement.MovementSettings _movementSettings;
+    private MovementSettings _movementSettings;
+    private MovementSettings _placementSettings;
     private AnimationCurve _speedCurve;
     private AnimationCurve _heightCurve;
     private AnimationCurve _placeCurve;
     private AnimationCurve _offsetCurve;
     
     public FootControlContext(PlayerController player, FullBodyBipedIK bodyIK, PlayerFootSoundPlayer footSoundPlayer,
-        LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight, RigidbodyMovement.MovementSettings movementSettings,
-        AnimationCurve speedCurve, AnimationCurve heightCurve, AnimationCurve placeCurve, AnimationCurve offsetCurve)
+        LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight, MovementSettings movementSettings,
+        MovementSettings placementSettings, AnimationCurve speedCurve, AnimationCurve heightCurve, AnimationCurve placeCurve, AnimationCurve offsetCurve)
     {
         _player = player;
         _bodyIK = bodyIK;
@@ -60,6 +61,7 @@ public class FootControlContext
         _stepLength = stepLength;
         _stepHeight = stepHeight;
         _movementSettings = movementSettings;
+        _placementSettings = placementSettings;
         _speedCurve = speedCurve;
         _heightCurve = heightCurve;
         _placeCurve = placeCurve;
@@ -86,6 +88,7 @@ public class FootControlContext
     public AnimationCurve OffsetCurve => _offsetCurve;
     public bool BothInputsPressed => InputManager.Instance.IsHoldingLMB && InputManager.Instance.IsHoldingRMB;
     public MovementSettings MovementSettings => _movementSettings;
+    public MovementSettings PlacementSettings => _placementSettings;
     
     public Vector3 LastSafePosition { get; set; }
     

@@ -31,6 +31,9 @@ public class FootLiftedState : FootControlState
     {
         _liftTimer = 0f;
         Context.FootSoundPlayer.MakeFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
+        
+        // Set the xz velocity to 0
+        Context.Foot.Target.linearVelocity = new Vector3(0f, Context.Foot.Target.linearVelocity.y, 0f);
     }
 
     public override void UpdateState()
