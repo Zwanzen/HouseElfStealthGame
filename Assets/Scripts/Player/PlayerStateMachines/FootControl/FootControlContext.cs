@@ -86,6 +86,8 @@ public class FootControlContext
     public AnimationCurve OffsetCurve => _offsetCurve;
     public bool BothInputsPressed => InputManager.Instance.IsHoldingLMB && InputManager.Instance.IsHoldingRMB;
     
+    public Vector3 LastFootPosition { get; set; }
+    
     // Private methods
     private IKEffector GetEffector()
     {
@@ -178,14 +180,13 @@ public class FootControlContext
         position.y += size.y;
         
         // We use a sphere cast to check with a radius downwards
-        var upOffset = Vector3.up * _foot.Collider.size.y;
         if(!Physics.BoxCast(position, size, Vector3.down, out hit, rotation, maxDistance + size.y, GroundLayers))
             return false;
         
         return true;
     }
     
-    public bool FootGroundCast()
+    public bool FootGroundCast(float multiplier = 1f)
     {
         // We need to move the start pos of the ray backwards relative to the line direction
         var lineDir = Vector3.down;
@@ -199,7 +200,7 @@ public class FootControlContext
         // We need to dynamically calculate the distance to the ground
         // based on the feet positions to not overshoot the step height
         // We use a custom-made CircleLineIntersection to calculate the distance
-        if (!CalculateIntersectionPoint(otherFootPos, StepLength, offsetLineStart, lineDir,
+        if (!CalculateIntersectionPoint(otherFootPos, StepLength * multiplier, offsetLineStart, lineDir,
                 out var result))
             result = footPos; // This will make the max distance 0
         
@@ -213,7 +214,6 @@ public class FootControlContext
         position.y += size.y;
         
         // We use a sphere cast to check with a radius downwards
-        var upOffset = Vector3.up * _foot.Collider.size.y;
         if(!Physics.BoxCast(position, size, Vector3.down, rotation, maxDistance + size.y, GroundLayers))
             return false;
         

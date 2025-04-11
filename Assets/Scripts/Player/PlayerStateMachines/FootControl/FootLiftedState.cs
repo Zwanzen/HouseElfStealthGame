@@ -11,7 +11,30 @@ public class FootLiftedState : FootControlState
     public override FootControlStateMachine.EFootState GetNextState()
     {
         if (!Context.IsFootLifting)
-            return FootControlStateMachine.EFootState.Placing;
+        {
+            // *** TEMP ***
+            // Check if it is valid to exit
+            // Check if foot has ground
+            if (!Context.FootGroundCast(1.5f) && _validExit)
+            {
+                _validExit = false;
+            }
+            
+            if (_validExit)
+                return FootControlStateMachine.EFootState.Placing;
+            
+            // if close to the last foot position, we want to place it
+            var posToGoto = Context.LastFootPosition;
+            var footPos = Context.Foot.Target.position;
+            
+            posToGoto.y = 0f;
+            footPos.y = 0f;
+            var dist = Vector3.Distance(footPos, posToGoto);
+            if (dist < 0.015f)
+            {
+                return FootControlStateMachine.EFootState.Placing;
+            }
+        }
         
         if (GetDistanceFromOtherFoot() > Context.StepLength && Context.BothInputsPressed)
             return FootControlStateMachine.EFootState.Placing;
@@ -19,10 +42,16 @@ public class FootLiftedState : FootControlState
         return StateKey;
     }
     
+    private bool _validExit;
+    private Collider _storedCollider;
+    
     public override void EnterState()
     {
         // get the start angle
         _startAngle = Context.Foot.Target.transform.localRotation.x;
+        Context.LastFootPosition = Context.FootGroundCast(out var hit) ? hit.point : Context.Foot.Target.position;
+        _validExit = true;
+        _storedCollider = hit.collider;
     }
 
     public override void ExitState()
@@ -41,22 +70,40 @@ public class FootLiftedState : FootControlState
         var footPos = Context.Foot.Target.position;
         var otherFootPos = Context.OtherFoot.Target.position;
         var input = Context.Player.RelativeMoveInput;
-
+        
+        // *** TEMP ***
+        if(!_validExit)
+            input = Vector3.zero;
+        
+        bool useLastFootPos = input == Vector3.zero && Context.LastFootPosition != Vector3.zero;
+        if (useLastFootPos)
+            if(Context.FootGroundCast(out var hit) && hit.collider == _storedCollider)
+                useLastFootPos = false;
+        
         var baseFootLiftedHeight = 0.15f;
         var wantedHeight = otherFootPos.y + baseFootLiftedHeight;
         
         // Depending on obstacles, we want to move the foot up
         // We create a boxcast from the max step height, downwards to the max step height
         // If we don't hit anything, the pressed height is the wanted height
-        if (ScanGroundObject(input, out var heightOfObject))
+        if (ScanGroundObject(input, out var heightOfObject) && !useLastFootPos)
             wantedHeight = heightOfObject + baseFootLiftedHeight;
+
+        if (useLastFootPos)
+            wantedHeight = Context.LastFootPosition.y + baseFootLiftedHeight;
         
         // This is the current position of the foot, but at the wanted height
         var wantedHeightPos = new Vector3(footPos.x, wantedHeight, footPos.z);
         
+        if(useLastFootPos)
+            wantedHeightPos = new Vector3(Context.LastFootPosition.x, wantedHeight, Context.LastFootPosition.z);
+        
         // We also calculate the input position based on the player input
         // But also take into account the wanted height
         var wantedInputPos = wantedHeightPos + input.normalized;
+        
+        if(useLastFootPos)
+            wantedInputPos = new Vector3(Context.LastFootPosition.x, wantedHeight, Context.LastFootPosition.z);
         
         // *** TEMP ***
         // If the foot is behind the other foot,
@@ -68,7 +115,6 @@ public class FootLiftedState : FootControlState
         var camAngle = Context.Player.Camera.CameraX;
         var offsetLerp = camAngle / 60f;
         offsetPos = Vector3.Lerp(offsetPos, wantedInputPos, offsetLerp);
-
         
         // We lerp our input position with the offset position based on how far behind the foot is
         var distBehind = Context.RelativeDistanceInDirection(footPos, otherFootPos, input.normalized);
@@ -105,6 +151,12 @@ public class FootLiftedState : FootControlState
         dirToPos.Normalize();
         dirToPos *= Context.SpeedCurve.Evaluate(magLerp);
         
+        // *** TEMP ***
+        if (dirToPos.magnitude < 0.02f && !_validExit)
+        {
+            _validExit = true;
+        }
+        
         Context.MoveFootToPosition(dirToPos);
         HandleFootRotation();
     }
@@ -121,7 +173,7 @@ public class FootLiftedState : FootControlState
         var rotation = defaultValues.Rotation;
         
         // How much we should check forwards
-        var forwardCheck = size.z * 1.5f;
+        var forwardCheck = size.z * 3f;
         // How much we should check side to side
         var sideCheck = 0.1f;
         
@@ -129,13 +181,13 @@ public class FootLiftedState : FootControlState
         var forward = Vector3.zero;
         if (input != Vector3.zero)
         {
-            forward = input.normalized * forwardCheck / 2f;
+            forward = input.normalized * forwardCheck;
             // Also set the rotation to the input direction
             rotation = Quaternion.LookRotation(forward.normalized, Vector3.up);
             // Add extensions
             position += forward;
             size.x = sideCheck;
-            size.z = forwardCheck;
+            size.z = forwardCheck / 2f;
         }
         
         // Height 
@@ -171,19 +223,33 @@ public class FootLiftedState : FootControlState
                 position.y -= size.y;
                 var dist = height - position.y;
                 
+                // *** TODO ***
+                // FIGURE OUT WHAT HAPPENED HERE
                 // If we hit it, we set the height to the hit point - foot size
                 // -0.15f is to nullify the lifting default height
                 if(Physics.BoxCast(position, size, Vector3.up, out var upHit, rotation,
                        dist + size.y,
                        Context.GroundLayers))
                     height = otherFootPos.y;
-                
+                else
+                {
+                    // If this does not hit, and we are not moving,
+                    // Store the last foot position to the hit point
+                    if(input != Vector3.zero)
+                        TryForPosition(hit.point, hit.collider);
+                }
                 return true;
             }
             
             // Check if we are actually on the ground
-            if(Context.IsFootGrounded)
+            if (Context.IsFootGrounded)
+            {
+                // If we are not moving,
+                // Store the last foot position to the hit point
+                if(input != Vector3.zero)
+                    TryForPosition(hit.point, hit.collider);
                 return true;
+            }
             
             // If it's too high, we want to check a smaller box
             position = defaultValues.Position;
@@ -207,7 +273,13 @@ public class FootLiftedState : FootControlState
             
                     // If it has space, we can return true
                     if (highest > height)
+                    {
+                        // If we are not moving,
+                        // Store the last foot position to the hit point
+                        if(input != Vector3.zero)
+                            TryForPosition(heightHit.point, heightHit.collider);
                         return true;
+                    }
                 }
             } 
             
@@ -238,6 +310,31 @@ public class FootLiftedState : FootControlState
         return false; // Out of bounds
     }
 
+    private void TryForPosition(Vector3 pos, Collider hitCollider)
+    {
+
+        if (!_storedCollider)
+        {
+            _storedCollider = hitCollider;
+            Context.LastFootPosition = pos;
+            
+            return;
+        }
+
+        if (_storedCollider == hitCollider)
+        {
+            Context.LastFootPosition = pos;
+            return;
+        }
+
+        if (_storedCollider != hitCollider)
+        {
+            _storedCollider = hitCollider;
+            Context.LastFootPosition = pos;
+            return;
+        }
+    }
+    
     private Vector3 GetOffsetPosition(Vector3 otherFootPos, float wantedHeight, float dist)
     {
         // Maybe implement a dot product to see if we should offset forwards or backwards also?
