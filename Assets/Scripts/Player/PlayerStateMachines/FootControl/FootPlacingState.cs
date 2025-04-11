@@ -11,17 +11,11 @@ public class FootPlacingState : FootControlState
     {
         if(Context.IsFootGrounded)
             return FootControlStateMachine.EFootState.Planted;
-        
-        if(_shouldFall)
-            return FootControlStateMachine.EFootState.Falling;
+
         
         return StateKey;
     }
 
-    private bool _shouldFall;
-    
-    private bool _validPlacement;
-    private bool _placed;
     private RaycastHit _cast;
     private Vector3 _placeNormal;
     
@@ -30,10 +24,6 @@ public class FootPlacingState : FootControlState
     
     public override void EnterState()
     {
-        _shouldFall = false;
-        CheckForFall();
-        _validPlacement = false;
-        _placed = false;
         _startPos = Context.Foot.Target.position;
     }
 
@@ -47,53 +37,8 @@ public class FootPlacingState : FootControlState
 
     public override void FixedUpdateState()
     {
-        CheckForFall();
         MoveToGround();
-        //HandleFootRotation();
-    }
-
-    private void CheckForFall()
-    {
-        // Check if the foot has ground
-        var hasGround = Context.FootGroundCast();
-        // Check if the foot is below the other foot
-        var foot = Context.Foot.Target.position;
-        var otherFoot = Context.OtherFoot.Target.position;
-        var dist = Vector3.Distance(foot, otherFoot);
-        var isBelow = foot.y < otherFoot.y;
-        
-        // Check if the foot is below the other foot and has no ground
-        if (!hasGround)
-        {
-            _shouldFall = true;
-        }
-    }
-    
-    private bool CheckForGround()
-    {
-        var defaultValues = Context.FootCastValues;
-        var position = defaultValues.Position;
-        var size = defaultValues.Size;
-        var rotation = defaultValues.Rotation;
-        position.y += size.y;
-
-        var foot = Context.Foot.Target.position;
-        var otherFoot = Context.OtherFoot.Target.position;
-        var lineStart = foot + Vector3.up;
-        
-        var dist = 0f;
-        CircleLineIntersection.CalculateIntersectionPoint(otherFoot, Context.StepLength, lineStart, Vector3.down, out var intersectionPoint);
-        dist = Vector3.Distance(foot, intersectionPoint);
-        
-        // Check if the foot placement is valid
-        if (Physics.BoxCast(position, size, Vector3.down, out _cast, rotation, dist, Context.GroundLayers))
-        {
-            _validPlacement = true;
-            _placeNormal = _cast.normal;
-            return true;
-        }
-
-        return false;
+        HandleRotation();
     }
     
     private void MoveToGround()
@@ -119,7 +64,16 @@ public class FootPlacingState : FootControlState
         
         Context.MoveFootToPosition(dir);
     }
-    
+    private void HandleRotation()
+    {
+        // Get the ground normal if we have one
+        var normal = Vector3.up;
+        if(Context.FootGroundCast(out var hit))
+            normal = hit.normal;
+        var direction = Vector3.ProjectOnPlane(Context.Foot.Target.transform.forward, normal);
+
+        RigidbodyMovement.RotateRigidbody(Context.Foot.Target, direction, 500f);
+    }
     private void HandleFootRotation()
     {
         var foot = Context.Foot.Target;

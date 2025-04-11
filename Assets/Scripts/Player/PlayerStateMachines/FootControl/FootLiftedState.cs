@@ -285,8 +285,10 @@ public class FootLiftedState : FootControlState
         // The closer we are to the edge, the more we want to use the other foot intersection point
         return Vector3.Lerp(otherFootIntersect, footIntersect, lerp);
     }
-    
-    
+
+    private Vector3 _storedInput;
+    private float _dot;
+    private float _storedCamAngle;
     private Vector3 _forward;
     private Vector3 _right;
     private float _liftTimer;
@@ -294,21 +296,38 @@ public class FootLiftedState : FootControlState
     private void HandleFootRotation()
     {
         var isMoving = InputManager.Instance.MoveInput.magnitude > 0.01f;
+        if (isMoving)
+        {
+            // *** TODO ***
+            // We need to change the speed it rotates, or clamp the max so it doesn't rotate too fast with small movements
+            _storedInput = Vector3.MoveTowards(_storedInput, Context.Player.RelativeMoveInput.normalized, Time.fixedDeltaTime * 2.5f);
+            _dot = Vector3.Dot(Context.Player.Camera.GetCameraYawTransform().forward.normalized, _storedInput.normalized);
+            _storedCamAngle= Context.Player.Camera.CameraX;
+        }
+
+        var downLerp = _storedCamAngle / 60f;
         
         // Store the camera forward direction if we are moving
         if (isMoving)
         {
             // Other direction
-            var otherDir = Context.Player.RelativeMoveInput.normalized;
-            var dot = Vector3.Dot(Context.Player.Camera.GetCameraYawTransform().forward.normalized, otherDir.normalized);
-            if (dot < -0.2f)
-                otherDir = -otherDir;
+            if (_dot < -0.2f)
+                _storedInput = -_storedInput;
             
-            // Downwards lerp
-            var camAngle = Context.Player.Camera.CameraX;
-            _forward = Vector3.Lerp(otherDir, Context.Player.Camera.GetCameraYawTransform().forward.normalized, camAngle/60f);
+            // Makes the foot turn it slightly diagonally if it should
+            var cameraForward = Context.Player.Camera.GetCameraYawTransform().forward.normalized;
+            var footAngleDot1 = Mathf.Clamp01(_dot);
+            var dif1 = 1 - footAngleDot1;
+            var maxDif1 = 0.8f;
+            footAngleDot1 = dif1 / maxDif1;
+            // Only want to change if the camera angle is right
+            footAngleDot1 = Mathf.Lerp(1,footAngleDot1, downLerp);
             
-            _right = Vector3.Lerp(-Vector3.Cross(otherDir, Vector3.up), Context.Player.Camera.GetCameraYawTransform().right.normalized, camAngle/60f);
+            // We change the forward if the angle is right
+            var lerpFootForward = Vector3.Lerp(_storedInput, cameraForward, footAngleDot1);
+            
+            _forward = Vector3.Lerp(_storedInput, lerpFootForward, downLerp);
+            _right = Vector3.Lerp(-Vector3.Cross(_storedInput, Vector3.up), Context.Player.Camera.GetCameraYawTransform().right.normalized, downLerp);
         }
         
         // Update the lifted foot pitch
@@ -319,12 +338,21 @@ public class FootLiftedState : FootControlState
         var maxRelDist = Context.StepLength;
         var relDist = Context.RelativeDistanceInDirection(Context.OtherFoot.Target.position, Context.Foot.Target.position, _forward);
         
+        // We also want to include the dot, if we are stepping diagonally, we dont want to rotate the foot on x
+        var footAngleDot = Mathf.Clamp01(_dot);
+        var dif = 1 - footAngleDot;
+        var maxDif = 0.8f;
+        footAngleDot = dif / maxDif;
+        footAngleDot = Mathf.Lerp(1, 0, footAngleDot);
+        // Only want to change if the camera angle is right
+        footAngleDot = Mathf.Lerp(1,footAngleDot, downLerp);
+
+        // If the angle is too high, we dont want it to rotate on x
+        relDist *= footAngleDot;
+        
         // Lerp Foot Pitch
         var angle = Mathf.Lerp(minPitch, maxPitch, Mathf.InverseLerp(minRelDist, maxRelDist, relDist));
         var lerpAngle = Mathf.Lerp(_startAngle, angle, Context.PlaceCurve.Evaluate(_liftTimer / 0.20f));
-        
-        // *** TMEP ***
-        lerpAngle = _startAngle;
         
         // Rotate the camForward direction around the foot's right direction
         var footForward = Quaternion.AngleAxis(lerpAngle, _right) * _forward;
@@ -333,7 +361,7 @@ public class FootLiftedState : FootControlState
         if(footForward == Vector3.zero)
             return;
         
-        RigidbodyMovement.RotateRigidbody(Context.Foot.Target, footForward, 500f);
+        RigidbodyMovement.RotateRigidbody(Context.Foot.Target, footForward, 350f);
     }
     
     private float GetDistanceFromOtherFoot()

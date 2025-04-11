@@ -65,10 +65,9 @@ public class PlayerControlContext
     }
 
     // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
+    // Modified
     public void RigidbodyFloat()
     {
-        const float multiplier = 2f;
-        //if (!Physics.Raycast(Player.Position, Vector3.down, out var hit, PlayerController.Height * multiplier, _groundLayers)) return;
         var vel = _rigidbody.linearVelocity;
 
         var relDirVel = Vector3.Dot(Vector3.down, vel);
@@ -79,7 +78,8 @@ public class PlayerControlContext
         var lowestFootPos = new Vector3(Player.Position.x, GetLowestFootPosition().y, Player.Position.z);
         var distanceToLowestFoot = Vector3.Distance(Player.Position, lowestFootPos);
         
-        var footPlaceOffset = 0.02f;
+        // Offset from the foot to the ground
+        var footPlaceOffset = 0.05f;
         
         // We want to change the height of the player based on the distance between the feet
         // We only want to change the distance on the xz plane, if the lifted foot is going upwards, we don't want our body to go down
@@ -167,6 +167,10 @@ public class PlayerControlContext
         {
             dir = _player.Camera.GetCameraYawTransform().forward;
         }
+        
+        // Avoid rotating to zero
+        if(dir == Vector3.zero)
+            return;
         
         // Rotate the body towards the direction
         RotateRigidbody(_player.Rigidbody, dir, 200f);

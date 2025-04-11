@@ -46,6 +46,7 @@ public class FootPlantedState : FootControlState
 
     public override void FixedUpdateState()
     {
+        HandleRotation();
         MoveToGround();
     }
     
@@ -54,28 +55,26 @@ public class FootPlantedState : FootControlState
         return RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezeRotation;
     }
 
+    private void HandleRotation()
+    {
+        // Get the ground normal if we have one
+        var normal = Vector3.up;
+        if(Context.FootGroundCast(out var hit))
+            normal = hit.normal;
+        var direction = Vector3.ProjectOnPlane(Context.Foot.Target.transform.forward, normal);
+
+        // Avoid rotating it to zero
+        if (direction == Vector3.zero)
+            return;
+        
+        RigidbodyMovement.RotateRigidbody(Context.Foot.Target, direction, 500f);
+    }
+
     private void MoveToGround()
     {
         var footPos = Context.Foot.Target.position;
         var otherFootPos = Context.OtherFoot.Target.position;
         var dir = Vector3.down;
-        
-        
-        
-        if (Context.OtherFoot.SM.State == FootControlStateMachine.EFootState.Falling)
-        {
-            _rb.constraints = LiftedConstraints;
-
-            var dirToOtherFoot = otherFootPos - footPos;
-            var right = -Vector3.Cross(dirToOtherFoot, Vector3.up) * 0.1f;
-            
-            var distToOtherFoot = dirToOtherFoot.magnitude;
-            dir = Vector3.Lerp(dir, right, distToOtherFoot);
-        }
-        else
-        {
-            _rb.constraints = PlacedConstraints;
-        }
 
         // Before we move, we change the dir magnitude based on the current one
         // This will keep the speed based on distance and curve
