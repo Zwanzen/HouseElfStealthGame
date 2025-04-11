@@ -71,6 +71,10 @@ public static class RigidbodyMovement
     // Rotates the rigidbody towards direction based on a rotation speed
     public static void RotateRigidbody(Rigidbody rb, Vector3 dir, float rotationSpeed)
     {
+        dir.Normalize();
+        if(dir == Vector3.zero)
+            return;
+        
         Quaternion toRotation = Quaternion.LookRotation(dir, Vector3.up);
         Quaternion rotation = Quaternion.RotateTowards(rb.rotation, toRotation, rotationSpeed * Time.fixedDeltaTime);
         rb.MoveRotation(rotation);

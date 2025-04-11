@@ -63,10 +63,6 @@ public class FootPlantedState : FootControlState
             normal = hit.normal;
         var direction = Vector3.ProjectOnPlane(Context.Foot.Target.transform.forward, normal);
 
-        // Avoid rotating it to zero
-        if (direction == Vector3.zero)
-            return;
-        
         RigidbodyMovement.RotateRigidbody(Context.Foot.Target, direction, 500f);
     }
 

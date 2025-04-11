@@ -358,9 +358,6 @@ public class FootLiftedState : FootControlState
         var footForward = Quaternion.AngleAxis(lerpAngle, _right) * _forward;
         footForward.Normalize();
 
-        if(footForward == Vector3.zero)
-            return;
-        
         RigidbodyMovement.RotateRigidbody(Context.Foot.Target, footForward, 350f);
     }
     
