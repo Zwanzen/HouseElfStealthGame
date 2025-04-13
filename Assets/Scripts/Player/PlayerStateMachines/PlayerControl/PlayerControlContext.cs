@@ -83,17 +83,32 @@ public class PlayerControlContext
         
         // We want to change the height of the player based on the distance between the feet
         // We only want to change the distance on the xz plane, if the lifted foot is going upwards, we don't want our body to go down
-        var leftFootPos = _leftFoot.Target.position;
-        var rightFootPos = _rightFoot.Target.position;
-        rightFootPos.y = leftFootPos.y; // If they are the same, the height won't matter
-        var distBetweenFeet = Vector3.Distance(leftFootPos, rightFootPos);
-        var lerp = distBetweenFeet / _player.StepLength;
-        var highest = PlayerController.Height;
+        // But we do want the body to go down if the lifted foot is going downwards
         
+        // Find out if we are lifting a foot
+        var isLifting = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted ||
+                       _rightFoot.SM.State == FootControlStateMachine.EFootState.Lifted;
+        
+        // Get lifted foot position and the other foot position
+        var liftedFootPos = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted ? _leftFoot.Target.position : _rightFoot.Target.position;
+        var otherFootPos = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot.Target.position: _leftFoot.Target.position;
+
+        // If the lifted foot is not below the other foot, we don't want height influence
+        var shouldCare = liftedFootPos.y < otherFootPos.y + 0.10f;
+        if (!shouldCare)
+            liftedFootPos.y = otherFootPos.y;
+        
+        var distBetweenFeet = Vector3.Distance(liftedFootPos, lowestFootPos);
+        var lerp = distBetweenFeet / _player.StepLength;
+        if (shouldCare)
+            lerp = distBetweenFeet / 0.20f;
+
+        var highest = PlayerController.Height;
+
         var height = Mathf.Lerp(highest, _lowestBodyHeight, _distanceHeightCurve.Evaluate(lerp));
         
         var x = distanceToLowestFoot - (height + footPlaceOffset);
-
+        
         var springForce = (x * _springStrength) - (relVel * _springDampener);
         _rigidbody.AddForce(Vector3.down * springForce);
     }

@@ -156,7 +156,11 @@ public class FootLiftedState : FootControlState
         // Height 
         var footSize = size.y;
         var maxHeight = Context.StepHeight + otherFootPos.y;
+        
+        // Clamp the y height to the foot height + the step height
+        // Avoid too high checks
         position.y = maxHeight + size.y;
+        position.y = Mathf.Clamp(position.y, otherFootPos.y - Context.StepHeight, footPos.y + Context.StepHeight);
         
         // Cast
         if (!Physics.BoxCast(position, size, Vector3.down, out var hit, rotation, (Context.StepHeight * 2f) + size.y,
