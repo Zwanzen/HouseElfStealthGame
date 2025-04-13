@@ -76,7 +76,7 @@ public class FootLiftedState : FootControlState
         // Depending on obstacles, we want to move the foot up
         // We create a boxcast from the max step height, downwards to the max step height
         // If we don't hit anything, the pressed height is the wanted height
-        if (ScanGroundObject(input, out var heightOfObject))
+        if (ScanGroundObject(input, out var heightOfObject) && !running)
             wantedHeight = heightOfObject + baseFootLiftedHeight;
         
         // This is the current position of the foot, but at the wanted height
@@ -90,11 +90,14 @@ public class FootLiftedState : FootControlState
         // If the foot is behind the other foot,
         // We want to move this foot towards an offset to the side of the other foot
         // The position to the side of the other foot
-        var offsetPos = GetOffsetPosition(otherFootPos, wantedHeight, 0.2f);
+        var space = running ? 0.1f : 0.2f;
+        var offsetPos = GetOffsetPosition(otherFootPos, wantedHeight, space);
         
         // Depending on down angle, we dont care about offset
         var camAngle = Context.Player.Camera.CameraX;
         var offsetLerp = camAngle / 60f;
+        if(running)
+            offsetLerp = 0f;
         offsetPos = Vector3.Lerp(offsetPos, wantedInputPos, offsetLerp);
 
         
@@ -148,10 +151,9 @@ public class FootLiftedState : FootControlState
         if (Context.RelativeDistanceInDirection(otherFootPos, footPos, runDir) >
             0f)
         {
-            var dist = running ?  Context.StepLength * 0.5f : 0.05f;
+            var dist = running ?  Context.StepLength * 0.4f : 0.05f;
             CalculateIntersectionPoint(otherFootPos, Context.StepLength * 0.9f, otherFootPos, (footPos - otherFootPos).normalized,
                 out var otherFootIntersect);
-            Debug.DrawLine(otherFootPos, otherFootIntersect, Color.red);
             if(Vector3.Distance(otherFootIntersect, footPos) < dist)
                 _readyToPlace = true;
         }

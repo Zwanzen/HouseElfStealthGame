@@ -121,7 +121,15 @@ public class PlayerControlContext
         var dir = targetPosition - currentPos;
         if(dir.magnitude > 1f)
             dir.Normalize();
-        MoveRigidbody(Player.Rigidbody, dir, _bodyMovementSettings);
+        
+        var settings = _bodyMovementSettings;
+        var running = InputManager.Instance.IsRunning;
+        if (running)
+        {
+            settings.MaxSpeed = 20f;
+            settings.Acceleration = 250f;
+        }
+        MoveRigidbody(Player.Rigidbody, dir, settings);
     }
 
     public Vector3 BetweenFeet(float lerp)
@@ -189,7 +197,7 @@ public class PlayerControlContext
         }
         */
         
-        if(direction == Vector3.zero)
+        if(direction == Vector3.zero && InputManager.Instance.MoveInput != Vector3.zero)
             direction = _player.Camera.GetCameraYawTransform().forward;
         
         // Other direction

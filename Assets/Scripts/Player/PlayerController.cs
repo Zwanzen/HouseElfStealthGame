@@ -69,8 +69,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AnimationCurve _imageScaleCurve;
     [SerializeField] private Image _leftImage;
     [SerializeField] private Image _rightImage;
-    [SerializeField] private Transform _leanTarget;
-    [SerializeField] private Transform _leanRestTarget;
+    [SerializeField] private Transform _leftHandTarget;
+    [SerializeField] private Transform _rightHandTarget;
     
     private float _wantedLScale;
     private float _wantedRScale;
@@ -101,6 +101,8 @@ public class PlayerController : MonoBehaviour
         CreateStateMachines();
         InitializeStateMachineContexts();
         InitializeStateMachines();
+        
+
     }
 
     private void Start()
@@ -112,6 +114,14 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         HandleStepUI();
+        
+        // *** TEMP ***
+
+        
+        _rightHandTarget.position = new Vector3(_leftFoot.Target.position.x, 0.6f, _leftFoot.Target.position.z);
+        _rightHandTarget.position += -Vector3.Cross(Rigidbody.transform.forward, Vector3.up) * 0.25f;
+        _leftHandTarget.position = new Vector3(_rightFoot.Target.position.x, 0.6f, _rightFoot.Target.position.z);
+        _leftHandTarget.position += Vector3.Cross(Rigidbody.transform.forward, Vector3.up) * 0.25f;
     }
 
     private void HandleStepUI()
