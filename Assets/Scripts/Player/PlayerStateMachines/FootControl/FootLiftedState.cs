@@ -98,7 +98,7 @@ public class FootLiftedState : FootControlState
         // Now clamp if we are going out of step length
         if (Vector3.Distance(pos, otherFootPos) > Context.StepLength)
             pos = ClampedFootPosition(footPos, otherFootPos, dirToPos);
-        
+        /*
         // Update dir to pos because we might have changed the position
         dirToPos = pos - footPos;
         
@@ -117,8 +117,10 @@ public class FootLiftedState : FootControlState
             var settingsMaxSpeed = Mathf.Lerp(0.1f, 0.2f, mag);
             settings.MaxSpeed *= settingsMaxSpeed;
         }
+        */
 
-        RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dirToPos, settings);
+        Physics.CheckSphere(pos, 0.15f);
+        RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, pos, Context.MovementSettings);
 
         HandleFootRotation();
     }
@@ -282,11 +284,23 @@ public class FootLiftedState : FootControlState
         // Offset the start position of the line to avoid not finding an intersection point when we should
         var lineStart = footPos - direction.normalized;
         
+        // We dont want the otherFootIntersection to do anything on the y axis
+        // So we set the other foot pos to the same y as the foot
+        var footHeight = footPos.y;
+        var otherPosSim = new Vector3(otherFootPos.x, footHeight, otherFootPos.z);
+        // We also cant let the simulation go above or below step StepLength
+        var maxHeight = otherFootPos.y + Context.StepLength - 0.01f;
+        var minHeight = otherFootPos.y - Context.StepLength + 0.01f;
+        if (otherPosSim.y > maxHeight)
+            otherPosSim.y = maxHeight;
+        else if (otherPosSim.y < minHeight)
+            otherPosSim.y = minHeight;
+        
         // Dir from other foot to pos
-        var otherDir = (direction + footPos) - otherFootPos;
+        var otherDir = (direction + footPos) - otherPosSim;
             
         // We check the other intersection point now, in case the normal one fails, this one will never fail
-        CalculateIntersectionPoint(otherFootPos, Context.StepLength, otherFootPos, otherDir.normalized,
+        CalculateIntersectionPoint(otherFootPos, Context.StepLength, otherPosSim, otherDir.normalized,
             out var otherFootIntersect);
         
         // If we don't fail, we should use this intersection point for more accurate movement

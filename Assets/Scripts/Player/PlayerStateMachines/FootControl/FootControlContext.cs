@@ -76,7 +76,7 @@ public class FootControlContext
     public Foot Foot => _foot;
     public Foot OtherFoot => _otherFoot;
     public float StepLength => _stepLength;
-    public float StepHeight => _stepHeight;
+    public float StepHeight => _stepLength;
     public LayerMask GroundLayers => _groundLayers;
     public Vector3 FootPlaceOffset =>  Vector3.up * 0.05f;
     public float FootRadius => 0.05f;
@@ -191,7 +191,7 @@ public class FootControlContext
         return true;
     }
     
-    public bool FootGroundCast()
+    public bool FootGroundCast(float minDist = 0f)
     {
         // We need to move the start pos of the ray backwards relative to the line direction
         var lineDir = Vector3.down;
@@ -207,10 +207,11 @@ public class FootControlContext
         // We use a custom-made CircleLineIntersection to calculate the distance
         if (!CalculateIntersectionPoint(otherFootPos, StepLength, offsetLineStart, lineDir,
                 out var result))
-            result = footPos; // This will make the max distance 0
+            result = footPos; // This will make the max distance min dist
         
         // This is the length between the foot and the max step length/intersection point
         var maxDistance = (result - footPos).magnitude;
+        maxDistance = Mathf.Clamp(maxDistance, minDist, maxDistance);
         
         var defaultValues = FootCastValues;
         var position = defaultValues.Position;

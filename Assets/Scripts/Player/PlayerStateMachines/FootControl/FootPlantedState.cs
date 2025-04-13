@@ -10,9 +10,6 @@ public class FootPlantedState : FootControlState
 
     public override FootControlStateMachine.EFootState GetNextState()
     {
-        if(!Context.IsFootGrounded)
-            return FootControlStateMachine.EFootState.Falling;
-        
         if (Context.IsFootLifting)
             return FootControlStateMachine.EFootState.Lifted;
         

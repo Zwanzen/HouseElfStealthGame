@@ -47,7 +47,7 @@ public class FootPlacingState : FootControlState
     
     private bool CheckValidPlacement()
     {
-        return Context.FootGroundCast();
+        return Context.FootGroundCast(0.5f);
     }
     
     private void MoveToGround()
@@ -56,9 +56,9 @@ public class FootPlacingState : FootControlState
         var settingsToUse = Context.MovementSettings;
         if (!_validPlacement)
         {
+            dir = Vector3.down + Context.Foot.Target.position; // dirPos
             settingsToUse = Context.PlacementSettings;
             var safePos = Context.LastSafePosition + (0.3f * Vector3.up);
-            var dirToSafe = safePos - Context.Foot.Target.position;
             
             var xzSafePos = safePos;
             xzSafePos.y = 0f;
@@ -68,7 +68,10 @@ public class FootPlacingState : FootControlState
             
             var downDistance = Context.FootRadius;
             var lerp = safeMag / downDistance;
-            dir = Vector3.Lerp(dir, dirToSafe, lerp);
+            dir = Vector3.Lerp(dir, safePos, lerp);
+            
+            RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, dir, settingsToUse);
+            return;
         }
 
         /*
