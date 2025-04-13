@@ -58,7 +58,15 @@ public class FootPlacingState : FootControlState
         {
             dir = Vector3.down + Context.Foot.Target.position; // dirPos
             settingsToUse = Context.PlacementSettings;
-            var safePos = Context.LastSafePosition + (0.3f * Vector3.up);
+            
+            // Determine what the safe position is
+            var lastSafe = Context.LastSafePosition;
+            var oldSafe = Context.OldSafePosition;
+            var distToLast = Vector3.Distance(lastSafe, Context.OtherFoot.Target.position);
+            var distToOld = Vector3.Distance(oldSafe, Context.OtherFoot.Target.position);
+            var safe = distToLast < distToOld ? lastSafe : oldSafe;
+            
+            var safePos = safe + (0.3f * Vector3.up);
             
             var xzSafePos = safePos;
             xzSafePos.y = 0f;

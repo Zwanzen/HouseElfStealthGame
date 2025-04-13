@@ -119,7 +119,6 @@ public class FootLiftedState : FootControlState
         }
         */
 
-        Physics.CheckSphere(pos, 0.15f);
         RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, pos, Context.MovementSettings);
 
         HandleFootRotation();
@@ -156,7 +155,7 @@ public class FootLiftedState : FootControlState
         
         // Height 
         var footSize = size.y;
-        var maxHeight = Context.StepHeight + Context.OtherFoot.Target.position.y;
+        var maxHeight = Context.StepHeight + otherFootPos.y;
         position.y = maxHeight + size.y;
         
         // Cast
@@ -166,99 +165,87 @@ public class FootLiftedState : FootControlState
         height = hit.point.y;
         var closestPoint = hit.collider.ClosestPoint(footPos);
         
-        // Check if it is too high
-        if (CalculateIntersectionPoint(Context.OtherFoot.Target.position, Context.StepLength,
-                closestPoint + Vector3.down, Vector3.up, out var highestPoint))
+        // Check if it is too high - If it is too far away, the highest point will be 0
+        CalculateIntersectionPoint(otherFootPos, Context.StepLength,
+            closestPoint + Vector3.down, Vector3.up, out var highestPoint);
+        
+        // Check if it is too far away
+        var tooFar = Vector3.Distance(otherFootPos, closestPoint) > Context.StepLength;
+        Physics.CheckSphere(closestPoint, 0.02f);
+        Physics.CheckSphere(otherFootPos + ((closestPoint - otherFootPos).normalized * Context.StepLength), 0.02f);
+        
+        var highest = highestPoint.y - footSize;
+        // If there is space above and the point is not too far away
+        // We want to continue
+        if (highest > height && !tooFar)
         {
-            var highest = highestPoint.y - footSize;
-            // If there is space above, we can return true
-            if (highest > height)
-            {
-                // If the thing we are trying to step on is lower than the other foot,
-                // We don't want to put our foot directly on it
-                // So we limit how far down we can go
-                if(otherFootPos.y -0.20f > height)
-                    height = otherFootPos.y - 0.20f;
+            // If the thing we are trying to step on is lower than the other foot,
+            // We don't want to put our foot directly on it
+            // So we limit how far down we can go
+            if(otherFootPos.y -0.20f > height)
+                height = otherFootPos.y - 0.20f;
                 
-                // Do a check to see if there is anything above
-                position = defaultValues.Position;
-                size = defaultValues.Size;
-                rotation = defaultValues.Rotation;
-                position.y -= size.y;
-                var dist = height - position.y;
-                
-                // If we hit it, we set the height to the hit point - foot size
-                // -0.15f is to nullify the lifting default height
-                if(Physics.BoxCast(position, size, Vector3.up, out var upHit, rotation,
-                       dist + size.y,
-                       Context.GroundLayers))
-                    height = otherFootPos.y;
-                
-                Context.LastSafePosition = hit.point;
-                return true;
-            }
-            
-            // Check if we are actually on the ground
-            if (Context.IsFootGrounded)
-            {
-                Context.LastSafePosition = hit.point;
-                return true;
-            }
-            
-            // If it's too high, we want to check a smaller box
+            // Do a check to see if there is anything above
             position = defaultValues.Position;
             size = defaultValues.Size;
             rotation = defaultValues.Rotation;
-            
-            position.y = hit.point.y;
-            
-            // Smaller cast to see if we get better results
-            if (Physics.BoxCast(position, size, Vector3.down, out var heightHit, rotation,
-                    (Context.StepHeight * 2f) + size.y,
-                    Context.GroundLayers))
-            {
-                var highClosestPoint = heightHit.collider.ClosestPoint(footPos);
-                // Check if the new height is reachable
-                if (CalculateIntersectionPoint(Context.OtherFoot.Target.position, Context.StepLength,
-                        highClosestPoint + Vector3.down, Vector3.up, out highestPoint))
-                {
-                    height = heightHit.point.y;
-                    highest = highestPoint.y - footSize;
-            
-                    // If it has space, we can return true
-                    if (highest > height)
-                    {
-                        Context.LastSafePosition = heightHit.point;
-                        return true;
-                    }
-                }
-            } 
-            
-            // If we don't hit anything, no ground
-        }        
-
-        /*
-        // *** NOT REALLY DOING ANYTHING ***
-        // Check if it is too low
-        if (!CalculateIntersectionPoint(Context.OtherFoot.Target.position, Context.StepLength,
-                closestPoint + Vector3.up, Vector3.down, out var lowestPoint))
-            return false; // out of bounds
-        
-        var lowest = lowestPoint.y + footSize;
-        // If it is high enough, we can return true
-        if (height > lowest)
-        {
-            // We also dont want to set the height to the lowest point
-            // We want to set it to a fixed height
-            height = Context.OtherFoot.Target.position.y - 0.15f;
-            // But clamp it so that it doesn't go below the lowest point
-            if (height < lowest)
-                height = lowest;
+            position.y -= size.y;
+            var dist = height - position.y;
+                
+            // If we hit it, we set the height to the hit point - foot size
+            // -0.15f is to nullify the lifting default height
+            if(Physics.BoxCast(position, size, Vector3.up, out var upHit, rotation,
+                   dist + size.y,
+                   Context.GroundLayers))
+                height = otherFootPos.y;
+                
+            Context.SetSafePosition(hit.point);
             return true;
         }
-        */
-
-        return false; // Out of bounds
+            
+        // Check if we are actually on the ground
+        if (Context.IsFootGrounded)
+        {
+            Context.SetSafePosition(hit.point);
+            return true;
+        }
+            
+        // If it's too high or too far away, we want to check a smaller box
+        position = defaultValues.Position;
+        size = defaultValues.Size;
+        rotation = defaultValues.Rotation;
+            
+        position.y = hit.point.y;
+            
+        // Smaller cast to see if we get better results
+        if (!Physics.BoxCast(position, size, Vector3.down, out var heightHit, rotation,
+                (Context.StepHeight * 2f) + size.y,
+                Context.GroundLayers))
+            return false;
+            
+        var highClosestPoint = heightHit.collider.ClosestPoint(footPos);
+        // Check if the new height is reachable
+        if (!CalculateIntersectionPoint(otherFootPos, Context.StepLength,
+                highClosestPoint + Vector3.down, Vector3.up, out highestPoint))
+            return false;
+            
+        height = heightHit.point.y;
+        highest = highestPoint.y - footSize;
+            
+        // If it has space, we check if it is too low before returning true
+        if (highest < height)
+            return false;
+            
+        if (!CalculateIntersectionPoint(otherFootPos, Context.StepLength,
+                highClosestPoint + Vector3.up, Vector3.down, out highestPoint))
+            return false;
+            
+        var lowest = highestPoint.y + footSize;
+        if (lowest > height)
+            return false;
+            
+        Context.SetSafePosition(heightHit.point);
+        return true;
     }
 
     private Vector3 GetOffsetPosition(Vector3 otherFootPos, float wantedHeight, float dist)

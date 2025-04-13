@@ -90,7 +90,8 @@ public class FootControlContext
     public MovementSettings MovementSettings => _movementSettings;
     public MovementSettings PlacementSettings => _placementSettings;
     
-    public Vector3 LastSafePosition { get; set; }
+    public Vector3 LastSafePosition { get; private set; }
+    public Vector3 OldSafePosition { get; private set; }
     
     // Private methods
     private IKEffector GetEffector()
@@ -225,6 +226,17 @@ public class FootControlContext
             return false;
         
         return true;
+    }
+    
+    public void SetSafePosition(Vector3 position)
+    {
+        // If the distance is great enough, we set the old safe position as well
+        var dist = Vector3.Distance(position, OldSafePosition);
+        if (dist is > 0.55f or < 0.1f)
+            OldSafePosition = LastSafePosition;
+        
+        // Set the last safe position to the current one
+        LastSafePosition = position;
     }
     
     public float RelativeDistanceInDirection(Vector3 from, Vector3 to, Vector3 direction)
