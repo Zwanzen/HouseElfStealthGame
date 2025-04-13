@@ -19,6 +19,7 @@ public class InputManager : MonoBehaviour
     private bool _isHoldingRMB;
 
     private bool _isLifting;
+    private bool _isRunning;
 
 
     // Read-only
@@ -28,6 +29,7 @@ public class InputManager : MonoBehaviour
     public bool IsHoldingLMB => _isHoldingLMB;
     public bool IsHoldingRMB => _isHoldingRMB;
     public bool IsLifting => _isLifting;
+    public bool IsRunning => _isRunning;
 
     private void Awake()
     {
@@ -101,6 +103,9 @@ public class InputManager : MonoBehaviour
             _inputActions.Player.Lift.canceled += OnLift;
             
             _inputActions.Player.Interact.performed += i => OnInteract?.Invoke();
+            
+            _inputActions.Player.Sprint.performed += i => _isRunning = i.ReadValueAsButton();
+            _inputActions.Player.Sprint.canceled += i => _isRunning = i.ReadValueAsButton();
         }
 
         _inputActions.Enable();

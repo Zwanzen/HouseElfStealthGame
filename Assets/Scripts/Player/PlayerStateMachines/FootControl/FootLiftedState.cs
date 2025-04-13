@@ -13,18 +13,21 @@ public class FootLiftedState : FootControlState
         if (!Context.IsFootLifting)
             return FootControlStateMachine.EFootState.Placing;
         
-        if (GetDistanceFromOtherFoot() > Context.StepLength && Context.BothInputsPressed)
+        if (_readyToPlace && (Context.BothInputsPressed || InputManager.Instance.IsRunning))
             return FootControlStateMachine.EFootState.Placing;
         
         return StateKey;
     }
 
     private Vector3 _storedPos;
+    private Vector3 _startInput;
     
     public override void EnterState()
     {
         // get the start angle
         _startAngle = Context.Foot.Target.transform.localRotation.x;
+        _readyToPlace = false;
+        _startInput = Vector3.zero;
     }
 
     public override void ExitState()
@@ -39,15 +42,33 @@ public class FootLiftedState : FootControlState
     public override void UpdateState()
     {
         _liftTimer += Time.deltaTime;
+        
+        if(_startInput == Vector3.zero)
+            if(Context.Player.RelativeMoveInput != Vector3.zero)
+                _startInput = Context.Player.RelativeMoveInput;
+
+        if (_startInput != Vector3.zero)
+        {
+            var dot = Vector3.Dot(_startInput, Context.Player.RelativeMoveInput);
+            _inputChanged = dot < 0.9f;
+        }
+        
     }
+    
+    private bool _inputChanged;
+    private bool _readyToPlace;
 
     public override void FixedUpdateState()
     {
         var footPos = Context.Foot.Target.position;
         var otherFootPos = Context.OtherFoot.Target.position;
         var input = Context.Player.RelativeMoveInput;
+
+        var running = InputManager.Instance.IsRunning;
+        if (running)
+            input = Context.Player.Camera.GetCameraYawTransform().forward;
         
-        var baseFootLiftedHeight = 0.15f;
+        var baseFootLiftedHeight = running ? 0.27f : 0.15f;
         var wantedHeight = otherFootPos.y + baseFootLiftedHeight;
         
         // Depending on obstacles, we want to move the foot up
@@ -119,7 +140,17 @@ public class FootLiftedState : FootControlState
         }
         */
 
-        RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, pos, Context.MovementSettings);
+        var dirMag = (pos - footPos).magnitude;
+        if(input != Vector3.zero && (dirMag < 0.02f || (dirMag < 0.05f && _inputChanged)))
+            _readyToPlace = true;
+        else
+            _readyToPlace = false;
+
+        var settings = Context.MovementSettings;
+        if (InputManager.Instance.IsRunning)
+            settings = Context.PlacementSettings;
+        
+        RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, pos, settings);
 
         HandleFootRotation();
     }
@@ -385,18 +416,5 @@ public class FootLiftedState : FootControlState
         footForward.Normalize();
 
         RigidbodyMovement.RotateRigidbody(Context.Foot.Target, footForward, 350f);
-    }
-    
-    private float GetDistanceFromOtherFoot()
-    {
-        var footPos = Context.Foot.Target.position;
-        var otherFootPos = Context.OtherFoot.Target.position;
-
-        footPos.y = 0f;
-        otherFootPos.y = 0f;
-        
-        var dist = Context.RelativeDistanceInDirection(otherFootPos, footPos, Context.Player.RelativeMoveInput.normalized);
-        
-        return dist;
     }
 }

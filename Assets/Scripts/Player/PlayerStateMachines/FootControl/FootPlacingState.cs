@@ -53,7 +53,10 @@ public class FootPlacingState : FootControlState
     private void MoveToGround()
     {
         var dir = Vector3.down;
+        if (InputManager.Instance.IsRunning)
+            dir += Context.Player.Camera.GetCameraYawTransform().forward;
         var settingsToUse = Context.MovementSettings;
+        /*
         if (!_validPlacement)
         {
             dir = Vector3.down + Context.Foot.Target.position; // dirPos
@@ -81,7 +84,7 @@ public class FootPlacingState : FootControlState
             RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, dir, settingsToUse);
             return;
         }
-
+        */
         /*
         // Check if the foot is stuck on a ledge
         if (Context.CheckStuckOnLedge(out var stuckHit) && !Context.IsFootGrounded && _validPlacement)
@@ -100,6 +103,9 @@ public class FootPlacingState : FootControlState
         var magLerp = mag / breakDistance;
         dir.Normalize();
         dir *= Context.SpeedCurve.Evaluate(magLerp);
+        
+        if (InputManager.Instance.IsRunning)
+            settingsToUse = Context.PlacementSettings;
         
         RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dir, settingsToUse);
     }

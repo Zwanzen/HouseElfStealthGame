@@ -75,7 +75,7 @@ public class FootControlContext
     public PlayerFootSoundPlayer FootSoundPlayer => _footSoundPlayer;
     public Foot Foot => _foot;
     public Foot OtherFoot => _otherFoot;
-    public float StepLength => _stepLength;
+    public float StepLength => InputManager.Instance.IsRunning ? _stepLength * 1.2f : _stepLength;
     public float StepHeight => _stepLength;
     public LayerMask GroundLayers => _groundLayers;
     public Vector3 FootPlaceOffset =>  Vector3.up * 0.05f;
@@ -143,10 +143,12 @@ public class FootControlContext
     {
         var LMB = InputManager.Instance.IsHoldingLMB;
         var RMB = InputManager.Instance.IsHoldingRMB;
+        var running = InputManager.Instance.IsRunning;
         var otherPlanted = OtherFoot.SM.State == FootControlStateMachine.EFootState.Planted;
-        if(LMB && Foot.Side == Foot.EFootSide.Left && otherPlanted)
+        var otherPlacing = OtherFoot.SM.State == FootControlStateMachine.EFootState.Placing;
+        if((LMB || running) && Foot.Side == Foot.EFootSide.Left && (otherPlanted || (otherPlacing && running)))
             return true;
-        if(RMB && Foot.Side == Foot.EFootSide.Right && otherPlanted)
+        if((RMB || running) && Foot.Side == Foot.EFootSide.Right && (otherPlanted || (otherPlacing && running)))
             return true;
         return false;
     }

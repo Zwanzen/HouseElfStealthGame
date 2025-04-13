@@ -94,7 +94,7 @@ public class PlayerControlContext
         var otherFootPos = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot.Target.position: _leftFoot.Target.position;
 
         // If the lifted foot is not below the other foot, we don't want height influence
-        var shouldCare = liftedFootPos.y < otherFootPos.y + 0.10f;
+        var shouldCare = liftedFootPos.y < otherFootPos.y + 0.10f && isLifting;
         if (!shouldCare)
             liftedFootPos.y = otherFootPos.y;
         
@@ -135,10 +135,27 @@ public class PlayerControlContext
         // Find out what foot is lifting
         var leftLift = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted;
         var rightLift = _rightFoot.SM.State == FootControlStateMachine.EFootState.Lifted;
-
+        
+        var running = InputManager.Instance.IsRunning;
+        
+        var dir = _player.Rigidbody.transform.forward;
+        
         var dist = Vector3.Distance(_leftFoot.Target.position, _rightFoot.Target.position);
         var start = _player.StepLength * 0.7f;
 
+        if (running)
+        {
+            // A number between -stepLength and stepLength
+            var relDist = RelativeDistanceInDirection(_leftFoot.Target.position, _rightFoot.Target.position, dir);
+            // Create a lerp between -stepLength and stepLength
+            var lerp = relDist / _player.StepLength;
+            // Make it between 0 and 1
+            lerp = (lerp + 1) / 2;
+            // Use the lerp to return a value
+            Debug.Log(lerp);
+            return Mathf.Lerp(0.2f,0.8f, lerp);
+        }
+        
         if (leftLift)
         {
             var lerp = dist - start;
@@ -154,6 +171,13 @@ public class PlayerControlContext
         }
 
         return 0.5f;
+    }
+    
+    public float RelativeDistanceInDirection(Vector3 from, Vector3 to, Vector3 direction)
+    {
+        var fromTo = to - from;
+        var dot = Vector3.Dot(direction.normalized, fromTo.normalized);
+        return fromTo.magnitude * dot;
     }
     
     public void UpdateBodyRotation(Vector3 direction)
