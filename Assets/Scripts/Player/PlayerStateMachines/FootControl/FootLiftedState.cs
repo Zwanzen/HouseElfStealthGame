@@ -143,13 +143,16 @@ public class FootLiftedState : FootControlState
         }
         */
         
-        if (Context.RelativeDistanceInDirection(otherFootPos, footPos, Context.Player.Rigidbody.transform.forward) >
+        var runDir = running ? Context.Player.Camera.GetCameraYawTransform().forward : input.normalized;
+        
+        if (Context.RelativeDistanceInDirection(otherFootPos, footPos, runDir) >
             0f)
         {
+            var dist = running ?  Context.StepLength * 0.5f : 0.05f;
             CalculateIntersectionPoint(otherFootPos, Context.StepLength * 0.9f, otherFootPos, (footPos - otherFootPos).normalized,
                 out var otherFootIntersect);
-            Debug.DrawRay(otherFootIntersect, otherFootPos, Color.red);
-            if(Vector3.Distance(otherFootIntersect, otherFootPos) > Context.StepLength * 0.9f)
+            Debug.DrawLine(otherFootPos, otherFootIntersect, Color.red);
+            if(Vector3.Distance(otherFootIntersect, footPos) < dist)
                 _readyToPlace = true;
         }
                 
