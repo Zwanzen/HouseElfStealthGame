@@ -157,7 +157,7 @@ public class PlayerControlContext
             // A number between -stepLength and stepLength
             var relDist = RelativeDistanceInDirection(_leftFoot.Target.position, _rightFoot.Target.position, dir);
             // Create a lerp between -stepLength and stepLength
-            var lerp = relDist / _player.StepLength;
+            var lerp = relDist / _player.StepLength * 0.4f;
             // Make it between 0 and 1
             lerp = (lerp + 1) / 2;
             // Use the lerp to return a value
