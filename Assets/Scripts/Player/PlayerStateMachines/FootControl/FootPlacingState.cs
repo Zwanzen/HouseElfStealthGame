@@ -54,7 +54,7 @@ public class FootPlacingState : FootControlState
     {
         var dir = Vector3.down;
         if (InputManager.Instance.IsRunning)
-            dir += Context.Player.Camera.GetCameraYawTransform().forward;
+            dir += Context.Player.Camera.GetCameraYawTransform().forward * 2f;
         var settingsToUse = Context.MovementSettings;
         /*
         if (!_validPlacement)

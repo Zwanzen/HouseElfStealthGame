@@ -1,4 +1,5 @@
 using RootMotion.Dynamics;
+using UnityEditor.Rendering.LookDev;
 using UnityEngine;
 using static RigidbodyMovement;
 
@@ -152,8 +153,7 @@ public class PlayerControlContext
             // Make it between 0 and 1
             lerp = (lerp + 1) / 2;
             // Use the lerp to return a value
-            Debug.Log(lerp);
-            return Mathf.Lerp(0.2f,0.8f, lerp);
+            return Mathf.Lerp(0.15f,0.85f, lerp);
         }
         
         if (leftLift)
@@ -182,11 +182,16 @@ public class PlayerControlContext
     
     public void UpdateBodyRotation(Vector3 direction)
     {
+        /*
         if (direction == Vector3.zero)
         {
             return;
         }
-
+        */
+        
+        if(direction == Vector3.zero)
+            direction = _player.Camera.GetCameraYawTransform().forward;
+        
         // Other direction
         var otherDir = _player.RelativeMoveInput;
         // Get the dot between camera and other direction
@@ -212,7 +217,8 @@ public class PlayerControlContext
             return;
         
         // Rotate the body towards the direction
-        RotateRigidbody(_player.Rigidbody, dir, 200f);
+        var speed = InputManager.Instance.IsRunning ? 800f : 200f;
+        RotateRigidbody(_player.Rigidbody, dir, speed);
     }
 
     

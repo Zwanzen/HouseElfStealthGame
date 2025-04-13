@@ -36,7 +36,9 @@ public class FootLiftedState : FootControlState
         Context.FootSoundPlayer.MakeFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
         
         // Set the xz velocity to 0
-        Context.Foot.Target.linearVelocity = new Vector3(0f, Context.Foot.Target.linearVelocity.y, 0f);
+        if(!InputManager.Instance.IsRunning)
+            Context.Foot.Target.linearVelocity = new Vector3(0f, Context.Foot.Target.linearVelocity.y, 0f);
+
     }
 
     public override void UpdateState()
@@ -106,7 +108,8 @@ public class FootLiftedState : FootControlState
         var maxHeight = wantedHeight - otherFootPos.y;
         // Doesn't start to lerp until we are 50% of the way to the max height
         var posLerp = currentHeight / maxHeight;
-        var pos = Vector3.Lerp(wantedHeightPos, wantedPos, Context.HeightCurve.Evaluate(posLerp));
+        posLerp = running ? posLerp : Context.HeightCurve.Evaluate(posLerp);
+        var pos = Vector3.Lerp(wantedHeightPos, wantedPos, posLerp);
         
         // *** TEMP ***
         // If the wanted height is downwards, we dont care to lerp
@@ -139,12 +142,17 @@ public class FootLiftedState : FootControlState
             settings.MaxSpeed *= settingsMaxSpeed;
         }
         */
-
-        var dirMag = (pos - footPos).magnitude;
-        if(input != Vector3.zero && (dirMag < 0.02f || (dirMag < 0.05f && _inputChanged)))
-            _readyToPlace = true;
-        else
-            _readyToPlace = false;
+        
+        if (Context.RelativeDistanceInDirection(otherFootPos, footPos, Context.Player.Rigidbody.transform.forward) >
+            0f)
+        {
+            CalculateIntersectionPoint(otherFootPos, Context.StepLength * 0.9f, otherFootPos, (footPos - otherFootPos).normalized,
+                out var otherFootIntersect);
+            Debug.DrawRay(otherFootIntersect, otherFootPos, Color.red);
+            if(Vector3.Distance(otherFootIntersect, otherFootPos) > Context.StepLength * 0.9f)
+                _readyToPlace = true;
+        }
+                
 
         var settings = Context.MovementSettings;
         if (InputManager.Instance.IsRunning)
@@ -353,11 +361,13 @@ public class FootLiftedState : FootControlState
     private void HandleFootRotation()
     {
         var isMoving = InputManager.Instance.MoveInput.magnitude > 0.01f;
+        var running = InputManager.Instance.IsRunning;
         if (isMoving)
         {
             // *** TODO ***
             // We need to change the speed it rotates, or clamp the max so it doesn't rotate too fast with small movements
-            _storedInput = Vector3.MoveTowards(_storedInput, Context.Player.RelativeMoveInput.normalized, Time.fixedDeltaTime * 2.5f);
+            var speed1 = running ? 10f : 2.5f;
+            _storedInput = Vector3.MoveTowards(_storedInput, Context.Player.RelativeMoveInput.normalized, Time.fixedDeltaTime * speed1);
             _dot = Vector3.Dot(Context.Player.Camera.GetCameraYawTransform().forward.normalized, _storedInput.normalized);
             _storedCamAngle= Context.Player.Camera.CameraX;
         }
@@ -415,6 +425,7 @@ public class FootLiftedState : FootControlState
         var footForward = Quaternion.AngleAxis(lerpAngle, _right) * _forward;
         footForward.Normalize();
 
-        RigidbodyMovement.RotateRigidbody(Context.Foot.Target, footForward, 350f);
+        var speed2 = running ? 800f : 350f;
+        RigidbodyMovement.RotateRigidbody(Context.Foot.Target, footForward, speed2);
     }
 }

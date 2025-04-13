@@ -29,8 +29,9 @@ public class InputManager : MonoBehaviour
     public bool IsHoldingLMB => _isHoldingLMB;
     public bool IsHoldingRMB => _isHoldingRMB;
     public bool IsLifting => _isLifting;
-    public bool IsRunning => _isRunning;
-
+    public bool IsRunning => _isRunning && MoveInput == Vector3.forward;
+    
+    
     private void Awake()
     {
         if (Instance == null)
