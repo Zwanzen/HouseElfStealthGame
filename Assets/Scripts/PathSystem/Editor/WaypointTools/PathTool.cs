@@ -4,6 +4,8 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+// COPILOT
+
 public class PathTool : EditorWindow
 {
     [MenuItem("Tools/PathTool")]
@@ -33,23 +35,31 @@ public class PathTool : EditorWindow
         if (_selectedPath == null || _selectedPath.Waypoints == null)
             return;
 
+        // Colors to use
+        Color lineColor = Color.cyan;
+        Color loopLineColor = new Color(1f, 0.5f, 1f);
+        Color directionHandleColor = Color.yellow;
+        Color stopColor = new Color(1f, 0.5f, 0f);
+        Color animationColor = new Color(0, 1f, 0.5f);
+        Color selectedColor = Color.white;
+
         Event e = Event.current;
         bool isHandleHot = GUIUtility.hotControl != 0;
         int directionHandleId = -1;  // Will store the direction handle's control ID
-        
+
         // Add F key focus functionality
-        if (e.type == EventType.KeyDown && e.keyCode == KeyCode.F && 
+        if (e.type == EventType.KeyDown && e.keyCode == KeyCode.F &&
             _selectedWaypointIndex >= 0 && _selectedWaypointIndex < _selectedPath.Waypoints.Length)
         {
             Vector3 focusPoint = _selectedPath.Waypoints[_selectedWaypointIndex].Point;
-        
+
             // Frame the selected waypoint
             sceneView.Frame(new Bounds(focusPoint, Vector3.one * 3f), false);
-        
+
             // Consume the event
             e.Use();
         }
-        
+
         // Draw lines between waypoints if we have at least 2
         if (_selectedPath.Waypoints.Length >= 2)
         {
@@ -62,9 +72,9 @@ public class PathTool : EditorWindow
                 float distance = Vector3.Distance(startPoint, endPoint);
 
                 // Draw main line
-                Handles.color = Color.cyan;
+                Handles.color = lineColor;
                 Handles.DrawLine(startPoint, endPoint, 2f);
-                
+
                 // If path is looped, show direction indicator on all segments
                 if (_selectedPath.IsLoop && distance > 0.1f)
                 {
@@ -72,7 +82,7 @@ public class PathTool : EditorWindow
                     float arrowSize = HandleUtility.GetHandleSize(midPoint) * 0.2f;
 
                     // Draw arrow at the midpoint
-                    Handles.color = new Color(0.4f, 1f, 1f); // Brighter cyan
+                    Handles.color = lineColor;
                     Handles.DrawLine(midPoint, midPoint - direction * arrowSize + Vector3.Cross(Vector3.up, direction).normalized * arrowSize * 0.5f, 2f);
                     Handles.DrawLine(midPoint, midPoint - direction * arrowSize - Vector3.Cross(Vector3.up, direction).normalized * arrowSize * 0.5f, 2f);
                 }
@@ -87,7 +97,7 @@ public class PathTool : EditorWindow
                 float distance = Vector3.Distance(lastPoint, firstPoint);
 
                 // Draw main loop line
-                Handles.color = new Color(0.8f, 0.8f, 1f);
+                Handles.color = loopLineColor;
                 Handles.DrawLine(lastPoint, firstPoint, 2f);
 
                 // Draw direction indicator for loop line
@@ -97,28 +107,34 @@ public class PathTool : EditorWindow
                     float arrowSize = HandleUtility.GetHandleSize(midPoint) * 0.2f;
 
                     // Draw arrow at the midpoint
-                    Handles.color = new Color(0.9f, 0.9f, 1f); // Brighter for visibility
+                    Handles.color = loopLineColor;
                     Handles.DrawLine(midPoint, midPoint - direction * arrowSize + Vector3.Cross(Vector3.up, direction).normalized * arrowSize * 0.5f, 2f);
                     Handles.DrawLine(midPoint, midPoint - direction * arrowSize - Vector3.Cross(Vector3.up, direction).normalized * arrowSize * 0.5f, 2f);
                 }
             }
         }
-        
+
         // Draw direction indicators for all waypoints with HasStop and HasDirection
         for (int i = 0; i < _selectedPath.Waypoints.Length; i++)
         {
             Waypoint waypoint = _selectedPath.Waypoints[i];
             if (waypoint.HasStop && waypoint.HasDirection)
             {
-                // Use white for selected waypoint's direction arrow, orange for others
-                Handles.color = (i == _selectedWaypointIndex) ? Color.white : new Color(1f, 0.5f, 0f);
+                // Set color based on waypoint state
+                if (i == _selectedWaypointIndex)
+                    Handles.color = selectedColor;
+                else if (waypoint.HasAnimation)
+                    Handles.color = animationColor;
+                else
+                    Handles.color = stopColor;
+
                 Vector3 waypointPos = waypoint.Point;
                 Vector3 direction = waypoint.Direction.normalized;
-            
+
                 // Scale direction arrow by handle size
                 float handleSize = HandleUtility.GetHandleSize(waypointPos);
                 float arrowLength = handleSize;
-            
+
                 // Draw direction arrow with consistent size
                 Handles.DrawLine(waypointPos, waypointPos + direction * arrowLength, 2f);
 
@@ -148,12 +164,12 @@ public class PathTool : EditorWindow
                     sceneView.Repaint();
                 }
             }
-    
+
             // Add direction handle for selected waypoint first to get its control ID
             if (_selectedPath.Waypoints[_selectedWaypointIndex].HasDirection &&
                 _selectedPath.Waypoints[_selectedWaypointIndex].HasStop)
             {
-                Handles.color = Color.yellow;
+                Handles.color = directionHandleColor;
                 Vector3 waypointPos = _selectedPath.Waypoints[_selectedWaypointIndex].Point;
                 Vector3 direction = _selectedPath.Waypoints[_selectedWaypointIndex].Direction.normalized;
                 float handleSize = HandleUtility.GetHandleSize(waypointPos);
@@ -164,7 +180,7 @@ public class PathTool : EditorWindow
 
                 // Generate a unique control ID for the direction handle
                 directionHandleId = GUIUtility.GetControlID(FocusType.Passive);
-                
+
                 EditorGUI.BeginChangeCheck();
                 // Scale disc size by handle size for consistent appearance
                 Quaternion newRotation = Handles.Disc(directionHandleId, currentRotation, waypointPos, Vector3.up, handleSize, false, 10f);
@@ -204,7 +220,7 @@ public class PathTool : EditorWindow
                 }
             }
         }
-        
+
         // Draw clickable dots for all waypoints with consistent size
         for (int i = 0; i < _selectedPath.Waypoints.Length; i++)
         {
@@ -214,16 +230,18 @@ public class PathTool : EditorWindow
 
             // Set color based on waypoint state
             if (i == _selectedWaypointIndex)
-                Handles.color = Color.white;
+                Handles.color = selectedColor;
+            else if (waypoint.HasAnimation)
+                Handles.color = animationColor;
             else if (waypoint.HasStop)
-                Handles.color = new Color(1f, 0.5f, 0f);
+                Handles.color = stopColor;
             else
-                Handles.color = Color.cyan;
+                Handles.color = lineColor;
 
             // Use consistent size based on handle size
             float dotSize = (i == _selectedWaypointIndex ? 0.1f : 0.07f) * handleSize;
 
-            // Draw dot with consistent size (Selection handling moved to the beginning of the method)
+            // Draw dot with consistent size
             Handles.DotHandleCap(
                 0,
                 waypointPos,
@@ -235,8 +253,8 @@ public class PathTool : EditorWindow
             // Draw label with consistent size
             Handles.Label(waypointPos + Vector3.up * handleSize * 0.3f, $"Waypoint {i+1}");
         }
-        
-        // Display stop time for waypoints with HasStop enabled
+
+        // Display stop time & animations for relevant waypoints
         for (int i = 0; i < _selectedPath.Waypoints.Length; i++)
         {
             Waypoint waypoint = _selectedPath.Waypoints[i];
@@ -244,21 +262,26 @@ public class PathTool : EditorWindow
             {
                 Vector3 waypointPos = waypoint.Point;
                 float handleSize = HandleUtility.GetHandleSize(waypointPos);
-        
+
                 // Position the time text below the waypoint number
                 Vector3 timePos = waypointPos + Vector3.up * handleSize * 0.5f;
-        
+
                 // Set the color - use the same color as the waypoint for consistency
-                Handles.color = (i == _selectedWaypointIndex) ? Color.white : new Color(1f, 0.5f, 0f);
-        
+                if(i == _selectedWaypointIndex)
+                    Handles.color = selectedColor;
+                else if (waypoint.HasAnimation)
+                    Handles.color = animationColor;
+                else
+                    Handles.color = stopColor;
+
                 // Draw stopwatch icon with time value
                 string timeLabel = $"◷ {waypoint.StopTime:F1}s";
                 Handles.Label(timePos, timeLabel);
-        
+
                 // Draw a clock visualization - a circle with a radius based on stop time
                 float circleRadius = handleSize * 0.15f;
                 Handles.DrawWireDisc(waypointPos, Vector3.up, circleRadius);
-        
+
                 // Draw a "hand" on the clock
                 float angle = 90 - (waypoint.StopTime % 12) * 30; // 30 degrees per "hour"
                 Vector3 hand = new Vector3(
@@ -266,11 +289,28 @@ public class PathTool : EditorWindow
                     0,
                     Mathf.Sin(angle * Mathf.Deg2Rad)
                 ) * circleRadius * 0.8f;
-        
+
                 Handles.DrawLine(waypointPos, waypointPos + hand, 2f);
             }
+
+            // Display animation type for waypoints with HasAnimation enabled
+            if (waypoint.HasAnimation)
+            {
+                Vector3 waypointPos = waypoint.Point;
+                float handleSize = HandleUtility.GetHandleSize(waypointPos);
+
+                // Position the animation text below the waypoint (or below stopwatch if present)
+                Vector3 animPos = waypointPos + Vector3.up * handleSize * (waypoint.HasStop ? 0.7f : 0.5f);
+
+                // Set color - green for consistency with the waypoint color
+                Handles.color = (i == _selectedWaypointIndex) ? selectedColor : animationColor;
+
+                // Draw animation type label
+                string animLabel = $"⚡ {waypoint.Animation}";
+                Handles.Label(animPos, animLabel);
+            }
         }
-        
+
         // Prevent selection of scene objects when clicking
         if (e.type == EventType.MouseDown && e.button == 0 && !isHandleHot)
         {
@@ -301,7 +341,6 @@ public class PathTool : EditorWindow
             }
         }
     }
-    
     public void CreateGUI()
     {
         _root = rootVisualElement;
@@ -488,27 +527,71 @@ public class PathTool : EditorWindow
             // Hide or show direction field based on both HasStop and HasDirection
             directionField.style.display = (waypoint.HasStop && waypoint.HasDirection) ? DisplayStyle.Flex : DisplayStyle.None;
             selectedWaypointBox.Add(directionField);
+            
+            // Has Animation toggle
+            Toggle hasAnimationToggle = new Toggle("Has Animation");
+            hasAnimationToggle.value = waypoint.HasAnimation;
+            // Initially hide or show based on HasStop value
+            hasAnimationToggle.style.display = waypoint.HasStop ? DisplayStyle.Flex : DisplayStyle.None;
+            selectedWaypointBox.Add(hasAnimationToggle);
+
+            // Animation type field
+            EnumField animationTypeField = new EnumField("Animation Type", waypoint.Animation);
+            animationTypeField.style.display = (waypoint.HasStop && waypoint.HasAnimation) ? DisplayStyle.Flex : DisplayStyle.None;
+            selectedWaypointBox.Add(animationTypeField);
+
+            // Register HasAnimation toggle callback
+            hasAnimationToggle.RegisterValueChangedCallback(evt => {
+                var waypoints = _selectedPath.Waypoints;
+                waypoints[_selectedWaypointIndex].HasAnimation = evt.newValue;
+                _selectedPath.Waypoints = waypoints;
+                animationTypeField.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
+                EditorUtility.SetDirty(_selectedPath);
+                SceneView.RepaintAll();
+            });
+
+            // Register AnimationType field callback
+            animationTypeField.RegisterValueChangedCallback(evt => {
+                var waypoints = _selectedPath.Waypoints;
+                waypoints[_selectedWaypointIndex].Animation = (Waypoint.AnimationType)evt.newValue;
+                _selectedPath.Waypoints = waypoints;
+                EditorUtility.SetDirty(_selectedPath);
+                SceneView.RepaintAll();
+            });
 
             // Register HasStop toggle callback
             hasStopToggle.RegisterValueChangedCallback(evt => {
                 var waypoints = _selectedPath.Waypoints;
                 waypoints[_selectedWaypointIndex].HasStop = evt.newValue;
 
-                // If HasStop is turned off, also disable HasDirection
-                if (!evt.newValue && waypoints[_selectedWaypointIndex].HasDirection)
+                // If HasStop is turned off, also disable HasDirection and HasAnimation
+                if (!evt.newValue)
                 {
-                    waypoints[_selectedWaypointIndex].HasDirection = false;
-                    hasDirectionToggle.value = false;
+                    if (waypoints[_selectedWaypointIndex].HasDirection)
+                    {
+                        waypoints[_selectedWaypointIndex].HasDirection = false;
+                        hasDirectionToggle.value = false;
+                    }
+        
+                    if (waypoints[_selectedWaypointIndex].HasAnimation)
+                    {
+                        waypoints[_selectedWaypointIndex].HasAnimation = false;
+                        hasAnimationToggle.value = false;
+                    }
                 }
 
                 // Update UI visibility
                 stopTimeField.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
                 hasDirectionToggle.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
-                directionField.style.display = (evt.newValue && waypoints[_selectedWaypointIndex].HasDirection) ? 
+                hasAnimationToggle.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
+                directionField.style.display = (evt.newValue && waypoints[_selectedWaypointIndex].HasDirection) ?
+                    DisplayStyle.Flex : DisplayStyle.None;
+                animationTypeField.style.display = (evt.newValue && waypoints[_selectedWaypointIndex].HasAnimation) ?
                     DisplayStyle.Flex : DisplayStyle.None;
 
                 _selectedPath.Waypoints = waypoints;
                 EditorUtility.SetDirty(_selectedPath);
+                SceneView.RepaintAll();
             });
 
             // Register HasDirection toggle callback
