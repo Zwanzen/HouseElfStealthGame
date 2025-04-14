@@ -53,21 +53,54 @@ public class PathTool : EditorWindow
         // Draw lines between waypoints if we have at least 2
         if (_selectedPath.Waypoints.Length >= 2)
         {
-            Handles.color = Color.cyan;
+            // Draw regular path segments
             for (int i = 0; i < _selectedPath.Waypoints.Length - 1; i++)
             {
                 Vector3 startPoint = _selectedPath.Waypoints[i].Point;
                 Vector3 endPoint = _selectedPath.Waypoints[i + 1].Point;
+                Vector3 direction = (endPoint - startPoint).normalized;
+                float distance = Vector3.Distance(startPoint, endPoint);
+
+                // Draw main line
+                Handles.color = Color.cyan;
                 Handles.DrawLine(startPoint, endPoint, 2f);
+                
+                // If path is looped, show direction indicator on all segments
+                if (_selectedPath.IsLoop && distance > 0.1f)
+                {
+                    Vector3 midPoint = startPoint + direction * (distance * 0.5f);
+                    float arrowSize = HandleUtility.GetHandleSize(midPoint) * 0.2f;
+
+                    // Draw arrow at the midpoint
+                    Handles.color = new Color(0.4f, 1f, 1f); // Brighter cyan
+                    Handles.DrawLine(midPoint, midPoint - direction * arrowSize + Vector3.Cross(Vector3.up, direction).normalized * arrowSize * 0.5f, 2f);
+                    Handles.DrawLine(midPoint, midPoint - direction * arrowSize - Vector3.Cross(Vector3.up, direction).normalized * arrowSize * 0.5f, 2f);
+                }
             }
-        
+
             // Draw loop line if enabled
             if (_selectedPath.IsLoop && _selectedPath.Waypoints.Length > 2)
             {
                 Vector3 lastPoint = _selectedPath.Waypoints[^1].Point;
                 Vector3 firstPoint = _selectedPath.Waypoints[0].Point;
-                Handles.color = new Color(0.8f, 0.8f, 1f); // Slightly different color for loop line
+                Vector3 direction = (firstPoint - lastPoint).normalized;
+                float distance = Vector3.Distance(lastPoint, firstPoint);
+
+                // Draw main loop line
+                Handles.color = new Color(0.8f, 0.8f, 1f);
                 Handles.DrawLine(lastPoint, firstPoint, 2f);
+
+                // Draw direction indicator for loop line
+                if (distance > 0.1f)
+                {
+                    Vector3 midPoint = lastPoint + direction * (distance * 0.5f);
+                    float arrowSize = HandleUtility.GetHandleSize(midPoint) * 0.2f;
+
+                    // Draw arrow at the midpoint
+                    Handles.color = new Color(0.9f, 0.9f, 1f); // Brighter for visibility
+                    Handles.DrawLine(midPoint, midPoint - direction * arrowSize + Vector3.Cross(Vector3.up, direction).normalized * arrowSize * 0.5f, 2f);
+                    Handles.DrawLine(midPoint, midPoint - direction * arrowSize - Vector3.Cross(Vector3.up, direction).normalized * arrowSize * 0.5f, 2f);
+                }
             }
         }
         
@@ -338,199 +371,242 @@ public class PathTool : EditorWindow
         _root.Add(createPathButton);
     }
 
-private void BuildPathDetailsUI()
-{
-    _root.Clear();
-
-    // Ensure the selectedPath is valid
-    if (_selectedPath == null)
+    private void BuildPathDetailsUI()
     {
-        BuildInitialUI();
-        return;
-    }
+        _root.Clear();
 
-    // Path header
-    Label header = new Label($"Editing Path: {_selectedPath.name}");
-    header.style.fontSize = 16;
-    header.style.marginBottom = 10;
-    _root.Add(header);
+        // Ensure the selectedPath is valid
+        if (_selectedPath == null)
+        {
+            BuildInitialUI();
+            return;
+        }
 
-    // Back button
-    Button backButton = new Button(() => {
-        _selectedPath = null;
-        BuildInitialUI();
-    });
-    backButton.text = "Select Different Path";
-    _root.Add(backButton);
+        // Path header
+        Label header = new Label($"Editing Path: {_selectedPath.name}");
+        header.style.fontSize = 16;
+        header.style.marginBottom = 10;
+        _root.Add(header);
 
-    // Ensure the waypoints array is initialized
-    if (_selectedPath.Waypoints == null)
-    {
-        _selectedPath.Waypoints = Array.Empty<Waypoint>();
-        EditorUtility.SetDirty(_selectedPath);
-    }
+        // Back button
+        Button backButton = new Button(() => {
+            _selectedPath = null;
+            BuildInitialUI();
+        });
+        backButton.text = "Select Different Path";
+        _root.Add(backButton);
 
-    // Is Loop toggle - add this new control
-    Toggle isLoopToggle = new Toggle("Is Loop Path");
-    isLoopToggle.value = _selectedPath.IsLoop;
-    isLoopToggle.tooltip = "When enabled, connects the last waypoint back to the first";
-    isLoopToggle.style.marginTop = 10;
-    isLoopToggle.style.marginBottom = 5;
-    isLoopToggle.RegisterValueChangedCallback(evt => {
-        _selectedPath.IsLoop = evt.newValue;
-        EditorUtility.SetDirty(_selectedPath);
-        SceneView.RepaintAll();
-    });
-    _root.Add(isLoopToggle);
+        // Ensure the waypoints array is initialized
+        if (_selectedPath.Waypoints == null)
+        {
+            _selectedPath.Waypoints = Array.Empty<Waypoint>();
+            EditorUtility.SetDirty(_selectedPath);
+        }
 
-    // Waypoints info section 
-    Label waypointsHeader = new Label($"Waypoints: {_selectedPath.Waypoints?.Length ?? 0}");
-    waypointsHeader.style.unityFontStyleAndWeight = FontStyle.Bold;
-    _root.Add(waypointsHeader);
-
-    // Selected waypoint section
-    if (_selectedWaypointIndex >= 0 && _selectedWaypointIndex < _selectedPath.Waypoints.Length)
-    {
-        // Display selected waypoint details
-        Box selectedWaypointBox = new Box();
-        selectedWaypointBox.style.marginTop = 10;
-        selectedWaypointBox.style.marginBottom = 10;
-        _root.Add(selectedWaypointBox);
-
-        Label selectedLabel = new Label($"Selected: Waypoint {_selectedWaypointIndex + 1}");
-        selectedLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-        selectedWaypointBox.Add(selectedLabel);
-
-        Waypoint waypoint = _selectedPath.Waypoints[_selectedWaypointIndex];
-
-        // Position field
-        Vector3Field positionField = new Vector3Field("Position");
-        positionField.value = waypoint.Point;
-        positionField.RegisterValueChangedCallback(evt => {
-            var waypoints = _selectedPath.Waypoints;
-            waypoints[_selectedWaypointIndex].Point = evt.newValue;
-            _selectedPath.Waypoints = waypoints;
+        // Is Loop toggle - add this new control
+        Toggle isLoopToggle = new Toggle("Is Loop Path");
+        isLoopToggle.value = _selectedPath.IsLoop;
+        isLoopToggle.tooltip = "When enabled, connects the last waypoint back to the first";
+        isLoopToggle.style.marginTop = 10;
+        isLoopToggle.style.marginBottom = 5;
+        isLoopToggle.RegisterValueChangedCallback(evt => {
+            _selectedPath.IsLoop = evt.newValue;
             EditorUtility.SetDirty(_selectedPath);
             SceneView.RepaintAll();
         });
-        selectedWaypointBox.Add(positionField);
-
-        // Has Stop toggle
-        Toggle hasStopToggle = new Toggle("Has Stop");
-        hasStopToggle.value = waypoint.HasStop;
-        selectedWaypointBox.Add(hasStopToggle);
+        _root.Add(isLoopToggle);
         
-        // Stop Time field (only visible when HasStop is true)
-        FloatField stopTimeField = new FloatField("Stop Time (seconds)");
-        stopTimeField.value = waypoint.StopTime;
-        stopTimeField.style.display = waypoint.HasStop ? DisplayStyle.Flex : DisplayStyle.None;
-        selectedWaypointBox.Add(stopTimeField);
+        // Add a Flip Direction button
+        Button flipDirectionButton = new Button(FlipPathDirection);
+        flipDirectionButton.text = "Flip Path Direction";
+        flipDirectionButton.tooltip = "Reverses the order of waypoints (start becomes end)";
+        flipDirectionButton.style.marginTop = 5;
+        flipDirectionButton.style.marginBottom = 10;
+        _root.Add(flipDirectionButton);
 
-        // Register the callback
-        stopTimeField.RegisterValueChangedCallback(evt => {
-            var waypoints = _selectedPath.Waypoints;
-            waypoints[_selectedWaypointIndex].StopTime = Mathf.Max(0, evt.newValue); // Ensure positive value
-            _selectedPath.Waypoints = waypoints;
-            EditorUtility.SetDirty(_selectedPath);
-            SceneView.RepaintAll();
-        });
+        // Waypoints info section 
+        Label waypointsHeader = new Label($"Waypoints: {_selectedPath.Waypoints?.Length ?? 0}");
+        waypointsHeader.style.unityFontStyleAndWeight = FontStyle.Bold;
+        _root.Add(waypointsHeader);
+
+        // Selected waypoint section
+        if (_selectedWaypointIndex >= 0 && _selectedWaypointIndex < _selectedPath.Waypoints.Length)
+        {
+            // Display selected waypoint details
+            Box selectedWaypointBox = new Box();
+            selectedWaypointBox.style.marginTop = 10;
+            selectedWaypointBox.style.marginBottom = 10;
+            _root.Add(selectedWaypointBox);
+
+            Label selectedLabel = new Label($"Selected: Waypoint {_selectedWaypointIndex + 1}");
+            selectedLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+            selectedWaypointBox.Add(selectedLabel);
+
+            Waypoint waypoint = _selectedPath.Waypoints[_selectedWaypointIndex];
+
+            // Position field
+            Vector3Field positionField = new Vector3Field("Position");
+            positionField.value = waypoint.Point;
+            positionField.RegisterValueChangedCallback(evt => {
+                var waypoints = _selectedPath.Waypoints;
+                waypoints[_selectedWaypointIndex].Point = evt.newValue;
+                _selectedPath.Waypoints = waypoints;
+                EditorUtility.SetDirty(_selectedPath);
+                SceneView.RepaintAll();
+            });
+            selectedWaypointBox.Add(positionField);
+
+            // Has Stop toggle
+            Toggle hasStopToggle = new Toggle("Has Stop");
+            hasStopToggle.value = waypoint.HasStop;
+            selectedWaypointBox.Add(hasStopToggle);
+            
+            // Stop Time field (only visible when HasStop is true)
+            FloatField stopTimeField = new FloatField("Stop Time (seconds)");
+            stopTimeField.value = waypoint.StopTime;
+            stopTimeField.style.display = waypoint.HasStop ? DisplayStyle.Flex : DisplayStyle.None;
+            selectedWaypointBox.Add(stopTimeField);
+
+            // Register the callback
+            stopTimeField.RegisterValueChangedCallback(evt => {
+                var waypoints = _selectedPath.Waypoints;
+                waypoints[_selectedWaypointIndex].StopTime = Mathf.Max(0, evt.newValue); // Ensure positive value
+                _selectedPath.Waypoints = waypoints;
+                EditorUtility.SetDirty(_selectedPath);
+                SceneView.RepaintAll();
+            });
+            
+            // Has Direction toggle and direction field
+            Toggle hasDirectionToggle = new Toggle("Has Direction");
+            hasDirectionToggle.value = waypoint.HasDirection;
+            // Initially hide or show based on HasStop value
+            hasDirectionToggle.style.display = waypoint.HasStop ? DisplayStyle.Flex : DisplayStyle.None;
+            selectedWaypointBox.Add(hasDirectionToggle);
+
+            Vector3Field directionField = new Vector3Field("Direction");
+            directionField.value = waypoint.Direction;
+            // Hide or show direction field based on both HasStop and HasDirection
+            directionField.style.display = (waypoint.HasStop && waypoint.HasDirection) ? DisplayStyle.Flex : DisplayStyle.None;
+            selectedWaypointBox.Add(directionField);
+
+            // Register HasStop toggle callback
+            hasStopToggle.RegisterValueChangedCallback(evt => {
+                var waypoints = _selectedPath.Waypoints;
+                waypoints[_selectedWaypointIndex].HasStop = evt.newValue;
+
+                // If HasStop is turned off, also disable HasDirection
+                if (!evt.newValue && waypoints[_selectedWaypointIndex].HasDirection)
+                {
+                    waypoints[_selectedWaypointIndex].HasDirection = false;
+                    hasDirectionToggle.value = false;
+                }
+
+                // Update UI visibility
+                stopTimeField.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
+                hasDirectionToggle.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
+                directionField.style.display = (evt.newValue && waypoints[_selectedWaypointIndex].HasDirection) ? 
+                    DisplayStyle.Flex : DisplayStyle.None;
+
+                _selectedPath.Waypoints = waypoints;
+                EditorUtility.SetDirty(_selectedPath);
+            });
+
+            // Register HasDirection toggle callback
+            hasDirectionToggle.RegisterValueChangedCallback(evt => {
+                var waypoints = _selectedPath.Waypoints;
+                waypoints[_selectedWaypointIndex].HasDirection = evt.newValue;
+                _selectedPath.Waypoints = waypoints;
+                directionField.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
+                EditorUtility.SetDirty(_selectedPath);
+            });
+
+            // Delete button
+            Button deleteButton = new Button(() => RemoveWaypoint(_selectedWaypointIndex));
+            deleteButton.text = "Delete Waypoint";
+            selectedWaypointBox.Add(deleteButton);
+        }
+        else
+        {
+            Label selectPrompt = new Label("Select a waypoint in the Scene view to edit it");
+            selectPrompt.style.marginTop = 10;
+            _root.Add(selectPrompt);
+        }
+
+        // Waypoint navigation buttons
+        Box navigationBox = new Box();
+        navigationBox.style.flexDirection = FlexDirection.Row;
+        _root.Add(navigationBox);
         
-        // Has Direction toggle and direction field
-        Toggle hasDirectionToggle = new Toggle("Has Direction");
-        hasDirectionToggle.value = waypoint.HasDirection;
-        // Initially hide or show based on HasStop value
-        hasDirectionToggle.style.display = waypoint.HasStop ? DisplayStyle.Flex : DisplayStyle.None;
-        selectedWaypointBox.Add(hasDirectionToggle);
-
-        Vector3Field directionField = new Vector3Field("Direction");
-        directionField.value = waypoint.Direction;
-        // Hide or show direction field based on both HasStop and HasDirection
-        directionField.style.display = (waypoint.HasStop && waypoint.HasDirection) ? DisplayStyle.Flex : DisplayStyle.None;
-        selectedWaypointBox.Add(directionField);
-
-        // Register HasStop toggle callback
-        hasStopToggle.RegisterValueChangedCallback(evt => {
-            var waypoints = _selectedPath.Waypoints;
-            waypoints[_selectedWaypointIndex].HasStop = evt.newValue;
-
-            // If HasStop is turned off, also disable HasDirection
-            if (!evt.newValue && waypoints[_selectedWaypointIndex].HasDirection)
-            {
-                waypoints[_selectedWaypointIndex].HasDirection = false;
-                hasDirectionToggle.value = false;
+        Button prevButton = new Button(() => {
+            if (_selectedPath.Waypoints != null && _selectedPath.Waypoints.Length > 0) {
+                _selectedWaypointIndex = (_selectedWaypointIndex <= 0) ? 
+                    _selectedPath.Waypoints.Length - 1 : _selectedWaypointIndex - 1;
+                BuildPathDetailsUI();
+                SceneView.RepaintAll();
             }
+        });
+        prevButton.text = "Previous";
+        navigationBox.Add(prevButton);
+        
+        Button nextButton = new Button(() => {
+            if (_selectedPath.Waypoints != null && _selectedPath.Waypoints.Length > 0) {
+                _selectedWaypointIndex = (_selectedWaypointIndex >= _selectedPath.Waypoints.Length - 1 || _selectedWaypointIndex < 0) ? 
+                    0 : _selectedWaypointIndex + 1;
+                BuildPathDetailsUI();
+                SceneView.RepaintAll();
+            }
+        });
+        nextButton.text = "Next";
+        navigationBox.Add(nextButton);
 
-            // Update UI visibility
-            stopTimeField.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
-            hasDirectionToggle.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
-            directionField.style.display = (evt.newValue && waypoints[_selectedWaypointIndex].HasDirection) ? 
-                DisplayStyle.Flex : DisplayStyle.None;
+        // Add waypoint button
+        Button addWaypointButton = new Button(AddWaypoint);
+        addWaypointButton.text = "Add Waypoint";
+        _root.Add(addWaypointButton);
 
-            _selectedPath.Waypoints = waypoints;
+        // Save changes button
+        Button saveButton = new Button(() => {
+            AssetDatabase.SaveAssets();
             EditorUtility.SetDirty(_selectedPath);
         });
-
-        // Register HasDirection toggle callback
-        hasDirectionToggle.RegisterValueChangedCallback(evt => {
-            var waypoints = _selectedPath.Waypoints;
-            waypoints[_selectedWaypointIndex].HasDirection = evt.newValue;
-            _selectedPath.Waypoints = waypoints;
-            directionField.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
-            EditorUtility.SetDirty(_selectedPath);
-        });
-
-        // Delete button
-        Button deleteButton = new Button(() => RemoveWaypoint(_selectedWaypointIndex));
-        deleteButton.text = "Delete Waypoint";
-        selectedWaypointBox.Add(deleteButton);
+        saveButton.text = "Save Changes";
+        _root.Add(saveButton);
     }
-    else
+
+    private void FlipPathDirection()
     {
-        Label selectPrompt = new Label("Select a waypoint in the Scene view to edit it");
-        selectPrompt.style.marginTop = 10;
-        _root.Add(selectPrompt);
-    }
+        if (_selectedPath == null || _selectedPath.Waypoints == null || _selectedPath.Waypoints.Length <= 1)
+            return;
 
-    // Waypoint navigation buttons
-    Box navigationBox = new Box();
-    navigationBox.style.flexDirection = FlexDirection.Row;
-    _root.Add(navigationBox);
-    
-    Button prevButton = new Button(() => {
-        if (_selectedPath.Waypoints != null && _selectedPath.Waypoints.Length > 0) {
-            _selectedWaypointIndex = (_selectedWaypointIndex <= 0) ? 
-                _selectedPath.Waypoints.Length - 1 : _selectedWaypointIndex - 1;
-            BuildPathDetailsUI();
-            SceneView.RepaintAll();
+        Undo.RecordObject(_selectedPath, "Flip Path Direction");
+        
+        // Create a new array with reversed order
+        Waypoint[] flippedWaypoints = new Waypoint[_selectedPath.Waypoints.Length];
+        
+        for (int i = 0; i < _selectedPath.Waypoints.Length; i++)
+        {
+            // Get the waypoint from the opposite end
+            Waypoint originalWaypoint = _selectedPath.Waypoints[_selectedPath.Waypoints.Length - 1 - i];
+            
+            // Copy the waypoint
+            Waypoint flippedWaypoint = originalWaypoint;
+            
+            flippedWaypoints[i] = flippedWaypoint;
         }
-    });
-    prevButton.text = "Previous";
-    navigationBox.Add(prevButton);
-    
-    Button nextButton = new Button(() => {
-        if (_selectedPath.Waypoints != null && _selectedPath.Waypoints.Length > 0) {
-            _selectedWaypointIndex = (_selectedWaypointIndex >= _selectedPath.Waypoints.Length - 1 || _selectedWaypointIndex < 0) ? 
-                0 : _selectedWaypointIndex + 1;
-            BuildPathDetailsUI();
-            SceneView.RepaintAll();
+        
+        // Update the path
+        _selectedPath.Waypoints = flippedWaypoints;
+        
+        // Update selected waypoint index if one is selected
+        if (_selectedWaypointIndex >= 0)
+        {
+            _selectedWaypointIndex = _selectedPath.Waypoints.Length - 1 - _selectedWaypointIndex;
         }
-    });
-    nextButton.text = "Next";
-    navigationBox.Add(nextButton);
-
-    // Add waypoint button
-    Button addWaypointButton = new Button(AddWaypoint);
-    addWaypointButton.text = "Add Waypoint";
-    _root.Add(addWaypointButton);
-
-    // Save changes button
-    Button saveButton = new Button(() => {
-        AssetDatabase.SaveAssets();
+        
         EditorUtility.SetDirty(_selectedPath);
-    });
-    saveButton.text = "Save Changes";
-    _root.Add(saveButton);
-}
+        BuildPathDetailsUI();
+        SceneView.RepaintAll();
+    }
 
     private void AddWaypoint()
     {
