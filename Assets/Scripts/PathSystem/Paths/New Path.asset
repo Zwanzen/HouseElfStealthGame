@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bb3c7ee65344ac44b011ac33287f000, type: 3}
+  m_Name: New Path
+  m_EditorClassIdentifier: 
+  Waypoints:
+  - Point: {x: 0, y: 0, z: 16.18398}
+    HasStop: 1
+    StopTime: 2
+    HasDirection: 1
+    Direction: {x: 0.22170769, y: 0, z: 0.97511315}
+  - Point: {x: 8.284696, y: 0.00000011920929, z: 13.847843}
+    HasStop: 1
+    StopTime: 5.38
+    HasDirection: 1
+    Direction: {x: 0.97112, y: 0, z: 0.23859173}
+  - Point: {x: 6.91026, y: 0.00000011920929, z: 10.035717}
+    HasStop: 0
+    StopTime: 0
+    HasDirection: 0
+    Direction: {x: 0.99202085, y: 0, z: 0.12607397}
+  IsLoop: 1
