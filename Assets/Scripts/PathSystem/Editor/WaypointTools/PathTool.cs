@@ -104,6 +104,9 @@ public class PathTool : EditorWindow
     // Event handlers
     private void OnPathSelected(NpcPath path)
     {
+        // Clear any currently selected objects in the scene
+        Selection.activeObject = null;
+    
         _selectedPath = path;
         _selectedWaypointIndex = -1;
         BuildPathDetailsUI();

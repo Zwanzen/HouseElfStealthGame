@@ -1,20 +1,22 @@
-﻿using UnityEditor;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using System;
 
 public class PathToolUIBuilder
 {
     // Colors for styling
-    private readonly Color _insertBeforeColor = new Color(0.35f, 0.55f, 0.9f);
-    private readonly Color _insertAfterColor = new Color(0.1f, 0.5f, 0.3f);
-    private readonly Color _headerBgColor = new Color(0.22f, 0.22f, 0.25f);
-    private readonly Color _sectionBgColor = new Color(0.18f, 0.18f, 0.21f);
-    private readonly Color _buttonHoverColor = new Color(0.25f, 0.25f, 0.28f);
-    private readonly Color _primaryActionColor = new Color(0.35f, 0.55f, 0.9f);
-    private readonly Color _secondaryActionColor = new Color(0.4f, 0.4f, 0.45f);
-    private readonly Color _dangerColor = new Color(0.85f, 0.25f, 0.25f);
+    private readonly Color _insertBeforeColor = new(0.35f, 0.55f, 0.9f);
+    private readonly Color _insertAfterColor = new(0.1f, 0.5f, 0.3f);
+    private readonly Color _headerBgColor = new(0.22f, 0.22f, 0.25f);
+    private readonly Color _sectionBgColor = new(0.18f, 0.18f, 0.21f);
+    private readonly Color _buttonHoverColor = new(0.25f, 0.25f, 0.28f);
+    private readonly Color _primaryActionColor = new(0.35f, 0.55f, 0.9f);
+    private readonly Color _secondaryActionColor = new(0.4f, 0.4f, 0.45f);
+    private readonly Color _dangerColor = new(0.85f, 0.25f, 0.25f);
 
     // Events
     public event Action<NpcPath> OnPathSelected;
@@ -25,6 +27,7 @@ public class PathToolUIBuilder
     public event Action OnSaveChanges;
     public event Action<bool> OnAddWaypointRelative;
     public event Action OnGoBack;
+    public event Action<NpcPath> OnDeletePath;
 
     // Build the initial UI for path selection or creation
     public void BuildInitialUI(VisualElement root)
@@ -40,7 +43,7 @@ public class PathToolUIBuilder
         var selectSection = CreateSection("Select Existing Path");
         root.Add(selectSection);
 
-        ObjectField npcPathField = new ObjectField();
+        var npcPathField = new ObjectField();
         npcPathField.objectType = typeof(NpcPath);
         npcPathField.label = "Path Asset";
         npcPathField.RegisterValueChangedCallback(evt =>
@@ -48,42 +51,131 @@ public class PathToolUIBuilder
             if (evt.newValue == null) return;
 
             // Get the asset path
-            string assetPath = AssetDatabase.GetAssetPath(evt.newValue);
+            var assetPath = AssetDatabase.GetAssetPath(evt.newValue);
 
             // Unload the asset and force reload it completely
             Resources.UnloadAsset(evt.newValue);
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 
             // Load a fresh copy of the asset
-            NpcPath selectedPath = AssetDatabase.LoadAssetAtPath<NpcPath>(assetPath);
+            var selectedPath = AssetDatabase.LoadAssetAtPath<NpcPath>(assetPath);
             OnPathSelected?.Invoke(selectedPath);
         });
         selectSection.Add(npcPathField);
 
-        // Create path section
+// Add Recent Paths list
+        var recentPathsLabel = new Label("Recent Paths:");
+        recentPathsLabel.style.marginTop = 10;
+        recentPathsLabel.style.marginBottom = 5;
+        selectSection.Add(recentPathsLabel);
+
+        var recentPathsContainer = new ScrollView();
+        recentPathsContainer.style.height = 150;
+        recentPathsContainer.style.backgroundColor = new Color(0.15f, 0.15f, 0.17f);
+        recentPathsContainer.style.borderTopLeftRadius = 3;
+        recentPathsContainer.style.borderTopRightRadius = 3;
+        recentPathsContainer.style.borderBottomLeftRadius = 3;
+        recentPathsContainer.style.borderBottomRightRadius = 3;
+
+// Find all path assets and sort by most recently modified
+        var pathsFolder = "Assets/Scripts/PathSystem/Paths";
+        if (Directory.Exists(pathsFolder))
+        {
+            var guids = AssetDatabase.FindAssets("t:NpcPath", new[] { pathsFolder });
+
+            // Create list sorted by last modified time
+            var pathItems = new List<(string path, DateTime time)>();
+            foreach (var guid in guids)
+            {
+                var assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                var lastModified = File.GetLastWriteTime(assetPath);
+                pathItems.Add((assetPath, lastModified));
+            }
+
+            // Sort by most recent first
+            pathItems.Sort((a, b) => b.time.CompareTo(a.time));
+
+            foreach (var item in pathItems)
+            {
+                var path = AssetDatabase.LoadAssetAtPath<NpcPath>(item.path);
+                var fileName = Path.GetFileNameWithoutExtension(item.path);
+
+                // Create container for path item and delete button
+                var pathItemRow = new VisualElement();
+                pathItemRow.style.flexDirection = FlexDirection.Row;
+                pathItemRow.style.marginBottom = 2;
+
+                // Path select button
+                var pathButton = new Button(() => { OnPathSelected?.Invoke(path); });
+                pathButton.text = fileName;
+                pathButton.style.flexGrow = 1;
+                pathButton.style.alignSelf = Align.Stretch;
+                pathButton.style.unityTextAlign = TextAnchor.MiddleLeft;
+                pathItemRow.Add(pathButton);
+
+                // Delete button
+                var deleteButton = new Button(() =>
+                {
+                    if (EditorUtility.DisplayDialog("Delete Path",
+                            $"Are you sure you want to delete '{fileName}'? This cannot be undone.",
+                            "Delete", "Cancel"))
+                    {
+                        var assetPath = AssetDatabase.GetAssetPath(path);
+                        AssetDatabase.DeleteAsset(assetPath);
+                        pathItemRow.RemoveFromHierarchy(); // Remove from UI
+                        AssetDatabase.Refresh();
+                    }
+                });
+                deleteButton.text = "×";
+                deleteButton.tooltip = "Delete Path";
+                deleteButton.style.width = 24;
+                deleteButton.style.backgroundColor = _dangerColor;
+                deleteButton.style.marginLeft = 2;
+
+                pathItemRow.Add(deleteButton);
+                recentPathsContainer.Add(pathItemRow);
+            }
+        }
+        else
+        {
+            var noPathsLabel = new Label("No paths found");
+            noPathsLabel.style.color = new Color(0.6f, 0.6f, 0.6f);
+            noPathsLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
+            noPathsLabel.style.paddingTop = 10;
+            recentPathsContainer.Add(noPathsLabel);
+        }
+
+        selectSection.Add(recentPathsContainer);
+
+// Create path section
         var createSection = CreateSection("Create New Path");
         root.Add(createSection);
 
-        TextField nameField = new TextField("Name");
+        var nameField = new TextField("Name");
         nameField.value = "New Path";
         nameField.style.marginBottom = 10;
         createSection.Add(nameField);
 
-        Button createPathButton = new Button(() =>
+// Add save location display
+        var assetSavePath = "Assets/Scripts/PathSystem/Paths";
+        var pathInfoLabel = new Label($"Save location: {assetSavePath}");
+        pathInfoLabel.style.fontSize = 10;
+        pathInfoLabel.style.color = new Color(0.7f, 0.7f, 0.7f);
+        pathInfoLabel.style.marginBottom = 10;
+        createSection.Add(pathInfoLabel);
+
+        var createPathButton = new Button(() =>
         {
-            string path = "Assets/Scripts/PathSystem/Paths";
-            if (!System.IO.Directory.Exists(path))
-            {
-                System.IO.Directory.CreateDirectory(path);
-            }
+            var path = assetSavePath; // Use the variable for consistency
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
             if (string.IsNullOrEmpty(nameField.value))
                 nameField.value = "New Path";
 
-            NpcPath npcPath = ScriptableObject.CreateInstance<NpcPath>();
+            var npcPath = ScriptableObject.CreateInstance<NpcPath>();
             npcPath.Waypoints = new Waypoint[0];
 
-            string pathToSave = AssetDatabase.GenerateUniqueAssetPath(path + "/" + nameField.value + ".asset");
+            var pathToSave = AssetDatabase.GenerateUniqueAssetPath(path + "/" + nameField.value + ".asset");
             AssetDatabase.CreateAsset(npcPath, pathToSave);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -130,7 +222,8 @@ public class PathToolUIBuilder
         root.Add(topActions);
 
         // Back button
-        Button backButton = new Button(() => {
+        var backButton = new Button(() =>
+        {
             OnGoBack?.Invoke();
             BuildInitialUI(root);
         });
@@ -144,7 +237,7 @@ public class PathToolUIBuilder
         topActions.Add(spacer);
 
         // First create the button with an empty action
-        Button saveButton = new Button();
+        var saveButton = new Button();
 
         // Set initial properties
         saveButton.text = "💾 Save Changes";
@@ -154,24 +247,26 @@ public class PathToolUIBuilder
         topActions.Add(saveButton);
 
         // Now set up the click handler after the button is fully initialized
-        saveButton.clicked += () => {
+        saveButton.clicked += () =>
+        {
             // Invoke the save action
             OnSaveChanges?.Invoke();
 
             // Store original text and color
-            string originalText = saveButton.text;
-            Color originalColor = _primaryActionColor;
+            var originalText = saveButton.text;
+            var originalColor = _primaryActionColor;
 
             // Change to "saved" state
             saveButton.text = "✓ Saved!";
             ApplyButtonStyle(saveButton, new Color(0.2f, 0.7f, 0.3f), true); // Green success color
 
             // Set up a timer to restore the button after delay
-            double resetTime = EditorApplication.timeSinceStartup + 2.0; // 2 second delay
-    
+            var resetTime = EditorApplication.timeSinceStartup + 2.0; // 2 second delay
+
             // Create an EditorApplication.CallbackFunction
             EditorApplication.CallbackFunction resetCallback = null;
-            resetCallback = () => {
+            resetCallback = () =>
+            {
                 // Check if enough time has passed
                 if (EditorApplication.timeSinceStartup >= resetTime)
                 {
@@ -181,6 +276,7 @@ public class PathToolUIBuilder
                         saveButton.text = originalText;
                         ApplyButtonStyle(saveButton, originalColor, true);
                     }
+
                     // Unregister our update function
                     EditorApplication.update -= resetCallback;
                 }
@@ -201,23 +297,24 @@ public class PathToolUIBuilder
         root.Add(propertiesSection);
 
         // Add Path Name field
-        TextField pathNameField = new TextField("Path Name");
+        var pathNameField = new TextField("Path Name");
         pathNameField.isDelayed = true; // This makes it only trigger on Enter or focus loss
         pathNameField.value = selectedPath.name;
-        pathNameField.RegisterValueChangedCallback(evt => {
+        pathNameField.RegisterValueChangedCallback(evt =>
+        {
             if (string.IsNullOrWhiteSpace(evt.newValue)) return;
             if (evt.newValue == selectedPath.name) return;
 
             // Get current asset path
-            string currentAssetPath = AssetDatabase.GetAssetPath(selectedPath);
+            var currentAssetPath = AssetDatabase.GetAssetPath(selectedPath);
             if (string.IsNullOrEmpty(currentAssetPath)) return;
 
             // Generate new path with the new name
-            string directory = System.IO.Path.GetDirectoryName(currentAssetPath);
-            string newAssetPath = $"{directory}/{evt.newValue}.asset";
+            var directory = Path.GetDirectoryName(currentAssetPath);
+            var newAssetPath = $"{directory}/{evt.newValue}.asset";
 
             // Check if target path already exists
-            if (System.IO.File.Exists(newAssetPath) && newAssetPath != currentAssetPath)
+            if (File.Exists(newAssetPath) && newAssetPath != currentAssetPath)
             {
                 EditorUtility.DisplayDialog("Rename Failed",
                     $"Cannot rename path to '{evt.newValue}' because an asset with that name already exists.", "OK");
@@ -228,23 +325,22 @@ public class PathToolUIBuilder
             // Rename the asset
             AssetDatabase.RenameAsset(currentAssetPath, evt.newValue);
             EditorUtility.SetDirty(selectedPath);
-    
+
             // Update the header title to reflect the new name
             var headerTitle = root.Q<Label>(className: "unity-label");
             if (headerTitle != null && headerTitle.parent.ClassListContains("header"))
-            {
                 headerTitle.text = $"Editing: {evt.newValue}";
-            }
         });
         pathNameField.style.marginBottom = 10;
         propertiesSection.Add(pathNameField);
 
         // Is Loop toggle
-        Toggle isLoopToggle = new Toggle("Is Loop Path");
+        var isLoopToggle = new Toggle("Is Loop Path");
         isLoopToggle.value = selectedPath.IsLoop;
         isLoopToggle.tooltip = "When enabled, connects the last waypoint back to the first";
         isLoopToggle.style.marginBottom = 10;
-        isLoopToggle.RegisterValueChangedCallback(evt => {
+        isLoopToggle.RegisterValueChangedCallback(evt =>
+        {
             selectedPath.IsLoop = evt.newValue;
             EditorUtility.SetDirty(selectedPath);
             SceneView.RepaintAll();
@@ -252,7 +348,7 @@ public class PathToolUIBuilder
         propertiesSection.Add(isLoopToggle);
 
         // Flip Direction button
-        Button flipDirectionButton = new Button(() => OnFlipPath?.Invoke());
+        var flipDirectionButton = new Button(() => OnFlipPath?.Invoke());
         flipDirectionButton.text = "↑↓ Flip Path Direction";
         flipDirectionButton.tooltip = "Reverses the order of waypoints (start becomes end)";
         ApplyButtonStyle(flipDirectionButton, _secondaryActionColor);
@@ -274,11 +370,13 @@ public class PathToolUIBuilder
         navigationRow.style.marginBottom = 10;
         navContainer.Add(navigationRow);
 
-        Button prevButton = new Button(() => {
-            if (selectedPath.Waypoints != null && selectedPath.Waypoints.Length > 0) {
-                int newIndex = selectedWaypointIndex <= 0 ? 
-                    selectedPath.Waypoints.Length - 1 : 
-                    selectedWaypointIndex - 1;
+        var prevButton = new Button(() =>
+        {
+            if (selectedPath.Waypoints != null && selectedPath.Waypoints.Length > 0)
+            {
+                var newIndex = selectedWaypointIndex <= 0
+                    ? selectedPath.Waypoints.Length - 1
+                    : selectedWaypointIndex - 1;
                 OnSelectWaypoint?.Invoke(newIndex);
             }
         });
@@ -287,11 +385,13 @@ public class PathToolUIBuilder
         prevButton.style.flexGrow = 1;
         navigationRow.Add(prevButton);
 
-        Button nextButton = new Button(() => {
-            if (selectedPath.Waypoints != null && selectedPath.Waypoints.Length > 0) {
-                int newIndex = selectedWaypointIndex >= selectedPath.Waypoints.Length - 1 ? 
-                    0 : 
-                    selectedWaypointIndex + 1;
+        var nextButton = new Button(() =>
+        {
+            if (selectedPath.Waypoints != null && selectedPath.Waypoints.Length > 0)
+            {
+                var newIndex = selectedWaypointIndex >= selectedPath.Waypoints.Length - 1
+                    ? 0
+                    : selectedWaypointIndex + 1;
                 OnSelectWaypoint?.Invoke(newIndex);
             }
         });
@@ -310,14 +410,14 @@ public class PathToolUIBuilder
             addButtonsRow.style.height = 36; // Taller buttons
             navContainer.Add(addButtonsRow);
 
-            Button addBeforeButton = new Button(() => OnAddWaypointRelative?.Invoke(true));
+            var addBeforeButton = new Button(() => OnAddWaypointRelative?.Invoke(true));
             addBeforeButton.text = "◄+ Add Before";
             ApplyButtonStyle(addBeforeButton, _insertBeforeColor, true);
             addBeforeButton.style.flexGrow = 1;
             addBeforeButton.style.marginRight = 5;
             addButtonsRow.Add(addBeforeButton);
 
-            Button addAfterButton = new Button(() => OnAddWaypointRelative?.Invoke(false));
+            var addAfterButton = new Button(() => OnAddWaypointRelative?.Invoke(false));
             addAfterButton.text = "Add After +►";
             ApplyButtonStyle(addAfterButton, _insertAfterColor, true);
             addAfterButton.style.flexGrow = 1;
@@ -327,7 +427,7 @@ public class PathToolUIBuilder
         else
         {
             // Standard add waypoint button
-            Button addWaypointButton = new Button(() => OnAddWaypoint?.Invoke());
+            var addWaypointButton = new Button(() => OnAddWaypoint?.Invoke());
             addWaypointButton.text = "＋ Add Waypoint";
             ApplyButtonStyle(addWaypointButton, _primaryActionColor, true);
             addWaypointButton.style.height = 36; // Make it taller
@@ -341,9 +441,31 @@ public class PathToolUIBuilder
         }
         else
         {
-            var helpBox = new HelpBox("Select a waypoint in the Scene view to edit its properties", HelpBoxMessageType.Info);
+            var helpBox = new HelpBox("Select a waypoint in the Scene view to edit its properties",
+                HelpBoxMessageType.Info);
             waypointsSection.Add(helpBox);
         }
+
+        var deleteSpacer = new VisualElement();
+        deleteSpacer.style.height = 10;
+        propertiesSection.Add(deleteSpacer);
+
+        // Add delete path button
+        var deletePathButton = new Button(() =>
+        {
+            if (EditorUtility.DisplayDialog("Delete Path",
+                    $"Are you sure you want to delete '{selectedPath.name}'? This cannot be undone.",
+                    "Delete", "Cancel"))
+            {
+                var assetPath = AssetDatabase.GetAssetPath(selectedPath);
+                AssetDatabase.DeleteAsset(assetPath);
+                AssetDatabase.Refresh();
+                OnGoBack?.Invoke(); // Return to main screen
+            }
+        });
+        deletePathButton.text = "🗑️ Delete Path";
+        ApplyButtonStyle(deletePathButton, _dangerColor);
+        propertiesSection.Add(deletePathButton);
     }
 
     // Build the UI for the selected waypoint
@@ -353,13 +475,14 @@ public class PathToolUIBuilder
         waypointSection.style.marginTop = 16;
         root.Add(waypointSection);
 
-        Waypoint waypoint = selectedPath.Waypoints[selectedWaypointIndex];
+        var waypoint = selectedPath.Waypoints[selectedWaypointIndex];
 
         // Position field
-        Vector3Field positionField = new Vector3Field("Position");
+        var positionField = new Vector3Field("Position");
         positionField.value = waypoint.Point;
         positionField.style.marginBottom = 10;
-        positionField.RegisterValueChangedCallback(evt => {
+        positionField.RegisterValueChangedCallback(evt =>
+        {
             var waypoints = selectedPath.Waypoints;
             waypoints[selectedWaypointIndex].Point = evt.newValue;
             selectedPath.Waypoints = waypoints;
@@ -376,7 +499,7 @@ public class PathToolUIBuilder
         waypointSection.Add(propertiesGroup);
 
         // Has Stop toggle
-        Toggle hasStopToggle = new Toggle("Has Stop");
+        var hasStopToggle = new Toggle("Has Stop");
         hasStopToggle.value = waypoint.HasStop;
         hasStopToggle.tooltip = "NPCs will stop at this waypoint";
         hasStopToggle.style.marginBottom = 5;
@@ -408,7 +531,8 @@ public class PathToolUIBuilder
         timeControls.Add(timeField);
 
         // Link slider and field
-        timeSlider.RegisterValueChangedCallback(evt => {
+        timeSlider.RegisterValueChangedCallback(evt =>
+        {
             timeField.value = evt.newValue;
             var waypoints = selectedPath.Waypoints;
             waypoints[selectedWaypointIndex].StopTime = evt.newValue;
@@ -417,7 +541,8 @@ public class PathToolUIBuilder
             SceneView.RepaintAll();
         });
 
-        timeField.RegisterValueChangedCallback(evt => {
+        timeField.RegisterValueChangedCallback(evt =>
+        {
             timeSlider.value = evt.newValue;
             var waypoints = selectedPath.Waypoints;
             waypoints[selectedWaypointIndex].StopTime = Mathf.Max(0, evt.newValue);
@@ -427,21 +552,22 @@ public class PathToolUIBuilder
         });
 
         // Has Direction toggle
-        Toggle hasDirectionToggle = new Toggle("Has Direction");
+        var hasDirectionToggle = new Toggle("Has Direction");
         hasDirectionToggle.value = waypoint.HasDirection;
         hasDirectionToggle.tooltip = "NPCs will face this direction when stopping";
         hasDirectionToggle.style.display = waypoint.HasStop ? DisplayStyle.Flex : DisplayStyle.None;
         hasDirectionToggle.style.marginTop = 10;
         propertiesGroup.Add(hasDirectionToggle);
 
-        Vector3Field directionField = new Vector3Field("Direction");
+        var directionField = new Vector3Field("Direction");
         directionField.value = waypoint.Direction;
-        directionField.style.display = (waypoint.HasStop && waypoint.HasDirection) ? DisplayStyle.Flex : DisplayStyle.None;
+        directionField.style.display =
+            waypoint.HasStop && waypoint.HasDirection ? DisplayStyle.Flex : DisplayStyle.None;
         directionField.style.marginLeft = 16;
         propertiesGroup.Add(directionField);
 
         // Has Animation toggle
-        Toggle hasAnimationToggle = new Toggle("Has Animation");
+        var hasAnimationToggle = new Toggle("Has Animation");
         hasAnimationToggle.value = waypoint.HasAnimation;
         hasAnimationToggle.tooltip = "NPC will play animation at this waypoint";
         hasAnimationToggle.style.display = waypoint.HasStop ? DisplayStyle.Flex : DisplayStyle.None;
@@ -449,8 +575,9 @@ public class PathToolUIBuilder
         propertiesGroup.Add(hasAnimationToggle);
 
         // Animation type field
-        EnumField animationTypeField = new EnumField("Animation Type", waypoint.Animation);
-        animationTypeField.style.display = (waypoint.HasStop && waypoint.HasAnimation) ? DisplayStyle.Flex : DisplayStyle.None;
+        var animationTypeField = new EnumField("Animation Type", waypoint.Animation);
+        animationTypeField.style.display =
+            waypoint.HasStop && waypoint.HasAnimation ? DisplayStyle.Flex : DisplayStyle.None;
         animationTypeField.style.marginLeft = 16;
         propertiesGroup.Add(animationTypeField);
 
@@ -461,7 +588,7 @@ public class PathToolUIBuilder
             stopTimeContainer, directionField, animationTypeField);
 
         // Delete button - moved to bottom and styled as a danger action
-        Button deleteButton = new Button(() => OnRemoveWaypoint?.Invoke(selectedWaypointIndex));
+        var deleteButton = new Button(() => OnRemoveWaypoint?.Invoke(selectedWaypointIndex));
         deleteButton.text = "🗑 Delete Waypoint";
         ApplyButtonStyle(deleteButton, _dangerColor);
         deleteButton.style.marginTop = 12;
@@ -475,7 +602,8 @@ public class PathToolUIBuilder
         VisualElement stopTimeContainer, VisualElement directionField, VisualElement animationTypeField)
     {
         // HasStop toggle callback
-        hasStopToggle.RegisterValueChangedCallback(evt => {
+        hasStopToggle.RegisterValueChangedCallback(evt =>
+        {
             var waypoints = selectedPath.Waypoints;
             waypoints[selectedWaypointIndex].HasStop = evt.newValue;
 
@@ -499,10 +627,10 @@ public class PathToolUIBuilder
             stopTimeContainer.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
             hasDirectionToggle.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
             hasAnimationToggle.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
-            directionField.style.display = (evt.newValue && hasDirectionToggle.value) ?
-                DisplayStyle.Flex : DisplayStyle.None;
-            animationTypeField.style.display = (evt.newValue && hasAnimationToggle.value) ?
-                DisplayStyle.Flex : DisplayStyle.None;
+            directionField.style.display =
+                evt.newValue && hasDirectionToggle.value ? DisplayStyle.Flex : DisplayStyle.None;
+            animationTypeField.style.display =
+                evt.newValue && hasAnimationToggle.value ? DisplayStyle.Flex : DisplayStyle.None;
 
             selectedPath.Waypoints = waypoints;
             EditorUtility.SetDirty(selectedPath);
@@ -510,21 +638,22 @@ public class PathToolUIBuilder
         });
 
         // HasDirection toggle callback
-        hasDirectionToggle.RegisterValueChangedCallback(evt => {
+        hasDirectionToggle.RegisterValueChangedCallback(evt =>
+        {
             var waypoints = selectedPath.Waypoints;
             waypoints[selectedWaypointIndex].HasDirection = evt.newValue;
             selectedPath.Waypoints = waypoints;
 
             // Use current toggle value instead of old waypoint value
-            directionField.style.display = (hasStopToggle.value && evt.newValue) ?
-                DisplayStyle.Flex : DisplayStyle.None;
+            directionField.style.display = hasStopToggle.value && evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
 
             EditorUtility.SetDirty(selectedPath);
             SceneView.RepaintAll();
         });
 
         // Direction field callback
-        ((Vector3Field)directionField).RegisterValueChangedCallback(evt => {
+        ((Vector3Field)directionField).RegisterValueChangedCallback(evt =>
+        {
             var waypoints = selectedPath.Waypoints;
             waypoints[selectedWaypointIndex].Direction = evt.newValue.normalized;
             selectedPath.Waypoints = waypoints;
@@ -533,21 +662,23 @@ public class PathToolUIBuilder
         });
 
         // HasAnimation toggle callback
-        hasAnimationToggle.RegisterValueChangedCallback(evt => {
+        hasAnimationToggle.RegisterValueChangedCallback(evt =>
+        {
             var waypoints = selectedPath.Waypoints;
             waypoints[selectedWaypointIndex].HasAnimation = evt.newValue;
             selectedPath.Waypoints = waypoints;
 
             // Use current toggle value instead of old waypoint value
-            animationTypeField.style.display = (hasStopToggle.value && evt.newValue) ?
-                DisplayStyle.Flex : DisplayStyle.None;
+            animationTypeField.style.display =
+                hasStopToggle.value && evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
 
             EditorUtility.SetDirty(selectedPath);
             SceneView.RepaintAll();
         });
 
         // AnimationType field callback
-        ((EnumField)animationTypeField).RegisterValueChangedCallback(evt => {
+        ((EnumField)animationTypeField).RegisterValueChangedCallback(evt =>
+        {
             var waypoints = selectedPath.Waypoints;
             waypoints[selectedWaypointIndex].Animation = (Waypoint.AnimationType)evt.newValue;
             selectedPath.Waypoints = waypoints;
@@ -634,7 +765,8 @@ public class PathToolUIBuilder
         button.style.marginBottom = 2;
 
         // Add hover effect using pseudo states
-        button.RegisterCallback<MouseEnterEvent>((evt) => {
+        button.RegisterCallback<MouseEnterEvent>(evt =>
+        {
             button.style.backgroundColor = new Color(
                 baseColor.r * 1.1f,
                 baseColor.g * 1.1f,
@@ -642,10 +774,9 @@ public class PathToolUIBuilder
             );
         });
 
-        button.RegisterCallback<MouseLeaveEvent>((evt) => {
-            button.style.backgroundColor = baseColor;
-        });
+        button.RegisterCallback<MouseLeaveEvent>(evt => { button.style.backgroundColor = baseColor; });
     }
+
     private void ApplyBaseStyles(VisualElement root)
     {
         root.style.paddingBottom = 16;

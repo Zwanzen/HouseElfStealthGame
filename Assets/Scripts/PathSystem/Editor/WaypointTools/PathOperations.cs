@@ -7,8 +7,9 @@ public class PathOperations
     {
         Vector3 newPosition = Vector3.zero;
         int insertIndex = -1;
+        float offsetDistance = 1.5f; // Same offset distance
 
-        // If no waypoints exist yet
+        // If no waypoints exist yet (unchanged)
         if (path.Waypoints == null || path.Waypoints.Length == 0)
         {
             // Just create a new array with one waypoint
@@ -28,19 +29,18 @@ public class PathOperations
             // Determine position and insert index based on selection
             if (selectedIndex >= 0 && selectedIndex < path.Waypoints.Length)
             {
-                // Use position of selected waypoint
-                newPosition = path.Waypoints[selectedIndex].Point;
-                // Insert after the selected waypoint
+                // Use position of selected waypoint with offset
+                newPosition = path.Waypoints[selectedIndex].Point + Vector3.forward * offsetDistance;
                 insertIndex = selectedIndex + 1;
             }
             else
             {
-                // No selection, use position of last waypoint and append
-                newPosition = path.Waypoints[^1].Point;
+                // No selection, use position of last waypoint with offset
+                newPosition = path.Waypoints[path.Waypoints.Length - 1].Point + Vector3.forward * offsetDistance;
                 insertIndex = path.Waypoints.Length;
             }
 
-            // Create the new waypoint
+            // Create and insert the waypoint (rest unchanged)
             Waypoint newWaypoint = new Waypoint
             {
                 Point = newPosition,
@@ -49,23 +49,16 @@ public class PathOperations
                 Direction = Vector3.forward
             };
 
-            // Insert the waypoint at the determined position
             Waypoint[] currentWaypoints = path.Waypoints;
             Waypoint[] newWaypoints = new Waypoint[currentWaypoints.Length + 1];
 
-            // Copy the waypoints before insertion point
             System.Array.Copy(currentWaypoints, 0, newWaypoints, 0, insertIndex);
-
-            // Insert new waypoint
             newWaypoints[insertIndex] = newWaypoint;
-
-            // Copy remaining waypoints after insertion point
             if (insertIndex < currentWaypoints.Length)
             {
                 System.Array.Copy(currentWaypoints, insertIndex, newWaypoints, insertIndex + 1, currentWaypoints.Length - insertIndex);
             }
 
-            // Update the path
             path.Waypoints = newWaypoints;
             newIndex = insertIndex;
         }
@@ -77,14 +70,15 @@ public class PathOperations
     {
         Vector3 newPosition = Vector3.zero;
         int insertIndex = -1;
+        float offsetDistance = 1.5f; // Fall-back offset distance when no neighboring waypoint exists
 
         // If no waypoints exist yet
         if (path.Waypoints == null || path.Waypoints.Length == 0)
         {
-            // Just create a new array with one waypoint
+            // Just create a new array with one waypoint at origin
             Waypoint newWaypoint = new Waypoint
             {
-                Point = newPosition,
+                Point = Vector3.zero,
                 HasStop = false,
                 HasDirection = false,
                 Direction = Vector3.forward
@@ -98,20 +92,103 @@ public class PathOperations
             // Determine position and insert index based on selection
             if (selectedIndex >= 0 && selectedIndex < path.Waypoints.Length)
             {
-                // Use position of selected waypoint
-                newPosition = path.Waypoints[selectedIndex].Point;
+                Vector3 selectedPosition = path.Waypoints[selectedIndex].Point;
                 
-                // Insert before or after the selected waypoint based on parameter
-                insertIndex = addBefore ? selectedIndex : selectedIndex + 1;
+                if (addBefore)
+                {
+                    insertIndex = selectedIndex;
+                    
+                    // If there's a waypoint before the selected one
+                    if (selectedIndex > 0)
+                    {
+                        // Place new waypoint halfway between previous and selected
+                        newPosition = Vector3.Lerp(path.Waypoints[selectedIndex - 1].Point, selectedPosition, 0.5f);
+                    }
+                    // If this is first waypoint but path is a loop
+                    else if (path.IsLoop && path.Waypoints.Length > 1)
+                    {
+                        // Place new waypoint halfway between last and first
+                        newPosition = Vector3.Lerp(path.Waypoints[path.Waypoints.Length - 1].Point, selectedPosition, 0.5f);
+                    }
+                    else
+                    {
+                        // No previous waypoint, use offset in opposite direction of next waypoint
+                        Vector3 direction;
+                        if (path.Waypoints.Length > 1)
+                        {
+                            // Use direction pointing away from next waypoint
+                            direction = (selectedPosition - path.Waypoints[1].Point).normalized;
+                        }
+                        else
+                        {
+                            // Just use backward direction
+                            direction = -Vector3.forward;
+                        }
+                        newPosition = selectedPosition + direction * offsetDistance;
+                    }
+                }
+                else // Add after
+                {
+                    insertIndex = selectedIndex + 1;
+                    
+                    // If there's a waypoint after the selected one
+                    if (selectedIndex < path.Waypoints.Length - 1)
+                    {
+                        // Place new waypoint halfway between selected and next
+                        newPosition = Vector3.Lerp(selectedPosition, path.Waypoints[selectedIndex + 1].Point, 0.5f);
+                    }
+                    // If this is last waypoint but path is a loop
+                    else if (path.IsLoop && path.Waypoints.Length > 1)
+                    {
+                        // Place new waypoint halfway between last and first
+                        newPosition = Vector3.Lerp(selectedPosition, path.Waypoints[0].Point, 0.5f);
+                    }
+                    else
+                    {
+                        // No next waypoint, use offset in direction from previous waypoint
+                        Vector3 direction;
+                        if (selectedIndex > 0)
+                        {
+                            // Use same direction as from previous waypoint
+                            direction = (selectedPosition - path.Waypoints[selectedIndex - 1].Point).normalized;
+                        }
+                        else
+                        {
+                            // Just use forward direction
+                            direction = Vector3.forward;
+                        }
+                        newPosition = selectedPosition + direction * offsetDistance;
+                    }
+                }
             }
             else
             {
-                // No selection, use position of last waypoint and append
-                newPosition = path.Waypoints[^1].Point;
+                // No selection, add to end
                 insertIndex = path.Waypoints.Length;
+                if (path.Waypoints.Length > 0)
+                {
+                    // Add after the last waypoint
+                    Vector3 lastPosition = path.Waypoints[path.Waypoints.Length - 1].Point;
+                    
+                    // If there are at least 2 waypoints, continue the path direction
+                    if (path.Waypoints.Length > 1)
+                    {
+                        Vector3 direction = (lastPosition - path.Waypoints[path.Waypoints.Length - 2].Point).normalized;
+                        newPosition = lastPosition + direction * offsetDistance;
+                    }
+                    else
+                    {
+                        // Only one waypoint, use default offset
+                        newPosition = lastPosition + Vector3.forward * offsetDistance;
+                    }
+                }
+                else
+                {
+                    newPosition = Vector3.zero;
+                }
             }
 
-            // Create the new waypoint
+            // Create and insert the new waypoint
             Waypoint newWaypoint = new Waypoint
             {
                 Point = newPosition,
@@ -120,23 +197,23 @@ public class PathOperations
                 Direction = Vector3.forward
             };
 
-            // Insert the waypoint at the determined position
+            // Inert the waypoint at the calculated index
             Waypoint[] currentWaypoints = path.Waypoints;
             Waypoint[] newWaypoints = new Waypoint[currentWaypoints.Length + 1];
-
+            
             // Copy the waypoints before insertion point
             System.Array.Copy(currentWaypoints, 0, newWaypoints, 0, insertIndex);
-
-            // Insert new waypoint
+            
+            // Insert the new waypoint
             newWaypoints[insertIndex] = newWaypoint;
-
-            // Copy remaining waypoints after insertion point
+            
+            // Copy the remaining waypoints
             if (insertIndex < currentWaypoints.Length)
             {
-                System.Array.Copy(currentWaypoints, insertIndex, newWaypoints, insertIndex + 1, currentWaypoints.Length - insertIndex);
+                System.Array.Copy(currentWaypoints, insertIndex, newWaypoints, insertIndex + 1, 
+                    currentWaypoints.Length - insertIndex);
             }
-
-            // Update the path
+            
             path.Waypoints = newWaypoints;
             newIndex = insertIndex;
         }
