@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 public class PathTool : EditorWindow
 {
-    [MenuItem("Tools/PathTool")]
+    [MenuItem("Tools/Path/Path Tool")]
     public static void ShowExample()
     {
         PathTool wnd = GetWindow<PathTool>();
@@ -79,9 +79,8 @@ public class PathTool : EditorWindow
         if (_selectedPath == null || _selectedPath.Waypoints == null)
             return;
 
-        _renderer.RenderPath(_selectedPath, _selectedWaypointIndex, sceneView, OnWaypointSelected);
-        
-        // Handle keyboard shortcuts for adding waypoints
+        // Call RenderPath with isEditable set to false
+        _renderer.RenderPath(_selectedPath, _selectedWaypointIndex, sceneView, OnWaypointSelected, true);
         HandleKeyboardShortcuts();
     }
     

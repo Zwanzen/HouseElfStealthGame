@@ -114,26 +114,34 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
     }
 }
     
-    public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneView, Action<int> waypointSelectedCallback)
-    {
-        Event e = Event.current;
-        bool isHandleHot = GUIUtility.hotControl != 0;
-        int directionHandleId = -1;
+public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneView, Action<int> waypointSelectedCallback, bool isEditable = true)
+{
+    Event e = Event.current;
+    bool isHandleHot = GUIUtility.hotControl != 0;
+    int directionHandleId = -1;
 
-        HandleKeyboardInput(e, path, selectedWaypointIndex, sceneView);
-        DrawPathLines(path, selectedWaypointIndex);
-        HandleWaypointManipulation(e, path, selectedWaypointIndex, sceneView, out directionHandleId);
-
-        DrawWaypointDirections(path, selectedWaypointIndex);
-        DrawWaypointVisuals(path, selectedWaypointIndex);
-        DrawWaypointLabels(path, selectedWaypointIndex);
+    // Always allow keyboard navigation/focusing
+    HandleKeyboardInput(e, path, selectedWaypointIndex, sceneView);
     
-        // Add this line to draw insertion points when a waypoint is selected
+    // Always draw the path visuals
+    DrawPathLines(path, selectedWaypointIndex, isEditable);
+    DrawWaypointDirections(path, selectedWaypointIndex);
+    DrawWaypointVisuals(path, selectedWaypointIndex);
+    DrawWaypointLabels(path, selectedWaypointIndex);
+
+    // Only allow manipulation and show insertion points if editable
+    if (isEditable)
+    {
+        HandleWaypointManipulation(e, path, selectedWaypointIndex, sceneView, out directionHandleId);
+        
+        // Only show insertion points when a waypoint is selected and path is editable
         if (selectedWaypointIndex >= 0)
             DrawWaypointInsertionPoints(path, selectedWaypointIndex);
-        
-        HandleWaypointSelection(e, path, selectedWaypointIndex, isHandleHot, waypointSelectedCallback);
     }
+
+    // Always allow waypoint selection for viewing properties
+    HandleWaypointSelection(e, path, selectedWaypointIndex, isHandleHot, waypointSelectedCallback, isEditable);
+}
     
     private void HandleKeyboardInput(Event e, NpcPath path, int selectedWaypointIndex, SceneView sceneView)
     {
@@ -146,7 +154,7 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
         }
     }
 
-    private void DrawPathLines(NpcPath path, int selectedWaypointIndex)
+    private void DrawPathLines(NpcPath path, int selectedWaypointIndex, bool isEditable)
     {
         if (path.Waypoints.Length < 2)
             return;
@@ -164,7 +172,11 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
             Handles.DrawLine(startPoint, endPoint, 2f);
 
             // Draw direction indicators if the line doesn't connect to the selected waypoint
-            if (path.IsLoop && distance > 0.1f && i != selectedWaypointIndex && (i + 1) != selectedWaypointIndex)
+            if (path.IsLoop && distance > 0.1f && i != selectedWaypointIndex && (i + 1) != selectedWaypointIndex && isEditable)
+            {
+                DrawLineDirectionIndicator(startPoint, direction, distance, _lineArrowColor);
+            }
+            else if(path.IsLoop && !isEditable)
             {
                 DrawLineDirectionIndicator(startPoint, direction, distance, _lineArrowColor);
             }
@@ -454,7 +466,7 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
         Handles.DrawLine(position, position + hand, 2f);
     }
 
-    private void HandleWaypointSelection(Event e, NpcPath path, int selectedWaypointIndex, bool isHandleHot, Action<int> selectionCallback)
+    private void HandleWaypointSelection(Event e, NpcPath path, int selectedWaypointIndex, bool isHandleHot, Action<int> selectionCallback, bool isEdit)
     {
         if (e.type != EventType.MouseDown || e.button != 0 || isHandleHot)
             return;
@@ -475,7 +487,7 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
             }
         }
 
-        if (!clickedOnWaypoint)
+        if (!clickedOnWaypoint && isEdit)
         {
             selectionCallback?.Invoke(-1);
             e.Use();
