@@ -36,6 +36,7 @@ public class PathTool : EditorWindow
         _uiBuilder.OnRemoveWaypoint += OnRemoveWaypoint;
         _uiBuilder.OnFlipPath += OnFlipPath;
         _uiBuilder.OnSaveChanges += OnSaveChanges;
+        _uiBuilder.OnGoBack += OnGoBack;
 
         SceneView.duringSceneGui += OnSceneGUI;
     }
@@ -61,6 +62,7 @@ public class PathTool : EditorWindow
             _uiBuilder.OnRemoveWaypoint -= OnRemoveWaypoint;
             _uiBuilder.OnFlipPath -= OnFlipPath;
             _uiBuilder.OnSaveChanges -= OnSaveChanges;
+            _uiBuilder.OnGoBack -= OnGoBack;
         }
 
         SceneView.duringSceneGui -= OnSceneGUI;
@@ -78,6 +80,15 @@ public class PathTool : EditorWindow
             return;
 
         _renderer.RenderPath(_selectedPath, _selectedWaypointIndex, sceneView, OnWaypointSelected);
+    }
+    
+    private void OnGoBack()
+    {
+        // Reset the path data
+        _selectedPath = null;
+        _selectedWaypointIndex = -1;
+        BuildInitialUI();
+        SceneView.RepaintAll();
     }
 
     private void BuildInitialUI()
@@ -116,8 +127,35 @@ public class PathTool : EditorWindow
 
     private void OnRemoveWaypoint(int index)
     {
+        // Store the length before deletion
+        int oldLength = _selectedPath.Waypoints.Length;
+    
+        // Keep track of what index to select next
+        int newIndex = index - 1; // Default to previous waypoint
+    
+        // If we're deleting the first waypoint, select the new first waypoint
+        if (newIndex < 0)
+        {
+            if (oldLength > 1) // If there are other waypoints left
+                newIndex = 0;
+            else
+                newIndex = -1; // No waypoints left
+        }
+    
+        // Record undo and delete the waypoint
+        Undo.RecordObject(_selectedPath, "Delete Waypoint");
         _operations.RemoveWaypoint(_selectedPath, index);
-        _selectedWaypointIndex = -1; // Reset selection after removal
+    
+        // Update the selection
+        _selectedWaypointIndex = newIndex;
+    
+        // If there are no more waypoints, deselect
+        if (_selectedPath.Waypoints.Length == 0)
+            _selectedWaypointIndex = -1;
+    
+        // Make sure index is in valid range
+        _selectedWaypointIndex = Mathf.Clamp(_selectedWaypointIndex, -1, _selectedPath.Waypoints.Length - 1);
+    
         BuildPathDetailsUI();
         SceneView.RepaintAll();
     }

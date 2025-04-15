@@ -7,14 +7,14 @@ using System;
 public class PathToolUIBuilder
 {
     // Colors for styling
-    private readonly Color _insertBeforeColor = new Color(0.2f, 0.6f, 1f);
-    private readonly Color _insertAfterColor = new Color(0.2f, 1f, 0.6f);
+    private readonly Color _insertBeforeColor = new Color(0.35f, 0.55f, 0.9f);
+    private readonly Color _insertAfterColor = new Color(0.1f, 0.5f, 0.3f);
     private readonly Color _headerBgColor = new Color(0.22f, 0.22f, 0.25f);
     private readonly Color _sectionBgColor = new Color(0.18f, 0.18f, 0.21f);
     private readonly Color _buttonHoverColor = new Color(0.25f, 0.25f, 0.28f);
     private readonly Color _primaryActionColor = new Color(0.35f, 0.55f, 0.9f);
     private readonly Color _secondaryActionColor = new Color(0.4f, 0.4f, 0.45f);
-    private readonly Color _dangerColor = new Color(0.95f, 0.3f, 0.3f);
+    private readonly Color _dangerColor = new Color(0.85f, 0.25f, 0.25f);
 
     // Events
     public event Action<NpcPath> OnPathSelected;
@@ -24,6 +24,7 @@ public class PathToolUIBuilder
     public event Action<int> OnSelectWaypoint;
     public event Action OnSaveChanges;
     public event Action<bool> OnAddWaypointRelative;
+    public event Action OnGoBack;
 
     // Build the initial UI for path selection or creation
     public void BuildInitialUI(VisualElement root)
@@ -130,6 +131,7 @@ public class PathToolUIBuilder
 
         // Back button
         Button backButton = new Button(() => {
+            OnGoBack?.Invoke();
             BuildInitialUI(root);
         });
         backButton.text = "← Back";
@@ -141,12 +143,52 @@ public class PathToolUIBuilder
         spacer.style.flexGrow = 1;
         topActions.Add(spacer);
 
-        // Save button - keep it always visible
-        Button saveButton = new Button(() => OnSaveChanges?.Invoke());
+        // First create the button with an empty action
+        Button saveButton = new Button();
+
+        // Set initial properties
         saveButton.text = "💾 Save Changes";
-        ApplyButtonStyle(saveButton, _primaryActionColor);
+        ApplyButtonStyle(saveButton, _primaryActionColor, true);
+
+        // Add the button to the container
         topActions.Add(saveButton);
 
+        // Now set up the click handler after the button is fully initialized
+        saveButton.clicked += () => {
+            // Invoke the save action
+            OnSaveChanges?.Invoke();
+
+            // Store original text and color
+            string originalText = saveButton.text;
+            Color originalColor = _primaryActionColor;
+
+            // Change to "saved" state
+            saveButton.text = "✓ Saved!";
+            ApplyButtonStyle(saveButton, new Color(0.2f, 0.7f, 0.3f), true); // Green success color
+
+            // Set up a timer to restore the button after delay
+            double resetTime = EditorApplication.timeSinceStartup + 2.0; // 2 second delay
+    
+            // Create an EditorApplication.CallbackFunction
+            EditorApplication.CallbackFunction resetCallback = null;
+            resetCallback = () => {
+                // Check if enough time has passed
+                if (EditorApplication.timeSinceStartup >= resetTime)
+                {
+                    // Only reset if button still exists
+                    if (saveButton != null)
+                    {
+                        saveButton.text = originalText;
+                        ApplyButtonStyle(saveButton, originalColor, true);
+                    }
+                    // Unregister our update function
+                    EditorApplication.update -= resetCallback;
+                }
+            };
+
+            // Register the update function
+            EditorApplication.update += resetCallback;
+        };
         // Ensure the waypoints array is initialized
         if (selectedPath.Waypoints == null)
         {
@@ -157,6 +199,45 @@ public class PathToolUIBuilder
         // Path Properties section
         var propertiesSection = CreateSection("Path Properties");
         root.Add(propertiesSection);
+
+        // Add Path Name field
+        TextField pathNameField = new TextField("Path Name");
+        pathNameField.isDelayed = true; // This makes it only trigger on Enter or focus loss
+        pathNameField.value = selectedPath.name;
+        pathNameField.RegisterValueChangedCallback(evt => {
+            if (string.IsNullOrWhiteSpace(evt.newValue)) return;
+            if (evt.newValue == selectedPath.name) return;
+
+            // Get current asset path
+            string currentAssetPath = AssetDatabase.GetAssetPath(selectedPath);
+            if (string.IsNullOrEmpty(currentAssetPath)) return;
+
+            // Generate new path with the new name
+            string directory = System.IO.Path.GetDirectoryName(currentAssetPath);
+            string newAssetPath = $"{directory}/{evt.newValue}.asset";
+
+            // Check if target path already exists
+            if (System.IO.File.Exists(newAssetPath) && newAssetPath != currentAssetPath)
+            {
+                EditorUtility.DisplayDialog("Rename Failed",
+                    $"Cannot rename path to '{evt.newValue}' because an asset with that name already exists.", "OK");
+                pathNameField.SetValueWithoutNotify(selectedPath.name);
+                return;
+            }
+
+            // Rename the asset
+            AssetDatabase.RenameAsset(currentAssetPath, evt.newValue);
+            EditorUtility.SetDirty(selectedPath);
+    
+            // Update the header title to reflect the new name
+            var headerTitle = root.Q<Label>(className: "unity-label");
+            if (headerTitle != null && headerTitle.parent.ClassListContains("header"))
+            {
+                headerTitle.text = $"Editing: {evt.newValue}";
+            }
+        });
+        pathNameField.style.marginBottom = 10;
+        propertiesSection.Add(pathNameField);
 
         // Is Loop toggle
         Toggle isLoopToggle = new Toggle("Is Loop Path");
@@ -479,6 +560,7 @@ public class PathToolUIBuilder
     private VisualElement CreateHeader(string title, string subtitle = null)
     {
         var header = new VisualElement();
+        header.AddToClassList("header"); // Add a class for identification
         header.style.backgroundColor = _headerBgColor;
         header.style.borderBottomWidth = 1;
         header.style.borderBottomColor = new Color(0.1f, 0.1f, 0.1f);

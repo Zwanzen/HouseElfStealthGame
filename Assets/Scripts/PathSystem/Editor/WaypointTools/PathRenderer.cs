@@ -59,56 +59,57 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
     Vector3 selectedPos = path.Waypoints[selectedWaypointIndex].Point;
     float handleSize = GetLimitedHandleSize(selectedPos);
 
-    // Calculate positions for before and after indicators (same as before)
-    Vector3 beforePos;
-    if (selectedWaypointIndex > 0)
+    // Determine if we can add before/after
+    bool canAddBefore = path.IsLoop || selectedWaypointIndex > 0;
+    bool canAddAfter = path.IsLoop || selectedWaypointIndex < path.Waypoints.Length - 1;
+
+    // Only calculate and draw the "Before" indicator if we can add before
+    if (canAddBefore)
     {
-        beforePos = Vector3.Lerp(path.Waypoints[selectedWaypointIndex - 1].Point, selectedPos, 0.5f);
-    }
-    else if (path.IsLoop && path.Waypoints.Length > 1)
-    {
-        beforePos = Vector3.Lerp(path.Waypoints[^1].Point, selectedPos, 0.5f);
-    }
-    else
-    {
-        beforePos = selectedPos - Vector3.forward * handleSize * 2;
+        Vector3 beforePos;
+        if (selectedWaypointIndex > 0)
+        {
+            beforePos = Vector3.Lerp(path.Waypoints[selectedWaypointIndex - 1].Point, selectedPos, 0.5f);
+        }
+        else // This is the first point, and path is a loop
+        {
+            beforePos = Vector3.Lerp(path.Waypoints[^1].Point, selectedPos, 0.5f);
+        }
+
+        // Draw the "Before" indicator
+        Handles.color = _insertBeforeColor;
+        float size = Mathf.Min(handleSize * 0.07f, MAX_DOT_SIZE * 0.25f);
+        Handles.DotHandleCap(0, beforePos, Quaternion.identity, size, EventType.Repaint);
+        
+        // Draw "BEFORE" text
+        Handles.color = new Color(_insertBeforeColor.r, _insertBeforeColor.g, _insertBeforeColor.b, 1f);
+        Vector3 labelPos = beforePos + Vector3.up * handleSize * 0.4f;
+        Handles.Label(labelPos, "BEFORE");
     }
 
-    Vector3 afterPos;
-    if (selectedWaypointIndex < path.Waypoints.Length - 1)
+    // Only calculate and draw the "After" indicator if we can add after
+    if (canAddAfter)
     {
-        afterPos = Vector3.Lerp(selectedPos, path.Waypoints[selectedWaypointIndex + 1].Point, 0.5f);
-    }
-    else if (path.IsLoop && path.Waypoints.Length > 1)
-    {
-        afterPos = Vector3.Lerp(selectedPos, path.Waypoints[0].Point, 0.5f);
-    }
-    else
-    {
-        afterPos = selectedPos + Vector3.forward * handleSize * 2;
-    }
+        Vector3 afterPos;
+        if (selectedWaypointIndex < path.Waypoints.Length - 1)
+        {
+            afterPos = Vector3.Lerp(selectedPos, path.Waypoints[selectedWaypointIndex + 1].Point, 0.5f);
+        }
+        else // This is the last point, and path is a loop
+        {
+            afterPos = Vector3.Lerp(selectedPos, path.Waypoints[0].Point, 0.5f);
+        }
 
-    // Draw the "Before" indicator with smaller dot
-    Handles.color = _insertBeforeColor;
-    // Make dot handle significantly smaller
-    float size = Mathf.Min(handleSize * 0.07f, MAX_DOT_SIZE * 0.25f);
-    Handles.DotHandleCap(0, beforePos, Quaternion.identity, size, EventType.Repaint);
-    
-    // Draw text higher up and more visible
-    Handles.color = new Color(_insertBeforeColor.r, _insertBeforeColor.g, _insertBeforeColor.b, 1f);
-    Vector3 labelPos = beforePos + Vector3.up * handleSize * 0.4f;
-    
-    // Draw label with all caps for better visibility
-    Handles.Label(labelPos, "BEFORE");
-
-    // Draw the "After" indicator with smaller dot
-    Handles.color = _insertAfterColor;
-    Handles.DotHandleCap(0, afterPos, Quaternion.identity, size, EventType.Repaint);
-    
-    // Draw text higher up and more visible
-    Handles.color = new Color(_insertAfterColor.r, _insertAfterColor.g, _insertAfterColor.b, 1f);
-    labelPos = afterPos + Vector3.up * handleSize * 0.4f;
-    Handles.Label(labelPos, "AFTER");
+        // Draw the "After" indicator
+        Handles.color = _insertAfterColor;
+        float size = Mathf.Min(handleSize * 0.07f, MAX_DOT_SIZE * 0.25f);
+        Handles.DotHandleCap(0, afterPos, Quaternion.identity, size, EventType.Repaint);
+        
+        // Draw "AFTER" text
+        Handles.color = new Color(_insertAfterColor.r, _insertAfterColor.g, _insertAfterColor.b, 1f);
+        Vector3 labelPos = afterPos + Vector3.up * handleSize * 0.4f;
+        Handles.Label(labelPos, "AFTER");
+    }
 }
     
     public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneView, Action<int> waypointSelectedCallback)
