@@ -5,9 +5,9 @@ using System;
 public class PathRenderer
 {
     // Add maximum size constants
-    private const float MAX_DOT_SIZE = 1f;       // Maximum dot size
+    private const float MAX_DOT_SIZE = 0.1f;       // Maximum dot size
     private const float MAX_ARROW_SIZE = 1.5f;   // Maximum arrow size
-    private const float MAX_HANDLE_SIZE = 1.5f;    // Maximum handle size for calculations
+    private const float MAX_HANDLE_SIZE = 2f;    // Maximum handle size for calculations
     private const float MAX_DISC_SIZE = 1.5f;    // Maximum disc size for direction handles
     private const float LABEL_FADE_START_DISTANCE = 20f;  // Distance at which labels start fading
     private const float LABEL_FADE_END_DISTANCE = 30f;    // Distance at which labels become invisible
@@ -15,14 +15,15 @@ public class PathRenderer
 
     
     // Colors for styling
-    private readonly Color _insertBeforeColor = new Color(0.2f, 0.6f, 1f, 0.7f);
-    private readonly Color _insertAfterColor = new Color(0.2f, 1f, 0.6f, 0.7f);
-    private readonly Color _pathColor = Color.cyan;
-    private readonly Color _loopLineColor = new Color(0.8f, 0.8f, 1f);
+    private readonly Color _dotColor = new Color(0f, 1f, 1f, 1f);
+    private readonly Color _insertBeforeColor = new Color(0.2f, 0.6f, 1f, 1f);
+    private readonly Color _insertAfterColor = new Color(0.2f, 1f, 0.6f, 1f);
+    private readonly Color _pathColor = new Color(0f, 1f, 1f, 0.3f);
+    private readonly Color _loopLineColor = new Color(0.8f, 0.8f, 1f,0.3f);
     private readonly Color _directionHandleColor = Color.yellow;
     private readonly Color _stopColor = new Color(1f, 0.5f, 0f);
-    private readonly Color _animationColor = Color.green;
     private readonly Color _selectedColor = Color.white;
+    private readonly Color _animationColor = new Color(0f, 1f, 0.5f);
     private readonly Color _lineArrowColor = new Color(0.4f, 1f, 1f);
     private readonly Color _loopArrowColor = new Color(0.9f, 0.9f, 1f);
 
@@ -120,8 +121,9 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
 
         HandleKeyboardInput(e, path, selectedWaypointIndex, sceneView);
         DrawPathLines(path);
-        DrawWaypointDirections(path, selectedWaypointIndex);
         HandleWaypointManipulation(e, path, selectedWaypointIndex, sceneView, out directionHandleId);
+
+        DrawWaypointDirections(path, selectedWaypointIndex);
         DrawWaypointVisuals(path, selectedWaypointIndex);
         DrawWaypointLabels(path, selectedWaypointIndex);
     
@@ -314,19 +316,22 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
 
     private void HandlePositionControl(NpcPath path, int selectedWaypointIndex)
     {
+        // Generate a control ID for the position handle
+        int positionHandleId = GUIUtility.GetControlID(FocusType.Passive);
+        
         EditorGUI.BeginChangeCheck();
         Vector3 newPosition = Handles.PositionHandle(path.Waypoints[selectedWaypointIndex].Point, Quaternion.identity);
-
+        
         if (EditorGUI.EndChangeCheck())
         {
             Undo.RecordObject(path, "Move Waypoint");
-            var waypoints = path.Waypoints;
+            Waypoint[] waypoints = path.Waypoints;
             waypoints[selectedWaypointIndex].Point = newPosition;
             path.Waypoints = waypoints;
             EditorUtility.SetDirty(path);
         }
     }
-
+    
     private void DrawWaypointVisuals(NpcPath path, int selectedWaypointIndex)
     {
         for (int i = 0; i < path.Waypoints.Length; i++)
@@ -334,19 +339,23 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
             Waypoint waypoint = path.Waypoints[i];
             Vector3 waypointPos = waypoint.Point;
             float handleSize = GetLimitedHandleSize(waypointPos);
-
-            // Set color based on waypoint state (unchanged)
+        
+            // Use correct color based on waypoint state
             if (i == selectedWaypointIndex)
                 Handles.color = _selectedColor;
             else if (waypoint.HasAnimation)
                 Handles.color = _animationColor;
-            else if (waypoint.HasStop)
+            else if(waypoint.HasStop)
                 Handles.color = _stopColor;
             else
-                Handles.color = _pathColor;
-
+                Handles.color = _dotColor;
+        
             // Use capped dot size
-            float dotSize = Mathf.Min((i == selectedWaypointIndex ? 0.1f : 0.07f) * handleSize, MAX_DOT_SIZE);
+            // Reduce the multiplier for selected waypoints from 0.15f to 0.12f
+            float dotSize = Mathf.Min((i == selectedWaypointIndex ? 0.08f : 0.1f) * handleSize, MAX_DOT_SIZE);
+
+            // Draw the waypoint dot
+            Handles.DotHandleCap(0, waypointPos, Quaternion.identity, dotSize, EventType.Repaint);
 
             // Draw dot
             Handles.DotHandleCap(
@@ -356,12 +365,6 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
                 dotSize,
                 EventType.Repaint
             );
-
-            // Draw label for selected waypoint with capped offset
-            if (i == selectedWaypointIndex)
-            {
-                Handles.Label(waypointPos + Vector3.up * Mathf.Min(handleSize * 0.3f, MAX_DOT_SIZE), $"Waypoint {i+1}");
-            }
         }
     }
 
@@ -419,7 +422,7 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
     private void DrawClockVisualization(Vector3 position, float handleSize, float stopTime, float fadeFactor)
     {
         float limitedHandleSize = GetLimitedHandleSize(position);
-        float circleRadius = Mathf.Min(limitedHandleSize * 0.15f, MAX_DOT_SIZE * 0.15f);
+        float circleRadius = Mathf.Min(limitedHandleSize * 0.3f, MAX_DOT_SIZE * 4f);
     
         // Apply fade factor to current color
         Color currentColor = Handles.color;

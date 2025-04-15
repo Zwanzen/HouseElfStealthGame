@@ -5,6 +5,9 @@ public class PathOperations
 {
     public void AddWaypoint(NpcPath path, int selectedIndex, out int newIndex)
     {
+        // Register the operation with Undo system before making changes
+        Undo.RecordObject(path, "Add Waypoint");
+        
         Vector3 newPosition = Vector3.zero;
         int insertIndex = -1;
         float offsetDistance = 1.5f; // Same offset distance
@@ -18,7 +21,8 @@ public class PathOperations
                 Point = newPosition,
                 HasStop = false,
                 HasDirection = false,
-                Direction = Vector3.forward
+                Direction = Vector3.forward,
+                StopTime = 3.0f
             };
 
             path.Waypoints = new Waypoint[] { newWaypoint };
@@ -46,7 +50,8 @@ public class PathOperations
                 Point = newPosition,
                 HasStop = false,
                 HasDirection = false,
-                Direction = Vector3.forward
+                Direction = Vector3.forward,
+                StopTime = 3.0f
             };
 
             Waypoint[] currentWaypoints = path.Waypoints;
@@ -68,6 +73,9 @@ public class PathOperations
 
     public void AddWaypointRelativeToSelection(NpcPath path, int selectedIndex, bool addBefore, out int newIndex)
     {
+        // Register the operation with Undo system before making changes
+        Undo.RecordObject(path, "Add Waypoint");
+        
         Vector3 newPosition = Vector3.zero;
         int insertIndex = -1;
         float offsetDistance = 1.5f; // Fall-back offset distance when no neighboring waypoint exists
@@ -81,7 +89,8 @@ public class PathOperations
                 Point = Vector3.zero,
                 HasStop = false,
                 HasDirection = false,
-                Direction = Vector3.forward
+                Direction = Vector3.forward,
+                StopTime = 3.0f
             };
 
             path.Waypoints = new Waypoint[] { newWaypoint };
@@ -194,7 +203,8 @@ public class PathOperations
                 Point = newPosition,
                 HasStop = false,
                 HasDirection = false,
-                Direction = Vector3.forward
+                Direction = Vector3.forward,
+                StopTime = 3.0f
             };
 
             // Inert the waypoint at the calculated index
@@ -225,6 +235,9 @@ public class PathOperations
     {
         if (index < 0 || index >= path.Waypoints.Length)
             return;
+        
+        // Register the operation with Undo system
+        Undo.RecordObject(path, "Remove Waypoint");
             
         Waypoint[] waypoints = path.Waypoints;
         Waypoint[] newWaypoints = new Waypoint[waypoints.Length - 1];

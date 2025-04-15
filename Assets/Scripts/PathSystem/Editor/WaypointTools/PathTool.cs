@@ -80,6 +80,69 @@ public class PathTool : EditorWindow
             return;
 
         _renderer.RenderPath(_selectedPath, _selectedWaypointIndex, sceneView, OnWaypointSelected);
+        
+        // Handle keyboard shortcuts for adding waypoints
+        HandleKeyboardShortcuts();
+    }
+    
+    private void HandleKeyboardShortcuts()
+    {
+        Event e = Event.current;
+    
+        // Only process keyboard events
+        if (e.type != EventType.KeyDown || _selectedWaypointIndex < 0)
+            return;
+        
+        // Add waypoint before selected: Ctrl+B or PageUp
+        if ((e.control && e.keyCode == KeyCode.B) || e.keyCode == KeyCode.PageUp)
+        {
+            OnAddWaypointRelative(true);
+            e.Use();
+        }
+        // Add waypoint after selected: Ctrl+N or PageDown
+        else if ((e.control && e.keyCode == KeyCode.N) || e.keyCode == KeyCode.PageDown)
+        {
+            OnAddWaypointRelative(false);
+            e.Use();
+        }
+        // Go to previous waypoint: b or Keypad 4
+        else if (e.keyCode == KeyCode.B || e.keyCode == KeyCode.Keypad4)
+        {
+            GotoPreviousWaypoint();
+            e.Use();
+        }
+        // Go to next waypoint: n or Keypad 6
+        else if (e.keyCode == KeyCode.N || e.keyCode == KeyCode.Keypad6)
+        {
+            GotoNextWaypoint();
+            e.Use();
+        }
+    }
+    
+    private void GotoPreviousWaypoint()
+    {
+        if (_selectedPath != null && _selectedPath.Waypoints != null && _selectedPath.Waypoints.Length > 0)
+        {
+            int newIndex = _selectedWaypointIndex <= 0
+                ? _selectedPath.Waypoints.Length - 1
+                : _selectedWaypointIndex - 1;
+            
+            OnWaypointSelected(newIndex);
+            SceneView.RepaintAll();
+        }
+    }
+
+    private void GotoNextWaypoint()
+    {
+        if (_selectedPath != null && _selectedPath.Waypoints != null && _selectedPath.Waypoints.Length > 0)
+        {
+            int newIndex = _selectedWaypointIndex >= _selectedPath.Waypoints.Length - 1
+                ? 0
+                : _selectedWaypointIndex + 1;
+            
+            OnWaypointSelected(newIndex);
+            SceneView.RepaintAll();
+        }
     }
     
     private void OnGoBack()
