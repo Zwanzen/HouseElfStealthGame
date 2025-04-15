@@ -17,6 +17,21 @@ public class PathTool : EditorWindow
 
     private NpcPath _selectedPath;
     private VisualElement _root;
+    private int _selectedWaypointIndex = -1; //-1 means no waypoint is selected
+    
+    // Store frequently used UI elements
+    private VisualElement _pathDetailsContainer;
+    private VisualElement _waypointDetailsContainer;
+    private Label _waypointsCountLabel;
+    
+    // Colors for styling
+    private readonly Color _headerColor = new Color(0.2f, 0.2f, 0.2f);
+    private readonly Color _sectionColor = new Color(0.25f, 0.25f, 0.25f);
+    private readonly Color _pathColor = Color.cyan;
+    private readonly Color _stopColor = new Color(1f, 0.5f, 0f);
+    private readonly Color _animationColor = new Color(0, 1f, 0.5f);
+    private readonly Color _actionButtonColor = new Color(0.3f, 0.5f, 0.8f);
+    private readonly Color _deleteButtonColor = new Color(0.8f, 0.3f, 0.3f);
 
     private void OnEnable()
     {
@@ -27,8 +42,6 @@ public class PathTool : EditorWindow
     {
         SceneView.duringSceneGui -= OnSceneGUI;
     }
-    
-    private int _selectedWaypointIndex = -1; // -1 means no waypoint is selected
 
     private void OnSceneGUI(SceneView sceneView)
     {
@@ -250,8 +263,11 @@ public class PathTool : EditorWindow
                 EventType.Repaint
             );
 
-            // Draw label with consistent size
-            Handles.Label(waypointPos + Vector3.up * handleSize * 0.3f, $"Waypoint {i+1}");
+            // Draw label only for selected waypoint
+            if (i == _selectedWaypointIndex)
+            {
+                Handles.Label(waypointPos + Vector3.up * handleSize * 0.3f, $"Waypoint {i+1}");
+            }
         }
 
         // Display stop time & animations for relevant waypoints
@@ -691,16 +707,15 @@ public class PathTool : EditorWindow
         SceneView.RepaintAll();
     }
 
-    private void AddWaypoint()
+private void AddWaypoint()
+{
+    Vector3 newPosition = Vector3.zero;
+    int insertIndex = -1;
+
+    // If no waypoints exist yet
+    if (_selectedPath.Waypoints == null || _selectedPath.Waypoints.Length == 0)
     {
-        Vector3 newPosition = Vector3.zero;
-    
-        // If there are existing waypoints, use the position of the last one
-        if (_selectedPath.Waypoints != null && _selectedPath.Waypoints.Length > 0)
-        {
-            newPosition = _selectedPath.Waypoints[^1].Point;
-        }
-    
+        // Just create a new array with one waypoint
         Waypoint newWaypoint = new Waypoint
         {
             Point = newPosition,
@@ -709,16 +724,60 @@ public class PathTool : EditorWindow
             Direction = Vector3.forward
         };
 
-        Waypoint[] waypoints = _selectedPath.Waypoints ?? Array.Empty<Waypoint>();
-        Waypoint[] newWaypoints = new Waypoint[waypoints.Length + 1];
-        Array.Copy(waypoints, newWaypoints, waypoints.Length);
-        newWaypoints[waypoints.Length] = newWaypoint;
-
-        _selectedPath.Waypoints = newWaypoints;
-        _selectedWaypointIndex = waypoints.Length; // Select the new waypoint
-        EditorUtility.SetDirty(_selectedPath);
-        BuildPathDetailsUI();
+        _selectedPath.Waypoints = new Waypoint[] { newWaypoint };
+        _selectedWaypointIndex = 0; // Select the new waypoint
     }
+    else
+    {
+        // Determine position and insert index based on selection
+        if (_selectedWaypointIndex >= 0 && _selectedWaypointIndex < _selectedPath.Waypoints.Length)
+        {
+            // Use position of selected waypoint
+            newPosition = _selectedPath.Waypoints[_selectedWaypointIndex].Point;
+            // Insert after the selected waypoint
+            insertIndex = _selectedWaypointIndex + 1;
+        }
+        else
+        {
+            // No selection, use position of last waypoint and append
+            newPosition = _selectedPath.Waypoints[^1].Point;
+            insertIndex = _selectedPath.Waypoints.Length;
+        }
+
+        // Create the new waypoint
+        Waypoint newWaypoint = new Waypoint
+        {
+            Point = newPosition,
+            HasStop = false,
+            HasDirection = false,
+            Direction = Vector3.forward
+        };
+
+        // Insert the waypoint at the determined position
+        Waypoint[] currentWaypoints = _selectedPath.Waypoints;
+        Waypoint[] newWaypoints = new Waypoint[currentWaypoints.Length + 1];
+        
+        // Copy the waypoints before insertion point
+        Array.Copy(currentWaypoints, 0, newWaypoints, 0, insertIndex);
+        
+        // Insert new waypoint
+        newWaypoints[insertIndex] = newWaypoint;
+        
+        // Copy remaining waypoints after insertion point
+        if (insertIndex < currentWaypoints.Length)
+        {
+            Array.Copy(currentWaypoints, insertIndex, newWaypoints, insertIndex + 1, currentWaypoints.Length - insertIndex);
+        }
+
+        // Update the path
+        _selectedPath.Waypoints = newWaypoints;
+        _selectedWaypointIndex = insertIndex; // Select the new waypoint
+    }
+
+    EditorUtility.SetDirty(_selectedPath);
+    BuildPathDetailsUI();
+    SceneView.RepaintAll();
+}
 
     private void RemoveWaypoint(int index)
     {
