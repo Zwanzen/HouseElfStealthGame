@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using System;
+using UnityEngine.UIElements;
 
 public class PathRenderer
 {
@@ -79,7 +80,7 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
 
         // Draw the "Before" indicator
         Handles.color = _insertBeforeColor;
-        float size = Mathf.Min(handleSize * 0.07f, MAX_DOT_SIZE * 0.25f);
+        float size = Mathf.Min(handleSize * 0.07f, MAX_HANDLE_SIZE * 0.25f);
         Handles.DotHandleCap(0, beforePos, Quaternion.identity, size, EventType.Repaint);
         
         // Draw "BEFORE" text
@@ -103,7 +104,7 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
 
         // Draw the "After" indicator
         Handles.color = _insertAfterColor;
-        float size = Mathf.Min(handleSize * 0.07f, MAX_DOT_SIZE * 0.25f);
+        float size = Mathf.Min(handleSize * 0.07f, MAX_HANDLE_SIZE * 0.25f);
         Handles.DotHandleCap(0, afterPos, Quaternion.identity, size, EventType.Repaint);
         
         // Draw "AFTER" text
@@ -120,7 +121,7 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
         int directionHandleId = -1;
 
         HandleKeyboardInput(e, path, selectedWaypointIndex, sceneView);
-        DrawPathLines(path);
+        DrawPathLines(path, selectedWaypointIndex);
         HandleWaypointManipulation(e, path, selectedWaypointIndex, sceneView, out directionHandleId);
 
         DrawWaypointDirections(path, selectedWaypointIndex);
@@ -145,7 +146,7 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
         }
     }
 
-    private void DrawPathLines(NpcPath path)
+    private void DrawPathLines(NpcPath path, int selectedWaypointIndex)
     {
         if (path.Waypoints.Length < 2)
             return;
@@ -162,8 +163,8 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
             Handles.color = _pathColor;
             Handles.DrawLine(startPoint, endPoint, 2f);
 
-            // Draw direction indicators
-            if (path.IsLoop && distance > 0.1f)
+            // Draw direction indicators if the line doesn't connect to the selected waypoint
+            if (path.IsLoop && distance > 0.1f && i != selectedWaypointIndex && (i + 1) != selectedWaypointIndex)
             {
                 DrawLineDirectionIndicator(startPoint, direction, distance, _lineArrowColor);
             }
@@ -172,7 +173,19 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
         // Draw loop line if enabled
         if (path.IsLoop && path.Waypoints.Length > 2)
         {
-            DrawLoopLine(path.Waypoints[^1].Point, path.Waypoints[0].Point);
+            Vector3 lastPoint = path.Waypoints[^1].Point;
+            Vector3 firstPoint = path.Waypoints[0].Point;
+            float loopDistance = Vector3.Distance(lastPoint, firstPoint);
+        
+            Handles.color = _loopLineColor;
+            Handles.DrawLine(lastPoint, firstPoint, 2f);
+
+            // Only draw direction indicator if neither endpoint is selected
+            if (loopDistance > 0.1f && selectedWaypointIndex != (path.Waypoints.Length - 1) && selectedWaypointIndex != 0)
+            {
+                Vector3 loopDirection = (firstPoint - lastPoint).normalized;
+                DrawLineDirectionIndicator(lastPoint, loopDirection, loopDistance, _loopArrowColor);
+            }
         }
     }
 

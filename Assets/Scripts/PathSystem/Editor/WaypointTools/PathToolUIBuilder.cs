@@ -13,6 +13,7 @@ public class PathToolUIBuilder
     private readonly Color _insertAfterColor = new(0.1f, 0.5f, 0.3f);
     private readonly Color _headerBgColor = new(0.22f, 0.22f, 0.25f);
     private readonly Color _sectionBgColor = new(0.18f, 0.18f, 0.21f);
+    private readonly Color _sectionCColor = new(0.14f, 0.14f, 0.16f);
     private readonly Color _buttonHoverColor = new(0.25f, 0.25f, 0.28f);
     private readonly Color _primaryActionColor = new(0.35f, 0.55f, 0.9f);
     private readonly Color _secondaryActionColor = new(0.4f, 0.4f, 0.45f);
@@ -35,13 +36,17 @@ public class PathToolUIBuilder
         root.Clear();
         ApplyBaseStyles(root);
 
+        // FULL CONTAINER
+        var allContainer = new Box();
+        var allColor = _headerBgColor * 0.5f;
+        allColor.a = 1f;
+        allContainer.style.backgroundColor = allColor;
+        
         // Create header
         var header = CreateHeader("Path Creation Tool", "Create or select a path to edit");
-        root.Add(header);
 
-        // Select path section
-        var selectSection = CreateSection("Select Existing Path");
-        root.Add(selectSection);
+        // START OF SELECT PATH SECTION
+        var selectSection = new VisualElement();
 
         var npcPathField = new ObjectField();
         npcPathField.objectType = typeof(NpcPath);
@@ -146,17 +151,19 @@ public class PathToolUIBuilder
         }
 
         selectSection.Add(recentPathsContainer);
+        selectSection = CreateSection(selectSection, "Select Existing Path");
+        // END OF SELECT PATH SECTION
+        
+        // START OF CREATE PATH SECTION
+        var createSection = new VisualElement();
 
-// Create path section
-        var createSection = CreateSection("Create New Path");
-        root.Add(createSection);
 
         var nameField = new TextField("Name");
         nameField.value = "New Path";
         nameField.style.marginBottom = 10;
         createSection.Add(nameField);
 
-// Add save location display
+        // Add save location display
         var assetSavePath = "Assets/Scripts/PathSystem/Paths";
         var pathInfoLabel = new Label($"Save location: {assetSavePath}");
         pathInfoLabel.style.fontSize = 10;
@@ -185,10 +192,21 @@ public class PathToolUIBuilder
         createPathButton.text = "Create Path";
         ApplyButtonStyle(createPathButton, _primaryActionColor, true);
         createSection.Add(createPathButton);
+        
+        createSection = CreateSection(createSection, "Create New Path");
+        // END OF CREATE PATH SECTION
 
+
+
+        // ALL CONTAINER
+        allContainer.Add(header);
+        allContainer.Add(selectSection);
+        allContainer.Add(createSection);
+        root.Add(allContainer);
+        
         // Footer with info
         var footer = new VisualElement();
-        footer.style.marginTop = 20;
+        footer.style.marginTop = 4;
         footer.style.borderTopWidth = 1;
         footer.style.borderTopColor = new Color(0.3f, 0.3f, 0.3f);
         footer.style.paddingTop = 8;
@@ -197,7 +215,6 @@ public class PathToolUIBuilder
         hint.style.fontSize = 10;
         hint.style.color = new Color(0.7f, 0.7f, 0.7f);
         footer.Add(hint);
-
         root.Add(footer);
     }
 
@@ -211,15 +228,20 @@ public class PathToolUIBuilder
         if (selectedPath == null)
             return;
 
+        // FULL CONTAINER
+        var allContainer = new Box();
+        var allColor = _headerBgColor * 0.5f;
+        allColor.a = 1f;
+        allContainer.style.backgroundColor = allColor;
+        
         // Create header
         var header = CreateHeader($"Editing: {selectedPath.name}", "Configure waypoints and path properties");
-        root.Add(header);
 
-        // Top action bar
+        // START OF TOP ACTIONS
         var topActions = new VisualElement();
         topActions.style.flexDirection = FlexDirection.Row;
-        topActions.style.marginBottom = 16;
-        root.Add(topActions);
+        topActions.style.justifyContent = Justify.Center; // Center horizontally
+        topActions.style.alignItems = Align.Center; // Center vertically
 
         // Back button
         var backButton = new Button(() =>
@@ -229,62 +251,53 @@ public class PathToolUIBuilder
         });
         backButton.text = "← Back";
         ApplyButtonStyle(backButton, _secondaryActionColor);
-        backButton.style.width = 80;
+        backButton.style.width = 160; // Make wider
+        backButton.style.height = 36; // Make taller
+        backButton.style.marginRight = 20; // Add space between buttons
         topActions.Add(backButton);
 
-        var spacer = new VisualElement();
-        spacer.style.flexGrow = 1;
-        topActions.Add(spacer);
-
-        // First create the button with an empty action
+        // Save button
         var saveButton = new Button();
-
-        // Set initial properties
         saveButton.text = "💾 Save Changes";
         ApplyButtonStyle(saveButton, _primaryActionColor, true);
-
-        // Add the button to the container
+        saveButton.style.width = 160; // Make wider
+        saveButton.style.height = 36; // Make taller
         topActions.Add(saveButton);
 
-        // Now set up the click handler after the button is fully initialized
+        // Add the click handler for save button
         saveButton.clicked += () =>
         {
-            // Invoke the save action
+            // Existing save button logic
             OnSaveChanges?.Invoke();
-
-            // Store original text and color
+    
             var originalText = saveButton.text;
             var originalColor = _primaryActionColor;
-
-            // Change to "saved" state
+    
             saveButton.text = "✓ Saved!";
-            ApplyButtonStyle(saveButton, new Color(0.2f, 0.7f, 0.3f), true); // Green success color
-
-            // Set up a timer to restore the button after delay
-            var resetTime = EditorApplication.timeSinceStartup + 2.0; // 2 second delay
-
-            // Create an EditorApplication.CallbackFunction
+            ApplyButtonStyle(saveButton, new Color(0.2f, 0.7f, 0.3f), true);
+    
+            var resetTime = EditorApplication.timeSinceStartup + 2.0;
+    
             EditorApplication.CallbackFunction resetCallback = null;
             resetCallback = () =>
             {
-                // Check if enough time has passed
                 if (EditorApplication.timeSinceStartup >= resetTime)
                 {
-                    // Only reset if button still exists
                     if (saveButton != null)
                     {
                         saveButton.text = originalText;
                         ApplyButtonStyle(saveButton, originalColor, true);
                     }
-
-                    // Unregister our update function
                     EditorApplication.update -= resetCallback;
                 }
             };
-
-            // Register the update function
+    
             EditorApplication.update += resetCallback;
         };
+        topActions = CreateSection(topActions);
+        // END OF TOP ACTIONS
+
+        
         // Ensure the waypoints array is initialized
         if (selectedPath.Waypoints == null)
         {
@@ -292,9 +305,8 @@ public class PathToolUIBuilder
             EditorUtility.SetDirty(selectedPath);
         }
 
-        // Path Properties section
-        var propertiesSection = CreateSection("Path Properties");
-        root.Add(propertiesSection);
+        // START OF PATH PROPERTIES SECTION
+        var pathProperties = new VisualElement();
 
         // Add Path Name field
         var pathNameField = new TextField("Path Name");
@@ -332,7 +344,7 @@ public class PathToolUIBuilder
                 headerTitle.text = $"Editing: {evt.newValue}";
         });
         pathNameField.style.marginBottom = 10;
-        propertiesSection.Add(pathNameField);
+        pathProperties.Add(pathNameField);
 
         // Is Loop toggle
         var isLoopToggle = new Toggle("Is Loop Path");
@@ -345,111 +357,15 @@ public class PathToolUIBuilder
             EditorUtility.SetDirty(selectedPath);
             SceneView.RepaintAll();
         });
-        propertiesSection.Add(isLoopToggle);
+        pathProperties.Add(isLoopToggle);
 
         // Flip Direction button
         var flipDirectionButton = new Button(() => OnFlipPath?.Invoke());
         flipDirectionButton.text = "↑↓ Flip Path Direction";
         flipDirectionButton.tooltip = "Reverses the order of waypoints (start becomes end)";
         ApplyButtonStyle(flipDirectionButton, _secondaryActionColor);
-        propertiesSection.Add(flipDirectionButton);
-
-        // Waypoints section
-        var waypointsSection = CreateSection($"Waypoints ({selectedPath.Waypoints?.Length ?? 0})");
-        root.Add(waypointsSection);
-
-        // Waypoint navigation and management
-        var navContainer = new Box();
-        navContainer.style.flexDirection = FlexDirection.Column;
-        navContainer.style.marginBottom = 12;
-        waypointsSection.Add(navContainer);
-
-        // Nav buttons row
-        var navigationRow = new VisualElement();
-        navigationRow.style.flexDirection = FlexDirection.Row;
-        navigationRow.style.marginBottom = 10;
-        navContainer.Add(navigationRow);
-
-        var prevButton = new Button(() =>
-        {
-            if (selectedPath.Waypoints != null && selectedPath.Waypoints.Length > 0)
-            {
-                var newIndex = selectedWaypointIndex <= 0
-                    ? selectedPath.Waypoints.Length - 1
-                    : selectedWaypointIndex - 1;
-                OnSelectWaypoint?.Invoke(newIndex);
-            }
-        });
-        prevButton.text = "◄ Previous";
-        ApplyButtonStyle(prevButton, _secondaryActionColor);
-        prevButton.style.flexGrow = 1;
-        navigationRow.Add(prevButton);
-
-        var nextButton = new Button(() =>
-        {
-            if (selectedPath.Waypoints != null && selectedPath.Waypoints.Length > 0)
-            {
-                var newIndex = selectedWaypointIndex >= selectedPath.Waypoints.Length - 1
-                    ? 0
-                    : selectedWaypointIndex + 1;
-                OnSelectWaypoint?.Invoke(newIndex);
-            }
-        });
-        nextButton.text = "Next ►";
-        ApplyButtonStyle(nextButton, _secondaryActionColor);
-        nextButton.style.flexGrow = 1;
-        navigationRow.Add(nextButton);
-
-        // Add waypoint buttons
-        if (selectedWaypointIndex >= 0 && selectedWaypointIndex < selectedPath.Waypoints.Length)
-        {
-            // Add the relative buttons when waypoint is selected
-            var addButtonsRow = new VisualElement();
-            addButtonsRow.style.flexDirection = FlexDirection.Row;
-            addButtonsRow.style.marginTop = 5;
-            addButtonsRow.style.height = 36; // Taller buttons
-            navContainer.Add(addButtonsRow);
-
-            var addBeforeButton = new Button(() => OnAddWaypointRelative?.Invoke(true));
-            addBeforeButton.text = "◄+ Add Before";
-            ApplyButtonStyle(addBeforeButton, _insertBeforeColor, true);
-            addBeforeButton.style.flexGrow = 1;
-            addBeforeButton.style.marginRight = 5;
-            addButtonsRow.Add(addBeforeButton);
-
-            var addAfterButton = new Button(() => OnAddWaypointRelative?.Invoke(false));
-            addAfterButton.text = "Add After +►";
-            ApplyButtonStyle(addAfterButton, _insertAfterColor, true);
-            addAfterButton.style.flexGrow = 1;
-            addAfterButton.style.marginLeft = 5;
-            addButtonsRow.Add(addAfterButton);
-        }
-        else
-        {
-            // Standard add waypoint button
-            var addWaypointButton = new Button(() => OnAddWaypoint?.Invoke());
-            addWaypointButton.text = "＋ Add Waypoint";
-            ApplyButtonStyle(addWaypointButton, _primaryActionColor, true);
-            addWaypointButton.style.height = 36; // Make it taller
-            navContainer.Add(addWaypointButton);
-        }
-
-        // Selected waypoint details
-        if (selectedWaypointIndex >= 0 && selectedWaypointIndex < selectedPath.Waypoints.Length)
-        {
-            BuildSelectedWaypointUI(waypointsSection, selectedPath, selectedWaypointIndex);
-        }
-        else
-        {
-            var helpBox = new HelpBox("Select a waypoint in the Scene view to edit its properties",
-                HelpBoxMessageType.Info);
-            waypointsSection.Add(helpBox);
-        }
-
-        var deleteSpacer = new VisualElement();
-        deleteSpacer.style.height = 10;
-        propertiesSection.Add(deleteSpacer);
-
+        pathProperties.Add(flipDirectionButton);
+        
         // Add delete path button
         var deletePathButton = new Button(() =>
         {
@@ -465,20 +381,138 @@ public class PathToolUIBuilder
         });
         deletePathButton.text = "🗑️ Delete Path";
         ApplyButtonStyle(deletePathButton, _dangerColor);
-        propertiesSection.Add(deletePathButton);
+        pathProperties.Add(deletePathButton);
+        
+        // END OF PROPERTIES SECTION
+        pathProperties = CreateSection(pathProperties, "Path Properties");
+
+        // START OF NAV SECTION
+        var navSection = new VisualElement();
+        navSection.style.flexDirection = FlexDirection.Row;
+        navSection.style.justifyContent = Justify.Center; // Center horizontally
+        navSection.style.alignItems = Align.Center; // Center vertically
+
+        var prevButton = new Button(() =>
+        {
+            if (selectedPath.Waypoints != null && selectedPath.Waypoints.Length > 0)
+            {
+                var newIndex = selectedWaypointIndex <= 0
+                    ? selectedPath.Waypoints.Length - 1
+                    : selectedWaypointIndex - 1;
+                OnSelectWaypoint?.Invoke(newIndex);
+            }
+        });
+        prevButton.text = "◄ Previous";
+        ApplyButtonStyle(prevButton, _secondaryActionColor);
+        prevButton.style.marginRight = 20; // Add space between buttons
+        prevButton.style.width = 200; // Make wider
+        prevButton.style.height = 30; // Make taller
+        navSection.Add(prevButton);
+
+        var nextButton = new Button(() =>
+        {
+            if (selectedPath.Waypoints != null && selectedPath.Waypoints.Length > 0)
+            {
+                var newIndex = selectedWaypointIndex >= selectedPath.Waypoints.Length - 1
+                    ? 0
+                    : selectedWaypointIndex + 1;
+                OnSelectWaypoint?.Invoke(newIndex);
+            }
+        });
+        nextButton.text = "Next ►";
+        ApplyButtonStyle(nextButton, _secondaryActionColor);
+        nextButton.style.width = 200; // Make wider
+        nextButton.style.height = 30; // Make taller
+        navSection.Add(nextButton);
+        
+        navSection = CreateSection(navSection, $"Navigation");
+        // END OF NAV SECTION
+        
+        // START OF MANAGE POINTS SECTION
+        var managePoints = new VisualElement();
+        managePoints.style.flexDirection = FlexDirection.Column;
+
+        // Add waypoint buttons
+        if (selectedWaypointIndex >= 0 && selectedWaypointIndex < selectedPath.Waypoints.Length)
+        {
+            // Add the relative buttons when waypoint is selected
+            var addButtonsRow = new VisualElement();
+            addButtonsRow.style.flexDirection = FlexDirection.Row;
+            addButtonsRow.style.marginTop = 5;
+            addButtonsRow.style.height = 36; // Taller buttons
+            managePoints.Add(addButtonsRow);
+
+            var addBeforeButton = new Button(() => OnAddWaypointRelative?.Invoke(true));
+            addBeforeButton.text = "◄+ Add Before";
+            ApplyButtonStyle(addBeforeButton, _insertBeforeColor, true);
+            addBeforeButton.style.flexGrow = 1;
+            addButtonsRow.Add(addBeforeButton);
+
+            var addAfterButton = new Button(() => OnAddWaypointRelative?.Invoke(false));
+            addAfterButton.text = "Add After +►";
+            ApplyButtonStyle(addAfterButton, _insertAfterColor, true);
+            addAfterButton.style.flexGrow = 1;
+            addButtonsRow.Add(addAfterButton);
+            
+            // Add delete button after the add buttons
+            var deleteButton = new Button(() => OnRemoveWaypoint?.Invoke(selectedWaypointIndex));
+            deleteButton.text = "🗑 Delete Waypoint";
+            ApplyButtonStyle(deleteButton, _dangerColor);
+            deleteButton.style.marginTop = 8;
+            managePoints.Add(deleteButton);
+        }
+        else
+        {
+            // Standard add waypoint button
+            var addWaypointButton = new Button(() => OnAddWaypoint?.Invoke());
+            addWaypointButton.text = "＋ Add Waypoint";
+            ApplyButtonStyle(addWaypointButton, _primaryActionColor, true);
+            addWaypointButton.style.height = 36; // Make it taller
+            managePoints.Add(addWaypointButton);
+        }
+
+        managePoints = CreateSection(managePoints, "Manage Waypoints");
+        // END OF MANAGE POINTS SECTION
+        
+        // START OF WAYPOINT PROPERTIES SECTION
+        var waypointProperties = new VisualElement();
+        
+        // Selected waypoint details
+        var helpSection = new VisualElement();
+        if (selectedWaypointIndex >= 0 && selectedWaypointIndex < selectedPath.Waypoints.Length)
+        {
+            BuildSelectedWaypointUI(waypointProperties, selectedPath, selectedWaypointIndex);
+        }
+        else
+        {
+            var helpBox = new HelpBox("Select a waypoint in the Scene view to edit its properties",
+                HelpBoxMessageType.Info);
+            helpSection.Add(helpBox);
+        }
+        
+        // EVERYTHING IN THE UI
+        allContainer.Add(header);
+        allContainer.Add(topActions);
+        allContainer.Add(pathProperties);
+        allContainer.Add(navSection);
+        allContainer.Add(managePoints);
+        allContainer.Add(waypointProperties);
+        
+        root.Add(allContainer);
+        root.Add(helpSection);
     }
 
     // Build the UI for the selected waypoint
     private void BuildSelectedWaypointUI(VisualElement root, NpcPath selectedPath, int selectedWaypointIndex)
     {
-        var waypointSection = CreateSection($"Waypoint {selectedWaypointIndex + 1} Properties");
-        waypointSection.style.marginTop = 16;
-        root.Add(waypointSection);
-
         var waypoint = selectedPath.Waypoints[selectedWaypointIndex];
 
+        // START OF WAYPOINT SECTION
+        var waypointSection = new VisualElement();
+        waypointSection.style.marginTop = 10;
+        
         // Position field
-        var positionField = new Vector3Field("Position");
+        var positionField = new Vector3Field();
         positionField.value = waypoint.Point;
         positionField.style.marginBottom = 10;
         positionField.RegisterValueChangedCallback(evt =>
@@ -586,13 +620,10 @@ public class PathToolUIBuilder
             selectedPath, selectedWaypointIndex,
             hasStopToggle, hasDirectionToggle, hasAnimationToggle,
             stopTimeContainer, directionField, animationTypeField);
-
-        // Delete button - moved to bottom and styled as a danger action
-        var deleteButton = new Button(() => OnRemoveWaypoint?.Invoke(selectedWaypointIndex));
-        deleteButton.text = "🗑 Delete Waypoint";
-        ApplyButtonStyle(deleteButton, _dangerColor);
-        deleteButton.style.marginTop = 12;
-        waypointSection.Add(deleteButton);
+        
+        waypointSection = CreateSection(waypointSection, $"Waypoint {selectedWaypointIndex + 1} Properties");
+        root.Add(waypointSection);
+        // END OF WAYPOINT SECTION
     }
 
     // Register all callbacks for the waypoint properties
@@ -719,30 +750,64 @@ public class PathToolUIBuilder
         return header;
     }
 
-    private VisualElement CreateSection(string title)
+    private VisualElement CreateSection(VisualElement content, string title = null)
     {
-        var section = new VisualElement();
-        section.style.marginBottom = 16;
+        var section = new VisualElement
+        {
+            style =
+            {
+                marginBottom = 10
+            }
+        };
+        
+        var sectionContainer = new Box
+        {
+            style =
+            {
+                backgroundColor = _sectionCColor,
+                borderTopLeftRadius = 4,
+                borderTopRightRadius = 4,
+                borderBottomLeftRadius = 4,
+                borderBottomRightRadius = 4,
+                paddingLeft = 12,
+                paddingRight = 12,
+                paddingTop = 12,
+                paddingBottom = 12
+            }
+        };
 
-        var sectionHeader = new Label(title);
-        sectionHeader.style.unityFontStyleAndWeight = FontStyle.Bold;
-        sectionHeader.style.fontSize = 13;
-        sectionHeader.style.marginBottom = 8;
-        section.Add(sectionHeader);
+        var sectionHeader = new Label(title)
+        {
+            style =
+            {
+                unityFontStyleAndWeight = FontStyle.Bold,
+                fontSize = 13,
+                marginBottom = 8
+            }
+        };
+        if(title != null)
+            sectionContainer.Add(sectionHeader);
 
-        var sectionContent = new Box();
-        sectionContent.style.backgroundColor = _sectionBgColor;
-        sectionContent.style.borderTopLeftRadius = 4;
-        sectionContent.style.borderTopRightRadius = 4;
-        sectionContent.style.borderBottomLeftRadius = 4;
-        sectionContent.style.borderBottomRightRadius = 4;
-        sectionContent.style.paddingLeft = 12;
-        sectionContent.style.paddingRight = 12;
-        sectionContent.style.paddingTop = 12;
-        sectionContent.style.paddingBottom = 12;
-        section.Add(sectionContent);
+        var sectionContent = new Box
+        {
+            style =
+            {
+                backgroundColor = _sectionBgColor,
+                borderTopLeftRadius = 4,
+                borderTopRightRadius = 4,
+                borderBottomLeftRadius = 4,
+                borderBottomRightRadius = 4,
+                paddingLeft = 12,
+                paddingRight = 12,
+                paddingTop = 12,
+                paddingBottom = 12
+            }
+        };
+        sectionContent.Add(content);
+        sectionContainer.Add(sectionContent);
+        section.Add(sectionContainer);
 
-        return sectionContent;
+        return section;
     }
 
     private void ApplyButtonStyle(Button button, Color baseColor, bool isPrimary = false)
