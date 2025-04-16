@@ -17,6 +17,9 @@ public static class RigidbodyMovement
     
     public static void MoveRigidbody(Rigidbody rb, Vector3 moveInput, MovementSettings settings)
     {
+        if(moveInput.magnitude > 1f)
+            moveInput.Normalize();
+        
         // 1. Determine Target Velocity
         // Calculate the velocity we *want* to achieve based on input and max speed.
         // We primarily control movement on the XZ plane.
@@ -67,10 +70,63 @@ public static class RigidbodyMovement
         // Debug.DrawRay(transform.position, rb.velocity, Color.blue);      // Current velocity
         // Debug.DrawRay(transform.position, actualAccelerationVector, Color.red); // Applied acceleration
     }
+
+    public static void MoveToRigidbody(Rigidbody rb, Vector3 position, MovementSettings settings)
+    {
+        Vector3 currentPosition = rb.position;
+        Vector3 targetPosition = position;
+
+        Vector3 directionToTarget = targetPosition - currentPosition;
+        float distanceToTarget = directionToTarget.magnitude;
+        
+        // --- Stop Condition ---
+        // If we are already very close, stop completely and prevent further calculations
+        if (distanceToTarget <= 0.01f)
+        {
+            rb.linearVelocity = Vector3.zero; // Hard stop
+            // Optional: Snap to exact target position
+            // rb.MovePosition(targetPosition);
+            return; // Exit FixedUpdate here
+        }
+
+        // --- Calculate Speed Limits ---
+
+        // 1. Calculate the maximum speed we can have *now* to be able to stop in time
+        // Use the kinematic equation: v_f^2 = v_i^2 + 2ad  => 0 = v_i^2 - 2 * maxAcceleration * distance
+        // So, v_i = sqrt(2 * maxAcceleration * distance)
+        // If using separate deceleration: float deceleration = maxDeceleration;
+        float deceleration = settings.Acceleration; // Assuming braking power = acceleration power
+        float maxSpeedToStop = Mathf.Sqrt(2 * deceleration * distanceToTarget);
+
+        // 2. Determine the actual target speed for this frame
+        // We want to go as fast as possible (maxSpeed), but no faster than needed to stop (maxSpeedToStop)
+        float targetSpeed = Mathf.Min(settings.MaxSpeed, maxSpeedToStop);
+
+        // --- Calculate Desired Velocity ---
+        Vector3 desiredVelocity = directionToTarget.normalized * targetSpeed;
+
+        // --- Calculate Acceleration and Apply Force ---
+        Vector3 currentVelocity = rb.linearVelocity;
+        Vector3 velocityChange = desiredVelocity - currentVelocity;
+
+        // Calculate the acceleration required to reach the desired velocity in one physics step
+        Vector3 requiredAcceleration = velocityChange / Time.fixedDeltaTime;
+
+        // Clamp the acceleration magnitude so it doesn't exceed maxAcceleration
+        Vector3 actualAcceleration = Vector3.ClampMagnitude(requiredAcceleration, settings.Acceleration);
+
+        // Apply the force: F = m * a
+        rb.AddForce(actualAcceleration * rb.mass, ForceMode.Force); // ForceMode.Force applies force over time
+
+    }
     
     // Rotates the rigidbody towards direction based on a rotation speed
     public static void RotateRigidbody(Rigidbody rb, Vector3 dir, float rotationSpeed)
     {
+        dir.Normalize();
+        if(dir == Vector3.zero)
+            return;
+        
         Quaternion toRotation = Quaternion.LookRotation(dir, Vector3.up);
         Quaternion rotation = Quaternion.RotateTowards(rb.rotation, toRotation, rotationSpeed * Time.fixedDeltaTime);
         rb.MoveRotation(rotation);

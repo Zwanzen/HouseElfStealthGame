@@ -11,12 +11,12 @@ public class FootPlacingState : FootControlState
     {
         if(Context.IsFootGrounded)
             return FootControlStateMachine.EFootState.Planted;
+
         
         return StateKey;
     }
-    
+
     private bool _validPlacement;
-    private bool _placed;
     private RaycastHit _cast;
     private Vector3 _placeNormal;
     
@@ -25,18 +25,10 @@ public class FootPlacingState : FootControlState
     
     public override void EnterState()
     {
-        _validPlacement = false;
-        _placed = false;
+        _validPlacement = CheckValidPlacement();
+        if(!_validPlacement)
+            Context.Player.Camera.Stumble();
         _startPos = Context.Foot.Target.position;
-        
-        // Check if the foot placement is valid
-        if (Physics.SphereCast(Context.Foot.Target.position, Context.FootPlaceOffset.magnitude, Vector3.down, out var hit,
-                Context.StepHeight * 0.9f, Context.GroundLayers))
-        {
-            _validPlacement = true;
-            _cast = hit;
-            _placeNormal = _cast.normal;
-        }
     }
 
     public override void ExitState()
@@ -50,28 +42,49 @@ public class FootPlacingState : FootControlState
     public override void FixedUpdateState()
     {
         MoveToGround();
-        //HandleFootRotation();
+        HandleRotation();
     }
-
-    private bool CheckStuckOnLedge(out RaycastHit hit)
+    
+    private bool CheckValidPlacement()
     {
-        // Do a box cast to check if the foot is stuck on a ledge
-        var position = Context.FootCastValues.Position;
-        var size = Context.FootCastValues.Size;
-        var rotation = Context.FootCastValues.Rotation;
-        
-        position.y += size.y;
-        size *= 1.04f;
-
-        return Physics.BoxCast(position, size, Vector3.down, out hit, rotation, size.y * 1.5f,
-            Context.GroundLayers);
+        return Context.FootGroundCast(0.5f);
     }
     
     private void MoveToGround()
     {
         var dir = Vector3.down;
+        var settingsToUse = Context.MovementSettings;
+        if (!_validPlacement)
+        {
+            dir = Vector3.down + Context.Foot.Target.position; // dirPos
+            settingsToUse = Context.PlacementSettings;
+            
+            // Determine what the safe position is
+            var lastSafe = Context.LastSafePosition;
+            var oldSafe = Context.OldSafePosition;
+            var distToLast = Vector3.Distance(lastSafe, Context.OtherFoot.Target.position);
+            var distToOld = Vector3.Distance(oldSafe, Context.OtherFoot.Target.position);
+            var safe = distToLast < distToOld ? lastSafe : oldSafe;
+            
+            var safePos = safe + (0.3f * Vector3.up);
+            
+            var xzSafePos = safePos;
+            xzSafePos.y = 0f;
+            var xzFootPos = Context.Foot.Target.position;
+            xzFootPos.y = 0f;
+            var safeMag = (xzSafePos - xzFootPos).magnitude;
+            
+            var downDistance = Context.FootRadius;
+            var lerp = safeMag / downDistance;
+            dir = Vector3.Lerp(dir, safePos, lerp);
+            
+            RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, dir, settingsToUse);
+            return;
+        }
+
+        /*
         // Check if the foot is stuck on a ledge
-        if (CheckStuckOnLedge(out var stuckHit))
+        if (Context.CheckStuckOnLedge(out var stuckHit) && !Context.IsFootGrounded && _validPlacement)
         {
             // If the foot is stuck on a ledge, move it away
             var other = stuckHit.collider.ClosestPoint(Context.Foot.Target.position);
@@ -79,7 +92,7 @@ public class FootPlacingState : FootControlState
             Context.MoveFootToPosition(dir);
             return;
         }
-
+        */
         // Before we move, we change the dir magnitude based on the current one
         // This will keep the speed based on distance and curve
         var mag = dir.magnitude;
@@ -88,9 +101,18 @@ public class FootPlacingState : FootControlState
         dir.Normalize();
         dir *= Context.SpeedCurve.Evaluate(magLerp);
         
-        Context.MoveFootToPosition(dir);
+        RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dir, settingsToUse);
     }
-    
+    private void HandleRotation()
+    {
+        // Get the ground normal if we have one
+        var normal = Vector3.up;
+        if(Context.FootGroundCast(out var hit))
+            normal = hit.normal;
+        var direction = Vector3.ProjectOnPlane(Context.Foot.Target.transform.forward, normal);
+
+        RigidbodyMovement.RotateRigidbody(Context.Foot.Target, direction, 500f);
+    }
     private void HandleFootRotation()
     {
         var foot = Context.Foot.Target;

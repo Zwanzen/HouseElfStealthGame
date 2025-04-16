@@ -1,6 +1,7 @@
 using System;
 using RootMotion.Dynamics;
 using RootMotion.FinalIK;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -38,6 +39,8 @@ public class PlayerController : MonoBehaviour
     [Header("Body Variables")]
     [SerializeField] private float _springStrength = 250f;
     [SerializeField] private float _springDampener = 5f;
+    [SerializeField, Range(0,1)] private float _lowestBodyHeight = 0.5f;
+    [SerializeField] private AnimationCurve _distanceHeightCurve;
     [SerializeField] private float _bodyRotationSpeed = 5f;
     
     [Space(10f)] 
@@ -47,20 +50,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _stepLength = 0.5f;
     [SerializeField] private float _stepHeight = 0.5f;
     [SerializeField] private MovementSettings _liftedSettings;
+    [SerializeField] private MovementSettings _placeSettings;
     [SerializeField] private AnimationCurve _speedCurve;
     [SerializeField] private AnimationCurve _heightCurve;
     [SerializeField] private AnimationCurve _placeSpeedCurve;
     [SerializeField] private AnimationCurve _offsetCurve;
-
-
-
     
     [Space(10f)]
     [Header("Sneak Variables")]
     [SerializeField] private float _minSneakSpeed = 1f;
     [SerializeField] private float _maxSneakSpeed = 2f;
-
-
+    
     [Space(10f)] [Header("Temp")] 
     [SerializeField] private RectTransform _leftClick;
     [SerializeField] private RectTransform _rightClick;
@@ -157,13 +157,15 @@ public class PlayerController : MonoBehaviour
     private void InitializeStateMachineContexts()
     {
         _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
-             _leftFoot, _rightFoot, _springStrength, _springDampener, _bodyMovementSettings);
+             _leftFoot, _rightFoot, _springStrength, _springDampener, _bodyMovementSettings, _distanceHeightCurve,
+             _lowestBodyHeight);
+        
         _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
-            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings, _speedCurve, _heightCurve, _placeSpeedCurve,
-            _offsetCurve);
+            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings, _placeSettings, _speedCurve, _heightCurve, 
+            _placeSpeedCurve, _offsetCurve);
         _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
-            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings, _speedCurve, _heightCurve, _placeSpeedCurve,
-            _offsetCurve);
+            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings, _placeSettings, _speedCurve, _heightCurve, 
+            _placeSpeedCurve, _offsetCurve);
     }
 
     private void CreateStateMachines()
@@ -174,8 +176,8 @@ public class PlayerController : MonoBehaviour
         _rightFootStateMachine = this.AddComponent<FootControlStateMachine>();
         
         // Give the foot structs reference to the state machines
-        _leftFoot.StateMachine = _leftFootStateMachine;
-        _rightFoot.StateMachine = _rightFootStateMachine;
+        _leftFoot.SM = _leftFootStateMachine;
+        _rightFoot.SM = _rightFootStateMachine;
     }
 
     // Adding and initializing the state machines with contexts
@@ -352,8 +354,8 @@ public class PlayerController : MonoBehaviour
         GUI.Label(new Rect(20, 15, 240, 20), $"Control State: {_controlStateMachine.State}", style);
         GUI.Label(new Rect(20, 35, 240, 20), $"Left Foot State: {_leftFootStateMachine.State}", style);
         GUI.Label(new Rect(20, 55, 240, 20), $"Right Foot State: {_rightFootStateMachine.State}", style);
-        GUI.Label(new Rect(20, 75, 240, 20), $"Left State: {_leftFoot.StateMachine.State}", style);
-        GUI.Label(new Rect(20, 95, 240, 20), $"Right State: {_rightFoot.StateMachine.State}", style);
+        GUI.Label(new Rect(20, 75, 240, 20), $"Left State: {_leftFoot.SM.State}", style);
+        GUI.Label(new Rect(20, 95, 240, 20), $"Right State: {_rightFoot.SM.State}", style);
     }
     
     private void OnDestroy()

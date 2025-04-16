@@ -18,6 +18,8 @@ public class FootLiftedState : FootControlState
         
         return StateKey;
     }
+
+    private Vector3 _storedPos;
     
     public override void EnterState()
     {
@@ -29,6 +31,9 @@ public class FootLiftedState : FootControlState
     {
         _liftTimer = 0f;
         Context.FootSoundPlayer.MakeFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
+        
+        // Set the xz velocity to 0
+        Context.Foot.Target.linearVelocity = new Vector3(0f, Context.Foot.Target.linearVelocity.y, 0f);
     }
 
     public override void UpdateState()
@@ -41,7 +46,7 @@ public class FootLiftedState : FootControlState
         var footPos = Context.Foot.Target.position;
         var otherFootPos = Context.OtherFoot.Target.position;
         var input = Context.Player.RelativeMoveInput;
-
+        
         var baseFootLiftedHeight = 0.15f;
         var wantedHeight = otherFootPos.y + baseFootLiftedHeight;
         
@@ -93,7 +98,7 @@ public class FootLiftedState : FootControlState
         // Now clamp if we are going out of step length
         if (Vector3.Distance(pos, otherFootPos) > Context.StepLength)
             pos = ClampedFootPosition(footPos, otherFootPos, dirToPos);
-        
+        /*
         // Update dir to pos because we might have changed the position
         dirToPos = pos - footPos;
         
@@ -105,7 +110,17 @@ public class FootLiftedState : FootControlState
         dirToPos.Normalize();
         dirToPos *= Context.SpeedCurve.Evaluate(magLerp);
         
-        Context.MoveFootToPosition(dirToPos);
+        //Context.MoveFootToPosition(dirToPos);
+        var settings = Context.MovementSettings;
+        if (input == Vector3.zero)
+        {
+            var settingsMaxSpeed = Mathf.Lerp(0.1f, 0.2f, mag);
+            settings.MaxSpeed *= settingsMaxSpeed;
+        }
+        */
+
+        RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, pos, Context.MovementSettings);
+
         HandleFootRotation();
     }
     
@@ -140,8 +155,12 @@ public class FootLiftedState : FootControlState
         
         // Height 
         var footSize = size.y;
-        var maxHeight = Context.StepHeight + Context.OtherFoot.Target.position.y;
+        var maxHeight = Context.StepHeight + otherFootPos.y;
+        
+        // Clamp the y height to the foot height + the step height
+        // Avoid too high checks
         position.y = maxHeight + size.y;
+        position.y = Mathf.Clamp(position.y, otherFootPos.y - Context.StepHeight, footPos.y + Context.StepHeight);
         
         // Cast
         if (!Physics.BoxCast(position, size, Vector3.down, out var hit, rotation, (Context.StepHeight * 2f) + size.y,
@@ -150,92 +169,87 @@ public class FootLiftedState : FootControlState
         height = hit.point.y;
         var closestPoint = hit.collider.ClosestPoint(footPos);
         
-        // Check if it is too high
-        if (CalculateIntersectionPoint(Context.OtherFoot.Target.position, Context.StepLength,
-                closestPoint + Vector3.down, Vector3.up, out var highestPoint))
+        // Check if it is too high - If it is too far away, the highest point will be 0
+        CalculateIntersectionPoint(otherFootPos, Context.StepLength,
+            closestPoint + Vector3.down, Vector3.up, out var highestPoint);
+        
+        // Check if it is too far away
+        var tooFar = Vector3.Distance(otherFootPos, closestPoint) > Context.StepLength;
+        Physics.CheckSphere(closestPoint, 0.02f);
+        Physics.CheckSphere(otherFootPos + ((closestPoint - otherFootPos).normalized * Context.StepLength), 0.02f);
+        
+        var highest = highestPoint.y - footSize;
+        // If there is space above and the point is not too far away
+        // We want to continue
+        if (highest > height && !tooFar)
         {
-            var highest = highestPoint.y - footSize;
-            // If there is space above, we can return true
-            if (highest > height)
-            {
-                // If the thing we are trying to step on is lower than the other foot,
-                // We don't want to put our foot directly on it
-                // So we limit how far down we can go
-                if(otherFootPos.y -0.20f > height)
-                    height = otherFootPos.y - 0.20f;
+            // If the thing we are trying to step on is lower than the other foot,
+            // We don't want to put our foot directly on it
+            // So we limit how far down we can go
+            if(otherFootPos.y -0.20f > height)
+                height = otherFootPos.y - 0.20f;
                 
-                // Do a check to see if there is anything above
-                position = defaultValues.Position;
-                size = defaultValues.Size;
-                rotation = defaultValues.Rotation;
-                position.y -= size.y;
-                var dist = height - position.y;
-                
-                // If we hit it, we set the height to the hit point - foot size
-                // -0.15f is to nullify the lifting default height
-                if(Physics.BoxCast(position, size, Vector3.up, out var upHit, rotation,
-                       dist + size.y,
-                       Context.GroundLayers))
-                    height = otherFootPos.y;
-                
-                return true;
-            }
-            
-            // Check if we are actually on the ground
-            if(Context.IsFootGrounded)
-                return true;
-            
-            // If it's too high, we want to check a smaller box
+            // Do a check to see if there is anything above
             position = defaultValues.Position;
             size = defaultValues.Size;
             rotation = defaultValues.Rotation;
-            
-            position.y = hit.point.y;
-            
-            // Smaller cast to see if we get better results
-            if (Physics.BoxCast(position, size, Vector3.down, out var heightHit, rotation,
-                    (Context.StepHeight * 2f) + size.y,
-                    Context.GroundLayers))
-            {
-                var highClosestPoint = heightHit.collider.ClosestPoint(footPos);
-                // Check if the new height is reachable
-                if (CalculateIntersectionPoint(Context.OtherFoot.Target.position, Context.StepLength,
-                        highClosestPoint + Vector3.down, Vector3.up, out highestPoint))
-                {
-                    height = heightHit.point.y;
-                    highest = highestPoint.y - footSize;
-            
-                    // If it has space, we can return true
-                    if (highest > height)
-                        return true;
-                }
-            } 
-            
-            // If we don't hit anything, no ground
-        }        
-
-        /*
-        // *** NOT REALLY DOING ANYTHING ***
-        // Check if it is too low
-        if (!CalculateIntersectionPoint(Context.OtherFoot.Target.position, Context.StepLength,
-                closestPoint + Vector3.up, Vector3.down, out var lowestPoint))
-            return false; // out of bounds
-        
-        var lowest = lowestPoint.y + footSize;
-        // If it is high enough, we can return true
-        if (height > lowest)
-        {
-            // We also dont want to set the height to the lowest point
-            // We want to set it to a fixed height
-            height = Context.OtherFoot.Target.position.y - 0.15f;
-            // But clamp it so that it doesn't go below the lowest point
-            if (height < lowest)
-                height = lowest;
+            position.y -= size.y;
+            var dist = height - position.y;
+                
+            // If we hit it, we set the height to the hit point - foot size
+            // -0.15f is to nullify the lifting default height
+            if(Physics.BoxCast(position, size, Vector3.up, out var upHit, rotation,
+                   dist + size.y,
+                   Context.GroundLayers))
+                height = otherFootPos.y;
+                
+            Context.SetSafePosition(hit.point);
             return true;
         }
-        */
-
-        return false; // Out of bounds
+            
+        // Check if we are actually on the ground
+        if (Context.IsFootGrounded)
+        {
+            Context.SetSafePosition(hit.point);
+            return true;
+        }
+            
+        // If it's too high or too far away, we want to check a smaller box
+        position = defaultValues.Position;
+        size = defaultValues.Size;
+        rotation = defaultValues.Rotation;
+            
+        position.y = hit.point.y;
+            
+        // Smaller cast to see if we get better results
+        if (!Physics.BoxCast(position, size, Vector3.down, out var heightHit, rotation,
+                (Context.StepHeight * 2f) + size.y,
+                Context.GroundLayers))
+            return false;
+            
+        var highClosestPoint = heightHit.collider.ClosestPoint(footPos);
+        // Check if the new height is reachable
+        if (!CalculateIntersectionPoint(otherFootPos, Context.StepLength,
+                highClosestPoint + Vector3.down, Vector3.up, out highestPoint))
+            return false;
+            
+        height = heightHit.point.y;
+        highest = highestPoint.y - footSize;
+            
+        // If it has space, we check if it is too low before returning true
+        if (highest < height)
+            return false;
+            
+        if (!CalculateIntersectionPoint(otherFootPos, Context.StepLength,
+                highClosestPoint + Vector3.up, Vector3.down, out highestPoint))
+            return false;
+            
+        var lowest = highestPoint.y + footSize;
+        if (lowest > height)
+            return false;
+            
+        Context.SetSafePosition(heightHit.point);
+        return true;
     }
 
     private Vector3 GetOffsetPosition(Vector3 otherFootPos, float wantedHeight, float dist)
@@ -261,11 +275,23 @@ public class FootLiftedState : FootControlState
         // Offset the start position of the line to avoid not finding an intersection point when we should
         var lineStart = footPos - direction.normalized;
         
+        // We dont want the otherFootIntersection to do anything on the y axis
+        // So we set the other foot pos to the same y as the foot
+        var footHeight = footPos.y;
+        var otherPosSim = new Vector3(otherFootPos.x, footHeight, otherFootPos.z);
+        // We also cant let the simulation go above or below step StepLength
+        var maxHeight = otherFootPos.y + Context.StepLength - 0.01f;
+        var minHeight = otherFootPos.y - Context.StepLength + 0.01f;
+        if (otherPosSim.y > maxHeight)
+            otherPosSim.y = maxHeight;
+        else if (otherPosSim.y < minHeight)
+            otherPosSim.y = minHeight;
+        
         // Dir from other foot to pos
-        var otherDir = (direction + footPos) - otherFootPos;
+        var otherDir = (direction + footPos) - otherPosSim;
             
         // We check the other intersection point now, in case the normal one fails, this one will never fail
-        CalculateIntersectionPoint(otherFootPos, Context.StepLength, otherFootPos, otherDir.normalized,
+        CalculateIntersectionPoint(otherFootPos, Context.StepLength, otherPosSim, otherDir.normalized,
             out var otherFootIntersect);
         
         // If we don't fail, we should use this intersection point for more accurate movement
@@ -285,8 +311,10 @@ public class FootLiftedState : FootControlState
         // The closer we are to the edge, the more we want to use the other foot intersection point
         return Vector3.Lerp(otherFootIntersect, footIntersect, lerp);
     }
-    
-    
+
+    private Vector3 _storedInput;
+    private float _dot;
+    private float _storedCamAngle;
     private Vector3 _forward;
     private Vector3 _right;
     private float _liftTimer;
@@ -294,21 +322,38 @@ public class FootLiftedState : FootControlState
     private void HandleFootRotation()
     {
         var isMoving = InputManager.Instance.MoveInput.magnitude > 0.01f;
+        if (isMoving)
+        {
+            // *** TODO ***
+            // We need to change the speed it rotates, or clamp the max so it doesn't rotate too fast with small movements
+            _storedInput = Vector3.MoveTowards(_storedInput, Context.Player.RelativeMoveInput.normalized, Time.fixedDeltaTime * 2.5f);
+            _dot = Vector3.Dot(Context.Player.Camera.GetCameraYawTransform().forward.normalized, _storedInput.normalized);
+            _storedCamAngle= Context.Player.Camera.CameraX;
+        }
+
+        var downLerp = _storedCamAngle / 60f;
         
         // Store the camera forward direction if we are moving
         if (isMoving)
         {
             // Other direction
-            var otherDir = Context.Player.RelativeMoveInput.normalized;
-            var dot = Vector3.Dot(Context.Player.Camera.GetCameraYawTransform().forward.normalized, otherDir.normalized);
-            if (dot < -0.2f)
-                otherDir = -otherDir;
+            if (_dot < -0.2f)
+                _storedInput = -_storedInput;
             
-            // Downwards lerp
-            var camAngle = Context.Player.Camera.CameraX;
-            _forward = Vector3.Lerp(otherDir, Context.Player.Camera.GetCameraYawTransform().forward.normalized, camAngle/60f);
+            // Makes the foot turn it slightly diagonally if it should
+            var cameraForward = Context.Player.Camera.GetCameraYawTransform().forward.normalized;
+            var footAngleDot1 = Mathf.Clamp01(_dot);
+            var dif1 = 1 - footAngleDot1;
+            var maxDif1 = 0.8f;
+            footAngleDot1 = dif1 / maxDif1;
+            // Only want to change if the camera angle is right
+            footAngleDot1 = Mathf.Lerp(1,footAngleDot1, downLerp);
             
-            _right = Vector3.Lerp(-Vector3.Cross(otherDir, Vector3.up), Context.Player.Camera.GetCameraYawTransform().right.normalized, camAngle/60f);
+            // We change the forward if the angle is right
+            var lerpFootForward = Vector3.Lerp(_storedInput, cameraForward, footAngleDot1);
+            
+            _forward = Vector3.Lerp(_storedInput, lerpFootForward, downLerp);
+            _right = Vector3.Lerp(-Vector3.Cross(_storedInput, Vector3.up), Context.Player.Camera.GetCameraYawTransform().right.normalized, downLerp);
         }
         
         // Update the lifted foot pitch
@@ -319,21 +364,27 @@ public class FootLiftedState : FootControlState
         var maxRelDist = Context.StepLength;
         var relDist = Context.RelativeDistanceInDirection(Context.OtherFoot.Target.position, Context.Foot.Target.position, _forward);
         
+        // We also want to include the dot, if we are stepping diagonally, we dont want to rotate the foot on x
+        var footAngleDot = Mathf.Clamp01(_dot);
+        var dif = 1 - footAngleDot;
+        var maxDif = 0.8f;
+        footAngleDot = dif / maxDif;
+        footAngleDot = Mathf.Lerp(1, 0, footAngleDot);
+        // Only want to change if the camera angle is right
+        footAngleDot = Mathf.Lerp(1,footAngleDot, downLerp);
+
+        // If the angle is too high, we dont want it to rotate on x
+        relDist *= footAngleDot;
+        
         // Lerp Foot Pitch
         var angle = Mathf.Lerp(minPitch, maxPitch, Mathf.InverseLerp(minRelDist, maxRelDist, relDist));
         var lerpAngle = Mathf.Lerp(_startAngle, angle, Context.PlaceCurve.Evaluate(_liftTimer / 0.20f));
-        
-        // *** TMEP ***
-        lerpAngle = _startAngle;
         
         // Rotate the camForward direction around the foot's right direction
         var footForward = Quaternion.AngleAxis(lerpAngle, _right) * _forward;
         footForward.Normalize();
 
-        if(footForward == Vector3.zero)
-            return;
-        
-        RigidbodyMovement.RotateRigidbody(Context.Foot.Target, footForward, 500f);
+        RigidbodyMovement.RotateRigidbody(Context.Foot.Target, footForward, 350f);
     }
     
     private float GetDistanceFromOtherFoot()
