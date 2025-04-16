@@ -13,7 +13,7 @@ public class PathTool : EditorWindow
     }
 
     // Core state
-    private NpcPath _selectedPath;
+    private NPCPath _selectedPath;
     private int _selectedWaypointIndex = -1;
     private VisualElement _root;
 
@@ -164,7 +164,7 @@ public class PathTool : EditorWindow
     }
 
     // Event handlers
-    private void OnPathSelected(NpcPath path)
+    private void OnPathSelected(NPCPath path)
     {
         // Clear any currently selected objects in the scene
         Selection.activeObject = null;
@@ -235,6 +235,22 @@ public class PathTool : EditorWindow
 
     private void OnSaveChanges()
     {
+        if (_selectedPath != null && _selectedPath.Waypoints != null)
+        {
+            // Update Positions array with waypoint positions
+            Vector3[] positions = new Vector3[_selectedPath.Waypoints.Length];
+            for (int i = 0; i < _selectedPath.Waypoints.Length; i++)
+            {
+                positions[i] = _selectedPath.Waypoints[i].Point;
+            }
+        
+            // Assign the positions array to the path
+            _selectedPath.Positions = positions;
+        
+            // Mark the path as dirty to ensure changes are saved
+            EditorUtility.SetDirty(_selectedPath);
+        }
+        
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
     }

@@ -13,63 +13,28 @@ MonoBehaviour:
   m_Name: Hill Patrol
   m_EditorClassIdentifier: 
   Waypoints:
-  - Point: {x: 10.285582, y: 0.00000011920929, z: 8.095108}
+  - Point: {x: 28.266172, y: 0.00000011920929, z: 9.471056}
     HasStop: 1
-    StopTime: 5.6
+    StopTime: 3
     HasDirection: 1
-    Direction: {x: -0.7306937, y: 0, z: 0.68270546}
+    Direction: {x: 0.761464, y: 0, z: 0.6482072}
+    HasAnimation: 0
+    Animation: 0
+  - Point: {x: 27.764986, y: -0.0043810606, z: -1.4289608}
+    HasStop: 1
+    StopTime: 3
+    HasDirection: 1
+    Direction: {x: 0, y: 0, z: 1}
     HasAnimation: 1
-    Animation: 1
-  - Point: {x: 11.334625, y: 0.00000011920929, z: -7.35736}
-    HasStop: 1
-    StopTime: 3
-    HasDirection: 1
-    Direction: {x: -0.6485912, y: 0, z: -0.76113695}
-    HasAnimation: 0
     Animation: 0
-  - Point: {x: 24.801151, y: 0.00000011920929, z: -4.54573}
-    HasStop: 1
-    StopTime: 4
-    HasDirection: 1
-    Direction: {x: 0.7759181, y: 0, z: -0.63083357}
-    HasAnimation: 0
-    Animation: 0
-  - Point: {x: 26.132475, y: 0.00000011920929, z: -2.8225188}
+  - Point: {x: 23.503307, y: 1.20169, z: 2.0849662}
     HasStop: 0
     StopTime: 3
     HasDirection: 0
     Direction: {x: 0, y: 0, z: 1}
     HasAnimation: 0
     Animation: 0
-  - Point: {x: 20.361456, y: 1.9778998, z: 2.8347626}
-    HasStop: 0
-    StopTime: 3
-    HasDirection: 0
-    Direction: {x: 0, y: 0, z: 1}
-    HasAnimation: 0
-    Animation: 0
-  - Point: {x: 15.419775, y: 1.9779, z: 2.4310093}
-    HasStop: 0
-    StopTime: 3
-    HasDirection: 0
-    Direction: {x: 0, y: 0, z: 1}
-    HasAnimation: 0
-    Animation: 0
-  - Point: {x: 15.412698, y: 1.9779, z: -4.44502}
-    HasStop: 1
-    StopTime: 3
-    HasDirection: 1
-    Direction: {x: 0.7749272, y: 0, z: -0.6320505}
-    HasAnimation: 0
-    Animation: 0
-  - Point: {x: 13.470503, y: 1.9779, z: -4.5203705}
-    HasStop: 1
-    StopTime: 3
-    HasDirection: 1
-    Direction: {x: -0.7909343, y: 0, z: -0.611901}
-    HasAnimation: 1
-    Animation: 1
-  - Point: {x: 13.544227, y: 1.9779, z: 4.4815273}
+  - Point: {x: 24.209656, y: 1.9778998, z: 3.4943144}
     HasStop: 0
     StopTime: 3
     HasDirection: 0
@@ -83,32 +48,82 @@ MonoBehaviour:
     Direction: {x: 0.52238464, y: 0, z: 0.85270995}
     HasAnimation: 1
     Animation: 0
-  - Point: {x: 24.209656, y: 1.9778998, z: 3.4943144}
+  - Point: {x: 13.544227, y: 1.9779, z: 4.4815273}
     HasStop: 0
     StopTime: 3
     HasDirection: 0
     Direction: {x: 0, y: 0, z: 1}
     HasAnimation: 0
     Animation: 0
-  - Point: {x: 23.503307, y: 1.20169, z: 2.0849662}
-    HasStop: 0
-    StopTime: 3
-    HasDirection: 0
-    Direction: {x: 0, y: 0, z: 1}
-    HasAnimation: 0
-    Animation: 0
-  - Point: {x: 27.764986, y: -0.0043810606, z: -1.4289608}
+  - Point: {x: 13.470503, y: 1.9779, z: -4.5203705}
     HasStop: 1
     StopTime: 3
     HasDirection: 1
-    Direction: {x: 0, y: 0, z: 1}
+    Direction: {x: -0.7909343, y: 0, z: -0.611901}
     HasAnimation: 1
-    Animation: 0
-  - Point: {x: 28.266172, y: 0.00000011920929, z: 9.471056}
+    Animation: 1
+  - Point: {x: 15.412698, y: 1.9779, z: -4.44502}
     HasStop: 1
     StopTime: 3
     HasDirection: 1
-    Direction: {x: 0.761464, y: 0, z: 0.6482072}
+    Direction: {x: 0.7749272, y: 0, z: -0.6320505}
     HasAnimation: 0
     Animation: 0
+  - Point: {x: 15.419775, y: 1.9779, z: 2.4310093}
+    HasStop: 0
+    StopTime: 3
+    HasDirection: 0
+    Direction: {x: 0, y: 0, z: 1}
+    HasAnimation: 0
+    Animation: 0
+  - Point: {x: 20.361456, y: 1.9778998, z: 2.8347626}
+    HasStop: 0
+    StopTime: 3
+    HasDirection: 0
+    Direction: {x: 0, y: 0, z: 1}
+    HasAnimation: 0
+    Animation: 0
+  - Point: {x: 26.132475, y: 0.00000011920929, z: -2.8225188}
+    HasStop: 0
+    StopTime: 3
+    HasDirection: 0
+    Direction: {x: 0, y: 0, z: 1}
+    HasAnimation: 0
+    Animation: 0
+  - Point: {x: 22.568998, y: 0.00000011920929, z: -4.380887}
+    HasStop: 1
+    StopTime: 4
+    HasDirection: 1
+    Direction: {x: 0.7759181, y: 0, z: -0.63083357}
+    HasAnimation: 0
+    Animation: 0
+  - Point: {x: 11.334625, y: 0.00000011920929, z: -7.35736}
+    HasStop: 1
+    StopTime: 3
+    HasDirection: 1
+    Direction: {x: -0.6485912, y: 0, z: -0.76113695}
+    HasAnimation: 0
+    Animation: 0
+  - Point: {x: 10.285582, y: 0.00000011920929, z: 8.095108}
+    HasStop: 1
+    StopTime: 5.6
+    HasDirection: 1
+    Direction: {x: -0.7306937, y: 0, z: 0.68270546}
+    HasAnimation: 1
+    Animation: 1
+  Positions:
+  - {x: 28.266182, y: 0, z: 9.471054}
+  - {x: 27.764984, y: 0, z: -1.4289627}
+  - {x: 23.547432, y: 1.2422733, z: 1.8722649}
+  - {x: 24.25, y: 1.1480007, z: 2.0000038}
+  - {x: 24.367332, y: 0, z: 6.426136}
+  - {x: 12.500004, y: 0, z: 4.481529}
+  - {x: 12.500004, y: 0, z: -4.5203705}
+  - {x: 15.510956, y: 0, z: -5.6240845}
+  - {x: 17, y: 0, z: 1.2500038}
+  - {x: 21.5, y: 1.5170002, z: 1.5000038}
+  - {x: 26.160408, y: 0.15314102, z: -2.8225174}
+  - {x: 24.644646, y: 0.20311356, z: -4.574478}
+  - {x: 11.334625, y: 0, z: -7.357361}
+  - {x: 10.2855835, y: 0, z: 8.095108}
   IsLoop: 1

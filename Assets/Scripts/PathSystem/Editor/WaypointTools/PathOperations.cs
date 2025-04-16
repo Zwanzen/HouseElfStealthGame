@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PathOperations
 {
-    public void AddWaypoint(NpcPath path, int selectedIndex, out int newIndex)
+    public void AddWaypoint(NPCPath path, int selectedIndex, out int newIndex)
     {
         // Register the operation with Undo system before making changes
         Undo.RecordObject(path, "Add Waypoint");
@@ -71,7 +71,7 @@ public class PathOperations
         EditorUtility.SetDirty(path);
     }
 
-    public void AddWaypointRelativeToSelection(NpcPath path, int selectedIndex, bool addBefore, out int newIndex)
+    public void AddWaypointRelativeToSelection(NPCPath path, int selectedIndex, bool addBefore, out int newIndex)
     {
         // Register the operation with Undo system before making changes
         Undo.RecordObject(path, "Add Waypoint");
@@ -231,7 +231,7 @@ public class PathOperations
         EditorUtility.SetDirty(path);
     }
     
-    public void RemoveWaypoint(NpcPath path, int index)
+    public void RemoveWaypoint(NPCPath path, int index)
     {
         if (index < 0 || index >= path.Waypoints.Length)
             return;
@@ -249,7 +249,7 @@ public class PathOperations
         EditorUtility.SetDirty(path);
     }
 
-    public void FlipPathDirection(NpcPath path, int selectedIndex, out int newIndex)
+    public void FlipPathDirection(NPCPath path, int selectedIndex, out int newIndex)
     {
         newIndex = -1;
         

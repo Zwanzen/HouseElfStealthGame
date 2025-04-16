@@ -53,7 +53,7 @@ public class PathRenderer
                      (LABEL_FADE_END_DISTANCE - LABEL_FADE_START_DISTANCE));
     }
     
-private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex)
+private void DrawWaypointInsertionPoints(NPCPath path, int selectedWaypointIndex)
 {
     if (selectedWaypointIndex < 0 || selectedWaypointIndex >= path.Waypoints.Length)
         return;
@@ -114,7 +114,7 @@ private void DrawWaypointInsertionPoints(NpcPath path, int selectedWaypointIndex
     }
 }
     
-public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneView, Action<int> waypointSelectedCallback, bool isEditable = true)
+public void RenderPath(NPCPath path, int selectedWaypointIndex, SceneView sceneView, Action<int> waypointSelectedCallback, bool isEditable = true)
 {
     Event e = Event.current;
     bool isHandleHot = GUIUtility.hotControl != 0;
@@ -143,7 +143,7 @@ public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneV
     HandleWaypointSelection(e, path, selectedWaypointIndex, isHandleHot, waypointSelectedCallback, isEditable);
 }
     
-    private void HandleKeyboardInput(Event e, NpcPath path, int selectedWaypointIndex, SceneView sceneView)
+    private void HandleKeyboardInput(Event e, NPCPath path, int selectedWaypointIndex, SceneView sceneView)
     {
         if (e.type == EventType.KeyDown && e.keyCode == KeyCode.F &&
             selectedWaypointIndex >= 0 && selectedWaypointIndex < path.Waypoints.Length)
@@ -154,7 +154,7 @@ public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneV
         }
     }
 
-    private void DrawPathLines(NpcPath path, int selectedWaypointIndex, bool isEditable)
+    private void DrawPathLines(NPCPath path, int selectedWaypointIndex, bool isEditable)
     {
         if (path.Waypoints.Length < 2)
             return;
@@ -225,7 +225,7 @@ public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneV
         }
     }
 
-    private void DrawWaypointDirections(NpcPath path, int selectedWaypointIndex)
+    private void DrawWaypointDirections(NPCPath path, int selectedWaypointIndex)
     {
         for (int i = 0; i < path.Waypoints.Length; i++)
         {
@@ -258,7 +258,7 @@ public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneV
         Handles.DrawLine(arrowEnd, arrowEnd - direction * handleSize * 0.2f - right, 2f);
     }
 
-    private void HandleWaypointManipulation(Event e, NpcPath path, int selectedWaypointIndex, SceneView sceneView, out int directionHandleId)
+    private void HandleWaypointManipulation(Event e, NPCPath path, int selectedWaypointIndex, SceneView sceneView, out int directionHandleId)
     {
         directionHandleId = -1;
 
@@ -286,7 +286,7 @@ public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneV
         }
     }
 
-    private void HandleSurfaceSnapping(Event e, NpcPath path, int selectedWaypointIndex, SceneView sceneView)
+    private void HandleSurfaceSnapping(Event e, NPCPath path, int selectedWaypointIndex, SceneView sceneView)
     {
         Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
@@ -301,7 +301,7 @@ public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneV
         }
     }
 
-    private int HandleDirectionControl(NpcPath path, int selectedWaypointIndex)
+    private int HandleDirectionControl(NPCPath path, int selectedWaypointIndex)
     {
         Handles.color = _directionHandleColor;
         Vector3 waypointPos = path.Waypoints[selectedWaypointIndex].Point;
@@ -339,7 +339,7 @@ public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneV
         return directionHandleId;
     }
 
-    private void HandlePositionControl(NpcPath path, int selectedWaypointIndex)
+    private void HandlePositionControl(NPCPath path, int selectedWaypointIndex)
     {
         // Generate a control ID for the position handle
         int positionHandleId = GUIUtility.GetControlID(FocusType.Passive);
@@ -357,7 +357,7 @@ public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneV
         }
     }
     
-    private void DrawWaypointVisuals(NpcPath path, int selectedWaypointIndex)
+    private void DrawWaypointVisuals(NPCPath path, int selectedWaypointIndex)
     {
         for (int i = 0; i < path.Waypoints.Length; i++)
         {
@@ -393,7 +393,7 @@ public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneV
         }
     }
 
-    private void DrawWaypointLabels(NpcPath path, int selectedWaypointIndex)
+    private void DrawWaypointLabels(NPCPath path, int selectedWaypointIndex)
     {
         for (int i = 0; i < path.Waypoints.Length; i++)
         {
@@ -466,7 +466,7 @@ public void RenderPath(NpcPath path, int selectedWaypointIndex, SceneView sceneV
         Handles.DrawLine(position, position + hand, 2f);
     }
 
-    private void HandleWaypointSelection(Event e, NpcPath path, int selectedWaypointIndex, bool isHandleHot, Action<int> selectionCallback, bool isEdit)
+    private void HandleWaypointSelection(Event e, NPCPath path, int selectedWaypointIndex, bool isHandleHot, Action<int> selectionCallback, bool isEdit)
     {
         if (e.type != EventType.MouseDown || e.button != 0 || isHandleHot)
             return;

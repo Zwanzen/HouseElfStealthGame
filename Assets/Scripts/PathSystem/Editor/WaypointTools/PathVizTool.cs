@@ -14,10 +14,10 @@ public class PathVizTool : EditorWindow
     }
 
     // Core state
-    private NpcPath _selectedPath;
+    private NPCPath _selectedPath;
     private int _selectedWaypointIndex = -1;
     private VisualElement _root;
-    private List<NpcPath> _availablePaths = new List<NpcPath>();
+    private List<NPCPath> _availablePaths = new List<NPCPath>();
 
     // Helper components
     private PathRenderer _renderer;
@@ -117,7 +117,7 @@ public class PathVizTool : EditorWindow
         foreach (string guid in guids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
-            NpcPath npcPath = AssetDatabase.LoadAssetAtPath<NpcPath>(path);
+            NPCPath npcPath = AssetDatabase.LoadAssetAtPath<NPCPath>(path);
             if (npcPath != null)
             {
                 _availablePaths.Add(npcPath);
@@ -280,7 +280,7 @@ public class PathVizTool : EditorWindow
         _root.Add(detailsContainer);
     }
     
-    private void SelectPath(NpcPath path)
+    private void SelectPath(NPCPath path)
     {
         _selectedPath = path;
         _selectedWaypointIndex = -1;
