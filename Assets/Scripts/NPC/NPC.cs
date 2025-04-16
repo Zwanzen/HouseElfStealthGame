@@ -3,20 +3,24 @@ using Pathfinding;
 using UnityEngine;
 using static RigidbodyMovement;
 
-[RequireComponent(typeof(Rigidbody), typeof(Seeker), typeof(NPCMovement))]
+[RequireComponent(typeof(Rigidbody), typeof(Seeker))]
 public class NPC : MonoBehaviour
 {
+    public Transform Target;
+    public float LookAhead = 1f;
+    
     [Header("NPC Settings")]
     [SerializeField] private NPCType _npcType;
     [SerializeField] private MovementSettings _movementSettings;
     [SerializeField] private NPCPath _path;
+    
+    private Rigidbody _rigidbody;
+    private NPCMovement _movement;
     private enum NPCType
     {
         Patrol,
     }
     
-    private Rigidbody _rigidbody;
-    private NPCMovement _npcMovement;
     
     // Properties
     public Rigidbody Rigidbody => _rigidbody;
@@ -25,27 +29,26 @@ public class NPC : MonoBehaviour
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        _npcMovement = GetComponent<NPCMovement>();
+        _movement = new NPCMovement(this, LookAhead);
     }
 
     private void Start()
     {
-
+        _movement.SetTarget(_path);
     }
 
-    float _timer = 0;
     private void Update()
     {
-        _timer += Time.deltaTime;
-        if (_timer > 1)
-        {
-            _timer = 0;
-            Go();
-        }
+        _movement.Update(Time.deltaTime);
+    }
+
+    private void FixedUpdate()
+    {
+        _movement.HandleMovement();
     }
 
     private void Go()
     {
-        _npcMovement.SetTarget(_path);
+        _movement.SetTarget(Target.position);
     }
 }
