@@ -45,35 +45,81 @@ public class PathVizTool : EditorWindow
         if (_selectedPath == null || _selectedPath.Waypoints == null)
             return;
 
-        _renderer.RenderPath(_selectedPath, _selectedWaypointIndex, sceneView, OnWaypointSelected, false);
-        HandleKeyboardShortcuts();
+        // Draw path in view-only mode without event handling
+        DrawPathVisualization(_selectedPath, _selectedWaypointIndex, sceneView);
     }
     
-    private void HandleKeyboardShortcuts()
+    private void DrawPathVisualization(NPCPath path, int selectedWaypointIndex, SceneView sceneView)
     {
-        Event e = Event.current;
-
-        if (e.type != EventType.KeyDown || _selectedPath == null || _selectedPath.Waypoints == null 
-            || _selectedPath.Waypoints.Length == 0)
+        // Draw path lines
+        DrawPathLines(path);
+    
+        // Draw waypoint visualization elements
+        for (int i = 0; i < path.Waypoints.Length; i++)
+        {
+            DrawWaypointVisual(path.Waypoints[i], i == selectedWaypointIndex);
+        
+            if (path.Waypoints[i].HasStop && path.Waypoints[i].HasDirection)
+            {
+                DrawWaypointDirection(path.Waypoints[i], i == selectedWaypointIndex);
+            }
+        }
+    }
+    
+    private void DrawPathLines(NPCPath path)
+    {
+        if (path.Waypoints.Length < 2)
             return;
 
-        // Navigate between waypoints
-        if (e.keyCode == KeyCode.B || e.keyCode == KeyCode.Keypad4 || e.keyCode == KeyCode.LeftArrow)
+        // Draw regular path segments
+        Handles.color = new Color(0f, 1f, 1f, 0.3f);
+        for (int i = 0; i < path.Waypoints.Length - 1; i++)
         {
-            GotoPreviousWaypoint();
-            e.Use();
+            Handles.DrawLine(path.Waypoints[i].Point, path.Waypoints[i + 1].Point, 2f);
         }
-        else if (e.keyCode == KeyCode.N || e.keyCode == KeyCode.Keypad6 || e.keyCode == KeyCode.RightArrow)
+
+        // Draw loop line if enabled
+        if (path.IsLoop && path.Waypoints.Length > 1)
         {
-            GotoNextWaypoint();
-            e.Use();
+            Handles.color = new Color(0.8f, 0.8f, 1f, 0.3f);
+            Handles.DrawLine(path.Waypoints[^1].Point, path.Waypoints[0].Point, 2f);
         }
-        // Focus on selected waypoint
-        else if (e.keyCode == KeyCode.F && _selectedWaypointIndex >= 0)
-        {
-            FocusOnSelectedWaypoint(SceneView.currentDrawingSceneView);
-            e.Use();
-        }
+    }
+    
+    private void DrawWaypointVisual(Waypoint waypoint, bool isSelected)
+    {
+        float handleSize = Mathf.Min(HandleUtility.GetHandleSize(waypoint.Point), 2f);
+    
+        // Make selected waypoints larger (0.15f) than non-selected waypoints (0.1f)
+        float dotSize = Mathf.Min((isSelected ? 0.15f : 0.1f) * handleSize, 
+            isSelected ? 0.15f : 0.1f);
+
+        // Set color based on waypoint state
+        if (isSelected)
+            Handles.color = Color.white;
+        else if (waypoint.HasAnimation)
+            Handles.color = new Color(0f, 1f, 0.5f);
+        else if(waypoint.HasStop)
+            Handles.color = new Color(1f, 0.5f, 0f);
+        else
+            Handles.color = new Color(0f, 1f, 1f, 1f);
+
+        // Draw dot
+        Handles.DotHandleCap(0, waypoint.Point, Quaternion.identity, dotSize, EventType.Repaint);
+    }
+    
+    private void DrawWaypointDirection(Waypoint waypoint, bool isSelected)
+    {
+        if (isSelected)
+            Handles.color = Color.white;
+        else
+            Handles.color = Color.yellow;
+        
+        float handleSize = Mathf.Min(HandleUtility.GetHandleSize(waypoint.Point), 1.5f);
+        Vector3 direction = waypoint.Direction.normalized;
+    
+        // Draw direction arrow
+        Handles.DrawLine(waypoint.Point, waypoint.Point + direction * handleSize, 2f);
     }
     
     private void GotoPreviousWaypoint()
@@ -194,13 +240,27 @@ public class PathVizTool : EditorWindow
     {
         var detailsContainer = new Box();
         detailsContainer.style.marginTop = 10;
-        
-        // Path header
+
+        // Path header with deselect button
+        var headerRow = new VisualElement();
+        headerRow.style.flexDirection = FlexDirection.Row;
+        headerRow.style.justifyContent = Justify.SpaceBetween;
+        headerRow.style.alignItems = Align.Center;
+    
         var pathHeader = new Label($"Path: {_selectedPath.name}");
         pathHeader.style.unityFontStyleAndWeight = FontStyle.Bold;
         pathHeader.style.fontSize = 14;
-        detailsContainer.Add(pathHeader);
-        
+    
+        var deselectButton = new Button(DeselectPath) { text = "Stop Visualizing" };
+        deselectButton.style.backgroundColor = new Color(0.7f, 0.3f, 0.3f);
+        deselectButton.style.color = Color.white;
+    
+        headerRow.Add(pathHeader);
+        headerRow.Add(deselectButton);
+    
+        detailsContainer.Add(headerRow);
+
+        // Rest of the path details section remains the same...
         // Path properties
         var propertiesBox = new Box();
         propertiesBox.style.marginTop = 5;
@@ -278,6 +338,14 @@ public class PathVizTool : EditorWindow
         }
         
         _root.Add(detailsContainer);
+    }
+    
+    private void DeselectPath()
+    {
+        _selectedPath = null;
+        _selectedWaypointIndex = -1;
+        BuildUI();
+        SceneView.RepaintAll();
     }
     
     private void SelectPath(NPCPath path)
