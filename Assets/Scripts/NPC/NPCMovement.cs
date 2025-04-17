@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using Pathfinding;
 using UnityEngine;
 using static RigidbodyMovement;
@@ -17,9 +18,9 @@ public class NPCMovement
         _npc = npc;
         _seeker = npc.GetComponent<Seeker>();
         _lookAhead = lookAhead;
+        _stopPosition = _npc.Rigidbody.position;
     }
     
-    private const float DistanceThreshold = 0.2f;
     private enum TargetType
     {
         None,
@@ -34,10 +35,15 @@ public class NPCMovement
     private int _seekerPathIndex = -1;
     private Vector3 _targetPosition;
     
+    private bool _calcNewPathPoint = false;
+    
+    // Stop position
+    private Vector3 _stopPosition;
+    private bool _isStopped;
+    private float _stopTimer = 0f;
+    
     // Events
-    private Action _arrivedAtPoint;
-    private Action _arrivedAtPathPoint;
-    private Action _pathCompleted;
+    public Action ArrivedAtTarget;
 
     // Used by NPC to set either a path or a single point
     public void SetTarget(NPCPath npcPath)
@@ -61,6 +67,11 @@ public class NPCMovement
         _targetNPCPathIndex = -1;
         _seekerPath = null;
         _seekerPathIndex = -1;
+        //_stopPosition = _npc.Rigidbody.position;
+        _isStopped = false;
+        _calcNewPathPoint = false;
+        _npc.StopAllCoroutines();
+        _seeker.CancelCurrentPathRequest();
     }
 
     private void FindClosestNPCPoint(NPCPath npcPath)
@@ -138,13 +149,25 @@ public class NPCMovement
         _targetType = TargetType.Position;
     }
 
-    private void FindPathToPathPoint()
+    private void FindPathToPathPoint(bool forcePath = false)
     {
+        // If we are calculating new path point, and is not forcePath, we need to return
+        if (_calcNewPathPoint && !forcePath)
+            return;
+
+        Debug.Log("Finding path to waypoint nr: " + _targetNPCPathIndex);
+        
         _seeker.StartPath(_npc.transform.position, _targetNPCPath.Positions[_targetNPCPathIndex], OnPathToPathPointFound);
     }
     
     private void OnPathToPathPointFound(Path p)
     {
+        // If we are calculating a new path point, we need to set the _calcNewPathPoint to false
+        if (_calcNewPathPoint)
+        {
+            _calcNewPathPoint = false;
+        }
+        
         // We need to check if the path is valid
         if (p.error)
         {
@@ -158,7 +181,6 @@ public class NPCMovement
         _seekerPathIndex = 0;
         // We now set target type
         _targetType = TargetType.Path;
-        UpdateSeekerPath();
     }
 
     private void NextPathPoint()
@@ -191,7 +213,15 @@ public class NPCMovement
             }
         }
         
-        FindPathToPathPoint();
+        _calcNewPathPoint = true;
+        FindPathToPathPoint(true);
+    }
+
+    private IEnumerator WaitForStopPoint(float stopTime)
+    {
+        yield return new WaitForSeconds(stopTime);
+        NextPathPoint();
+        _isStopped = false;
     }
     
     // Updates seeker path
@@ -224,53 +254,98 @@ public class NPCMovement
         {
             if (_targetType == TargetType.Path)
             {
-                NextPathPoint();
+                // Wait until we are not stopped
+                if(_isStopped)
+                    return;
+                
+                var wp = _targetNPCPath.Waypoints[_targetNPCPathIndex];
+                // We need to check if the npc path point is a stop point
+                if (wp.HasStop)
+                {
+                    // We need to register stop
+                    _isStopped = true;
+                    // We need to set stop position to the last point
+                    _stopPosition = _seekerPath.vectorPath[^1];
+                    // We need to start the wait coroutine
+                    //_npc.StartCoroutine(WaitForStopPoint(wp.StopTime));
+                    _stopTimer = wp.StopTime;
+                }
+                else
+                {
+                    // We need to go to the next point
+                    NextPathPoint();
+                }
             }
             else
             {
+                // We set the stop position to the last point
+                _stopPosition = _seekerPath.vectorPath[^1];
                 ClearTargets();
+                
+                // Call the arrived at target event after clear
+                ArrivedAtTarget.Invoke();
+            }
+            
+            _recalculatePathTimer = 0f;
+        }
+    }
+
+    private float _recalculatePathTimer = 0f;
+    public void HandleMovement(float delta)
+    {
+        _recalculatePathTimer += delta;
+        if(_recalculatePathTimer >= 0.2f)
+        {
+            RecalculateMove();
+            _recalculatePathTimer = 0f;
+        }
+                
+        UpdateSeekerPath();
+        
+        if (_targetType == TargetType.None)
+        {
+            // Make sure the the y position is the same as the npc
+            _stopPosition.y = _npc.Rigidbody.position.y;
+            MoveToRigidbody(_npc.Rigidbody,_stopPosition, _npc.MovementSettings);
+        }
+        else
+        {
+            // Now the seekerPath is valid, we need to check if we are close to the next point
+            var nextPoint = _seekerPath.vectorPath[_seekerPathIndex];
+            var adjustedPos = new Vector3(nextPoint.x, _npc.Rigidbody.position.y, nextPoint.z);
+            Move(_npc.Rigidbody, adjustedPos, _npc.MovementSettings);
+        }
+
+        if (_isStopped)
+        {
+            _stopTimer -= delta;
+            if (_stopTimer <= 0f)
+            {
+                _isStopped = false;
+                _stopTimer = 0f;
+                // We need to go to the next point
+                NextPathPoint();
             }
         }
     }
 
-    public void HandleMovement()
-    {
-
-        if(_targetType == TargetType.None)
-            return;
-
-        // Now the seekerPath is valid, we need to check if we are close to the next point
-        var nextPoint = _seekerPath.vectorPath[_seekerPathIndex];
-        var adjustedPos = new Vector3(nextPoint.x, _npc.transform.position.y, nextPoint.z);
-        Move(_npc.Rigidbody, adjustedPos, _npc.MovementSettings);
-    }
-    
-    private float _recalculatePathTimer = 0f;
-    public void Update(float delta)
+    private void RecalculateMove()
     {
         // We need to recalculate path sometimes
         // This is done to avoid the path being blocked by something
-        _recalculatePathTimer += delta;
-        
-        if (_recalculatePathTimer >= 0.2f)
+        if (_targetType == TargetType.Path)
         {
-            _recalculatePathTimer = 0f;
-            if (_targetType == TargetType.Path)
-            {
-                FindPathToPathPoint();
-            }
-            else if (_targetType == TargetType.Position)
-            {
-                FindPathToTargetPosition(_targetPosition);
-            }
+            FindPathToPathPoint();
+        }
+        else if (_targetType == TargetType.Position)
+        {
+            FindPathToTargetPosition(_targetPosition);
         }
     }
     
     private void Move(Rigidbody rb, Vector3 position, MovementSettings settings)
     {
         MoveToRigidbody(rb, position, settings);
-
-        UpdateSeekerPath();
     }
 
 

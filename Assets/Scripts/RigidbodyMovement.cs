@@ -78,15 +78,39 @@ public static class RigidbodyMovement
 
         Vector3 directionToTarget = targetPosition - currentPosition;
         float distanceToTarget = directionToTarget.magnitude;
+    
+        // Calculate current speed in the direction of the target
+        float currentSpeed = Vector3.Dot(rb.linearVelocity, directionToTarget.normalized);
         
+
+    
+        // Calculate the stopping distance needed for current speed
+        // Using the formula: stopping_distance = v²/(2*a)
+        float deceleration = settings.Deceleration > 0 ? settings.Deceleration : settings.Acceleration;
+        
+        // Calculate the dot of the current velocity and the direction to the target
+        float dot = Vector3.Dot(rb.linearVelocity.normalized, directionToTarget.normalized);
+        // Use this to apm our deceleration based on the accel dot curve
+        deceleration *= settings.AccelerationFactorFromDot.Evaluate(dot);
+        
+        float stoppingDistance = (currentSpeed * currentSpeed) / (2 * deceleration);
+
         // --- Stop Condition ---
-        // If we are already very close, stop completely and prevent further calculations
-        if (distanceToTarget <= 0.01f)
+        // Stop if we're close enough AND can stop safely within the remaining distance
+        if (distanceToTarget <= 0.01f || (distanceToTarget <= stoppingDistance && currentSpeed > 0))
         {
-            rb.linearVelocity = Vector3.zero; // Hard stop
-            // Optional: Snap to exact target position
-            // rb.MovePosition(targetPosition);
-            return; // Exit FixedUpdate here
+            // If very close, perform hard stop
+            if (distanceToTarget <= 0.01f)
+            {
+                rb.linearVelocity = Vector3.zero;
+                return;
+            }
+        
+            // Otherwise, apply appropriate braking force to stop naturally
+            Vector3 brakeDirection = -rb.linearVelocity.normalized;
+            Vector3 brakeAcceleration = brakeDirection * deceleration;
+            rb.AddForce(brakeAcceleration * rb.mass, ForceMode.Force);
+            return;
         }
 
         // --- Calculate Speed Limits ---
@@ -95,7 +119,6 @@ public static class RigidbodyMovement
         // Use the kinematic equation: v_f^2 = v_i^2 + 2ad  => 0 = v_i^2 - 2 * maxAcceleration * distance
         // So, v_i = sqrt(2 * maxAcceleration * distance)
         // If using separate deceleration: float deceleration = maxDeceleration;
-        float deceleration = settings.Acceleration; // Assuming braking power = acceleration power
         float maxSpeedToStop = Mathf.Sqrt(2 * deceleration * distanceToTarget);
 
         // 2. Determine the actual target speed for this frame

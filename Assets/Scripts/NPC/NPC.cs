@@ -30,6 +30,8 @@ public class NPC : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody>();
         _movement = new NPCMovement(this, LookAhead);
+        
+        _movement.ArrivedAtTarget += OnReachedTarget;
     }
 
     private void Start()
@@ -39,16 +41,26 @@ public class NPC : MonoBehaviour
 
     private void Update()
     {
-        _movement.Update(Time.deltaTime);
+        // If we press the space key, we will move to the target position
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Go();
+        }
     }
 
     private void FixedUpdate()
     {
-        _movement.HandleMovement();
+        var delta = Time.fixedDeltaTime;
+        _movement.HandleMovement(delta);
     }
 
     private void Go()
     {
         _movement.SetTarget(Target.position);
+    }
+    
+    private void OnReachedTarget()
+    {
+        _movement.SetTarget(_path);
     }
 }
