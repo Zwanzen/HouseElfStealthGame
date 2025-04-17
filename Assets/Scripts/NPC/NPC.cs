@@ -7,12 +7,17 @@ using static RigidbodyMovement;
 public class NPC : MonoBehaviour
 {
     public Transform Target;
-    public float LookAhead = 1f;
     
     [Header("NPC Settings")]
     [SerializeField] private NPCType _npcType;
-    [SerializeField] private MovementSettings _movementSettings;
     [SerializeField] private NPCPath _path;
+    
+    [Space(10)]
+    [Header("Movement Settings")]
+    [SerializeField] private float _lookAhead = 1f;
+    [SerializeField] private MovementSettings _settings;
+    [SerializeField] private float _rotationSpeed = 100f;
+
     
     private Rigidbody _rigidbody;
     private NPCMovement _movement;
@@ -24,12 +29,12 @@ public class NPC : MonoBehaviour
     
     // Properties
     public Rigidbody Rigidbody => _rigidbody;
-    public MovementSettings MovementSettings => _movementSettings;
+    public MovementSettings MovementSettings => _settings;
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        _movement = new NPCMovement(this, LookAhead);
+        _movement = new NPCMovement(this, _lookAhead, _rotationSpeed);
         
         _movement.ArrivedAtTarget += OnReachedTarget;
     }
@@ -51,7 +56,7 @@ public class NPC : MonoBehaviour
     private void FixedUpdate()
     {
         var delta = Time.fixedDeltaTime;
-        _movement.HandleMovement(delta);
+        _movement.FixedUpdate(delta);
     }
 
     private void Go()
