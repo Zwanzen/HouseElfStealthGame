@@ -6,9 +6,9 @@ public class AutoTilingByScale : MonoBehaviour
 {
     public enum AxisMapping
     {
-        XZ, // Vanlig gulv eller tak
-        XY, // Vegger stående rett opp
-        YZ  // Vertikale flater på siden
+        XZ,
+        XY,
+        YZ
     }
 
     [SerializeField]

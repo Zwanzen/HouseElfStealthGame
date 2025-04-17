@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6177139689326689220}
   - component: {fileID: 3923161363521913947}
   - component: {fileID: 8375777429433728745}
+  - component: {fileID: -4904837976267927724}
   m_Layer: 0
   m_Name: CeilingSlanted56,5
   m_TagString: Untagged
@@ -66,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d716ae597c1c24d49bb8d792b28c63a7, type: 2}
+  - {fileID: 2100000, guid: f21aae72e4e624a4da56c6ff0b746d43, type: 2}
   - {fileID: 2100000, guid: 172b30f9142bbc14ba25a99e1c788b90, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -89,6 +90,21 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-4904837976267927724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2588291369911493640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27c31b8da5886e04d964c4e6974dfe02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useObjectScale: 1
+  axisMapping: 0
+  tilingMultiplier: {x: 1, y: 1}
 --- !u!1 &2903402873120912828
 GameObject:
   m_ObjectHideFlags: 0
