@@ -216,13 +216,6 @@ public class NPCMovement
         _calcNewPathPoint = true;
         FindPathToPathPoint(true);
     }
-
-    private IEnumerator WaitForStopPoint(float stopTime)
-    {
-        yield return new WaitForSeconds(stopTime);
-        NextPathPoint();
-        _isStopped = false;
-    }
     
     // Updates seeker path
     private void UpdateSeekerPath()
@@ -266,8 +259,7 @@ public class NPCMovement
                     _isStopped = true;
                     // We need to set stop position to the last point
                     _stopPosition = _seekerPath.vectorPath[^1];
-                    // We need to start the wait coroutine
-                    //_npc.StartCoroutine(WaitForStopPoint(wp.StopTime));
+                    // We also need to set the stop timer to the stop time
                     _stopTimer = wp.StopTime;
                 }
                 else
@@ -299,8 +291,10 @@ public class NPCMovement
             RecalculateMove();
             _recalculatePathTimer = 0f;
         }
-                
-        UpdateSeekerPath();
+        
+        // Only update seeker path if we have a path
+        if (_seekerPath != null)
+            UpdateSeekerPath();
         
         if (_targetType == TargetType.None)
         {
@@ -318,6 +312,12 @@ public class NPCMovement
 
         if (_isStopped)
         {
+            // We need to check if we are close enough to the stop position
+            var distanceToStop = Vector3.Distance(_npc.Rigidbody.position, _stopPosition);
+            // If we are not close enough, we dont do anything
+            if (distanceToStop > 0.05f)
+                return;
+            
             _stopTimer -= delta;
             if (_stopTimer <= 0f)
             {
