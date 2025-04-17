@@ -65,6 +65,12 @@ public class NPCMovement
         FindPathToTargetPosition(_targetPosition);
     }
     
+    // Stop Movement
+    public void Stop()
+    {
+        ClearTargets();
+    }
+    
     // Used to clear current target, stopping movement
     private void ClearTargets()
     {
@@ -73,11 +79,12 @@ public class NPCMovement
         _targetNPCPathIndex = -1;
         _seekerPath = null;
         _seekerPathIndex = -1;
-        //_stopPosition = _npc.Rigidbody.position;
+        _stopPosition = _npc.Rigidbody.position;
         _isStopped = false;
         _calcNewPathPoint = false;
         _npc.StopAllCoroutines();
         _seeker.CancelCurrentPathRequest();
+        _targetNPCPath = null;
     }
 
     private void FindClosestNPCPoint(NPCPath npcPath)

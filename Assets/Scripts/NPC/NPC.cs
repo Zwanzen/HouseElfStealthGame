@@ -3,7 +3,7 @@ using Pathfinding;
 using UnityEngine;
 using static RigidbodyMovement;
 
-[RequireComponent(typeof(Rigidbody), typeof(Seeker))]
+[RequireComponent(typeof(Rigidbody), typeof(Seeker), typeof(Animator))]
 public class NPC : MonoBehaviour
 {
     public Transform Target;
@@ -18,12 +18,27 @@ public class NPC : MonoBehaviour
     [SerializeField] private MovementSettings _settings;
     [SerializeField] private float _rotationSpeed = 100f;
 
-    
+    // ___ Components ___
     private Rigidbody _rigidbody;
+    private Animator _anim;
+    
+    // ___ NPC Specific ___
     private NPCMovement _movement;
+    // NPCAnimator _animator;
+    // NPCDetector _detector;
+    
     private enum NPCType
     {
         Patrol,
+        Sleep,
+        Work,
+    }
+    
+    private enum State
+    {
+        Default, // Does his job, patrols, etc.
+        Curious, // Will stop and look around
+        Alert, // Will look for the player
     }
     
     
@@ -34,6 +49,7 @@ public class NPC : MonoBehaviour
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        
         _movement = new NPCMovement(this, _lookAhead, _rotationSpeed);
         
         _movement.ArrivedAtTarget += OnReachedTarget;
@@ -50,6 +66,12 @@ public class NPC : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Go();
+        }
+        
+        // If we press the escape key, we will stop moving
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            _movement.Stop();
         }
     }
 
