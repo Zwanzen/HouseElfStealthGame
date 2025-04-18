@@ -20,7 +20,7 @@ public class PathToolUIBuilder
     private readonly Color _dangerColor = new(0.85f, 0.25f, 0.25f);
 
     // Events
-    public event Action<NpcPath> OnPathSelected;
+    public event Action<NPCPath> OnPathSelected;
     public event Action OnAddWaypoint;
     public event Action<int> OnRemoveWaypoint;
     public event Action OnFlipPath;
@@ -28,7 +28,7 @@ public class PathToolUIBuilder
     public event Action OnSaveChanges;
     public event Action<bool> OnAddWaypointRelative;
     public event Action OnGoBack;
-    public event Action<NpcPath> OnDeletePath;
+    public event Action<NPCPath> OnDeletePath;
 
     // Build the initial UI for path selection or creation
     public void BuildInitialUI(VisualElement root)
@@ -49,7 +49,7 @@ public class PathToolUIBuilder
         var selectSection = new VisualElement();
 
         var npcPathField = new ObjectField();
-        npcPathField.objectType = typeof(NpcPath);
+        npcPathField.objectType = typeof(NPCPath);
         npcPathField.label = "Path Asset";
         npcPathField.RegisterValueChangedCallback(evt =>
         {
@@ -63,7 +63,7 @@ public class PathToolUIBuilder
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 
             // Load a fresh copy of the asset
-            var selectedPath = AssetDatabase.LoadAssetAtPath<NpcPath>(assetPath);
+            var selectedPath = AssetDatabase.LoadAssetAtPath<NPCPath>(assetPath);
             OnPathSelected?.Invoke(selectedPath);
         });
         selectSection.Add(npcPathField);
@@ -102,7 +102,7 @@ public class PathToolUIBuilder
 
             foreach (var item in pathItems)
             {
-                var path = AssetDatabase.LoadAssetAtPath<NpcPath>(item.path);
+                var path = AssetDatabase.LoadAssetAtPath<NPCPath>(item.path);
                 var fileName = Path.GetFileNameWithoutExtension(item.path);
 
                 // Create container for path item and delete button
@@ -179,7 +179,7 @@ public class PathToolUIBuilder
             if (string.IsNullOrEmpty(nameField.value))
                 nameField.value = "New Path";
 
-            var npcPath = ScriptableObject.CreateInstance<NpcPath>();
+            var npcPath = ScriptableObject.CreateInstance<NPCPath>();
             npcPath.Waypoints = new Waypoint[0];
 
             var pathToSave = AssetDatabase.GenerateUniqueAssetPath(path + "/" + nameField.value + ".asset");
@@ -219,7 +219,7 @@ public class PathToolUIBuilder
     }
 
     // Build the UI for the selected path
-    public void BuildPathDetailsUI(VisualElement root, NpcPath selectedPath, int selectedWaypointIndex)
+    public void BuildPathDetailsUI(VisualElement root, NPCPath selectedPath, int selectedWaypointIndex)
     {
         root.Clear();
         ApplyBaseStyles(root);
@@ -503,7 +503,7 @@ public class PathToolUIBuilder
     }
 
     // Build the UI for the selected waypoint
-    private void BuildSelectedWaypointUI(VisualElement root, NpcPath selectedPath, int selectedWaypointIndex)
+    private void BuildSelectedWaypointUI(VisualElement root, NPCPath selectedPath, int selectedWaypointIndex)
     {
         var waypoint = selectedPath.Waypoints[selectedWaypointIndex];
 
@@ -628,7 +628,7 @@ public class PathToolUIBuilder
 
     // Register all callbacks for the waypoint properties
     private void RegisterWaypointCallbacks(
-        NpcPath selectedPath, int selectedWaypointIndex,
+        NPCPath selectedPath, int selectedWaypointIndex,
         Toggle hasStopToggle, Toggle hasDirectionToggle, Toggle hasAnimationToggle,
         VisualElement stopTimeContainer, VisualElement directionField, VisualElement animationTypeField)
     {
