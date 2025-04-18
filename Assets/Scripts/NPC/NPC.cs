@@ -3,7 +3,7 @@ using Pathfinding;
 using UnityEngine;
 using static RigidbodyMovement;
 
-[RequireComponent(typeof(Rigidbody), typeof(Seeker), typeof(Animator))]
+[RequireComponent(typeof(Rigidbody), typeof(Seeker))]
 public class NPC : MonoBehaviour
 {
     public Transform Target;
@@ -28,7 +28,7 @@ public class NPC : MonoBehaviour
     
     // ___ NPC Specific ___
     private NPCMovement _movement;
-    // NPCAnimator _animator;
+    NPCAnimator _animator;
     // NPCDetector _detector;
     
     private enum NPCType
@@ -53,10 +53,14 @@ public class NPC : MonoBehaviour
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        _anim = GetComponentInChildren<Animator>();
         
         _movement = new NPCMovement(this,_maxRecalcPathTime, _lookAhead, _groundLayers, _springStrength, _springDamper, _rotationSpeed);
+        _animator = new NPCAnimator(this, _anim);
+        
         
         _movement.ArrivedAtTarget += OnReachedTarget;
+        _movement.OnAnimStateChange += OnAnimStateChange;
     }
 
     private void Start()
@@ -66,6 +70,9 @@ public class NPC : MonoBehaviour
 
     private void Update()
     {
+        var delta = Time.deltaTime;
+        _animator.Update(delta);
+        
         // If we press the space key, we will move to the target position
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -93,5 +100,10 @@ public class NPC : MonoBehaviour
     private void OnReachedTarget()
     {
         _movement.SetTarget(_path);
+    }
+
+    private void OnAnimStateChange(NPCAnimator.AnimState state)
+    {
+        _animator.SetNewAnimState(state);
     }
 }

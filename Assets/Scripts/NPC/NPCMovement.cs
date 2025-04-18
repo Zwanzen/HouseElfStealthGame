@@ -55,8 +55,12 @@ public class NPCMovement
     private Vector3 _targetPathRotation;
     private Vector3 _dirToRotate;
     
+    // ___ Anim ___
+    private bool _readyForAnimChange = false;
+    
     // Events
     public Action ArrivedAtTarget;
+    public Action<NPCAnimator.AnimState> OnAnimStateChange;
 
     #region Pathing
     // Used by NPC to set either a path or a single point
@@ -82,6 +86,7 @@ public class NPCMovement
     // Used to clear current target, stopping movement
     private void ClearTargets()
     {
+        _readyForAnimChange = true;
         _targetType = TargetType.None;
         _targetNPCPath = null;
         _targetNPCPathIndex = -1;
@@ -93,6 +98,7 @@ public class NPCMovement
         _npc.StopAllCoroutines();
         _seeker.CancelCurrentPathRequest();
         _targetNPCPath = null;
+        OnAnimStateChange(NPCAnimator.AnimState.Idle);
     }
 
     private void FindClosestNPCPoint(NPCPath npcPath)
@@ -168,6 +174,7 @@ public class NPCMovement
         _seekerPathIndex = 0;
         // We now set target type
         _targetType = TargetType.Position;
+        OnAnimStateChange(NPCAnimator.AnimState.Walk);
     }
 
     private void FindPathToPathPoint(bool forcePath = false)
@@ -200,6 +207,7 @@ public class NPCMovement
         _seekerPathIndex = 0;
         // We now set target type
         _targetType = TargetType.Path;
+        OnAnimStateChange(NPCAnimator.AnimState.Walk);
     }
 
     private void NextPathPoint()
@@ -301,6 +309,8 @@ public class NPCMovement
                 ArrivedAtTarget.Invoke();
             }
             _recalculatePathTimer = 0f;
+            _readyForAnimChange = true;
+                
         }
         
     }
@@ -317,12 +327,31 @@ public class NPCMovement
         // This is done to avoid the path being blocked by something
         if (_targetType == TargetType.Path)
         {
-            FindPathToPathPoint();
+            // If we are calculating new path point, and is not forcePath, we need to return
+            if (_calcNewPathPoint)
+                return;
+
+            _seeker.StartPath(_npc.transform.position, _targetNPCPath.Positions[_targetNPCPathIndex], OnRecalculatedPath);
         }
         else if (_targetType == TargetType.Position)
         {
-            FindPathToTargetPosition(_targetPosition);
+            _seeker.StartPath(_npc.transform.position, _targetPosition, OnTargetPositionPathFound);
         }
+    }
+    
+    private void OnRecalculatedPath(Path p)
+    {
+        // We need to check if the path is valid
+        if (p.error)
+        {
+            Debug.LogError("Error finding path: " + p.errorLog);
+            return;
+        }
+        
+        // We set the seekerPath to the path found
+        _seekerPath = p;
+        // We set the seekerPathIndex to 0
+        _seekerPathIndex = 0;
     }
     
     private void Move(Rigidbody rb, Vector3 position, MovementSettings settings)
@@ -357,6 +386,13 @@ public class NPCMovement
             // If we are not close enough, we dont do anything
             if (distanceToStop > 0.1f)
                 return;
+            
+            // now we check if we should update animation to idle
+            if (_readyForAnimChange)
+            {
+                _readyForAnimChange = false;
+                OnAnimStateChange(NPCAnimator.AnimState.Idle);
+            }
             
             _stopTimer -= delta;
             if (_stopTimer <= 0f)
