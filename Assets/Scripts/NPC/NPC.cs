@@ -11,10 +11,14 @@ public class NPC : MonoBehaviour
     [Header("NPC Settings")]
     [SerializeField] private NPCType _npcType;
     [SerializeField] private NPCPath _path;
-    
-    [Space(10)]
-    [Header("Movement Settings")]
+
+    [Space(10)] [Header("Movement Settings")] [SerializeField]
+    private float _maxRecalcPathTime = 0.5f;
     [SerializeField] private float _lookAhead = 1f;
+    [Space(5)]
+    [SerializeField] private LayerMask _groundLayers;
+    [SerializeField] private float _springStrength = 50f;
+    [SerializeField] private float _springDamper = 5f;
     [SerializeField] private MovementSettings _settings;
     [SerializeField] private float _rotationSpeed = 100f;
 
@@ -50,7 +54,7 @@ public class NPC : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody>();
         
-        _movement = new NPCMovement(this, _lookAhead, _rotationSpeed);
+        _movement = new NPCMovement(this,_maxRecalcPathTime, _lookAhead, _groundLayers, _springStrength, _springDamper, _rotationSpeed);
         
         _movement.ArrivedAtTarget += OnReachedTarget;
     }

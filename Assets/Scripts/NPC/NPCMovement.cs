@@ -10,16 +10,24 @@ public class NPCMovement
     private NPC _npc;
     private Seeker _seeker;
     
+    private float _maxRecalcPathTime; // Max time to recalculate path
     private readonly float _lookAhead; // Used to look ahead in the seeker path
+    private LayerMask _groundLayers; // Used to check if the npc is on the ground
+    private float _springStrength = 10f; // Spring strength for the rigidbody
+    private float _springDampener = 0.5f; // Spring dampener for the rigidbody
     private float _rotationSpeed;
     
     // Constructor
-    public NPCMovement(NPC npc, float lookAhead, float rotationSpeed)
+    public NPCMovement(NPC npc,float maxRecalcPathTime, float lookAhead, LayerMask groundLayers, float springStrength, float springDampener, float rotationSpeed)
     {
         _npc = npc;
         _seeker = npc.GetComponent<Seeker>();
+        _maxRecalcPathTime = maxRecalcPathTime;
         _lookAhead = lookAhead;
         _stopPosition = _npc.Rigidbody.position;
+        _groundLayers = groundLayers;
+        _springStrength = springStrength;
+        _springDampener = springDampener;
         _rotationSpeed = rotationSpeed;
     }
     
@@ -300,7 +308,7 @@ public class NPCMovement
     private void RecalculateMove(float delta)
     {
         _recalculatePathTimer += delta;
-        if(_recalculatePathTimer < 0.2f)
+        if(_recalculatePathTimer < _maxRecalcPathTime)
             return;
         
         _recalculatePathTimer = 0f;
@@ -394,11 +402,35 @@ public class NPCMovement
         }
     }
 
+        // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
+    // Modified
+    public void RigidbodyFloat()
+    {
+        var height = 1.8f;
+        var heightOffset = Vector3.up * height;
+        var radius = 0.3f;
+
+        if(!Physics.SphereCast(_npc.Rigidbody .position + heightOffset, radius, Vector3.down, out var hit, Mathf.Infinity, _groundLayers))
+            return;
+        
+        var vel = _npc.Rigidbody.linearVelocity;
+
+        var relDirVel = Vector3.Dot(Vector3.down, vel);
+
+        var relVel = relDirVel;
+
+        var x = hit.distance - height + radius/2f;
+        
+        var springForce = (x * _springStrength) - (relVel * _springDampener);
+        _npc.Rigidbody.AddForce(Vector3.down * springForce);
+    }
+    
     #endregion
     public void FixedUpdate(float delta)
     {
         HandleMovement(delta);
         HandleRotation(delta);
+        RigidbodyFloat();
     }
 
     
