@@ -18,7 +18,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &150875080408817993
 Transform:
@@ -28,13 +28,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2054349535441368504}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1743871867207932552}
   - {fileID: 2769964681051290673}
+  - {fileID: 1590415757183319225}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2095270378999076385
@@ -44,7 +44,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2054349535441368504}
-  m_Mesh: {fileID: 3887539719764174820, guid: 20aede9739354d347a0afcd3c75c17af, type: 3}
+  m_Mesh: {fileID: 3887539719764174820, guid: 52880d4d18f91b0409d11c54a0164b7c, type: 3}
 --- !u!23 &4240637778090543148
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -68,7 +68,8 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: dd5ce6d246092ed449659e6a1c6ad15d, type: 2}
+  - {fileID: 2100000, guid: 172b30f9142bbc14ba25a99e1c788b90, type: 2}
+  - {fileID: 2100000, guid: fda2b4eea00f01240b60567f0df32861, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -109,8 +110,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.1, y: 3, z: 0.6}
-  m_Center: {x: 0, y: 1.5, z: -0.2}
+  m_Size: {x: 0.1, y: 3, z: 1}
+  m_Center: {x: 0, y: 1.5, z: -0.5}
 --- !u!65 &8393073881608976305
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -130,8 +131,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.6, y: 3, z: 0.1}
-  m_Center: {x: -0.2, y: 1.5, z: 0}
+  m_Size: {x: 1, y: 3, z: 0.1}
+  m_Center: {x: -0.5, y: 1.5, z: 0}
 --- !u!1001 &6551574568290756680
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -144,13 +145,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: WallWoodSkirtingBoardCorner
       objectReference: {fileID: 0}
+    - target: {fileID: 5892622478029927044, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8978834501384049785, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8978834501384049785, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 8978834501384049785, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -194,7 +199,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8978834501384049785, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
   m_PrefabInstance: {fileID: 6551574568290756680}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &7253117918441721585
+--- !u!1001 &7676791131436017856
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -204,7 +209,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5892622478029927044, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
       propertyPath: m_Name
-      value: WallWoodSkirtingBoardCorner
+      value: WallWoodSkirtingBoardCorner (1)
       objectReference: {fileID: 0}
     - target: {fileID: 8978834501384049785, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -251,8 +256,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
---- !u!4 &1743871867207932552 stripped
+--- !u!4 &1590415757183319225 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8978834501384049785, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
-  m_PrefabInstance: {fileID: 7253117918441721585}
+  m_PrefabInstance: {fileID: 7676791131436017856}
   m_PrefabAsset: {fileID: 0}

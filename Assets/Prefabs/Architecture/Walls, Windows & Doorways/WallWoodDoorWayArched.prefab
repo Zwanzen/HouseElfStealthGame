@@ -17,7 +17,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4077072099586688164
 Transform:
@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1005222546550473826}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -42,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1005222546550473826}
-  m_Mesh: {fileID: -8575909130842492283, guid: 20aede9739354d347a0afcd3c75c17af, type: 3}
+  m_Mesh: {fileID: -8575909130842492283, guid: 52880d4d18f91b0409d11c54a0164b7c, type: 3}
 --- !u!23 &8124345488877990906
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -66,7 +66,8 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: dd5ce6d246092ed449659e6a1c6ad15d, type: 2}
+  - {fileID: 2100000, guid: fda2b4eea00f01240b60567f0df32861, type: 2}
+  - {fileID: 2100000, guid: 172b30f9142bbc14ba25a99e1c788b90, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -109,7 +110,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: -8575909130842492283, guid: 20aede9739354d347a0afcd3c75c17af, type: 3}
+  m_Mesh: {fileID: -8575909130842492283, guid: 52880d4d18f91b0409d11c54a0164b7c, type: 3}
 --- !u!1001 &5855848298912283749
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -122,13 +123,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: WallWoodSkirtingBoardNormal
       objectReference: {fileID: 0}
+    - target: {fileID: 559792999143710692, guid: b4ef29a007be69e46a3d14ea85b58595, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9197050789950497395, guid: b4ef29a007be69e46a3d14ea85b58595, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9197050789950497395, guid: b4ef29a007be69e46a3d14ea85b58595, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 9197050789950497395, guid: b4ef29a007be69e46a3d14ea85b58595, type: 3}
       propertyPath: m_LocalPosition.z
