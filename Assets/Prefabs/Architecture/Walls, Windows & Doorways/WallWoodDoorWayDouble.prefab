@@ -12,12 +12,12 @@ GameObject:
   - component: {fileID: 8200864730167953891}
   - component: {fileID: 2933822392248266717}
   - component: {fileID: 9175905170117782778}
-  m_Layer: 0
+  m_Layer: 29
   m_Name: WallWoodDoorWayDouble
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2721627521388471597
 Transform:
@@ -27,13 +27,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4973219208018867937}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4791259552183843600}
-  - {fileID: 56284978259731347}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8200864730167953891
@@ -43,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4973219208018867937}
-  m_Mesh: {fileID: -6170708354546328013, guid: 20aede9739354d347a0afcd3c75c17af, type: 3}
+  m_Mesh: {fileID: -6170708354546328013, guid: 52880d4d18f91b0409d11c54a0164b7c, type: 3}
 --- !u!23 &2933822392248266717
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -67,7 +66,8 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: dd5ce6d246092ed449659e6a1c6ad15d, type: 2}
+  - {fileID: 2100000, guid: 172b30f9142bbc14ba25a99e1c788b90, type: 2}
+  - {fileID: 2100000, guid: fda2b4eea00f01240b60567f0df32861, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -110,69 +110,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: -6170708354546328013, guid: 20aede9739354d347a0afcd3c75c17af, type: 3}
---- !u!1001 &2785626523095959284
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 2721627521388471597}
-    m_Modifications:
-    - target: {fileID: 1014363271152113494, guid: 9cc04725731a6054d99a608687df9637, type: 3}
-      propertyPath: m_Name
-      value: WallWoodSkirtingBoardWorn
-      objectReference: {fileID: 0}
-    - target: {fileID: 2769571332224329063, guid: 9cc04725731a6054d99a608687df9637, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2769571332224329063, guid: 9cc04725731a6054d99a608687df9637, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 2769571332224329063, guid: 9cc04725731a6054d99a608687df9637, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2769571332224329063, guid: 9cc04725731a6054d99a608687df9637, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2769571332224329063, guid: 9cc04725731a6054d99a608687df9637, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2769571332224329063, guid: 9cc04725731a6054d99a608687df9637, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2769571332224329063, guid: 9cc04725731a6054d99a608687df9637, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2769571332224329063, guid: 9cc04725731a6054d99a608687df9637, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2769571332224329063, guid: 9cc04725731a6054d99a608687df9637, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2769571332224329063, guid: 9cc04725731a6054d99a608687df9637, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 9cc04725731a6054d99a608687df9637, type: 3}
---- !u!4 &56284978259731347 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2769571332224329063, guid: 9cc04725731a6054d99a608687df9637, type: 3}
-  m_PrefabInstance: {fileID: 2785626523095959284}
-  m_PrefabAsset: {fileID: 0}
+  m_Mesh: {fileID: -6170708354546328013, guid: 52880d4d18f91b0409d11c54a0164b7c, type: 3}
 --- !u!1001 &4458429328923089251
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -185,17 +123,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: WallWoodSkirtingBoardNormal
       objectReference: {fileID: 0}
-    - target: {fileID: 9197050789950497395, guid: b4ef29a007be69e46a3d14ea85b58595, type: 3}
-      propertyPath: m_LocalPosition.x
+    - target: {fileID: 559792999143710692, guid: b4ef29a007be69e46a3d14ea85b58595, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9197050789950497395, guid: b4ef29a007be69e46a3d14ea85b58595, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9197050789950497395, guid: b4ef29a007be69e46a3d14ea85b58595, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.000000029802315
+      objectReference: {fileID: 0}
+    - target: {fileID: 9197050789950497395, guid: b4ef29a007be69e46a3d14ea85b58595, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 9197050789950497395, guid: b4ef29a007be69e46a3d14ea85b58595, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.5
+      value: 0.00000017881393
       objectReference: {fileID: 0}
     - target: {fileID: 9197050789950497395, guid: b4ef29a007be69e46a3d14ea85b58595, type: 3}
       propertyPath: m_LocalRotation.w

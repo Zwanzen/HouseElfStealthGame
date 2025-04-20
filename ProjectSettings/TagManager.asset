@@ -14,7 +14,7 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Ground
+  - Walkable
   - Water
   - UI
   - LightVolume
@@ -28,7 +28,7 @@ TagManager:
   - 
   - 
   - 
-  - CameraNPC
+  - NPC
   - BackgroundPlayer
   - 
   - 
@@ -39,9 +39,9 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - Object
+  - Unwalkable
+  - Obstacle
+  - Props
   - Door
   m_SortingLayers:
   - name: Default
