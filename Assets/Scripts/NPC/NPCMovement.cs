@@ -318,7 +318,7 @@ public class NPCMovement
     private void RecalculateMove(float delta)
     {
         _recalculatePathTimer += delta;
-        if(_recalculatePathTimer < _maxRecalcPathTime)
+        if(_recalculatePathTimer < _maxRecalcPathTime || _isStopped)
             return;
         
         _recalculatePathTimer = 0f;
@@ -386,6 +386,13 @@ public class NPCMovement
             // If we are not close enough, we dont do anything
             if (distanceToStop > 0.1f)
                 return;
+            // If we are not rotated correctly, we dont do anything
+            if (_dirToRotate != Vector3.zero)
+            {
+                var angle = Vector3.SignedAngle(_npc.Rigidbody.transform.forward, _dirToRotate, Vector3.up);
+                if (Mathf.Abs(angle) > 1f)
+                    return;
+            }
             
             // now we check if we should update animation to idle
             if (_readyForAnimChange)
