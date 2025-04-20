@@ -17,7 +17,7 @@ struct SurfaceVariables
     float3 shadowColor;
     float3 normal;
     float3 viewDir;
-    int Bands;
+    float bandSmoothness;
     float smoothness;
     float shininess;
     float rimThreshold;
@@ -44,9 +44,10 @@ float3 CalculateCelShading(Light l, SurfaceVariables s, int numBands) {
 
     // Quantize the values into bands
     float bandStep = 1.0 / numBands;
-    diffuse = floor(diffuse / bandStep) * bandStep;
-    specular = floor(specular / bandStep) * bandStep;
-    rim = floor(rim / bandStep) * bandStep;
+
+    diffuse = lerp(diffuse, floor(diffuse / bandStep) * bandStep, s.bandSmoothness);
+    specular = lerp(specular, floor(specular / bandStep) * bandStep, s.bandSmoothness);
+    rim = lerp(rim, floor(rim / bandStep) * bandStep, s.bandSmoothness);
 
     // Smoothstep the values to create a cel-shaded effect
     diffuse = smoothstep(0.0, s.ec.diffuse, diffuse);
@@ -68,7 +69,7 @@ float3 CalculateCelShading(Light l, SurfaceVariables s, int numBands) {
 }
 #endif
 
-void LightingCelShaded_float(int Bands, float3 ShadowColor, float Smoothness, float RimThreshold, float3 Position, float3 Normal, float3 View,
+void LightingCelShaded_float(int Bands, float BandSmoothness, float3 ShadowColor, float Smoothness, float RimThreshold, float3 Position, float3 Normal, float3 View,
     float EdgeDiffuse, float EdgeSpecular, float EdgeSpecularOffset, float EdgeDistanceAttenuation, float EdgeShadowAttenuation,
     float EdgeRim, float EdgeRimOffset, out float3 Color){
 #if defined(SHADERGRAPH_PREVIEW)
@@ -78,7 +79,7 @@ void LightingCelShaded_float(int Bands, float3 ShadowColor, float Smoothness, fl
     SurfaceVariables s;
     s.normal = Normal;
     s.viewDir = View;
-    s.Bands = Bands;
+    s.bandSmoothness = BandSmoothness;
     s.shadowColor = ShadowColor;
     s.smoothness = Smoothness;
     s.shininess = exp2(10.0 * Smoothness + 1.0);
