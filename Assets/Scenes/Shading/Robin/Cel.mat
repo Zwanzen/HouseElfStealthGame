@@ -42,8 +42,16 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _Gradient:
+        m_Texture: {fileID: 2800000, guid: aaf82d46af1a65146b282d6fda8be8e8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: 788ff565d837659479f2d0db4a2dac09, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2DAsset_399aacbc308c4862a0a307e24d980e00_Out_0_Texture2D:
+        m_Texture: {fileID: 2800000, guid: ad06314317491d44f9bb875708601027, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Texture2DAsset_de6a7ec4f49c4e40adf68f7700dc7b47_Out_0_Texture2D:
@@ -66,10 +74,11 @@ Material:
     m_Floats:
     - _ADDITIONAL_LIGHTS: 1
     - _ADDITIONAL_LIGHT_SHADOWS: 1
-    - _EdgeDiffuse: 0.008
-    - _EdgeDistanceAttenuation: 0.013
-    - _EdgeRim: 0.768
-    - _EdgeRimOffset: 0
+    - _Bands: 3
+    - _EdgeDiffuse: 0.624
+    - _EdgeDistanceAttenuation: 0.205
+    - _EdgeRim: 0.402
+    - _EdgeRimOffset: 0.308
     - _EdgeShadowAttenuation: 1
     - _EdgeSpecular: 0.143
     - _EdgeSpecularOffset: 0.214
@@ -77,10 +86,11 @@ Material:
     - _MAIN_LIGHT_SHADOWS_CASCADE: 1
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _RimThreshold: 0.348
+    - _RimThreshold: 0.044
     - _SHADOWS_SOFT: 1
-    - _Smoothness: 0.196
+    - _Smoothness: 0.692
     m_Colors:
     - _MainColor: {r: 0.5294118, g: 0.39607847, b: 0.2627451, a: 0}
+    - _ShadowColor: {r: 0.3298519, g: 0.2783019, b: 1, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
