@@ -115,13 +115,6 @@ public class PlayerController : MonoBehaviour
     {
         HandleStepUI();
         
-        // *** TEMP ***
-
-        
-        _rightHandTarget.position = new Vector3(_leftFoot.Target.position.x, 0.6f, _leftFoot.Target.position.z);
-        _rightHandTarget.position += -Vector3.Cross(Rigidbody.transform.forward, Vector3.up) * 0.25f;
-        _leftHandTarget.position = new Vector3(_rightFoot.Target.position.x, 0.6f, _rightFoot.Target.position.z);
-        _leftHandTarget.position += Vector3.Cross(Rigidbody.transform.forward, Vector3.up) * 0.25f;
     }
 
     private void HandleStepUI()
