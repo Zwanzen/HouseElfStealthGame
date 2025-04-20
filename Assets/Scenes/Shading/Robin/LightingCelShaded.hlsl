@@ -59,13 +59,7 @@ float3 CalculateCelShading(Light l, SurfaceVariables s, int numBands) {
         s.ec.rim + 0.5 * s.ec.rimOffset,
         rim);
 
-    float c = (diffuse + max(specular, rim));
-
-    // The darker the light, the more toward user-defined shadow color
-    float3 shadowedColor = lerp(s.shadowColor, l.color * c, c);
-    return shadowedColor;
-
-    //return l.color * (diffuse + max(specular, rim)); Original return value
+    return l.color * (diffuse + max(specular, rim));
 }
 #endif
 
@@ -102,7 +96,7 @@ void LightingCelShaded_float(int Bands, float BandSmoothness, float3 ShadowColor
     float4 shadowCoord = TransformWorldToShadowCoord(Position);
 #endif
 
-    Light light = GetMainLight(shadowCoord);
+    Light light = GetMainLight();
     Color = CalculateCelShading(light, s, Bands);
 
     int pixelLightCount = GetAdditionalLightsCount();
@@ -111,6 +105,13 @@ void LightingCelShaded_float(int Bands, float BandSmoothness, float3 ShadowColor
         light = GetAdditionalLight(i, Position, 1.0);
         Color += CalculateCelShading(light, s, Bands);
     }
+
+    // Calculate the intensity of the light (brightness)
+    float lightIntensity = saturate(dot(Color, float3(0.299, 0.587, 0.114))); // Luminance approximation
+
+    // Blend toward the shadow color based on the inverse of the light intensity
+    float3 shadowedColor = lerp(s.shadowColor, Color, lightIntensity);
+    Color = shadowedColor;
 #endif
 }
 
