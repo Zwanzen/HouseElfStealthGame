@@ -11,6 +11,7 @@ struct EdgeConstants
     float shadowAttenuation;
     float rim;
     float rimOffset;
+    float bandTransitionSmoothness;
 };
 struct SurfaceVariables
 {
@@ -44,33 +45,26 @@ float3 CalculateCelShading(Light l, SurfaceVariables s, int numBands) {
 
     // Quantize the values into bands
     float bandStep = 1.0 / numBands;
-    diffuse = floor(diffuse / bandStep) * bandStep;
-    specular = floor(specular / bandStep) * bandStep;
-    rim = floor(rim / bandStep) * bandStep;
+    float quantizedDiffuse = floor(diffuse / bandStep) * bandStep;
+    float quantizedSpecular = floor(specular / bandStep) * bandStep;
+    float quantizedRim = floor(rim / bandStep) * bandStep;
 
-    // Smoothstep the values to create a cel-shaded effect
-    diffuse = smoothstep(0.0, s.ec.diffuse, diffuse);
-    specular = s.smoothness * smoothstep((1 - s.smoothness) * s.ec.specular + s.ec.specularOffset,
-        s.ec.specular + s.ec.specularOffset, specular);
-
-    rim = s.smoothness * smoothstep(
-        s.ec.rim - 0.5 * s.ec.rimOffset,
-        s.ec.rim + 0.5 * s.ec.rimOffset,
-        rim);
+    // Smooth transitions between bands
+    diffuse = lerp(quantizedDiffuse, quantizedDiffuse + bandStep, smoothstep(0.0, s.ec.bandTransitionSmoothness, frac(diffuse / bandStep)));
+    specular = lerp(quantizedSpecular, quantizedSpecular + bandStep, smoothstep(0.0, s.ec.bandTransitionSmoothness, frac(specular / bandStep)));
+    rim = lerp(quantizedRim, quantizedRim + bandStep, smoothstep(0.0, s.ec.bandTransitionSmoothness, frac(rim / bandStep)));
 
     float c = (diffuse + max(specular, rim));
 
     // The darker the light, the more toward user-defined shadow color
     float3 shadowedColor = lerp(s.shadowColor, l.color * c, c);
     return shadowedColor;
-
-    //return l.color * (diffuse + max(specular, rim)); Original return value
 }
 #endif
 
 void LightingCelShaded_float(int Bands, float3 ShadowColor, float Smoothness, float RimThreshold, float3 Position, float3 Normal, float3 View,
     float EdgeDiffuse, float EdgeSpecular, float EdgeSpecularOffset, float EdgeDistanceAttenuation, float EdgeShadowAttenuation,
-    float EdgeRim, float EdgeRimOffset, out float3 Color){
+    float EdgeRim, float EdgeRimOffset, float BandTransitionSmoothness, out float3 Color){
 #if defined(SHADERGRAPH_PREVIEW)
     Color = float3(0.0, 0.0, 0.0);
 #else
@@ -92,6 +86,7 @@ void LightingCelShaded_float(int Bands, float3 ShadowColor, float Smoothness, fl
     ec.specularOffset = EdgeSpecularOffset;
     ec.rim = EdgeRim;
     ec.rimOffset = EdgeRimOffset;
+    ec.bandTransitionSmoothness = BandTransitionSmoothness;
     s.ec = ec;
 
 #if SHADOWS_SCREEN
