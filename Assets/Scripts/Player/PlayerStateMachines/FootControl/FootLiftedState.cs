@@ -41,11 +41,20 @@ public class FootLiftedState : FootControlState
         _liftTimer += Time.deltaTime;
     }
 
+    private float _timerSinceInput;
     public override void FixedUpdateState()
     {
         var footPos = Context.Foot.Target.position;
         var otherFootPos = Context.OtherFoot.Target.position;
         var input = Context.Player.RelativeMoveInput;
+        if (input.normalized == Vector3.zero)
+        {
+            _timerSinceInput += Time.fixedDeltaTime;
+        }
+        else
+        {
+            _timerSinceInput = 0f;
+        }
         
         var baseFootLiftedHeight = 0.15f;
         var wantedHeight = otherFootPos.y + baseFootLiftedHeight;
@@ -53,8 +62,8 @@ public class FootLiftedState : FootControlState
         // Depending on obstacles, we want to move the foot up
         // We create a boxcast from the max step height, downwards to the max step height
         // If we don't hit anything, the pressed height is the wanted height
-        if (ScanGroundObject(input, out var heightOfObject))
-            wantedHeight = heightOfObject + baseFootLiftedHeight;
+        if (ScanGroundObject(input, out var scanInfo))
+            wantedHeight = scanInfo.Height + baseFootLiftedHeight;
         
         // This is the current position of the foot, but at the wanted height
         var wantedHeightPos = new Vector3(footPos.x, wantedHeight, footPos.z);
@@ -73,7 +82,6 @@ public class FootLiftedState : FootControlState
         var camAngle = Context.Player.Camera.CameraX;
         var offsetLerp = camAngle / 60f;
         offsetPos = Vector3.Lerp(offsetPos, wantedInputPos, offsetLerp);
-
         
         // We lerp our input position with the offset position based on how far behind the foot is
         var distBehind = Context.RelativeDistanceInDirection(footPos, otherFootPos, input.normalized);
@@ -92,6 +100,10 @@ public class FootLiftedState : FootControlState
         if(currentHeight > maxHeight)
             pos = wantedPos;
         
+        // If scan is stuck, we want to move the foot backwards
+        if (scanInfo.Stuck)
+            pos = footPos - Context.Player.Rigidbody.transform.forward * 0.5f;
+        
         // We get the direction towards the wanted position
         var dirToPos = pos - footPos;
 
@@ -99,21 +111,37 @@ public class FootLiftedState : FootControlState
         if (Vector3.Distance(pos, otherFootPos) > Context.StepLength)
             pos = ClampedFootPosition(footPos, otherFootPos, dirToPos);
 
+        // If we are letting go of movement, slowly lerp to default speed
         var settings = Context.MovementSettings;
-        if(input == Vector3.zero)
-            settings.ForceScale = new Vector3(1f, 0.2f, 1f);
-        
+        if (input == Vector3.zero)
+        {
+            var yScale = Mathf.Lerp(0.2f, 1, _timerSinceInput / 1.8f);
+            settings.ForceScale = new Vector3(1, yScale, 1);
+        }
         RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, pos, settings);
 
         HandleFootRotation();
     }
     
-    private bool ScanGroundObject(Vector3 input, out float height)
+    private struct ScanInfo
+    {
+        public readonly float Height;
+        public readonly bool Stuck;
+        
+        public ScanInfo(float height, bool stuck)
+        {
+            Height = height;
+            Stuck = stuck;
+        }
+    }
+    
+    private bool ScanGroundObject(Vector3 input, out ScanInfo scanInfo)
     {
         var footPos = Context.Foot.Target.position;
         var otherFootPos = Context.OtherFoot.Target.position;
-        height = 0f;
+        var height = 0f;
         var defaultValues = Context.FootCastValues;
+        scanInfo = new ScanInfo();
         
         var position = defaultValues.Position;
         var size = defaultValues.Size;
@@ -159,8 +187,6 @@ public class FootLiftedState : FootControlState
         
         // Check if it is too far away
         var tooFar = Vector3.Distance(otherFootPos, closestPoint) > Context.StepLength;
-        Physics.CheckSphere(closestPoint, 0.02f);
-        Physics.CheckSphere(otherFootPos + ((closestPoint - otherFootPos).normalized * Context.StepLength), 0.02f);
         
         var highest = highestPoint.y - footSize;
         // If there is space above and the point is not too far away
@@ -179,14 +205,28 @@ public class FootLiftedState : FootControlState
             rotation = defaultValues.Rotation;
             position.y -= size.y;
             var dist = height - position.y;
-                
+            
+            // TODO
+            // If it hits above, we should not set a safe point, 
+            // We should set the correct height
+            // And even shove it to the side if needed
+
+            // DONE
+            // We are checking if it is stuck
+            // Then the movement is handled by the move logic
+            
+            var stuck = false;
             // If we hit it, we set the height to the hit point - foot size
             // -0.15f is to nullify the lifting default height
-            if(Physics.BoxCast(position, size, Vector3.up, out var upHit, rotation,
-                   dist + size.y,
-                   Context.GroundLayers))
-                height = otherFootPos.y;
+            if (Physics.BoxCast(position, size, Vector3.up, out var upHit, rotation,
+                    dist + size.y,
+                    Context.GroundLayers))
+            {
+                height = otherFootPos.y; // Should potentially be the hit point
+                stuck = true;
+            }
                 
+            scanInfo = new ScanInfo(height, stuck);
             Context.SetSafePosition(hit.point);
             return true;
         }
@@ -194,6 +234,7 @@ public class FootLiftedState : FootControlState
         // Check if we are actually on the ground
         if (Context.IsFootGrounded)
         {
+            scanInfo = new ScanInfo(height, false);
             Context.SetSafePosition(hit.point);
             return true;
         }
@@ -232,6 +273,7 @@ public class FootLiftedState : FootControlState
         if (lowest > height)
             return false;
             
+        scanInfo = new ScanInfo(height, false);
         Context.SetSafePosition(heightHit.point);
         return true;
     }
