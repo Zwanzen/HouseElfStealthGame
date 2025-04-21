@@ -77,7 +77,7 @@ public class FootControlContext
     public Foot OtherFoot => _otherFoot;
     public float StepLength => _stepLength;
     public float StepHeight => _stepLength;
-    public LayerMask GroundLayers => _groundLayers;
+    public LayerMask GroundLayers => GetGroundLayers();
     public Vector3 FootPlaceOffset =>  Vector3.up * 0.05f;
     public float FootRadius => 0.05f;
     public bool IsFootGrounded => GetFootGrounded();
@@ -97,6 +97,15 @@ public class FootControlContext
     private IKEffector GetEffector()
     {
         return _foot.Side == Foot.EFootSide.Left ? _bodyIK.solver.leftFootEffector : _bodyIK.solver.rightFootEffector;
+    }
+
+    // Depending on if we look down or not, we should include the props layer
+    private LayerMask GetGroundLayers()
+    {
+        var layers = _groundLayers;
+        if (_player.Camera.LookDownLerpOffset(10f) > 0f)
+            layers |= LayerMask.GetMask("Props");
+        return layers;
     }
     
     // Used to get values for box cast

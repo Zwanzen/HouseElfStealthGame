@@ -26,6 +26,14 @@ public class PlayerCameraController : MonoBehaviour
     
     private float _minFov = 80f;
     
+    // Properties
+    public float LookDownLerp => _xRotation / 60f;
+
+    public float LookDownLerpOffset(float offset)
+    {
+        return (_xRotation - offset) / (60f - offset);
+    }
+    
     private void Awake()
     {
         // Initialize

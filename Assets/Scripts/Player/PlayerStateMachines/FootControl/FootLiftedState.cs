@@ -98,28 +98,12 @@ public class FootLiftedState : FootControlState
         // Now clamp if we are going out of step length
         if (Vector3.Distance(pos, otherFootPos) > Context.StepLength)
             pos = ClampedFootPosition(footPos, otherFootPos, dirToPos);
-        /*
-        // Update dir to pos because we might have changed the position
-        dirToPos = pos - footPos;
-        
-        // Before we move, we change the dir magnitude based on the current one
-        // This will keep the speed based on distance and curve
-        var mag = dirToPos.magnitude;
-        var breakDistance = 0.05f;
-        var magLerp = mag / breakDistance;
-        dirToPos.Normalize();
-        dirToPos *= Context.SpeedCurve.Evaluate(magLerp);
-        
-        //Context.MoveFootToPosition(dirToPos);
-        var settings = Context.MovementSettings;
-        if (input == Vector3.zero)
-        {
-            var settingsMaxSpeed = Mathf.Lerp(0.1f, 0.2f, mag);
-            settings.MaxSpeed *= settingsMaxSpeed;
-        }
-        */
 
-        RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, pos, Context.MovementSettings);
+        var settings = Context.MovementSettings;
+        if(input == Vector3.zero)
+            settings.ForceScale = new Vector3(1f, 0.2f, 1f);
+        
+        RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, pos, settings);
 
         HandleFootRotation();
     }
