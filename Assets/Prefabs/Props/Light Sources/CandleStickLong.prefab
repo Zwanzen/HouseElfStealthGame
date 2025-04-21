@@ -18,7 +18,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6939330116369506182
 Transform:
@@ -150,6 +150,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CandleLight
       objectReference: {fileID: 0}
+    - target: {fileID: 1204258934983177489, guid: ef012c0327559a04e898bf95c14d0ea2, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 5822645773382153577, guid: ef012c0327559a04e898bf95c14d0ea2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -193,6 +197,14 @@ PrefabInstance:
     - target: {fileID: 8306325316819511847, guid: ef012c0327559a04e898bf95c14d0ea2, type: 3}
       propertyPath: m_Name
       value: Candle2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8306325316819511847, guid: ef012c0327559a04e898bf95c14d0ea2, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 9031532966847076920, guid: ef012c0327559a04e898bf95c14d0ea2, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
