@@ -53,11 +53,9 @@ public class FootPlacingState : FootControlState
     private void MoveToGround()
     {
         var dir = Vector3.down;
-        var settingsToUse = Context.MovementSettings;
         if (!_validPlacement)
         {
             dir = Vector3.down + Context.Foot.Target.position; // dirPos
-            settingsToUse = Context.PlacementSettings;
             
             // Determine what the safe position is
             var lastSafe = Context.LastSafePosition;
@@ -78,7 +76,7 @@ public class FootPlacingState : FootControlState
             var lerp = safeMag / downDistance;
             dir = Vector3.Lerp(dir, safePos, lerp);
             
-            RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, dir, settingsToUse);
+            RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, dir, Context.PlacementSettings);
             return;
         }
 
@@ -93,15 +91,8 @@ public class FootPlacingState : FootControlState
             return;
         }
         */
-        // Before we move, we change the dir magnitude based on the current one
-        // This will keep the speed based on distance and curve
-        var mag = dir.magnitude;
-        var breakDistance = 0.1f;
-        var magLerp = mag / breakDistance;
-        dir.Normalize();
-        dir *= Context.SpeedCurve.Evaluate(magLerp);
         
-        RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dir, settingsToUse);
+        RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dir, Context.PlacementSettings);
     }
     private void HandleRotation()
     {

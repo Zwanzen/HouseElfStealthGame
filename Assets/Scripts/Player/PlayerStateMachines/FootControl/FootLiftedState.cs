@@ -70,9 +70,7 @@ public class FootLiftedState : FootControlState
         var offsetPos = GetOffsetPosition(otherFootPos, wantedHeight, 0.2f);
         
         // Depending on down angle, we dont care about offset
-        var camAngle = Context.Player.Camera.CameraX;
-        var offsetLerp = camAngle / 60f;
-        offsetPos = Vector3.Lerp(offsetPos, wantedInputPos, offsetLerp);
+        offsetPos = Vector3.Lerp(offsetPos, wantedInputPos, Context.Player.Camera.LookDownLerp);
 
         
         // We lerp our input position with the offset position based on how far behind the foot is
@@ -314,7 +312,7 @@ public class FootLiftedState : FootControlState
 
     private Vector3 _storedInput;
     private float _dot;
-    private float _storedCamAngle;
+    private float _storedDownAngle;
     private Vector3 _forward;
     private Vector3 _right;
     private float _liftTimer;
@@ -328,10 +326,8 @@ public class FootLiftedState : FootControlState
             // We need to change the speed it rotates, or clamp the max so it doesn't rotate too fast with small movements
             _storedInput = Vector3.MoveTowards(_storedInput, Context.Player.RelativeMoveInput.normalized, Time.fixedDeltaTime * 2.5f);
             _dot = Vector3.Dot(Context.Player.Camera.GetCameraYawTransform().forward.normalized, _storedInput.normalized);
-            _storedCamAngle= Context.Player.Camera.CameraX;
+            _storedDownAngle= Context.Player.Camera.LookDownLerp;
         }
-
-        var downLerp = _storedCamAngle / 60f;
         
         // Store the camera forward direction if we are moving
         if (isMoving)
@@ -347,13 +343,13 @@ public class FootLiftedState : FootControlState
             var maxDif1 = 0.8f;
             footAngleDot1 = dif1 / maxDif1;
             // Only want to change if the camera angle is right
-            footAngleDot1 = Mathf.Lerp(1,footAngleDot1, downLerp);
+            footAngleDot1 = Mathf.Lerp(1,footAngleDot1, _storedDownAngle);
             
             // We change the forward if the angle is right
             var lerpFootForward = Vector3.Lerp(_storedInput, cameraForward, footAngleDot1);
             
-            _forward = Vector3.Lerp(_storedInput, lerpFootForward, downLerp);
-            _right = Vector3.Lerp(-Vector3.Cross(_storedInput, Vector3.up), Context.Player.Camera.GetCameraYawTransform().right.normalized, downLerp);
+            _forward = Vector3.Lerp(_storedInput, lerpFootForward, _storedDownAngle);
+            _right = Vector3.Lerp(-Vector3.Cross(_storedInput, Vector3.up), Context.Player.Camera.GetCameraYawTransform().right.normalized, _storedDownAngle);
         }
         
         // Update the lifted foot pitch
@@ -371,7 +367,7 @@ public class FootLiftedState : FootControlState
         footAngleDot = dif / maxDif;
         footAngleDot = Mathf.Lerp(1, 0, footAngleDot);
         // Only want to change if the camera angle is right
-        footAngleDot = Mathf.Lerp(1,footAngleDot, downLerp);
+        footAngleDot = Mathf.Lerp(1,footAngleDot, _storedDownAngle);
 
         // If the angle is too high, we dont want it to rotate on x
         relDist *= footAngleDot;

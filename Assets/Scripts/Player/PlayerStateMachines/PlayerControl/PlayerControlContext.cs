@@ -127,33 +127,67 @@ public class PlayerControlContext
     {
         var pos = Vector3.Lerp(_leftFoot.Target.position, _rightFoot.Target.position, lerp);
         pos.y = 0;
+        // Offset to the body position based on the distance between the feet
+        var offset = _player.RelativeMoveInput.normalized * 0.3f;
+        var distance = Vector3.Distance(_leftFoot.Target.position, _rightFoot.Target.position);
+        offset = Vector3.Lerp(offset, Vector3.zero, distance/_player.StepLength);
+        // We also lerp based on if we are looking down or not
+        var downLerp = _player.Camera.LookDownLerpOffset(10f);
+        offset = Vector3.Lerp(offset, Vector3.zero, downLerp);
+        // Add the offset to the position
+        pos += offset;
         return pos;
     }
 
+    private float _lastLerpValue = 0.5f;
     public float FeetLerp()
     {
         // Find out what foot is lifting
         var leftLift = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted;
         var rightLift = _rightFoot.SM.State == FootControlStateMachine.EFootState.Lifted;
+        
+        var leftPos = _leftFoot.Target.position;
+        var rightPos = _rightFoot.Target.position;
 
-        var dist = Vector3.Distance(_leftFoot.Target.position, _rightFoot.Target.position);
-        var start = _player.StepLength * 0.7f;
-
+        var input = _player.RelativeMoveInput.normalized;
+        if(input == Vector3.zero)
+            return _lastLerpValue;
+        var dist = Vector3.Distance(leftPos, rightPos);
+        
+        var downLerp = _player.Camera.LookDownLerp;
+        Debug.Log(downLerp);
+        
         if (leftLift)
         {
-            var lerp = dist - start;
-            lerp /= _player.StepLength;
-            return Mathf.Lerp(0.8f, 0.5f, lerp);
+            var dirFromRight = rightPos - leftPos;
+            var dot = Vector3.Dot(dirFromRight.normalized, input);
+            var relDist = dist * dot;
+
+            if(relDist > 0f && downLerp < 0f)
+                return _lastLerpValue;
+            
+            var lerp = relDist / _player.StepLength;
+            var placement = Mathf.Lerp(0.2f,0.8f,  downLerp);
+            _lastLerpValue = Mathf.Lerp(placement, 0.5f, lerp);
+            return _lastLerpValue;
         }
 
         if (rightLift)
         {
-            var lerp = dist - start;
-            lerp /= _player.StepLength;
-            return Mathf.Lerp(0.2f, 0.5f, lerp);
+            var dirFromLeft = leftPos - rightPos;
+            var dot = Vector3.Dot(dirFromLeft.normalized, input);
+            var relDist = dist * dot;
+
+            if(relDist > 0f && downLerp < 0f)
+                return _lastLerpValue;
+            
+            var lerp = relDist / _player.StepLength;
+            var placement = Mathf.Lerp(0.8f, 0.2f, downLerp);
+            _lastLerpValue = Mathf.Lerp(placement, 0.5f, lerp);
+            return _lastLerpValue;
         }
 
-        return 0.5f;
+        return _lastLerpValue;
     }
     
     public void UpdateBodyRotation(Vector3 direction)
@@ -171,8 +205,7 @@ public class PlayerControlContext
             otherDir = -otherDir;
         
         // Downwards lerp
-        var angle = _player.Camera.CameraX;
-        var dir = Vector3.Lerp(otherDir, direction, angle/60f);
+        var dir = Vector3.Lerp(otherDir, direction, _player.Camera.LookDownLerp);
         
         // Get the dot between the lerped direction and the player's forward direction
         var dot2 = Vector3.Dot(dir.normalized, _player.Rigidbody.transform.forward.normalized);

@@ -70,7 +70,8 @@ public static class RigidbodyMovement
         // Debug.DrawRay(transform.position, rb.velocity, Color.blue);      // Current velocity
         // Debug.DrawRay(transform.position, actualAccelerationVector, Color.red); // Applied acceleration
     }
-
+    
+    // Copilot
     public static void MoveToRigidbody(Rigidbody rb, Vector3 position, MovementSettings settings)
     {
         Vector3 currentPosition = rb.position;
@@ -81,8 +82,6 @@ public static class RigidbodyMovement
     
         // Calculate current speed in the direction of the target
         float currentSpeed = Vector3.Dot(rb.linearVelocity, directionToTarget.normalized);
-        
-
     
         // Calculate the stopping distance needed for current speed
         // Using the formula: stopping_distance = v²/(2*a)
@@ -91,7 +90,7 @@ public static class RigidbodyMovement
         // Calculate the dot of the current velocity and the direction to the target
         float dot = Vector3.Dot(rb.linearVelocity.normalized, directionToTarget.normalized);
         // Use this to apm our deceleration based on the accel dot curve
-        deceleration *= settings.AccelerationFactorFromDot.Evaluate(dot);
+        //deceleration *= settings.AccelerationFactorFromDot.Evaluate(dot);
         
         float stoppingDistance = (currentSpeed * currentSpeed) / (2 * deceleration);
 

@@ -54,7 +54,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &6411515857630710152
 Transform:
   m_ObjectHideFlags: 0
@@ -1422,7 +1422,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 3221227129
+    m_Bits: 4026664569
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -2814,7 +2814,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.14
+  m_Radius: 0.08
   m_Height: 0.45
   m_Direction: 1
   m_Center: {x: 0, y: 0.66, z: 0}
@@ -2837,7 +2837,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4163340531773687477
 Transform:
   m_ObjectHideFlags: 0
@@ -3154,7 +3154,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1549401923733509113
 Transform:
   m_ObjectHideFlags: 0
@@ -4153,25 +4153,97 @@ MonoBehaviour:
   - {fileID: 2371366029190761102}
   _springStrength: 250
   _springDampener: 50
+  _lowestBodyHeight: 0.85
+  _distanceHeightCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0.001084108
+      outSlope: 0.001084108
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 1
+    - serializedVersion: 3
+      time: 0.37773818
+      value: 0.0014487058
+      inSlope: 1.2179583
+      outSlope: 1.2179583
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.6032493
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1.6397785
+      outSlope: 1.6397785
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.10286125
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   _bodyRotationSpeed: 5
   _leftFoot:
     Target: {fileID: 2648459860100371894}
     RestTarget: {fileID: 941087889911503548}
     Collider: {fileID: 5942876573651856225}
     Side: 0
-    StateMachine: {fileID: 0}
+    SM: {fileID: 0}
   _rightFoot:
     Target: {fileID: 7148958524230573474}
     RestTarget: {fileID: 3076913128955184864}
     Collider: {fileID: 3247732386027773977}
     Side: 1
-    StateMachine: {fileID: 0}
-  _stepLength: 0.7
-  _stepHeight: 0.45
+    SM: {fileID: 0}
+  _stepLength: 0.6
+  _stepHeight: 0.4
   _liftedSettings:
-    MaxSpeed: 1.5
-    Acceleration: 16
-    Deceleration: 16
+    MaxSpeed: 5
+    Acceleration: 12
+    Deceleration: 12
+    AccelerationFactorFromDot:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: -1
+        value: 2
+        inSlope: 0.0002141022
+        outSlope: 0.0002141022
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.997762
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -0.00070191285
+        outSlope: -0.00070191285
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.99777997
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ForceScale: {x: 1, y: 1, z: 1}
+  _placeSettings:
+    MaxSpeed: 8
+    Acceleration: 20
+    Deceleration: 20
     AccelerationFactorFromDot:
       serializedVersion: 2
       m_Curve:
@@ -6394,7 +6466,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3299482255916794422
 Transform:
   m_ObjectHideFlags: 0
@@ -6966,7 +7038,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &6116290963972867822
 Transform:
   m_ObjectHideFlags: 0
