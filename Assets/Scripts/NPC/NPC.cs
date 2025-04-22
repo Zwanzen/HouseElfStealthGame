@@ -6,8 +6,6 @@ using static RigidbodyMovement;
 [RequireComponent(typeof(Rigidbody), typeof(Seeker))]
 public class NPC : MonoBehaviour
 {
-    public Transform Target;
-    
     [Header("NPC Settings")]
     [SerializeField] private NPCType _npcType;
     [SerializeField] private NPCPath _path;
@@ -72,29 +70,12 @@ public class NPC : MonoBehaviour
     {
         var delta = Time.deltaTime;
         _animator.Update(delta);
-        
-        // If we press the space key, we will move to the target position
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Go();
-        }
-        
-        // If we press the escape key, we will stop moving
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            _movement.Stop();
-        }
     }
 
     private void FixedUpdate()
     {
         var delta = Time.fixedDeltaTime;
         _movement.FixedUpdate(delta);
-    }
-
-    private void Go()
-    {
-        _movement.SetTarget(Target.position);
     }
     
     private void OnReachedTarget()

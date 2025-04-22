@@ -81,8 +81,6 @@ public static class RigidbodyMovement
     
         // Calculate current speed in the direction of the target
         float currentSpeed = Vector3.Dot(rb.linearVelocity, directionToTarget.normalized);
-        
-
     
         // Calculate the stopping distance needed for current speed
         // Using the formula: stopping_distance = v²/(2*a)
@@ -109,7 +107,8 @@ public static class RigidbodyMovement
             // Otherwise, apply appropriate braking force to stop naturally
             Vector3 brakeDirection = -rb.linearVelocity.normalized;
             Vector3 brakeAcceleration = brakeDirection * deceleration;
-            rb.AddForce(brakeAcceleration * rb.mass, ForceMode.Force);
+            var force = brakeAcceleration * rb.mass;
+            rb.AddForce(Vector3.Scale(force, settings.ForceScale), ForceMode.Force);
             return;
         }
 
@@ -139,8 +138,8 @@ public static class RigidbodyMovement
         Vector3 actualAcceleration = Vector3.ClampMagnitude(requiredAcceleration, settings.Acceleration);
 
         // Apply the force: F = m * a
-        rb.AddForce(actualAcceleration * rb.mass, ForceMode.Force); // ForceMode.Force applies force over time
-
+        var force2 = actualAcceleration * rb.mass;
+        rb.AddForce(Vector3.Scale(Vector3.Scale(force2, settings.ForceScale), settings.ForceScale), ForceMode.Force);
     }
     
     // Rotates the rigidbody towards direction based on a rotation speed

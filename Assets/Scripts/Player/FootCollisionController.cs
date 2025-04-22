@@ -5,11 +5,10 @@ public class FootCollisionController : MonoBehaviour
 
     [SerializeField] private float _forceMultiplier = 1f;
     [SerializeField] private float _maxForce = 5f;
-    [SerializeField] private LayerMask _objectLayer;
     
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Object"))
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Props"))
         {
             Rigidbody rb = collision.rigidbody;
             if (rb != null)
