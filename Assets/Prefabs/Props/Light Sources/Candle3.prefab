@@ -66,6 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
+  - {fileID: 2100000, guid: c9af2d606c2806b47a621910aae1d577, type: 2}
   - {fileID: 2100000, guid: dd5ce6d246092ed449659e6a1c6ad15d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -981,7 +982,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 5
+      scalar: 2
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -1606,8 +1607,8 @@ ParticleSystem:
     x:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.005
-      minScalar: -0.005
+      scalar: 0.001
+      minScalar: -0.001
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -1659,8 +1660,8 @@ ParticleSystem:
     y:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.005
-      minScalar: -0.005
+      scalar: 0.0025
+      minScalar: -0.0025
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -1712,8 +1713,8 @@ ParticleSystem:
     z:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.005
-      minScalar: -0.005
+      scalar: 0.001
+      minScalar: -0.001
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -3932,7 +3933,7 @@ ParticleSystem:
   LightsModule:
     enabled: 0
     ratio: 1
-    light: {fileID: 1610418706481974560}
+    light: {fileID: 0}
     randomDistribution: 1
     color: 1
     range: 1
@@ -4972,7 +4973,7 @@ Transform:
   m_GameObject: {fileID: 9099479016594112588}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.3, z: 0}
+  m_LocalPosition: {x: 0, y: 0.305, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -5083,5 +5084,5 @@ MonoBehaviour:
   intensityBase: 1
   intensityVariation: 0.3
   flickerSpeed: 1
-  positionJitter: 0.01
-  jitterSpeed: 1
+  positionJitter: 0.001
+  jitterSpeed: 0.5

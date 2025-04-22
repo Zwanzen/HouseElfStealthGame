@@ -164,6 +164,10 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+    - target: {fileID: 9127542644219508755, guid: badec584fba9ad14687a7638f8cdaf51, type: 3}
+      propertyPath: LightsModule.light
+      value: 
+      objectReference: {fileID: 8108685256384238522}
     - target: {fileID: 9157661212738892104, guid: badec584fba9ad14687a7638f8cdaf51, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.20000002
@@ -235,6 +239,10 @@ PrefabInstance:
       value: 2147483647
       objectReference: {fileID: 0}
     - target: {fileID: 8405076476843826763, guid: 64b0c7b00640b5848b09f294ef053e4f, type: 3}
+      propertyPath: m_Name
+      value: CandleLight
+      objectReference: {fileID: 0}
+    - target: {fileID: 8405076476843826763, guid: 64b0c7b00640b5848b09f294ef053e4f, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -283,6 +291,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 64b0c7b00640b5848b09f294ef053e4f, type: 3}
+--- !u!108 &8108685256384238522 stripped
+Light:
+  m_CorrespondingSourceObject: {fileID: 8890392872380230359, guid: 64b0c7b00640b5848b09f294ef053e4f, type: 3}
+  m_PrefabInstance: {fileID: 857605264060823917}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8617537025882652813 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8967079406134278624, guid: 64b0c7b00640b5848b09f294ef053e4f, type: 3}
@@ -297,9 +310,17 @@ PrefabInstance:
     m_TransformParent: {fileID: 2615875523321479919}
     m_Modifications:
     - target: {fileID: 1204258934983177489, guid: ef012c0327559a04e898bf95c14d0ea2, type: 3}
+      propertyPath: m_Name
+      value: CandleLight
+      objectReference: {fileID: 0}
+    - target: {fileID: 1204258934983177489, guid: ef012c0327559a04e898bf95c14d0ea2, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+    - target: {fileID: 5340762092645471794, guid: ef012c0327559a04e898bf95c14d0ea2, type: 3}
+      propertyPath: LightsModule.light
+      value: 
+      objectReference: {fileID: 8108685256384238522}
     - target: {fileID: 5822645773382153577, guid: ef012c0327559a04e898bf95c14d0ea2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

@@ -870,7 +870,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 5
+      scalar: 2
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -1495,8 +1495,8 @@ ParticleSystem:
     x:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.005
-      minScalar: -0.005
+      scalar: 0.001
+      minScalar: -0.001
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -1548,8 +1548,8 @@ ParticleSystem:
     y:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.005
-      minScalar: -0.005
+      scalar: 0.0025
+      minScalar: -0.0025
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -1601,8 +1601,8 @@ ParticleSystem:
     z:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.005
-      minScalar: -0.005
+      scalar: 0.001
+      minScalar: -0.001
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -4899,6 +4899,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
+  - {fileID: 2100000, guid: c9af2d606c2806b47a621910aae1d577, type: 2}
   - {fileID: 2100000, guid: dd5ce6d246092ed449659e6a1c6ad15d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -4957,7 +4958,7 @@ GameObject:
   - component: {fileID: 1515475897424997371}
   - component: {fileID: 8983130544525541703}
   m_Layer: 30
-  m_Name: ChandelierCandleLight
+  m_Name: CandleLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4972,7 +4973,7 @@ Transform:
   m_GameObject: {fileID: 8405076476843826763}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.3, z: 0}
+  m_LocalPosition: {x: 0, y: 0.305, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -5083,5 +5084,5 @@ MonoBehaviour:
   intensityBase: 1
   intensityVariation: 0.3
   flickerSpeed: 1
-  positionJitter: 0.01
-  jitterSpeed: 1
+  positionJitter: 0.001
+  jitterSpeed: 0.5
