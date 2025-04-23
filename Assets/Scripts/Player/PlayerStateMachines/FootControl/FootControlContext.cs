@@ -158,10 +158,15 @@ public class FootControlContext
     {
         var LMB = InputManager.Instance.IsHoldingLMB;
         var RMB = InputManager.Instance.IsHoldingRMB;
-        var otherPlanted = OtherFoot.State == FootControlStateMachine.EFootState.Planted;
-        if(LMB && Foot.Side == Foot.EFootSide.Left && otherPlanted)
+        var otherNotLifted = OtherFoot.State != FootControlStateMachine.EFootState.Lifted;
+        var input = _player.RelativeMoveInput.normalized;
+        var closer = RelativeDistanceInDirection(_otherFoot.Target.position, _foot.Target.position, input) < 0f;
+        
+        if(LMB && Foot.Side == Foot.EFootSide.Left && otherNotLifted)
             return true;
-        if(RMB && Foot.Side == Foot.EFootSide.Right && otherPlanted)
+        if(RMB && Foot.Side == Foot.EFootSide.Right && otherNotLifted)
+            return true;
+        if(_player.IsMoving && !_player.IsSneaking && otherNotLifted && closer)
             return true;
         return false;
     }

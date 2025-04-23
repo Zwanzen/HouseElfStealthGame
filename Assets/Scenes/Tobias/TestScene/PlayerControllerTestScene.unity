@@ -3666,65 +3666,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 920582490}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &948991117 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2079219320178757980, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
-  m_PrefabInstance: {fileID: 1306531734261251089}
-  m_PrefabAsset: {fileID: 0}
 --- !u!95 &948991121 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 3417424288050478408, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
   m_PrefabInstance: {fileID: 1306531734261251089}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &948991122 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8673971370837652232, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
-  m_PrefabInstance: {fileID: 1306531734261251089}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 948991117}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a70e525c82ce9413fa4d940ad7fcf1db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &948991124
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 948991117}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c72e1df647af4c0098866e944a04b01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  weight: 1
-  solver:
-    layers:
-      serializedVersion: 2
-      m_Bits: 8
-    maxStep: 0.5
-    heightOffset: 0
-    footSpeed: 2.5
-    footRadius: 0.15
-    footCenterOffset: 0
-    prediction: 0.05
-    footRotationWeight: 1
-    footRotationSpeed: 7
-    maxFootRotationAngle: 45
-    rotateSolver: 0
-    pelvisSpeed: 5
-    pelvisDamper: 0
-    lowerPelvisWeight: 1
-    liftPelvisWeight: 0
-    rootSphereCastRadius: 0.1
-    overstepFallsDown: 1
-    quality: 2
-  ik: {fileID: 948991122}
-  spineBend: 2
-  spineSpeed: 3
-  spine: []
 --- !u!4 &969665872 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8706248603335028441, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
@@ -8146,8 +8092,20 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _liftedSettings.MaxSpeed
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
       propertyPath: _placeSettings.Deceleration
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _liftedSettings.Acceleration
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _liftedSettings.Deceleration
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
       propertyPath: _placeSettings.AccelerationFactorFromDot.m_Curve.Array.size
@@ -8240,10 +8198,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2079219320178757980, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 948991124}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
 --- !u!1 &1609466582878314045
 GameObject:

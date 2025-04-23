@@ -229,6 +229,10 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public bool IsStumble => _isStumble;
     
+    public bool IsSneaking => _isSneaking;
+    
+    public bool IsMoving => InputManager.Instance.MoveInput != Vector3.zero;
+    
     /// <summary>
     /// This is the control state of the player based on the selected speed.
     /// </summary>
@@ -350,6 +354,7 @@ public class PlayerController : MonoBehaviour
         GUI.Label(new Rect(20, 15, 240, 20), $"Control State: {_controlStateMachine.State}", style);
         GUI.Label(new Rect(20, 35, 240, 20), $"Left Foot State: {_leftFootStateMachine.State}", style);
         GUI.Label(new Rect(20, 55, 240, 20), $"Right Foot State: {_rightFootStateMachine.State}", style);
+        GUI.Label(new Rect(20, 75, 240, 20), $"Player Sneak: {_isSneaking}", style);
     }
     
     private void OnDestroy()

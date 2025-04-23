@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using Unity.VisualScripting;
+using UnityEngine;
 using static CircleLineIntersection;
+using static RigidbodyMovement;
 
 public class FootLiftedState : FootControlState
 {
@@ -10,10 +12,10 @@ public class FootLiftedState : FootControlState
 
     public override FootControlStateMachine.EFootState GetNextState()
     {
-        if (!Context.IsFootLifting)
+        if (!Context.IsFootLifting && Context.Player.IsSneaking)
             return FootControlStateMachine.EFootState.Placing;
         
-        if (GetDistanceFromOtherFoot() > Context.StepLength && Context.BothInputsPressed)
+        if (GetDistanceFromOtherFoot() > Context.StepLength * 0.9f && !Context.Player.IsSneaking)
             return FootControlStateMachine.EFootState.Placing;
         
         return StateKey;
@@ -44,7 +46,24 @@ public class FootLiftedState : FootControlState
     private float _timerSinceInput;
     public override void FixedUpdateState()
     {
-        var footPos = Context.Foot.Target.position;
+
+        SneakMovement();
+
+        HandleFootRotation();
+    }
+
+    private void WalkMovement()
+    {
+        var input = Context.Player.RelativeMoveInput.normalized * (Context.StepLength * 0.9f);
+        var wantedPos = Context.Foot.Target.position + input;
+        wantedPos.y = Context.OtherFoot.Target.position.y + 0.15f;
+        
+        MoveToRigidbody(Context.Foot.Target, wantedPos, Context.MovementSettings);
+    }
+
+    private void SneakMovement()
+    {
+                var footPos = Context.Foot.Target.position;
         var otherFootPos = Context.OtherFoot.Target.position;
         var input = Context.Player.RelativeMoveInput;
         if (input.normalized == Vector3.zero)
@@ -118,9 +137,8 @@ public class FootLiftedState : FootControlState
             var yScale = Mathf.Lerp(0.2f, 1, _timerSinceInput / 1.8f);
             settings.ForceScale = new Vector3(1, yScale, 1);
         }
-        RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, pos, settings);
+        MoveToRigidbody(Context.Foot.Target, pos, settings);
 
-        HandleFootRotation();
     }
     
     private struct ScanInfo
@@ -410,7 +428,7 @@ public class FootLiftedState : FootControlState
         var footForward = Quaternion.AngleAxis(lerpAngle, _right) * _forward;
         footForward.Normalize();
 
-        RigidbodyMovement.RotateRigidbody(Context.Foot.Target, footForward, 350f);
+        RotateRigidbody(Context.Foot.Target, footForward, 350f);
     }
     
     private float GetDistanceFromOtherFoot()

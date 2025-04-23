@@ -196,18 +196,15 @@ public class PlayerControlContext
         RotateRigidbody(_player.Rigidbody, dir, 200f);
     }
 
-    public bool Stopped;
     public void StopFeet()
     {
         _leftFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Stop);
         _rightFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Stop);
-        Stopped = true;
     }
     public void StartFeet()
     {
         _leftFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Start);
         _rightFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Start);
-        Stopped = false;
     }
     
 }
