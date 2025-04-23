@@ -1,5 +1,10 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// This state is used to initialize the control of the foot.
+/// When this state is entered, every rigidbody is set to non-kinematic and the colliders are enabled.
+/// When this state is done, it will transition to the falling state.
+/// </summary>
 public class FootStartState : FootControlState
 {
     public FootStartState(FootControlContext context, FootControlStateMachine.EFootState key) : base(context, key)
@@ -16,25 +21,33 @@ public class FootStartState : FootControlState
     
     public override void EnterState()
     {
-        _hasStarted = false; // Make sure we run all logic in this state
+        _hasStarted = false;
         
-        // If we are falling, and want to stand up,
-        // we need to make sure the target is not moving
+        // We set the positions and rotations to the bones
+        Context.Foot.Target.position = Context.Foot.FootBonePosition;
+        Context.Foot.Target.rotation = Context.Foot.FootBoneRotation;
+        Context.Foot.Thigh.position = Context.Foot.ThighPosition;
+        Context.Foot.Thigh.rotation = Context.Foot.ThighRotation;
+        Context.Foot.Calf.position = Context.Foot.CalfPosition;
+        Context.Foot.Calf.rotation = Context.Foot.CalfRotation;
+        
+        // Set everything to non-kinematic
+        Context.Foot.Target.isKinematic = false;
+        Context.Foot.Thigh.isKinematic = false;
+        Context.Foot.Calf.isKinematic = false;
+        
+        // Make sure the feet have no velocity
         Context.Foot.Target.linearVelocity = Vector3.zero;
+        Context.Foot.Target.angularVelocity = Vector3.zero;
+        Context.Foot.Thigh.linearVelocity = Vector3.zero;
+        Context.Foot.Thigh.angularVelocity = Vector3.zero;
+        Context.Foot.Calf.linearVelocity = Vector3.zero;
+        Context.Foot.Calf.angularVelocity = Vector3.zero;
         
-        // We set the foot to the rest position
-        // This should be the position of the foot when it is standing
-        Context.Foot.Target.position = Context.Foot.RestTarget.position;
-        
-        // We set the foots rotation to the body forward direction
-        var forward = Quaternion.LookRotation(Context.Player.Rigidbody.transform.forward, Vector3.up);
-        Context.Foot.Target.rotation = forward;
-        
-        // Now we place the foot on the ground
-        if (Physics.SphereCast(Context.Foot.Target.position + Vector3.up, Context.FootRadius, Vector3.down, out var hit, Context.StepHeight + 1f, Context.GroundLayers))
-        {
-            Context.Foot.Target.position = hit.point + Context.FootPlaceOffset;
-        }
+        // Enable the colliders
+        Context.Foot.Collider.enabled = true;
+        Context.Foot.ThighCollider.enabled = true;
+        Context.Foot.CalfCollider.enabled = true;
         
         // Enable the foot weights
         Context.FootIKEffector.positionWeight = 1f;

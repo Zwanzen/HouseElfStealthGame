@@ -6,25 +6,6 @@ using UnityEngine.Serialization;
 using static CircleLineIntersection;
 using static RigidbodyMovement;
 
-[Serializable]
-public struct Foot
-{
-    public enum EFootSide
-    {
-        Left,
-        Right
-    }
-
-    private bool _isInStepRange;
-    
-    public Rigidbody Target;
-    public Transform RestTarget;
-    public BoxCollider Collider;
-    public EFootSide Side;
-    [FormerlySerializedAs("StateMachine")] [HideInInspector]
-    public FootControlStateMachine SM;
-}
-
 public class FootControlContext
 {
         
@@ -152,7 +133,7 @@ public class FootControlContext
     {
         var LMB = InputManager.Instance.IsHoldingLMB;
         var RMB = InputManager.Instance.IsHoldingRMB;
-        var otherPlanted = OtherFoot.SM.State == FootControlStateMachine.EFootState.Planted;
+        var otherPlanted = OtherFoot.State == FootControlStateMachine.EFootState.Planted;
         if(LMB && Foot.Side == Foot.EFootSide.Left && otherPlanted)
             return true;
         if(RMB && Foot.Side == Foot.EFootSide.Right && otherPlanted)

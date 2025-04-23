@@ -10,10 +10,6 @@ public class PlayerFallingState : PlayerControlState
 
     public override PlayerControlStateMachine.EPlayerControlState GetNextState()
     {
-        var bothFeetFall = Context.LeftFoot.SM.State == FootControlStateMachine.EFootState.Falling &&
-                           Context.RightFoot.SM.State == FootControlStateMachine.EFootState.Falling;
-        if (!bothFeetFall)
-            return PlayerControlStateMachine.EPlayerControlState.Grounded;
         return StateKey;
     }
 

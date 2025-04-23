@@ -86,12 +86,12 @@ public class PlayerControlContext
         // But we do want the body to go down if the lifted foot is going downwards
         
         // Find out if we are lifting a foot
-        var isLifting = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted ||
-                       _rightFoot.SM.State == FootControlStateMachine.EFootState.Lifted;
+        var isLifting = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ||
+                       _rightFoot.State == FootControlStateMachine.EFootState.Lifted;
         
         // Get lifted foot position and the other foot position
-        var liftedFootPos = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted ? _leftFoot.Target.position : _rightFoot.Target.position;
-        var otherFootPos = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot.Target.position: _leftFoot.Target.position;
+        var liftedFootPos = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _leftFoot.Target.position : _rightFoot.Target.position;
+        var otherFootPos = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot.Target.position: _leftFoot.Target.position;
 
         // If the lifted foot is not below the other foot, we don't want height influence
         var shouldCare = liftedFootPos.y < otherFootPos.y + 0.10f;
@@ -133,8 +133,8 @@ public class PlayerControlContext
     public float FeetLerp()
     {
         // Find out what foot is lifting
-        var leftLift = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted;
-        var rightLift = _rightFoot.SM.State == FootControlStateMachine.EFootState.Lifted;
+        var leftLift = _leftFoot.State == FootControlStateMachine.EFootState.Lifted;
+        var rightLift = _rightFoot.State == FootControlStateMachine.EFootState.Lifted;
 
         var dist = Vector3.Distance(_leftFoot.Target.position, _rightFoot.Target.position);
         var start = _player.StepLength * 0.7f;
@@ -191,5 +191,18 @@ public class PlayerControlContext
         RotateRigidbody(_player.Rigidbody, dir, 200f);
     }
 
+    public void StopFeet()
+    {
+        _leftFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Stop);
+        _rightFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Stop);
+        // Set the player animator to anystate
+        _player.Animator.SetTrigger("Any");
+    }
+    public void StartFeet()
+    {
+        _leftFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Start);
+        _rightFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Start);
+        _player.Animator.SetTrigger("FootIK");
+    }
     
 }

@@ -11,14 +11,6 @@ public class PlayerGroundedState : PlayerControlState
 
     public override PlayerControlStateMachine.EPlayerControlState GetNextState()
     {
-        var bothFeetFall = Context.LeftFoot.SM.State == FootControlStateMachine.EFootState.Falling &&
-                           Context.RightFoot.SM.State == FootControlStateMachine.EFootState.Falling;  
-        if (bothFeetFall)
-        {
-            return PlayerControlStateMachine.EPlayerControlState.Falling;
-        }
-
-
         return StateKey;
     }
 
@@ -35,7 +27,10 @@ public class PlayerGroundedState : PlayerControlState
     private float _timer;
     public override void UpdateState()
     {
-
+        if(Input.GetKeyDown(KeyCode.H))
+            Context.StopFeet();
+        if(Input.GetKeyDown(KeyCode.J))
+            Context.StartFeet();
     }
 
     public override void FixedUpdateState()
