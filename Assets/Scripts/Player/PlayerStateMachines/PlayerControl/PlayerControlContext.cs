@@ -75,7 +75,7 @@ public class PlayerControlContext
         if (useGround)
         {
             Physics.SphereCast(_player.Position + (Vector3.down * 0.5f), 0.1f, Vector3.down, out var hit, Mathf.Infinity, GroundLayers);
-            dist = hit.distance - PlayerController.Height + 0.1f - 0.5f;
+            dist = hit.distance - PlayerController.Height + 0.1f + 0.5f;
         }
         else
         {
@@ -109,7 +109,7 @@ public class PlayerControlContext
 
             var height = Mathf.Lerp(highest, _lowestBodyHeight, _distanceHeightCurve.Evaluate(lerp));
 
-            dist -= (height + footPlaceOffset);
+            dist = -(height + footPlaceOffset);
         }
         
 
