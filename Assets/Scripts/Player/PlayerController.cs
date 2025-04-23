@@ -74,6 +74,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Image _rightImage;
     [SerializeField] private Transform _leanTarget;
     [SerializeField] private Transform _leanRestTarget;
+
+    public Transform HipTransform;
     
     private float _wantedLScale;
     private float _wantedRScale;

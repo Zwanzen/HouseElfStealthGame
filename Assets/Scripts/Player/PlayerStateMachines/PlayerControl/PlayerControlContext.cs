@@ -64,55 +64,113 @@ public class PlayerControlContext
                Physics.CheckSphere(_rightFoot.Target.position, 0.8f, _groundLayers);
     }
 
-    // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
-    // Modified
-    public void RigidbodyFloat(bool useGround)
+    public void MoveToHipPoint()
     {
-        var vel = _rigidbody.linearVelocity;
-        var relVel = Vector3.Dot(Vector3.down, vel);
+        var legLength = 0.48f;
+        var leftFootPos = _leftFoot.Target.position;
+        var rightFootPos = _rightFoot.Target.position;
+        var offsetPos = Vector3.zero;
+        var isLifting = _leftFoot.State == FootControlStateMachine.EFootState.Lifted || _rightFoot.State == FootControlStateMachine.EFootState.Lifted;
 
-        var dist = 0f;
-        if (useGround)
+        
+        var feetMidpoint = (leftFootPos + rightFootPos) * 0.5f;
+        Vector3 pelvisHorizontalPosition = new Vector3(feetMidpoint.x, 0f, feetMidpoint.z);
+        if (isLifting && _player.IsSneaking)
         {
-            Physics.SphereCast(_player.Position + (Vector3.down * 0.5f), 0.1f, Vector3.down, out var hit, Mathf.Infinity, GroundLayers);
-            dist = hit.distance - PlayerController.Height + 0.1f + 0.5f;
+            var liftedFoot = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _leftFoot.Target.position : _rightFoot.Target.position;
+            var plantedFoot = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot.Target.position : _leftFoot.Target.position;
+            pelvisHorizontalPosition = Vector3.Lerp(liftedFoot,plantedFoot, 0.8f);
+        }
+        float horizontalDistance = Vector2.Distance(new Vector2(leftFootPos.x, leftFootPos.z), new Vector2(rightFootPos.x, rightFootPos.z));
+        float halfHorizontalDistance = horizontalDistance * 0.5f;
+
+        float leftLegVerticalOffsetSquared = legLength * legLength - halfHorizontalDistance * halfHorizontalDistance;
+        float rightLegVerticalOffsetSquared = legLength * legLength - halfHorizontalDistance * halfHorizontalDistance;
+
+        float pelvisYOffset = 0f;
+        if (leftLegVerticalOffsetSquared >= 0 && rightLegVerticalOffsetSquared >= 0)
+        {
+            pelvisYOffset = Mathf.Min(Mathf.Sqrt(leftLegVerticalOffsetSquared), Mathf.Sqrt(rightLegVerticalOffsetSquared));
+        }
+        else if (leftLegVerticalOffsetSquared >= 0)
+        {
+            pelvisYOffset = Mathf.Sqrt(leftLegVerticalOffsetSquared);
+        }
+        else if (rightLegVerticalOffsetSquared >= 0)
+        {
+            pelvisYOffset = Mathf.Sqrt(rightLegVerticalOffsetSquared);
         }
         else
         {
-            // Calculate the distance from player to lowest foot
-            var lowestFootPos = new Vector3(Player.Position.x, GetLowestFootPosition().y, Player.Position.z);
-            var distanceToLowestFoot = Vector3.Distance(Player.Position, lowestFootPos);
-            
-            // Offset from the foot to the ground
-            var footPlaceOffset = 0.05f;
-        
-            // We want to change the height of the player based on the distance between the feet
-            // We only want to change the distance on the xz plane, if the lifted foot is going upwards, we don't want our body to go down
-            // But we do want the body to go down if the lifted foot is going downwards
-        
-            // Get lifted foot position and the other foot position
-            var liftedFootPos = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _leftFoot.Target.position : _rightFoot.Target.position;
-            var otherFootPos = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot.Target.position: _leftFoot.Target.position;
-
-            // If the lifted foot is not below the other foot, we don't want height influence
-            var shouldCare = liftedFootPos.y < otherFootPos.y + 0.10f;
-            if (!shouldCare)
-                liftedFootPos.y = otherFootPos.y;
-        
-            var distBetweenFeet = Vector3.Distance(liftedFootPos, lowestFootPos);
-            var lerp = distBetweenFeet / _player.StepLength;
-            if (shouldCare)
-                lerp = distBetweenFeet / 0.20f;
-
-            var highest = PlayerController.Height;
-
-            var height = Mathf.Lerp(highest, _lowestBodyHeight, _distanceHeightCurve.Evaluate(lerp));
-
-            dist = distanceToLowestFoot - (height + footPlaceOffset);
+            Debug.LogWarning("Leg lengths are too short for the given foot positions!");
+            // Handle the case where no valid pelvis position exists
+            return;
         }
-        
 
-        var x = dist;
+        float pelvisYPosition = Mathf.Min(leftFootPos.y, rightFootPos.y) + pelvisYOffset;
+        Vector3 pelvisPosition = new Vector3(pelvisHorizontalPosition.x, pelvisYPosition, pelvisHorizontalPosition.z);
+        
+        var bodyPos = pelvisPosition;
+        Debug.DrawLine(_player.Rigidbody.position, bodyPos, Color.red);
+        MoveToRigidbody(_player.Rigidbody, bodyPos, _bodyMovementSettings);
+    }
+
+    // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
+    // Modified
+    public void RigidbodyFloat()
+    {
+        var vel = _rigidbody.linearVelocity;
+        var relVel = Vector3.Dot(Vector3.down, vel);
+        
+        var leftFootPos = _leftFoot.Target.position;
+        var rightFootPos = _rightFoot.Target.position;
+
+        // --- Calculate Horizontal Positioning ---
+
+        // 1. Find the midpoint between the feet (horizontally)
+        float midX = (leftFootPos.x + rightFootPos.x) * 0.5f;
+        float midZ = (leftFootPos.z + rightFootPos.z) * 0.5f;
+
+        // 2. Calculate the squared horizontal distance from the midpoint to one foot
+        // (Using left foot here, distance to right foot would be the same)
+        float horizontalDeltaX = midX - leftFootPos.x;
+        float horizontalDeltaZ = midZ - leftFootPos.z;
+        // This is the squared length of the base of our right triangle
+        float horizontalDistSq = (horizontalDeltaX * horizontalDeltaX) + (horizontalDeltaZ * horizontalDeltaZ);
+        // Alternative way: squared horizontal distance between feet / 4
+        // float feetHorizontalDistX = leftFootPos.x - rightFootPos.x;
+        // float feetHorizontalDistZ = leftFootPos.z - rightFootPos.z;
+        // float horizontalDistSq = (feetHorizontalDistX * feetHorizontalDistX + feetHorizontalDistZ * feetHorizontalDistZ) * 0.25f;
+
+        // --- Calculate Vertical Positioning ---
+
+        // 3. Calculate the squared vertical component using Pythagorean theorem: leg² = horizontal² + vertical²
+        // vertical² = leg² - horizontal²
+        float legLengthSq = 0.45f * 0.45f;
+        float verticalDistSq = legLengthSq - horizontalDistSq;
+
+        // 4. Handle impossible positions (feet too far apart horizontally for leg length)
+        // If verticalDistSq is negative, the feet are further apart horizontally than the leg can reach.
+        // In this case, the leg must be fully stretched horizontally (vertical component is zero).
+        if (verticalDistSq < 0)
+        {
+            verticalDistSq = 0;
+            // Optional: Could add a debug warning here if feet are often forced too far apart
+            // Debug.LogWarning("Feet positions are further apart than leg length allows.");
+        }
+
+        // 5. Calculate the actual vertical offset (height difference between hip and foot along that leg's triangle)
+        float verticalOffset = Mathf.Sqrt(verticalDistSq);
+
+        // 6. Determine the base height from the highest foot
+        // The hip needs to be high enough to allow the leg connected to the *higher* foot to reach.
+        float highestFootY = Mathf.Max(leftFootPos.y, rightFootPos.y);
+
+        // 7. Calculate the final target hip height
+        float targetHipHeightY = highestFootY + verticalOffset;
+        
+        var x = targetHipHeightY - 1f; // This is where the final height is set
+        Debug.DrawLine(_player.Rigidbody.position, _player.Rigidbody.position + Vector3.up * x, Color.green);
         
         var springForce = (x * _springStrength) - (relVel * _springDampener);
         _rigidbody.AddForce(Vector3.down * springForce);
@@ -125,7 +183,8 @@ public class PlayerControlContext
         var dir = targetPosition - currentPos;
         if(dir.magnitude > 1f)
             dir.Normalize();
-        MoveRigidbody(Player.Rigidbody, dir, _bodyMovementSettings);
+        //MoveRigidbody(Player.Rigidbody, dir, _bodyMovementSettings);
+        MoveToRigidbody(_player.Rigidbody, targetPosition, _bodyMovementSettings);
     }
 
     public Vector3 BetweenFeet(float lerp)

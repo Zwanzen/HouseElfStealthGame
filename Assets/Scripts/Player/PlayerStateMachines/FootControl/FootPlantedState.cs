@@ -76,6 +76,7 @@ public class FootPlantedState : FootControlState
         var magLerp = mag / breakDistance;
         dir.Normalize();
         dir *= Context.SpeedCurve.Evaluate(magLerp);
-        Context.MoveFootToPosition(dir);
+        //Context.MoveFootToPosition(dir);
+        RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, dir, Context.PlacementSettings);
     }
 }
