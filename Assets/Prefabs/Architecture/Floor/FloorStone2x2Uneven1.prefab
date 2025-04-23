@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6808595801992676142}
   m_Layer: 3
   m_Name: DepressionCollider
-  m_TagString: Untagged
+  m_TagString: Stone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -65,7 +65,7 @@ GameObject:
   - component: {fileID: 6812128509499337289}
   m_Layer: 3
   m_Name: DepressionCollider
-  m_TagString: Untagged
+  m_TagString: Stone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -118,7 +118,7 @@ GameObject:
   - component: {fileID: 8909052689214181306}
   m_Layer: 3
   m_Name: DepressionCollider
-  m_TagString: Untagged
+  m_TagString: Stone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -171,7 +171,7 @@ GameObject:
   - component: {fileID: 930517904807482667}
   m_Layer: 3
   m_Name: SideCollider
-  m_TagString: Untagged
+  m_TagString: Stone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -212,6 +212,60 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.5, y: 0.1, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &3663321162717487336
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 995558823479956703}
+  - component: {fileID: 3246943068423759341}
+  m_Layer: 3
+  m_Name: PropsCollider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &995558823479956703
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3663321162717487336}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3169854028116582811}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!64 &3246943068423759341
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3663321162717487336}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 1073741824
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 2953185279
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -3926738206940409567, guid: 581e4b5548bbb6541898583f5403995b, type: 3}
 --- !u!1 &4048104441891430589
 GameObject:
   m_ObjectHideFlags: 0
@@ -224,7 +278,7 @@ GameObject:
   - component: {fileID: 204265089429365163}
   m_Layer: 3
   m_Name: SideCollider
-  m_TagString: Untagged
+  m_TagString: Stone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -277,7 +331,7 @@ GameObject:
   - component: {fileID: 6837314255545712113}
   m_Layer: 3
   m_Name: SideCollider
-  m_TagString: Untagged
+  m_TagString: Stone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -330,7 +384,7 @@ GameObject:
   - component: {fileID: 5145396554672133075}
   m_Layer: 3
   m_Name: DepressionCollider
-  m_TagString: Untagged
+  m_TagString: Stone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -383,7 +437,7 @@ GameObject:
   - component: {fileID: 2888074208164014815}
   m_Layer: 3
   m_Name: SideCollider
-  m_TagString: Untagged
+  m_TagString: Stone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -435,7 +489,6 @@ GameObject:
   - component: {fileID: 3169854028116582811}
   - component: {fileID: 7676931567170030803}
   - component: {fileID: 6176200886099955951}
-  - component: {fileID: -6515031180835893685}
   m_Layer: 3
   m_Name: FloorStone2x2Uneven1
   m_TagString: Stone
@@ -464,6 +517,7 @@ Transform:
   - {fileID: 9043967695903734299}
   - {fileID: 7949334919554760490}
   - {fileID: 5800233370079162478}
+  - {fileID: 995558823479956703}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7676931567170030803
@@ -519,25 +573,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &-6515031180835893685
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8820004105959227187}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -3926738206940409567, guid: 581e4b5548bbb6541898583f5403995b, type: 3}
