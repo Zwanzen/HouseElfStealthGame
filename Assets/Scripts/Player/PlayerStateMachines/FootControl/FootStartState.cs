@@ -53,6 +53,9 @@ public class FootStartState : FootControlState
         Context.FootIKEffector.positionWeight = 1f;
         Context.FootIKEffector.rotationWeight = 1f;
         
+        // Enable mapping weights
+        Context.FootMapping.weight = 1f;
+        
         _hasStarted = true; // Now we have enabled the foot
     }
 

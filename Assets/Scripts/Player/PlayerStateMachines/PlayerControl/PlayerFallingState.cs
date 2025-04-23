@@ -30,6 +30,5 @@ public class PlayerFallingState : PlayerControlState
     {
 
         Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
-        Context.RigidbodyFloat();
     }
 }

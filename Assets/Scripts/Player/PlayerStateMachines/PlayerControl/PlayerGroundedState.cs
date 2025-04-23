@@ -35,8 +35,20 @@ public class PlayerGroundedState : PlayerControlState
 
     public override void FixedUpdateState()
     {
-        Context.RigidbodyFloat();
-        Context.MoveBody(Context.BetweenFeet(Context.FeetLerp()));
+        if (!Context.Stopped)
+        {
+            Context.RigidbodyFloat(false);
+            Context.MoveBody(Context.BetweenFeet(Context.FeetLerp()));
+        }
+        else
+        {
+            Context.Player.Rigidbody.isKinematic = false;
+            Context.RigidbodyFloat(true);
+            var input = Context.Player.RelativeMoveInput;
+            input.Normalize();
+            input *= 0.2f;
+            Context.MoveBody(input + Context.Player.Rigidbody.position);
+        }
         
         if(Context.Player.RelativeMoveInput != Vector3.zero)
             Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);

@@ -13,7 +13,7 @@ public class FootControlContext
     private readonly PlayerController _player;
     private readonly FullBodyBipedIK _bodyIK;
     private PlayerFootSoundPlayer _footSoundPlayer;
-    
+
     [Header("Common")]
     private LayerMask _groundLayers;
     private readonly Foot _foot;
@@ -47,15 +47,23 @@ public class FootControlContext
         _heightCurve = heightCurve;
         _placeCurve = placeCurve;
         _offsetCurve = offsetCurve;
+        
+        FootIKEffector = GetEffector();
+        FootMapping = GetMapping();
+        RotationOffset = GetRotationOffset();
     }
     
     // Read only properties
     public PlayerController Player => _player;
     public BoxCastValues FootCastValues => GetBoxCastValues();
-    public IKEffector FootIKEffector => GetEffector();
+    public IKEffector FootIKEffector { get; }
+    public IKMappingLimb FootMapping { get; }
+
+    public FullBodyBipedIK BodyIK => _bodyIK;
     public PlayerFootSoundPlayer FootSoundPlayer => _footSoundPlayer;
     public Foot Foot => _foot;
     public Foot OtherFoot => _otherFoot;
+    public Quaternion RotationOffset { get; }
     public float StepLength => _stepLength;
     public float StepHeight => _stepLength;
     public LayerMask GroundLayers => GetGroundLayers();
@@ -78,6 +86,23 @@ public class FootControlContext
     private IKEffector GetEffector()
     {
         return _foot.Side == Foot.EFootSide.Left ? _bodyIK.solver.leftFootEffector : _bodyIK.solver.rightFootEffector;
+    }
+
+    private IKMappingLimb GetMapping()
+    {
+        return _foot.Side == Foot.EFootSide.Left ? BodyIK.solver.leftLegMapping : BodyIK.solver.rightLegMapping;
+    }
+
+    private Quaternion GetRotationOffset()
+    {
+        // If we are left foot, we need to rotate the foot 90 degrees to the left
+        // If we are right foot, we need to rotate the foot 90 degrees to the right
+        var rotation = Quaternion.Euler(0f, 0f, 0f);
+        if (_foot.Side == Foot.EFootSide.Left)
+            rotation *= Quaternion.Euler(0f, -90f, 0f);
+        else
+            rotation *= Quaternion.Euler(0f, 90f, 0f);
+        return rotation;
     }
 
     // Depending on if we look down or not, we should include the props layer

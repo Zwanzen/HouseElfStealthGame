@@ -66,48 +66,54 @@ public class PlayerControlContext
 
     // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
     // Modified
-    public void RigidbodyFloat()
+    public void RigidbodyFloat(bool useGround)
     {
         var vel = _rigidbody.linearVelocity;
+        var relVel = Vector3.Dot(Vector3.down, vel);
 
-        var relDirVel = Vector3.Dot(Vector3.down, vel);
+        var dist = 0f;
+        if (useGround)
+        {
+            Physics.SphereCast(_player.Position, 0.3f, Vector3.down, out var hit, Mathf.Infinity, GroundLayers);
+            dist = hit.distance - PlayerController.Height + 0.3f;
+        }
+        else
+        {
+            // Calculate the distance from player to lowest foot
+            var lowestFootPos = new Vector3(Player.Position.x, GetLowestFootPosition().y, Player.Position.z);
+            var distanceToLowestFoot = Vector3.Distance(Player.Position, lowestFootPos);
+            dist = distanceToLowestFoot;
+            
+            // Offset from the foot to the ground
+            var footPlaceOffset = 0.05f;
+        
+            // We want to change the height of the player based on the distance between the feet
+            // We only want to change the distance on the xz plane, if the lifted foot is going upwards, we don't want our body to go down
+            // But we do want the body to go down if the lifted foot is going downwards
+        
+            // Get lifted foot position and the other foot position
+            var liftedFootPos = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _leftFoot.Target.position : _rightFoot.Target.position;
+            var otherFootPos = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot.Target.position: _leftFoot.Target.position;
 
-        var relVel = relDirVel;
+            // If the lifted foot is not below the other foot, we don't want height influence
+            var shouldCare = liftedFootPos.y < otherFootPos.y + 0.10f;
+            if (!shouldCare)
+                liftedFootPos.y = otherFootPos.y;
         
-        // Calculate the distance from player to lowest foot
-        var lowestFootPos = new Vector3(Player.Position.x, GetLowestFootPosition().y, Player.Position.z);
-        var distanceToLowestFoot = Vector3.Distance(Player.Position, lowestFootPos);
-        
-        // Offset from the foot to the ground
-        var footPlaceOffset = 0.05f;
-        
-        // We want to change the height of the player based on the distance between the feet
-        // We only want to change the distance on the xz plane, if the lifted foot is going upwards, we don't want our body to go down
-        // But we do want the body to go down if the lifted foot is going downwards
-        
-        // Find out if we are lifting a foot
-        var isLifting = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ||
-                       _rightFoot.State == FootControlStateMachine.EFootState.Lifted;
-        
-        // Get lifted foot position and the other foot position
-        var liftedFootPos = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _leftFoot.Target.position : _rightFoot.Target.position;
-        var otherFootPos = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot.Target.position: _leftFoot.Target.position;
+            var distBetweenFeet = Vector3.Distance(liftedFootPos, lowestFootPos);
+            var lerp = distBetweenFeet / _player.StepLength;
+            if (shouldCare)
+                lerp = distBetweenFeet / 0.20f;
 
-        // If the lifted foot is not below the other foot, we don't want height influence
-        var shouldCare = liftedFootPos.y < otherFootPos.y + 0.10f;
-        if (!shouldCare)
-            liftedFootPos.y = otherFootPos.y;
-        
-        var distBetweenFeet = Vector3.Distance(liftedFootPos, lowestFootPos);
-        var lerp = distBetweenFeet / _player.StepLength;
-        if (shouldCare)
-            lerp = distBetweenFeet / 0.20f;
+            var highest = PlayerController.Height;
 
-        var highest = PlayerController.Height;
+            var height = Mathf.Lerp(highest, _lowestBodyHeight, _distanceHeightCurve.Evaluate(lerp));
 
-        var height = Mathf.Lerp(highest, _lowestBodyHeight, _distanceHeightCurve.Evaluate(lerp));
+            dist -= (height + footPlaceOffset);
+        }
         
-        var x = distanceToLowestFoot - (height + footPlaceOffset);
+
+        var x = dist;
         
         var springForce = (x * _springStrength) - (relVel * _springDampener);
         _rigidbody.AddForce(Vector3.down * springForce);
@@ -191,18 +197,18 @@ public class PlayerControlContext
         RotateRigidbody(_player.Rigidbody, dir, 200f);
     }
 
+    public bool Stopped;
     public void StopFeet()
     {
         _leftFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Stop);
         _rightFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Stop);
-        // Set the player animator to anystate
-        _player.Animator.SetTrigger("Any");
+        Stopped = true;
     }
     public void StartFeet()
     {
         _leftFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Start);
         _rightFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Start);
-        _player.Animator.SetTrigger("FootIK");
+        Stopped = false;
     }
     
 }
