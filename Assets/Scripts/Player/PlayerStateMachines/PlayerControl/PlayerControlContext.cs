@@ -82,7 +82,6 @@ public class PlayerControlContext
             // Calculate the distance from player to lowest foot
             var lowestFootPos = new Vector3(Player.Position.x, GetLowestFootPosition().y, Player.Position.z);
             var distanceToLowestFoot = Vector3.Distance(Player.Position, lowestFootPos);
-            dist = distanceToLowestFoot;
             
             // Offset from the foot to the ground
             var footPlaceOffset = 0.05f;
@@ -109,7 +108,7 @@ public class PlayerControlContext
 
             var height = Mathf.Lerp(highest, _lowestBodyHeight, _distanceHeightCurve.Evaluate(lerp));
 
-            dist = -(height + footPlaceOffset);
+            dist = distanceToLowestFoot - (height + footPlaceOffset);
         }
         
 

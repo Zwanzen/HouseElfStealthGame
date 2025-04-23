@@ -207,6 +207,41 @@ public class FootControlContext
         return true;
     }
     
+    public bool FootGroundCast(float up, out RaycastHit hit)
+    {
+        // We need to move the start pos of the ray backwards relative to the line direction
+        var lineDir = Vector3.down;
+        var footPos = Foot.Target.position;
+        var otherFootPos = OtherFoot.Target.position;
+        
+        // Now we set the line start backwards
+        // If the foot passed the radius, we still get the intersection point
+        var offsetLineStart = footPos - lineDir;
+        
+        // We need to dynamically calculate the distance to the ground
+        // based on the feet positions to not overshoot the step height
+        // We use a custom-made CircleLineIntersection to calculate the distance
+        if (!CalculateIntersectionPoint(otherFootPos, StepLength, offsetLineStart, lineDir,
+                out var result))
+            result = footPos; // This will make the max distance 0
+        
+        // This is the length between the foot and the max step length/intersection point
+        var maxDistance = (result - footPos).magnitude;
+        
+        var defaultValues = FootCastValues;
+        var position = defaultValues.Position;
+        var size = defaultValues.Size;
+        var rotation = defaultValues.Rotation;
+        position.y += size.y;
+        
+        // We use a sphere cast to check with a radius downwards
+        var upOffset = Vector3.up * (_foot.Collider.size.y + up);
+        if(!Physics.BoxCast(position, size, Vector3.down, out hit, rotation, maxDistance + size.y, GroundLayers))
+            return false;
+        
+        return true;
+    }
+    
     public bool FootGroundCast(float minDist = 0f)
     {
         // We need to move the start pos of the ray backwards relative to the line direction

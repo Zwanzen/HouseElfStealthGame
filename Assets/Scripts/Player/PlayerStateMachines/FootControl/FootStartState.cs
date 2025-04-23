@@ -26,6 +26,11 @@ public class FootStartState : FootControlState
         // We set the positions and rotations to the bones
         Context.Foot.Target.position = Context.Foot.FootBonePosition;
         Context.Foot.Target.rotation = Context.Foot.FootBoneRotation;
+        
+        // Set the foot target position to the closest point on the ground
+        if(Context.FootGroundCast(0.1f,out var hit))
+            Context.Foot.Target.position = hit.point + Vector3.up * Context.FootRadius;
+        
         Context.Foot.Thigh.position = Context.Foot.ThighPosition;
         Context.Foot.Thigh.rotation = Context.Foot.ThighRotation;
         Context.Foot.Calf.position = Context.Foot.CalfPosition;
