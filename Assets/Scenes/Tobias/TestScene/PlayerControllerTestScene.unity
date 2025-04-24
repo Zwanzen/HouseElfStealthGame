@@ -1442,7 +1442,7 @@ GameObject:
   - component: {fileID: 319999612}
   - component: {fileID: 319999611}
   - component: {fileID: 319999610}
-  m_Layer: 3
+  m_Layer: 29
   m_Name: Box (28)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6444,7 +6444,7 @@ GameObject:
   - component: {fileID: 1591829422}
   - component: {fileID: 1591829421}
   - component: {fileID: 1591829420}
-  m_Layer: 3
+  m_Layer: 29
   m_Name: Box (27)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8975,16 +8975,112 @@ PrefabInstance:
       value: 1610612744
       objectReference: {fileID: 0}
     - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.MaxSpeed
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
       propertyPath: _liftedSettings.MaxSpeed
-      value: 2
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.Acceleration
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.Deceleration
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.ForceScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.ForceScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.ForceScale.z
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
       propertyPath: _liftedSettings.Acceleration
-      value: 12
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
       propertyPath: _liftedSettings.Deceleration
-      value: 12
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _bodyMovementSettings.MaxSpeed
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _bodyMovementSettings.Acceleration
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _bodyMovementSettings.Deceleration
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].time
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[2].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[2].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].inSlope
+      value: 0.0002141022
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].inSlope
+      value: -0.00070191285
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].outSlope
+      value: 0.0002141022
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].inWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].outSlope
+      value: -0.00070191285
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[2].inWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[0].outWeight
+      value: 0.997762
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[1].outWeight
+      value: 0.99777997
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: _walkSettings.AccelerationFactorFromDot.m_Curve.Array.data[2].tangentMode
+      value: 34
       objectReference: {fileID: 0}
     - target: {fileID: 2124810928653019098, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
       propertyPath: m_IsActive

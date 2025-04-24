@@ -67,7 +67,8 @@ public class PlayerControlContext
         plantedFoot = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot : _leftFoot;
         return true;
     }
-    public void MoveToHipPoint(Vector3 pelvisOffset)
+    
+    public Vector3 CalculatePelvisPoint(Vector3 pelvisOffset)
     {
         var legLength = 0.48f;
         var leftFootPos = _leftFoot.Target.position;
@@ -96,13 +97,17 @@ public class PlayerControlContext
         {
             Debug.LogWarning("Leg lengths are too short for the given foot positions!");
             // Handle the case where no valid pelvis position exists
-            return;
+            return Vector3.zero;
         }
 
         float pelvisYPosition = Mathf.Min(leftFootPos.y, rightFootPos.y) + pelvisYOffset + Mathf.Min(pelvisOffset.y, 0f);
-        Vector3 pelvisPosition = new Vector3(pelvisOffset.x, pelvisYPosition, pelvisOffset.z);
+        return new Vector3(pelvisOffset.x, pelvisYPosition, pelvisOffset.z);
 
-        MoveToRigidbody(_player.Rigidbody, pelvisPosition, _bodyMovementSettings);
+    }
+
+    public void MoveToHipPoint(Vector3 pelvisOffset)
+    {
+        MoveToRigidbody(_player.Rigidbody, CalculatePelvisPoint(pelvisOffset), _bodyMovementSettings);
     }
 
     // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl

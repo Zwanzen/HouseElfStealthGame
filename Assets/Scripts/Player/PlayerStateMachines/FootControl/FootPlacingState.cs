@@ -53,7 +53,7 @@ public class FootPlacingState : FootControlState
     private void MoveToGround()
     {
         var dir = Vector3.down;
-        var settingsToUse = Context.MovementSettings;
+        var settingsToUse = Context.SneakMovementSettings;
         if (!_validPlacement)
         {
             dir = Vector3.down + Context.Foot.Target.position; // dirPos

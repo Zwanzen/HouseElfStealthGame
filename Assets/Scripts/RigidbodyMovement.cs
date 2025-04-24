@@ -98,7 +98,7 @@ public static class RigidbodyMovement
         if (distanceToTarget <= 0.01f || (distanceToTarget <= stoppingDistance && currentSpeed > 0))
         {
             // If very close, perform hard stop
-            if (distanceToTarget <= 0.01f)
+            if (distanceToTarget <= 0.005f)
             {
                 rb.linearVelocity = Vector3.zero;
                 return;

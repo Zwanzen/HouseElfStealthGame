@@ -22,15 +22,9 @@ public class FootControlContext
     [Header("Foot Control Variables")]
     private readonly float _stepLength;
     private readonly float _stepHeight;
-    private MovementSettings _movementSettings;
-    private MovementSettings _placementSettings;
-    private AnimationCurve _speedCurve;
-    private AnimationCurve _heightCurve;
-    private AnimationCurve _placeCurve;
-    private AnimationCurve _offsetCurve;
-    
+
     public FootControlContext(PlayerController player, FullBodyBipedIK bodyIK, PlayerFootSoundPlayer footSoundPlayer,
-        LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight, MovementSettings movementSettings,
+        LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight, MovementSettings sneakMovementSettings, MovementSettings walkMovementSettings,
         MovementSettings placementSettings, AnimationCurve speedCurve, AnimationCurve heightCurve, AnimationCurve placeCurve, AnimationCurve offsetCurve)
     {
         _player = player;
@@ -41,12 +35,13 @@ public class FootControlContext
         _otherFoot = otherFoot;
         _stepLength = stepLength;
         _stepHeight = stepHeight;
-        _movementSettings = movementSettings;
-        _placementSettings = placementSettings;
-        _speedCurve = speedCurve;
-        _heightCurve = heightCurve;
-        _placeCurve = placeCurve;
-        _offsetCurve = offsetCurve;
+        SneakMovementSettings = sneakMovementSettings;
+        WalkMovementSettings = walkMovementSettings;
+        PlacementSettings = placementSettings;
+        SpeedCurve = speedCurve;
+        HeightCurve = heightCurve;
+        PlaceCurve = placeCurve;
+        OffsetCurve = offsetCurve;
         
         FootIKEffector = GetEffector();
         FootMapping = GetMapping();
@@ -71,14 +66,20 @@ public class FootControlContext
     public float FootRadius => 0.05f;
     public bool IsFootGrounded => GetFootGrounded();
     public bool IsFootLifting => GetIsLifting();
-    public AnimationCurve SpeedCurve => _speedCurve;
-    public AnimationCurve HeightCurve => _heightCurve;
-    public AnimationCurve PlaceCurve => _placeCurve;
-    public AnimationCurve OffsetCurve => _offsetCurve;
-    public bool BothInputsPressed => InputManager.Instance.IsHoldingLMB && InputManager.Instance.IsHoldingRMB;
-    public MovementSettings MovementSettings => _movementSettings;
-    public MovementSettings PlacementSettings => _placementSettings;
-    
+    public AnimationCurve SpeedCurve { get; }
+
+    public AnimationCurve HeightCurve { get; }
+
+    public AnimationCurve PlaceCurve { get; }
+
+    public AnimationCurve OffsetCurve { get; }
+
+    public MovementSettings SneakMovementSettings { get; }
+    public MovementSettings WalkMovementSettings { get; }
+
+
+    public MovementSettings PlacementSettings { get; }
+
     public Vector3 LastSafePosition { get; private set; }
     public Vector3 OldSafePosition { get; private set; }
     
@@ -315,7 +316,7 @@ public class FootControlContext
         // Move the foot to position using its rigidbody
         if(direction.magnitude > 1)
             direction.Normalize();
-        MoveRigidbody(Foot.Target, direction, _movementSettings);
+        MoveRigidbody(Foot.Target, direction, SneakMovementSettings);
     }
     
     public bool CheckStuckOnLedge(out RaycastHit hit)

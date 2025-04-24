@@ -16,7 +16,7 @@ public class FootLiftedState : FootControlState
         if (!Context.IsFootLifting && Context.Player.IsSneaking)
             return FootControlStateMachine.EFootState.Placing;
         
-        if (GetDistanceFromOtherFoot() > Context.StepLength * 0.6f && !Context.Player.IsSneaking)
+        if (GetDistanceFromOtherFoot() > Context.StepLength * 0.45f && !Context.Player.IsSneaking)
             return FootControlStateMachine.EFootState.Placing;
         
         return StateKey;
@@ -122,12 +122,7 @@ public class FootLiftedState : FootControlState
             pos = ClampedFootPosition(footPos, otherFootPos, dirToPos);
         
         // If we are letting go of movement, slowly lerp to default speed
-        var settings = Context.MovementSettings;
-        if (input == Vector3.zero)
-        {
-            var yScale = Mathf.Lerp(0.2f, 1, _timerSinceInput / 1.8f);
-            settings.ForceScale = new Vector3(1, yScale, 1);
-        }
+        var settings = Context.Player.IsSneaking ? Context.SneakMovementSettings : Context.WalkMovementSettings;
         MoveToRigidbody(Context.Foot.Target, pos, settings);
 
     }

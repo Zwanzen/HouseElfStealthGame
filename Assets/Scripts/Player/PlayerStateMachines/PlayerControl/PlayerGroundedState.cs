@@ -50,27 +50,8 @@ public class PlayerGroundedState : PlayerControlState
             if(Context.IsLiftingFoot(out var lifted, out var planted))
                 pos = Vector3.Lerp(lifted.Position, planted.Position, 0.8f); // Slightly towards the planted foot
                 
-            // We also want a local avoidance if there are walls close to the body
-            var player = Context.Player;
-            // We need to check around the player if there are walls
-            var size = Physics.OverlapSphereNonAlloc(player.EyePosition, 0.4f, _result, Context.GroundLayers);
-            var dir = Vector3.zero;
-            for (int i = 0; i < size; i++)
-            {
-                var col = _result[i];
-                if (!col || col.isTrigger) continue;
-                
-                // We want to move away from the wall
-                var wallPos = col.ClosestPoint(player.EyePosition);
-                var wallDir = (wallPos - player.EyePosition);
-                // we dont care about the y axis
-                wallDir.y = 0;
-                dir += wallDir;
-            }
+            var player = Context.Player; // For convinience
 
-            if(dir != Vector3.zero)
-                pos -= Vector3.Lerp(dir.normalized * 0.2f, Vector3.zero, (dir.magnitude / size) / 0.4f);
-            
             // Now we check if we should duck under something
             // We cast a box from the player forward, and if it hits, we adjust the height of the hip
             if (Physics.BoxCast(player.Rigidbody.position + player.Camera.GetCameraYawTransform().forward * player.Collider.radius, 
@@ -93,8 +74,42 @@ public class PlayerGroundedState : PlayerControlState
                     0.01f);
                 Physics.CheckSphere(hit.point, 0.01f);
             }
+
+            // We also want a local avoidance if there are walls close to the body
+            // We need to check around the player if there are walls
+            // We use the current calculated pelvis position to check for walls
+            var calculatedPelvisPos = Context.CalculatePelvisPoint(pos);
+            var size = Physics.OverlapSphereNonAlloc(calculatedPelvisPos, 0.6f, _result, Context.GroundLayers);
+            var dir = Vector3.zero;
+            var closestMag = 0f;
+            for (int i = 0; i < size; i++)
+            {
+                var col = _result[i];
+                if (!col || col.isTrigger) continue;
+
+                // We want to move away from the wall
+                var wallPos = col.ClosestPoint(calculatedPelvisPos);
+                var wallDir = (wallPos - calculatedPelvisPos);
+
+                if (i == 0)
+                {
+                    closestMag = wallDir.magnitude;
+                }
+                else
+                {
+                    if (wallDir.magnitude < closestMag)
+                        closestMag = wallDir.magnitude;
+                }
+                // we dont care about the y axis
+                wallDir.y = 0;
+                dir += wallDir;
+            }
+
+            if (dir != Vector3.zero)
+                pos -= Vector3.Lerp(dir.normalized * 0.2f, Vector3.zero, closestMag/0.6f);
+
         }
-        
+
         // The default hip position is the center of the feet
         return pos;
     }
