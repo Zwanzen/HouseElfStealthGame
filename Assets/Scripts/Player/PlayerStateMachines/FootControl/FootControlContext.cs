@@ -109,8 +109,14 @@ public class FootControlContext
     private LayerMask GetGroundLayers()
     {
         var layers = _groundLayers;
-        if (_player.Camera.LookDownLerpOffset(10f) > 0f)
-            layers |= LayerMask.GetMask("Props");
+        // If we are not lifting our foot, we should include the props layer
+        if (_foot.State != FootControlStateMachine.EFootState.Lifted)
+            return layers;
+             
+        // If we are not looking down, remove the props layer
+        if (_player.Camera.LookDownLerpOffset(10f) < 0f)
+            layers &= ~(1 << LayerMask.NameToLayer("Props"));
+
         return layers;
     }
     

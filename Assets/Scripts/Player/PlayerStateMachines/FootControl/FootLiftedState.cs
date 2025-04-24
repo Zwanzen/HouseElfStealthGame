@@ -2,6 +2,7 @@
 using UnityEngine;
 using static CircleLineIntersection;
 using static RigidbodyMovement;
+using Pathfinding;
 
 public class FootLiftedState : FootControlState
 {
@@ -22,11 +23,18 @@ public class FootLiftedState : FootControlState
     }
 
     private Vector3 _storedPos;
+    private AstarPath _astar;
+    private LayerGridGraph _graph;
     
     public override void EnterState()
     {
         // get the start angle
         _startAngle = Context.Foot.Target.transform.localRotation.x;
+        _astar = AstarPath.active; _graph = _astar.data.graphs[0] as LayerGridGraph;
+        // move the graph to foot position
+        _graph.center = Context.Foot.Target.position;
+        // scan the graph
+        _graph.Scan();
     }
 
     public override void ExitState()
@@ -41,6 +49,7 @@ public class FootLiftedState : FootControlState
     public override void UpdateState()
     {
         _liftTimer += Time.deltaTime;
+        UpdateGraph();
     }
 
     private float _timerSinceInput;
@@ -52,18 +61,24 @@ public class FootLiftedState : FootControlState
         HandleFootRotation();
     }
 
-    private void WalkMovement()
+    private float timer;
+    private void UpdateGraph()
     {
-        var input = Context.Player.RelativeMoveInput.normalized * (Context.StepLength * 0.9f);
-        var wantedPos = Context.Foot.Target.position + input;
-        wantedPos.y = Context.OtherFoot.Target.position.y + 0.15f;
-        
-        MoveToRigidbody(Context.Foot.Target, wantedPos, Context.MovementSettings);
+        timer += Time.deltaTime;
+        if (timer >= 1f)
+        {
+            // move the graph to foot position
+            _graph.center = Context.Foot.Target.position;
+            // scan the graph
+            _graph.Scan();
+        }
     }
+
+
 
     private void SneakMovement()
     {
-                var footPos = Context.Foot.Target.position;
+        var footPos = Context.Foot.Target.position;
         var otherFootPos = Context.OtherFoot.Target.position;
         var input = Context.Player.RelativeMoveInput;
         if (input.normalized == Vector3.zero)
@@ -129,6 +144,11 @@ public class FootLiftedState : FootControlState
         // Now clamp if we are going out of step length
         if (Vector3.Distance(pos, otherFootPos) > Context.StepLength)
             pos = ClampedFootPosition(footPos, otherFootPos, dirToPos);
+        
+        // *** TMEP ***
+        var graphPos = _graph.GetNearest(pos, null, Context.StepLength);
+        if(graphPos.node != null)
+            Debug.DrawLine(graphPos.position, graphPos.position + Vector3.up, Color.cyan);
 
         // If we are letting go of movement, slowly lerp to default speed
         var settings = Context.MovementSettings;
