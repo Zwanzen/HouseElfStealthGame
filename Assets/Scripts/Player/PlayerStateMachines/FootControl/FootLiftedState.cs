@@ -23,18 +23,10 @@ public class FootLiftedState : FootControlState
     }
 
     private Vector3 _storedPos;
-    private AstarPath _astar;
-    private LayerGridGraph _graph;
-    
     public override void EnterState()
     {
         // get the start angle
         _startAngle = Context.Foot.Target.transform.localRotation.x;
-        _astar = AstarPath.active; _graph = _astar.data.graphs[0] as LayerGridGraph;
-        // move the graph to foot position
-        _graph.center = Context.Foot.Target.position;
-        // scan the graph
-        _graph.Scan();
     }
 
     public override void ExitState()
@@ -49,7 +41,6 @@ public class FootLiftedState : FootControlState
     public override void UpdateState()
     {
         _liftTimer += Time.deltaTime;
-        UpdateGraph();
     }
 
     private float _timerSinceInput;
@@ -60,21 +51,6 @@ public class FootLiftedState : FootControlState
 
         HandleFootRotation();
     }
-
-    private float timer;
-    private void UpdateGraph()
-    {
-        timer += Time.deltaTime;
-        if (timer >= 1f)
-        {
-            // move the graph to foot position
-            _graph.center = Context.Foot.Target.position;
-            // scan the graph
-            _graph.Scan();
-        }
-    }
-
-
 
     private void SneakMovement()
     {
@@ -90,7 +66,7 @@ public class FootLiftedState : FootControlState
             _timerSinceInput = 0f;
         }
         
-        var baseFootLiftedHeight = 0.15f;
+        var baseFootLiftedHeight = 0.1f;
         var wantedHeight = otherFootPos.y + baseFootLiftedHeight;
         
         // Depending on obstacles, we want to move the foot up
@@ -145,11 +121,6 @@ public class FootLiftedState : FootControlState
         if (Vector3.Distance(pos, otherFootPos) > Context.StepLength)
             pos = ClampedFootPosition(footPos, otherFootPos, dirToPos);
         
-        // *** TMEP ***
-        var graphPos = _graph.GetNearest(pos, null, Context.StepLength);
-        if(graphPos.node != null)
-            Debug.DrawLine(graphPos.position, graphPos.position + Vector3.up, Color.cyan);
-
         // If we are letting go of movement, slowly lerp to default speed
         var settings = Context.MovementSettings;
         if (input == Vector3.zero)

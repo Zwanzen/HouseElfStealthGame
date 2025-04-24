@@ -47,15 +47,6 @@ public class PlayerControlContext
     public Foot RightFoot => _rightFoot;
     public LayerMask GroundLayers => _groundLayers;
     
-    // Private methods
-    private Vector3 GetLowestFootPosition()
-    {
-        // Get the lowest foot position
-        Vector3 leftFootPos = _leftFoot.Target.position;
-        Vector3 rightFootPos = _rightFoot.Target.position;
-        return leftFootPos.y < rightFootPos.y ? leftFootPos : rightFootPos;
-    }
-    
     // Public methods
     public bool IsGrounded()
     {
@@ -63,24 +54,23 @@ public class PlayerControlContext
         return Physics.CheckSphere(_leftFoot.Target.position, 0.8f, _groundLayers) ||
                Physics.CheckSphere(_rightFoot.Target.position, 0.8f, _groundLayers);
     }
-
-    public void MoveToHipPoint()
+    public bool IsLiftingFoot(out Foot liftedFoot, out Foot plantedFoot) 
+    {
+        liftedFoot = null;
+        plantedFoot = null;
+        var isLifting = _leftFoot.State == FootControlStateMachine.EFootState.Lifted || _rightFoot.State == FootControlStateMachine.EFootState.Lifted;
+        if (!isLifting)
+            return false;
+        liftedFoot = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _leftFoot : _rightFoot;
+        plantedFoot = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot : _leftFoot;
+        return true;
+    }
+    public void MoveToHipPoint(Vector3 pelvisHorizontalPosition)
     {
         var legLength = 0.48f;
         var leftFootPos = _leftFoot.Target.position;
         var rightFootPos = _rightFoot.Target.position;
-        var offsetPos = Vector3.zero;
-        var isLifting = _leftFoot.State == FootControlStateMachine.EFootState.Lifted || _rightFoot.State == FootControlStateMachine.EFootState.Lifted;
 
-        
-        var feetMidpoint = (leftFootPos + rightFootPos) * 0.5f;
-        Vector3 pelvisHorizontalPosition = new Vector3(feetMidpoint.x, 0f, feetMidpoint.z);
-        if (isLifting && _player.IsSneaking)
-        {
-            var liftedFoot = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _leftFoot.Target.position : _rightFoot.Target.position;
-            var plantedFoot = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot.Target.position : _leftFoot.Target.position;
-            pelvisHorizontalPosition = Vector3.Lerp(liftedFoot,plantedFoot, 0.8f);
-        }
         float horizontalDistance = Vector2.Distance(new Vector2(leftFootPos.x, leftFootPos.z), new Vector2(rightFootPos.x, rightFootPos.z));
         float halfHorizontalDistance = horizontalDistance * 0.5f;
 
@@ -111,7 +101,6 @@ public class PlayerControlContext
         Vector3 pelvisPosition = new Vector3(pelvisHorizontalPosition.x, pelvisYPosition, pelvisHorizontalPosition.z);
         
         var bodyPos = pelvisPosition;
-        Debug.DrawLine(_player.Rigidbody.position, bodyPos, Color.red);
         MoveToRigidbody(_player.Rigidbody, bodyPos, _bodyMovementSettings);
     }
 
@@ -190,7 +179,6 @@ public class PlayerControlContext
     public Vector3 BetweenFeet(float lerp)
     {
         var pos = Vector3.Lerp(_leftFoot.Target.position, _rightFoot.Target.position, lerp);
-        pos.y = 0;
         return pos;
     }
 
