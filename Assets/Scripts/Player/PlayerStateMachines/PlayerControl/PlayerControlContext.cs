@@ -46,6 +46,7 @@ public class PlayerControlContext
     public Foot LeftFoot => _leftFoot;
     public Foot RightFoot => _rightFoot;
     public LayerMask GroundLayers => _groundLayers;
+    public float LowestFootPosition => Mathf.Min(_leftFoot.Position.y, _rightFoot.Position.y);
     
     // Public methods
     public bool IsGrounded()
@@ -54,6 +55,7 @@ public class PlayerControlContext
         return Physics.CheckSphere(_leftFoot.Target.position, 0.8f, _groundLayers) ||
                Physics.CheckSphere(_rightFoot.Target.position, 0.8f, _groundLayers);
     }
+    
     public bool IsLiftingFoot(out Foot liftedFoot, out Foot plantedFoot) 
     {
         liftedFoot = null;
@@ -65,7 +67,7 @@ public class PlayerControlContext
         plantedFoot = _leftFoot.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot : _leftFoot;
         return true;
     }
-    public void MoveToHipPoint(Vector3 pelvisHorizontalPosition)
+    public void MoveToHipPoint(Vector3 pelvisOffset)
     {
         var legLength = 0.48f;
         var leftFootPos = _leftFoot.Target.position;
@@ -97,11 +99,10 @@ public class PlayerControlContext
             return;
         }
 
-        float pelvisYPosition = Mathf.Min(leftFootPos.y, rightFootPos.y) + pelvisYOffset;
-        Vector3 pelvisPosition = new Vector3(pelvisHorizontalPosition.x, pelvisYPosition, pelvisHorizontalPosition.z);
-        
-        var bodyPos = pelvisPosition;
-        MoveToRigidbody(_player.Rigidbody, bodyPos, _bodyMovementSettings);
+        float pelvisYPosition = Mathf.Min(leftFootPos.y, rightFootPos.y) + pelvisYOffset + Mathf.Min(pelvisOffset.y, 0f);
+        Vector3 pelvisPosition = new Vector3(pelvisOffset.x, pelvisYPosition, pelvisOffset.z);
+
+        MoveToRigidbody(_player.Rigidbody, pelvisPosition, _bodyMovementSettings);
     }
 
     // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl

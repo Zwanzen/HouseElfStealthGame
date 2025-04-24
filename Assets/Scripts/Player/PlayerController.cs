@@ -75,7 +75,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform _leanTarget;
     [SerializeField] private Transform _leanRestTarget;
 
-    public Transform HipTransform;
+    private CapsuleCollider _collider;
     
     private float _wantedLScale;
     private float _wantedRScale;
@@ -103,6 +103,10 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         InitializeStateMachines();
+        
+        // setting private variables
+        _collider = _rigidbody.GetComponent<CapsuleCollider>();
+        Transform = _rigidbody.transform;
     }
 
     private void Start()
@@ -201,6 +205,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public Transform[] Limbs => _limbs;
     public Rigidbody Rigidbody => _rigidbody;
+    public Transform Transform { get; private set; }
+    public CapsuleCollider Collider => _collider;
     public Animator Animator => _anim;
     
     // Sneaking Properties
@@ -214,7 +220,12 @@ public class PlayerController : MonoBehaviour
     /// The player's offset position from the rigidbody's position, adjusted by the character height.
     /// The player rigidbody is actually at the feet of the player, so we need to add the character height to the position.
     /// </summary>
+    [Obsolete]
     public Vector3 Position => _rigidbody.position + new Vector3(0, Height, 0); 
+    /// <summary>
+    /// This is the new player position^
+    /// </summary>
+    public Vector3 EyePosition => _limbs[0].position;
     
     /// <summary>
     /// The threshold for the height difference to consider the player grounded.
