@@ -52,16 +52,8 @@ public class PlayerCameraController : MonoBehaviour
 
     private void UpdatePosition()
     {
-        if (_player.IsGrounded)
-        {
-            transform.position = _followTarget.position;
-            //transform.position = Vector3.Lerp(transform.position, _followTarget.position, Time.deltaTime * _followSpeed);
-        }
-        else
-        {
-            transform.position = Vector3.Lerp(transform.position, _player.Position, Time.deltaTime * _followSpeed);
-        }
-        
+        transform.position = _followTarget.position;
+
         // if camera fov is not 90, lerp it to 90
         if (!Mathf.Approximately(_camera.fieldOfView, 90))
         {
