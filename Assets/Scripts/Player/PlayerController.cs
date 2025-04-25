@@ -244,7 +244,9 @@ public class PlayerController : MonoBehaviour
     public bool IsStumble => _isStumble;
     
     public bool IsSneaking => _isSneaking;
-    
+
+    public bool IsJumping { get; private set; }
+
     public bool IsMoving => InputManager.Instance.MoveInput != Vector3.zero;
     
     /// <summary>
@@ -350,6 +352,11 @@ public class PlayerController : MonoBehaviour
     }
     
     // Public methods
+    public void SetJump(bool state)
+    {
+        IsJumping = state;
+    }
+
     public void SetPlayerStumble(bool isStumble)
     {
         _isStumble = isStumble;

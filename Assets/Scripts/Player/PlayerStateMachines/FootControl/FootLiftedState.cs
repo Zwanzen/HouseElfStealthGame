@@ -13,11 +13,19 @@ public class FootLiftedState : FootControlState
 
     public override FootControlStateMachine.EFootState GetNextState()
     {
-        if (!Context.IsFootLifting && Context.Player.IsSneaking && Context.OtherFoot.Planted)
+        if (!Context.IsFootLifting && Context.Player.IsSneaking && Context.OtherFoot.Planted && !Context.Player.IsJumping)
             return FootControlStateMachine.EFootState.Placing;
         
         if (GetDistanceFromOtherFoot() > Context.StepLength * 0.45f && !Context.Player.IsSneaking)
             return FootControlStateMachine.EFootState.Placing;
+
+        if(InputManager.Instance.IsJumping && Context.OtherFoot.Planted)
+        {
+            Context.Foot.Target.AddForce(Vector3.up * 14f, ForceMode.Impulse);
+            Context.OtherFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Lifted);
+            Context.Player.SetJump(true);
+            return FootControlStateMachine.EFootState.Placing;
+        }
         
         return StateKey;
     }
@@ -33,13 +41,16 @@ public class FootLiftedState : FootControlState
     {
         _liftTimer = 0f;
         Context.FootSoundPlayer.MakeFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
-        
-        // Set the xz velocity to 0
-        //Context.Foot.Target.linearVelocity = new Vector3(0f, Context.Foot.Target.linearVelocity.y, 0f);
     }
 
     public override void UpdateState()
     {
+        // If we jumped, and this foot is lifted,
+        // when we press the relating mbutton, we want to stop jumping.
+        // This is because the player has to take control of the foot again.
+        if (Context.IsMBPressed)
+            Context.Player.SetJump(false);
+
         _liftTimer += Time.deltaTime;
     }
 

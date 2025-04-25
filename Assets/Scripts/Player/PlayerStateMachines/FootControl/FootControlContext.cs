@@ -66,6 +66,7 @@ public class FootControlContext
     public float FootRadius => 0.05f;
     public bool IsFootGrounded => GetFootGrounded();
     public bool IsFootLifting => GetIsLifting();
+    public bool IsMBPressed => Foot.Side == Foot.EFootSide.Left ? InputManager.Instance.IsHoldingLMB : InputManager.Instance.IsHoldingRMB;
     public AnimationCurve SpeedCurve { get; }
 
     public AnimationCurve HeightCurve { get; }
