@@ -6,25 +6,6 @@ using UnityEngine.Serialization;
 using static CircleLineIntersection;
 using static RigidbodyMovement;
 
-[Serializable]
-public struct Foot
-{
-    public enum EFootSide
-    {
-        Left,
-        Right
-    }
-
-    private bool _isInStepRange;
-    
-    public Rigidbody Target;
-    public Transform RestTarget;
-    public BoxCollider Collider;
-    public EFootSide Side;
-    [FormerlySerializedAs("StateMachine")] [HideInInspector]
-    public FootControlStateMachine SM;
-}
-
 public class FootControlContext
 {
         
@@ -32,7 +13,7 @@ public class FootControlContext
     private readonly PlayerController _player;
     private readonly FullBodyBipedIK _bodyIK;
     private PlayerFootSoundPlayer _footSoundPlayer;
-    
+
     [Header("Common")]
     private LayerMask _groundLayers;
     private readonly Foot _foot;
@@ -41,15 +22,9 @@ public class FootControlContext
     [Header("Foot Control Variables")]
     private readonly float _stepLength;
     private readonly float _stepHeight;
-    private MovementSettings _movementSettings;
-    private MovementSettings _placementSettings;
-    private AnimationCurve _speedCurve;
-    private AnimationCurve _heightCurve;
-    private AnimationCurve _placeCurve;
-    private AnimationCurve _offsetCurve;
-    
+
     public FootControlContext(PlayerController player, FullBodyBipedIK bodyIK, PlayerFootSoundPlayer footSoundPlayer,
-        LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight, MovementSettings movementSettings,
+        LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight, MovementSettings sneakMovementSettings, MovementSettings walkMovementSettings,
         MovementSettings placementSettings, AnimationCurve speedCurve, AnimationCurve heightCurve, AnimationCurve placeCurve, AnimationCurve offsetCurve)
     {
         _player = player;
@@ -60,21 +35,30 @@ public class FootControlContext
         _otherFoot = otherFoot;
         _stepLength = stepLength;
         _stepHeight = stepHeight;
-        _movementSettings = movementSettings;
-        _placementSettings = placementSettings;
-        _speedCurve = speedCurve;
-        _heightCurve = heightCurve;
-        _placeCurve = placeCurve;
-        _offsetCurve = offsetCurve;
+        SneakMovementSettings = sneakMovementSettings;
+        WalkMovementSettings = walkMovementSettings;
+        PlacementSettings = placementSettings;
+        SpeedCurve = speedCurve;
+        HeightCurve = heightCurve;
+        PlaceCurve = placeCurve;
+        OffsetCurve = offsetCurve;
+        
+        FootIKEffector = GetEffector();
+        FootMapping = GetMapping();
+        RotationOffset = GetRotationOffset();
     }
     
     // Read only properties
     public PlayerController Player => _player;
     public BoxCastValues FootCastValues => GetBoxCastValues();
-    public IKEffector FootIKEffector => GetEffector();
+    public IKEffector FootIKEffector { get; }
+    public IKMappingLimb FootMapping { get; }
+
+    public FullBodyBipedIK BodyIK => _bodyIK;
     public PlayerFootSoundPlayer FootSoundPlayer => _footSoundPlayer;
     public Foot Foot => _foot;
     public Foot OtherFoot => _otherFoot;
+    public Quaternion RotationOffset { get; }
     public float StepLength => _stepLength;
     public float StepHeight => _stepLength;
     public LayerMask GroundLayers => GetGroundLayers();
@@ -82,16 +66,20 @@ public class FootControlContext
     public float FootRadius => 0.05f;
     public bool IsFootGrounded => GetFootGrounded();
     public bool IsFootLifting => GetIsLifting();
-    public AnimationCurve SpeedCurve => _speedCurve;
-    public AnimationCurve HeightCurve => _heightCurve;
-    public AnimationCurve PlaceCurve => _placeCurve;
-    public AnimationCurve OffsetCurve => _offsetCurve;
-    public bool BothInputsPressed => InputManager.Instance.IsHoldingLMB && InputManager.Instance.IsHoldingRMB;
-    public MovementSettings MovementSettings => _movementSettings;
-    public MovementSettings PlacementSettings => _placementSettings;
-    
-    public Vector3 LastSafePosition { get; private set; }
-    public Vector3 OldSafePosition { get; private set; }
+    public bool IsMBPressed => Foot.Side == Foot.EFootSide.Left ? InputManager.Instance.IsHoldingLMB : InputManager.Instance.IsHoldingRMB;
+    public AnimationCurve SpeedCurve { get; }
+
+    public AnimationCurve HeightCurve { get; }
+
+    public AnimationCurve PlaceCurve { get; }
+
+    public AnimationCurve OffsetCurve { get; }
+
+    public MovementSettings SneakMovementSettings { get; }
+    public MovementSettings WalkMovementSettings { get; }
+
+
+    public MovementSettings PlacementSettings { get; }
     
     // Private methods
     private IKEffector GetEffector()
@@ -99,12 +87,35 @@ public class FootControlContext
         return _foot.Side == Foot.EFootSide.Left ? _bodyIK.solver.leftFootEffector : _bodyIK.solver.rightFootEffector;
     }
 
+    private IKMappingLimb GetMapping()
+    {
+        return _foot.Side == Foot.EFootSide.Left ? BodyIK.solver.leftLegMapping : BodyIK.solver.rightLegMapping;
+    }
+
+    private Quaternion GetRotationOffset()
+    {
+        // If we are left foot, we need to rotate the foot 90 degrees to the left
+        // If we are right foot, we need to rotate the foot 90 degrees to the right
+        var rotation = Quaternion.Euler(0f, 0f, 0f);
+        if (_foot.Side == Foot.EFootSide.Left)
+            rotation *= Quaternion.Euler(0f, -90f, 0f);
+        else
+            rotation *= Quaternion.Euler(0f, 90f, 0f);
+        return rotation;
+    }
+
     // Depending on if we look down or not, we should include the props layer
     private LayerMask GetGroundLayers()
     {
         var layers = _groundLayers;
-        if (_player.Camera.LookDownLerpOffset(10f) > 0f)
-            layers |= LayerMask.GetMask("Props");
+        // If we are not lifting our foot, we should include the props layer
+        if (_foot.State != FootControlStateMachine.EFootState.Lifted)
+            return layers;
+             
+        // If we are not looking down, remove the props layer
+        if (_player.Camera.LookDownLerpOffset(10f) < 0f)
+            layers &= ~(1 << LayerMask.NameToLayer("Props"));
+
         return layers;
     }
     
@@ -152,10 +163,15 @@ public class FootControlContext
     {
         var LMB = InputManager.Instance.IsHoldingLMB;
         var RMB = InputManager.Instance.IsHoldingRMB;
-        var otherPlanted = OtherFoot.SM.State == FootControlStateMachine.EFootState.Planted;
-        if(LMB && Foot.Side == Foot.EFootSide.Left && otherPlanted)
+        var otherNotLifted = OtherFoot.State != FootControlStateMachine.EFootState.Lifted;
+        var input = _player.RelativeMoveInput.normalized;
+        var closer = RelativeDistanceInDirection(_otherFoot.Target.position, _foot.Target.position, input) < 0f;
+        
+        if(LMB && Foot.Side == Foot.EFootSide.Left && otherNotLifted)
             return true;
-        if(RMB && Foot.Side == Foot.EFootSide.Right && otherPlanted)
+        if(RMB && Foot.Side == Foot.EFootSide.Right && otherNotLifted)
+            return true;
+        if(_player.IsMoving && !_player.IsSneaking && otherNotLifted && closer)
             return true;
         return false;
     }
@@ -201,6 +217,41 @@ public class FootControlContext
         return true;
     }
     
+    public bool FootGroundCast(float up, out RaycastHit hit)
+    {
+        // We need to move the start pos of the ray backwards relative to the line direction
+        var lineDir = Vector3.down;
+        var footPos = Foot.Target.position;
+        var otherFootPos = OtherFoot.Target.position;
+        
+        // Now we set the line start backwards
+        // If the foot passed the radius, we still get the intersection point
+        var offsetLineStart = footPos - lineDir;
+        
+        // We need to dynamically calculate the distance to the ground
+        // based on the feet positions to not overshoot the step height
+        // We use a custom-made CircleLineIntersection to calculate the distance
+        if (!CalculateIntersectionPoint(otherFootPos, StepLength, offsetLineStart, lineDir,
+                out var result))
+            result = footPos; // This will make the max distance 0
+        
+        // This is the length between the foot and the max step length/intersection point
+        var maxDistance = (result - footPos).magnitude;
+        
+        var defaultValues = FootCastValues;
+        var position = defaultValues.Position;
+        var size = defaultValues.Size;
+        var rotation = defaultValues.Rotation;
+        position.y += size.y;
+        
+        // We use a sphere cast to check with a radius downwards
+        var upOffset = Vector3.up * (_foot.Collider.size.y + up);
+        if(!Physics.BoxCast(position, size, Vector3.down, out hit, rotation, maxDistance + size.y, GroundLayers))
+            return false;
+        
+        return true;
+    }
+    
     public bool FootGroundCast(float minDist = 0f)
     {
         // We need to move the start pos of the ray backwards relative to the line direction
@@ -237,17 +288,6 @@ public class FootControlContext
         return true;
     }
     
-    public void SetSafePosition(Vector3 position)
-    {
-        // If the distance is great enough, we set the old safe position as well
-        var dist = Vector3.Distance(position, OldSafePosition);
-        if (dist is > 0.55f or < 0.1f)
-            OldSafePosition = LastSafePosition;
-        
-        // Set the last safe position to the current one
-        LastSafePosition = position;
-    }
-    
     public float RelativeDistanceInDirection(Vector3 from, Vector3 to, Vector3 direction)
     {
         var fromTo = to - from;
@@ -263,7 +303,7 @@ public class FootControlContext
         // Move the foot to position using its rigidbody
         if(direction.magnitude > 1)
             direction.Normalize();
-        MoveRigidbody(Foot.Target, direction, _movementSettings);
+        MoveRigidbody(Foot.Target, direction, SneakMovementSettings);
     }
     
     public bool CheckStuckOnLedge(out RaycastHit hit)

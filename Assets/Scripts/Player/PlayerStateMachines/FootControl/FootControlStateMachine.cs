@@ -30,6 +30,9 @@
         CurrentState = States[EFootState.Start];
     }
 
+    /// <summary>
+    /// This method controls when the states are being initialized.
+    /// </summary>
     public void SetContext(FootControlContext context)
     {
         _context = context;

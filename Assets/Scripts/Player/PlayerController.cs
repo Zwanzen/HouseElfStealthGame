@@ -25,6 +25,7 @@ public class PlayerController : MonoBehaviour
     [Header("Components")]
     [SerializeField] private Rigidbody _rigidbody;
     [SerializeField] private FullBodyBipedIK _bodyIK;
+    [SerializeField] private Animator _anim;
     [SerializeField] private PlayerCameraController _cameraController;
     
     [Space(10f)]
@@ -42,14 +43,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField, Range(0,1)] private float _lowestBodyHeight = 0.5f;
     [SerializeField] private AnimationCurve _distanceHeightCurve;
     [SerializeField] private float _bodyRotationSpeed = 5f;
+    [SerializeField] private SphereCollider _fallCollider;
     
     [Space(10f)] 
     [Header("Foot Control")] 
-    [SerializeField] private Foot _leftFoot;
-    [SerializeField] private Foot _rightFoot;
+    [SerializeField] private FootRef _leftFoot;
+    [Space(10f)]
+    [SerializeField] private FootRef _rightFoot;
+    [Space(10f)]
     [SerializeField] private float _stepLength = 0.5f;
     [SerializeField] private float _stepHeight = 0.5f;
     [SerializeField] private MovementSettings _liftedSettings;
+    [SerializeField] private MovementSettings _walkSettings;
     [SerializeField] private MovementSettings _placeSettings;
     [SerializeField] private AnimationCurve _speedCurve;
     [SerializeField] private AnimationCurve _heightCurve;
@@ -71,6 +76,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Image _rightImage;
     [SerializeField] private Transform _leanTarget;
     [SerializeField] private Transform _leanRestTarget;
+
+    private CapsuleCollider _collider;
     
     private float _wantedLScale;
     private float _wantedRScale;
@@ -97,10 +104,11 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        // Order of initialization is important
-        CreateStateMachines();
-        InitializeStateMachineContexts();
         InitializeStateMachines();
+        
+        // setting private variables
+        _collider = _rigidbody.GetComponent<CapsuleCollider>();
+        Transform = _rigidbody.transform;
     }
 
     private void Start()
@@ -125,7 +133,7 @@ public class PlayerController : MonoBehaviour
             relativeDir = RelativeMoveInput;
         var feetDot = Vector3.Dot(feetDir, relativeDir);
         var dist = feetDir.magnitude * feetDot;
-        dist = Mathf.Clamp(dist, -StepLength, StepLength);
+        dist = Mathf.Clamp(dist, -_stepLength, _stepLength);
 
         var lerp = _imageScaleCurve.Evaluate(dist);
         
@@ -153,37 +161,31 @@ public class PlayerController : MonoBehaviour
         _rightImage.color = Color.Lerp(_rightImage.color, _wantedRColor, Time.deltaTime * lerpSpeed * 10f);
     }
 
-    // Initialize the state machine contexts
-    private void InitializeStateMachineContexts()
-    {
-        _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
-             _leftFoot, _rightFoot, _springStrength, _springDampener, _bodyMovementSettings, _distanceHeightCurve,
-             _lowestBodyHeight);
-        
-        _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
-            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings, _placeSettings, _speedCurve, _heightCurve, 
-            _placeSpeedCurve, _offsetCurve);
-        _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
-            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings, _placeSettings, _speedCurve, _heightCurve, 
-            _placeSpeedCurve, _offsetCurve);
-    }
-
-    private void CreateStateMachines()
+    private void InitializeStateMachines()
     {
         // Add the state machines to the player controller
         _controlStateMachine = this.AddComponent<PlayerControlStateMachine>();
         _leftFootStateMachine = this.AddComponent<FootControlStateMachine>();
         _rightFootStateMachine = this.AddComponent<FootControlStateMachine>();
         
-        // Give the foot structs reference to the state machines
-        _leftFoot.SM = _leftFootStateMachine;
-        _rightFoot.SM = _rightFootStateMachine;
-    }
-
-    // Adding and initializing the state machines with contexts
-    private void InitializeStateMachines()
-    {
+        // Then we construct the feet.
+        // The feet need references to their state machine.
+        var leftFoot = new Foot(_leftFoot, _leftFootStateMachine);
+        var rightFoot = new Foot(_rightFoot, _rightFootStateMachine);
+        
+        // Then we construct the context files after the feet are created.
+        _controlContext = new PlayerControlContext(this, _fallCollider, _groundLayers,
+            leftFoot, rightFoot, _bodyMovementSettings, _stepLength, _stepHeight);
+        
+        _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
+            leftFoot, rightFoot, _stepLength, _stepHeight, _liftedSettings, _walkSettings, _placeSettings, _speedCurve, _heightCurve, 
+            _placeSpeedCurve, _offsetCurve);
+        _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
+            rightFoot, leftFoot, _stepLength, _stepHeight, _liftedSettings, _walkSettings, _placeSettings, _speedCurve, _heightCurve, 
+            _placeSpeedCurve, _offsetCurve);
+        
         // Set the context for the state machines
+        // This also initializes the states within the state machines
         _controlStateMachine.SetContext(_controlContext);
         _leftFootStateMachine.SetContext(_leftFootContext);
         _rightFootStateMachine.SetContext(_rightFootContext);
@@ -204,34 +206,54 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public Transform[] Limbs => _limbs;
     public Rigidbody Rigidbody => _rigidbody;
+    public Transform Transform { get; private set; }
+    public CapsuleCollider Collider => _collider;
+    public Animator Animator => _anim;
     
     // Sneaking Properties
     public Rigidbody LeftFootTarget => _leftFoot.Target;
     public Rigidbody RightFootTarget => _rightFoot.Target;
-    public float StepLength => _stepLength;
     public MovementSettings BodyMovementSettings => _bodyMovementSettings;
     public static float Height => 1.0f;
-    
+    public float StepLength => _stepLength;
+
     /// <summary>
     /// The player's offset position from the rigidbody's position, adjusted by the character height.
     /// The player rigidbody is actually at the feet of the player, so we need to add the character height to the position.
     /// </summary>
+    [Obsolete]
     public Vector3 Position => _rigidbody.position + new Vector3(0, Height, 0); 
+    /// <summary>
+    /// This is the new player position^
+    /// </summary>
+    public Vector3 EyePosition => _limbs[0].position;
     
     /// <summary>
     /// The threshold for the height difference to consider the player grounded.
     /// </summary>
     public static float HeightThreshold => 0.07f;
-    
+
     /// <summary>
-    /// If the player's control state is grounded.
+    /// If the player is in the grounded state.
     /// </summary>
     public bool IsGrounded => _controlStateMachine.State == PlayerControlStateMachine.EPlayerControlState.Grounded;
-    
+
+    /// <summary>
+    /// If the player is in the falling state.
+    /// </summary>
+    public bool IsFalling => _controlStateMachine.State == PlayerControlStateMachine.EPlayerControlState.Falling;
+    public bool IsStandingUp { get; private set; } = false;
+
     /// <summary>
     /// If the player tries to place feet and there is no ground.
     /// </summary>
     public bool IsStumble => _isStumble;
+    
+    public bool IsSneaking => _isSneaking;
+
+    public bool IsJumping { get; private set; }
+
+    public bool IsMoving => InputManager.Instance.MoveInput != Vector3.zero;
     
     /// <summary>
     /// This is the control state of the player based on the selected speed.
@@ -336,6 +358,16 @@ public class PlayerController : MonoBehaviour
     }
     
     // Public methods
+    public void SetJump(bool state)
+    {
+        IsJumping = state;
+    }
+
+    public void SetStandingUp(bool state)
+    {
+        IsStandingUp = state;
+    }
+
     public void SetPlayerStumble(bool isStumble)
     {
         _isStumble = isStumble;
@@ -354,8 +386,7 @@ public class PlayerController : MonoBehaviour
         GUI.Label(new Rect(20, 15, 240, 20), $"Control State: {_controlStateMachine.State}", style);
         GUI.Label(new Rect(20, 35, 240, 20), $"Left Foot State: {_leftFootStateMachine.State}", style);
         GUI.Label(new Rect(20, 55, 240, 20), $"Right Foot State: {_rightFootStateMachine.State}", style);
-        GUI.Label(new Rect(20, 75, 240, 20), $"Left State: {_leftFoot.SM.State}", style);
-        GUI.Label(new Rect(20, 95, 240, 20), $"Right State: {_rightFoot.SM.State}", style);
+        GUI.Label(new Rect(20, 75, 240, 20), $"Player Sneak: {_isSneaking}", style);
     }
     
     private void OnDestroy()

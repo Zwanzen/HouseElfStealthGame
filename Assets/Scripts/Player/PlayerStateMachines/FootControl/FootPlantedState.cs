@@ -27,6 +27,7 @@ public class FootPlantedState : FootControlState
         Context.FootSoundPlayer.PlayFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
         _rb = Context.Foot.Target;
         _rb.constraints = PlacedConstraints;
+        _rb.useGravity = true;
     }
 
     
@@ -35,6 +36,7 @@ public class FootPlantedState : FootControlState
         //Context.Foot.Target.isKinematic = false;
         _rb = Context.Foot.Target;
         _rb.constraints = LiftedConstraints;
+        _rb.useGravity = false;
     }
 
     public override void UpdateState()
@@ -44,7 +46,7 @@ public class FootPlantedState : FootControlState
     public override void FixedUpdateState()
     {
         HandleRotation();
-        MoveToGround();
+        //MoveToGround();
     }
     
     private static RigidbodyConstraints GetPlacedConstraints()
@@ -61,21 +63,5 @@ public class FootPlantedState : FootControlState
         var direction = Vector3.ProjectOnPlane(Context.Foot.Target.transform.forward, normal);
 
         RigidbodyMovement.RotateRigidbody(Context.Foot.Target, direction, 500f);
-    }
-
-    private void MoveToGround()
-    {
-        var footPos = Context.Foot.Target.position;
-        var otherFootPos = Context.OtherFoot.Target.position;
-        var dir = Vector3.down;
-
-        // Before we move, we change the dir magnitude based on the current one
-        // This will keep the speed based on distance and curve
-        var mag = dir.magnitude;
-        var breakDistance = 0.05f;
-        var magLerp = mag / breakDistance;
-        dir.Normalize();
-        dir *= Context.SpeedCurve.Evaluate(magLerp);
-        Context.MoveFootToPosition(dir);
     }
 }

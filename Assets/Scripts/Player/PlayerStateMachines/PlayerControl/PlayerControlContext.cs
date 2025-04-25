@@ -4,152 +4,132 @@ using static RigidbodyMovement;
 
 public class PlayerControlContext
 {
-
-    // Private variables
-    [Header("Components")]
-    private readonly PlayerController _player;
-    private PlayerControlStateMachine _stateMachine;
-    private readonly Rigidbody _rigidbody;
-    
-    [Header("Common")]
-    private readonly LayerMask _groundLayers;
-    private readonly Foot _leftFoot;
-    private readonly Foot _rightFoot;
-    
-    [Header("Control Variables")]
-    private readonly float _springStrength;
-    private readonly float _springDampener;
-    private readonly float _lowestBodyHeight;
-    private AnimationCurve _distanceHeightCurve;
-    private MovementSettings _bodyMovementSettings;
-    
     // Constructor
-    public PlayerControlContext(PlayerController player, PlayerControlStateMachine stateMachine, Rigidbody rigidbody, LayerMask groundLayers,
-        Foot leftFoot, Foot rightFoot, float springStrength, float springDampener, MovementSettings bodyMovementSettings, AnimationCurve distanceHeightCurve,
-        float lowestBodyHeight)
+    public PlayerControlContext(PlayerController player, SphereCollider fallCollider, LayerMask groundLayers,
+        Foot leftFoot, Foot rightFoot, MovementSettings bodyMovementSettings, float stepLength, float stepHeight)
     {
-        _player = player;
-        _stateMachine = stateMachine;
-        _rigidbody = rigidbody;
-        _groundLayers = groundLayers;
-        _leftFoot = leftFoot;
-        _rightFoot = rightFoot;
-        _springStrength = springStrength;
-        _springDampener = springDampener;
-        _bodyMovementSettings = bodyMovementSettings;
-        _distanceHeightCurve = distanceHeightCurve;
-        _lowestBodyHeight = lowestBodyHeight;
+        Player = player;
+        FallCollider = fallCollider;
+        GroundLayers = groundLayers;
+        LeftFoot = leftFoot;
+        RightFoot = rightFoot;
+        BodyMovementSettings = bodyMovementSettings;
+        StepLength = stepLength;
+        StepHeight = stepHeight;
     }
     
     // Read-only properties
-    public PlayerController Player => _player;
-    public Foot LeftFoot => _leftFoot;
-    public Foot RightFoot => _rightFoot;
-    public LayerMask GroundLayers => _groundLayers;
-    
-    // Private methods
-    private Vector3 GetLowestFootPosition()
-    {
-        // Get the lowest foot position
-        Vector3 leftFootPos = _leftFoot.Target.position;
-        Vector3 rightFootPos = _rightFoot.Target.position;
-        return leftFootPos.y < rightFootPos.y ? leftFootPos : rightFootPos;
-    }
-    
+    public PlayerController Player { get; }
+    public SphereCollider FallCollider { get; }
+    public Foot LeftFoot { get; }
+    public Foot RightFoot { get; }
+    public float StepLength { get; }
+    public float StepHeight { get; }
+    public LayerMask GroundLayers { get; }
+    public MovementSettings BodyMovementSettings { get; }
+    public float LowestFootPosition => Mathf.Min(LeftFoot.Position.y, RightFoot.Position.y);
+    public EFallCondition FallCondition { get; private set; }
+    public FallData Fall { get; private set; }
+
     // Public methods
     public bool IsGrounded()
     {
         // Check if the feet are grounded using CheckSphere
-        return Physics.CheckSphere(_leftFoot.Target.position, 0.8f, _groundLayers) ||
-               Physics.CheckSphere(_rightFoot.Target.position, 0.8f, _groundLayers);
+        return Physics.CheckSphere(LeftFoot.Target.position, 0.8f, GroundLayers) ||
+               Physics.CheckSphere(RightFoot.Target.position, 0.8f, GroundLayers);
+    }
+    
+    public bool IsLiftingFoot(out Foot liftedFoot, out Foot plantedFoot) 
+    {
+        liftedFoot = LeftFoot.State == FootControlStateMachine.EFootState.Lifted ? LeftFoot : RightFoot;
+        plantedFoot = LeftFoot.State == FootControlStateMachine.EFootState.Lifted ? RightFoot : LeftFoot;
+        return LeftFoot.State == FootControlStateMachine.EFootState.Lifted || RightFoot.State == FootControlStateMachine.EFootState.Lifted;
     }
 
-    // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
-    // Modified
-    public void RigidbodyFloat()
+    public bool IsPlacingFoot(out Foot placingFoot, out Foot otherFoot)
     {
-        var vel = _rigidbody.linearVelocity;
+        placingFoot = LeftFoot.State == FootControlStateMachine.EFootState.Placing ? LeftFoot : RightFoot;
+        otherFoot = LeftFoot.State == FootControlStateMachine.EFootState.Placing ? RightFoot : LeftFoot;
+        return LeftFoot.State == FootControlStateMachine.EFootState.Placing || RightFoot.State == FootControlStateMachine.EFootState.Placing;
+    }
 
-        var relDirVel = Vector3.Dot(Vector3.down, vel);
+    public Vector3 CalculatePelvisPoint(Vector3 pelvisOffset)
+    {
+        var legLength = 0.48f;
+        var leftFootPos = LeftFoot.Target.position;
+        var rightFootPos = RightFoot.Target.position;
 
-        var relVel = relDirVel;
-        
-        // Calculate the distance from player to lowest foot
-        var lowestFootPos = new Vector3(Player.Position.x, GetLowestFootPosition().y, Player.Position.z);
-        var distanceToLowestFoot = Vector3.Distance(Player.Position, lowestFootPos);
-        
-        // Offset from the foot to the ground
-        var footPlaceOffset = 0.05f;
-        
-        // We want to change the height of the player based on the distance between the feet
-        // We only want to change the distance on the xz plane, if the lifted foot is going upwards, we don't want our body to go down
-        // But we do want the body to go down if the lifted foot is going downwards
-        
-        // Find out if we are lifting a foot
-        var isLifting = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted ||
-                       _rightFoot.SM.State == FootControlStateMachine.EFootState.Lifted;
-        
-        // Get lifted foot position and the other foot position
-        var liftedFootPos = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted ? _leftFoot.Target.position : _rightFoot.Target.position;
-        var otherFootPos = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted ? _rightFoot.Target.position: _leftFoot.Target.position;
+        float horizontalDistance = Vector2.Distance(new Vector2(leftFootPos.x, leftFootPos.z), new Vector2(rightFootPos.x, rightFootPos.z));
+        float halfHorizontalDistance = horizontalDistance * 0.5f;
 
-        // If the lifted foot is not below the other foot, we don't want height influence
-        var shouldCare = liftedFootPos.y < otherFootPos.y + 0.10f;
-        if (!shouldCare)
-            liftedFootPos.y = otherFootPos.y;
-        
-        var distBetweenFeet = Vector3.Distance(liftedFootPos, lowestFootPos);
-        var lerp = distBetweenFeet / _player.StepLength;
-        if (shouldCare)
-            lerp = distBetweenFeet / 0.20f;
+        float leftLegVerticalOffsetSquared = legLength * legLength - halfHorizontalDistance * halfHorizontalDistance;
+        float rightLegVerticalOffsetSquared = legLength * legLength - halfHorizontalDistance * halfHorizontalDistance;
 
-        var highest = PlayerController.Height;
+        float pelvisYOffset = 0f;
+        if (leftLegVerticalOffsetSquared >= 0 && rightLegVerticalOffsetSquared >= 0)
+        {
+            pelvisYOffset = Mathf.Min(Mathf.Sqrt(leftLegVerticalOffsetSquared), Mathf.Sqrt(rightLegVerticalOffsetSquared));
+        }
+        else if (leftLegVerticalOffsetSquared >= 0)
+        {
+            pelvisYOffset = Mathf.Sqrt(leftLegVerticalOffsetSquared);
+        }
+        else if (rightLegVerticalOffsetSquared >= 0)
+        {
+            pelvisYOffset = Mathf.Sqrt(rightLegVerticalOffsetSquared);
+        }
+        else
+        {
+            Debug.LogWarning("Leg lengths are too short for the given foot positions!");
+            // Handle the case where no valid pelvis position exists
+            return Vector3.zero;
+        }
 
-        var height = Mathf.Lerp(highest, _lowestBodyHeight, _distanceHeightCurve.Evaluate(lerp));
-        
-        var x = distanceToLowestFoot - (height + footPlaceOffset);
-        
-        var springForce = (x * _springStrength) - (relVel * _springDampener);
-        _rigidbody.AddForce(Vector3.down * springForce);
+        // Using the lowest foot as a base, and adding the offset. We also add the paramater offset with limit of 0f.
+        float pelvisYPosition = Mathf.Min(leftFootPos.y, rightFootPos.y) + pelvisYOffset + Mathf.Min(pelvisOffset.y, 0f);
+        return new Vector3(pelvisOffset.x, pelvisYPosition, pelvisOffset.z);
+
+    }
+
+    public void MoveToHipPoint(Vector3 pelvisOffset)
+    {
+        var targetPosition = CalculatePelvisPoint(pelvisOffset);
+        if (targetPosition == Vector3.zero)
+            return;
+        MoveToRigidbody(Player.Rigidbody, targetPosition, BodyMovementSettings);
     }
     
     public void MoveBody(Vector3 targetPosition)
     {
-        var currentPos = Player.Position;
-        currentPos.y = 0f;
-        var dir = targetPosition - currentPos;
-        if(dir.magnitude > 1f)
-            dir.Normalize();
-        MoveRigidbody(Player.Rigidbody, dir, _bodyMovementSettings);
+        MoveToRigidbody(Player.Rigidbody, targetPosition, BodyMovementSettings);
     }
 
     public Vector3 BetweenFeet(float lerp)
     {
-        var pos = Vector3.Lerp(_leftFoot.Target.position, _rightFoot.Target.position, lerp);
-        pos.y = 0;
+        var pos = Vector3.Lerp(LeftFoot.Position, RightFoot.Position, lerp);
         return pos;
     }
 
     public float FeetLerp()
     {
         // Find out what foot is lifting
-        var leftLift = _leftFoot.SM.State == FootControlStateMachine.EFootState.Lifted;
-        var rightLift = _rightFoot.SM.State == FootControlStateMachine.EFootState.Lifted;
+        var leftLift = LeftFoot.State == FootControlStateMachine.EFootState.Lifted;
+        var rightLift = RightFoot.State == FootControlStateMachine.EFootState.Lifted;
 
-        var dist = Vector3.Distance(_leftFoot.Target.position, _rightFoot.Target.position);
-        var start = _player.StepLength * 0.7f;
+        var dist = Vector3.Distance(LeftFoot.Target.position, RightFoot.Target.position);
+        var start = StepLength * 0.7f;
 
         if (leftLift)
         {
             var lerp = dist - start;
-            lerp /= _player.StepLength;
+            lerp /= StepLength;
             return Mathf.Lerp(0.8f, 0.5f, lerp);
         }
 
         if (rightLift)
         {
             var lerp = dist - start;
-            lerp /= _player.StepLength;
+            lerp /= StepLength;
             return Mathf.Lerp(0.2f, 0.5f, lerp);
         }
 
@@ -164,23 +144,23 @@ public class PlayerControlContext
         }
 
         // Other direction
-        var otherDir = _player.RelativeMoveInput;
+        var otherDir = Player.RelativeMoveInput;
         // Get the dot between camera and other direction
-        var dot = Vector3.Dot(_player.Camera.GetCameraYawTransform().forward.normalized, otherDir.normalized);
+        var dot = Vector3.Dot(Player.Camera.GetCameraYawTransform().forward.normalized, otherDir.normalized);
         if (dot < -0.2f)
             otherDir = -otherDir;
         
         // Downwards lerp
-        var angle = _player.Camera.CameraX;
+        var angle = Player.Camera.CameraX;
         var dir = Vector3.Lerp(otherDir, direction, angle/60f);
         
         // Get the dot between the lerped direction and the player's forward direction
-        var dot2 = Vector3.Dot(dir.normalized, _player.Rigidbody.transform.forward.normalized);
+        var dot2 = Vector3.Dot(dir.normalized, Player.Rigidbody.transform.forward.normalized);
         
         // if the dot is less than 0.5, we need to rotate the body towards camera forward first
         if (dot2 < 0)
         {
-            dir = _player.Camera.GetCameraYawTransform().forward;
+            dir = Player.Camera.GetCameraYawTransform().forward;
         }
         
         // Avoid rotating to zero
@@ -188,8 +168,39 @@ public class PlayerControlContext
             return;
         
         // Rotate the body towards the direction
-        RotateRigidbody(_player.Rigidbody, dir, 200f);
+        RotateRigidbody(Player.Rigidbody, dir, 200f);
     }
 
-    
+    public void StopFeet()
+    {
+        LeftFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Stop);
+        RightFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Stop);
+    }
+    public void StartFeet()
+    {
+        LeftFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Start);
+        RightFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Start);
+    }
+
+    public enum EFallCondition
+    {
+        None,
+        Placing,
+    }
+
+    public struct FallData
+    {
+        public Foot PlaceFoot;
+    }
+
+    public void SetFallCondition(EFallCondition condition)
+    {
+        FallCondition = condition;
+        var fallData = new FallData();
+        if (condition == EFallCondition.Placing)
+            fallData.PlaceFoot = LeftFoot.Placing ? LeftFoot : RightFoot;
+
+        Fall = fallData;
+    }
+
 }

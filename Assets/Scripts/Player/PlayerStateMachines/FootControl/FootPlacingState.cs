@@ -29,10 +29,12 @@ public class FootPlacingState : FootControlState
         if(!_validPlacement)
             Context.Player.Camera.Stumble();
         _startPos = Context.Foot.Target.position;
+        Context.Foot.Target.useGravity = true;
     }
 
     public override void ExitState()
     {
+        Context.Foot.Target.useGravity = false;
     }
 
     public override void UpdateState()
@@ -41,7 +43,7 @@ public class FootPlacingState : FootControlState
 
     public override void FixedUpdateState()
     {
-        MoveToGround();
+        //MoveToGround();
         HandleRotation();
     }
     
@@ -53,34 +55,6 @@ public class FootPlacingState : FootControlState
     private void MoveToGround()
     {
         var dir = Vector3.down;
-        var settingsToUse = Context.MovementSettings;
-        if (!_validPlacement)
-        {
-            dir = Vector3.down + Context.Foot.Target.position; // dirPos
-            settingsToUse = Context.PlacementSettings;
-            
-            // Determine what the safe position is
-            var lastSafe = Context.LastSafePosition;
-            var oldSafe = Context.OldSafePosition;
-            var distToLast = Vector3.Distance(lastSafe, Context.OtherFoot.Target.position);
-            var distToOld = Vector3.Distance(oldSafe, Context.OtherFoot.Target.position);
-            var safe = distToLast < distToOld ? lastSafe : oldSafe;
-            
-            var safePos = safe + (0.3f * Vector3.up);
-            
-            var xzSafePos = safePos;
-            xzSafePos.y = 0f;
-            var xzFootPos = Context.Foot.Target.position;
-            xzFootPos.y = 0f;
-            var safeMag = (xzSafePos - xzFootPos).magnitude;
-            
-            var downDistance = Context.FootRadius;
-            var lerp = safeMag / downDistance;
-            dir = Vector3.Lerp(dir, safePos, lerp);
-            
-            RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, dir, settingsToUse);
-            return;
-        }
 
         /*
         // Check if the foot is stuck on a ledge
@@ -101,7 +75,7 @@ public class FootPlacingState : FootControlState
         dir.Normalize();
         dir *= Context.SpeedCurve.Evaluate(magLerp);
         
-        RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dir, settingsToUse);
+        RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dir, Context.SneakMovementSettings);
     }
     private void HandleRotation()
     {
