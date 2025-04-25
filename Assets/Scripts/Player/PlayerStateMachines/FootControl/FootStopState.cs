@@ -27,11 +27,10 @@ public class FootStopState : FootControlState
     public override void EnterState()
     {
         _hasStopped = false;
-        Context.FootIKEffector.rotationWeight = 0f;
 
         // Disable the foot weights
-        /*
         Context.FootIKEffector.positionWeight = 0f;
+        Context.FootIKEffector.rotationWeight = 0f;
 
         // Set velocity to zero, not sure if this is needed
         Context.Foot.Target.linearVelocity = Vector3.zero;
@@ -50,7 +49,6 @@ public class FootStopState : FootControlState
         Context.Foot.Collider.enabled = false;
         Context.Foot.ThighCollider.enabled = false;
         Context.Foot.CalfCollider.enabled = false;
-        */
         _hasStopped = true;
     }
 

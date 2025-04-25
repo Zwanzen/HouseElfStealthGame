@@ -1,5 +1,6 @@
 using Unity.Mathematics;
 using UnityEngine;
+using static PlayerControlContext;
 
 public class PlayerGroundedState : PlayerControlState
 {
@@ -11,6 +12,10 @@ public class PlayerGroundedState : PlayerControlState
 
     public override PlayerControlStateMachine.EPlayerControlState GetNextState()
     {
+        if(ShouldFall())
+            return PlayerControlStateMachine.EPlayerControlState.Falling;
+
+
         return StateKey;
     }
 
@@ -24,7 +29,6 @@ public class PlayerGroundedState : PlayerControlState
 
     }
 
-    private float _timer;
     public override void UpdateState()
     {
 
@@ -37,6 +41,21 @@ public class PlayerGroundedState : PlayerControlState
         if(Context.Player.RelativeMoveInput != Vector3.zero)
             Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
     }
+
+    // Conditions to enter fall state
+    private bool ShouldFall()
+    {
+        // When the planted foot is higher grounded than the max possible height
+        if(Context.IsPlacingFoot(out var placing, out var other))
+            if (placing.Position.y < other.Position.y - Context.StepHeight)
+            {
+                Context.SetFallCondition(EFallCondition.Placing);
+                return true;
+            }
+
+        return false;
+    }
+
 
     private Collider[] _result = new Collider[10];
     private Vector3 GetHipPositionOffset()

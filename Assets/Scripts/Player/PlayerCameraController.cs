@@ -1,6 +1,5 @@
-using System;
+using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerCameraController : MonoBehaviour
 {
@@ -11,6 +10,7 @@ public class PlayerCameraController : MonoBehaviour
     [SerializeField] private float _cameraSensitivityPC = 0.03f;
     [SerializeField] private float _cameraSensitivityController = 1f;
     [SerializeField] private float _followSpeed = 0.1f;
+    [SerializeField] private float _lerpSpeed = 10f;
 
 
     // Private variables
@@ -47,7 +47,16 @@ public class PlayerCameraController : MonoBehaviour
     private void Update()
     {
         UpdatePosition();
-        HandleRotation();
+
+        if(_player.IsFalling)
+        {
+            HandleFallingCamera();
+        }
+        else
+        {
+            HandleRotation();
+        }
+
     }
 
     private void UpdatePosition()
@@ -94,19 +103,40 @@ public class PlayerCameraController : MonoBehaviour
             _cameraTransform.localRotation = Quaternion.Euler(0f, 0f, -_zRotation);
     }
 
+    private void HandleFallingCamera()
+    {
+        var lookDirection = Quaternion.LookRotation(_player.Transform.up, Vector3.up);
+        if(_player.IsStandingUp)
+            lookDirection = Quaternion.LookRotation(_player.Transform.forward, Vector3.up);
+
+        // Lerp the rotations towards the look direction
+        _yRotation = Mathf.LerpAngle(_yRotation, lookDirection.eulerAngles.y, Time.deltaTime * _lerpSpeed);
+        _xRotation = Mathf.LerpAngle(_xRotation, lookDirection.eulerAngles.x, Time.deltaTime * _lerpSpeed);
+        _zRotation = Mathf.LerpAngle(_zRotation, 0f, Time.deltaTime * _lerpSpeed);
+
+        // Rotate the camera
+        _cameraYTransform.localRotation = Quaternion.Euler(0f, _yRotation, 0f);
+        _cameraXTransform.localRotation = Quaternion.Euler(_xRotation + 20f, 0f, 0f);
+        _cameraTransform.localRotation = Quaternion.Euler(0f, 0f, -_zRotation);
+    }
+
+
+
+
+    // Public methods
+    public Transform GetCameraYawTransform()
+    {
+        return _cameraYTransform;
+    }
+
     private float _timer;
+
     public void Stumble()
     {
         // set the camera fov to 60
         _camera.fieldOfView = _minFov;
         _timer = 0f;
     }
-    
-    // Public methods
-    public Transform GetCameraYawTransform()
-    {
-        return _cameraYTransform;
-    }
-    
+
     public float CameraX => _xRotation;
 }

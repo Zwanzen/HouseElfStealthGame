@@ -19,6 +19,7 @@ public class FootStartState : FootControlState
         return _hasStarted ? FootControlStateMachine.EFootState.Falling : StateKey;
     }
     
+
     public override void EnterState()
     {
         _hasStarted = false;
@@ -28,9 +29,9 @@ public class FootStartState : FootControlState
         Context.Foot.Target.rotation = Context.Foot.FootBoneRotation;
         
         // Set the foot target position to the closest point on the ground
-        if(Context.FootGroundCast(0.1f,out var hit))
+        if(Context.FootGroundCast(0.2f,out var hit))
             Context.Foot.Target.position = hit.point + Vector3.up * Context.FootRadius;
-        
+
         Context.Foot.Thigh.position = Context.Foot.ThighPosition;
         Context.Foot.Thigh.rotation = Context.Foot.ThighRotation;
         Context.Foot.Calf.position = Context.Foot.CalfPosition;
@@ -57,10 +58,7 @@ public class FootStartState : FootControlState
         // Enable the foot weights
         Context.FootIKEffector.positionWeight = 1f;
         Context.FootIKEffector.rotationWeight = 1f;
-        
-        // Enable mapping weights
-        Context.FootMapping.weight = 1f;
-        
+
         _hasStarted = true; // Now we have enabled the foot
     }
 

@@ -24,7 +24,7 @@ public class FootIdleState : FootControlState
 
     public override void FixedUpdateState()
     {
-        RigidbodyMovement.MoveToRigidbody(Context.Foot.Target, _position, Context.PlacementSettings);
+        Context.Foot.Target.transform.position = _position; // Set the position to the foot bone position
         // Rotate the rotation 90 degrees around the up axis
         Context.Foot.Target.transform.rotation = Context.Foot.FootBoneRotation;
     }

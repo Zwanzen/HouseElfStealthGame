@@ -21,7 +21,7 @@ public class FootLiftedState : FootControlState
 
         if(InputManager.Instance.IsJumping && Context.OtherFoot.Planted)
         {
-            Context.Foot.Target.AddForce(Vector3.up * 14f, ForceMode.Impulse);
+            Context.Foot.Target.AddForce(Vector3.up * 3f, ForceMode.VelocityChange);
             Context.OtherFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Lifted);
             Context.Player.SetJump(true);
             return FootControlStateMachine.EFootState.Placing;
@@ -257,7 +257,6 @@ public class FootLiftedState : FootControlState
             }
                 
             scanInfo = new ScanInfo(height, stuck);
-            Context.SetSafePosition(hit.point);
             return true;
         }
             
@@ -265,7 +264,6 @@ public class FootLiftedState : FootControlState
         if (Context.IsFootGrounded)
         {
             scanInfo = new ScanInfo(height, false);
-            Context.SetSafePosition(hit.point);
             return true;
         }
             
@@ -304,7 +302,6 @@ public class FootLiftedState : FootControlState
             return false;
             
         scanInfo = new ScanInfo(height, false);
-        Context.SetSafePosition(heightHit.point);
         return true;
     }
 

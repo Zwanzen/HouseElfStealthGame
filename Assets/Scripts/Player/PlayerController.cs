@@ -43,6 +43,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField, Range(0,1)] private float _lowestBodyHeight = 0.5f;
     [SerializeField] private AnimationCurve _distanceHeightCurve;
     [SerializeField] private float _bodyRotationSpeed = 5f;
+    [SerializeField] private SphereCollider _fallCollider;
     
     [Space(10f)] 
     [Header("Foot Control")] 
@@ -132,7 +133,7 @@ public class PlayerController : MonoBehaviour
             relativeDir = RelativeMoveInput;
         var feetDot = Vector3.Dot(feetDir, relativeDir);
         var dist = feetDir.magnitude * feetDot;
-        dist = Mathf.Clamp(dist, -StepLength, StepLength);
+        dist = Mathf.Clamp(dist, -_stepLength, _stepLength);
 
         var lerp = _imageScaleCurve.Evaluate(dist);
         
@@ -173,9 +174,8 @@ public class PlayerController : MonoBehaviour
         var rightFoot = new Foot(_rightFoot, _rightFootStateMachine);
         
         // Then we construct the context files after the feet are created.
-        _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
-            leftFoot, rightFoot, _springStrength, _springDampener, _bodyMovementSettings, _distanceHeightCurve,
-            _lowestBodyHeight);
+        _controlContext = new PlayerControlContext(this, _fallCollider, _groundLayers,
+            leftFoot, rightFoot, _bodyMovementSettings, _stepLength, _stepHeight);
         
         _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
             leftFoot, rightFoot, _stepLength, _stepHeight, _liftedSettings, _walkSettings, _placeSettings, _speedCurve, _heightCurve, 
@@ -213,10 +213,10 @@ public class PlayerController : MonoBehaviour
     // Sneaking Properties
     public Rigidbody LeftFootTarget => _leftFoot.Target;
     public Rigidbody RightFootTarget => _rightFoot.Target;
-    public float StepLength => _stepLength;
     public MovementSettings BodyMovementSettings => _bodyMovementSettings;
     public static float Height => 1.0f;
-    
+    public float StepLength => _stepLength;
+
     /// <summary>
     /// The player's offset position from the rigidbody's position, adjusted by the character height.
     /// The player rigidbody is actually at the feet of the player, so we need to add the character height to the position.
@@ -232,12 +232,18 @@ public class PlayerController : MonoBehaviour
     /// The threshold for the height difference to consider the player grounded.
     /// </summary>
     public static float HeightThreshold => 0.07f;
-    
+
     /// <summary>
-    /// If the player's control state is grounded.
+    /// If the player is in the grounded state.
     /// </summary>
     public bool IsGrounded => _controlStateMachine.State == PlayerControlStateMachine.EPlayerControlState.Grounded;
-    
+
+    /// <summary>
+    /// If the player is in the falling state.
+    /// </summary>
+    public bool IsFalling => _controlStateMachine.State == PlayerControlStateMachine.EPlayerControlState.Falling;
+    public bool IsStandingUp { get; private set; } = false;
+
     /// <summary>
     /// If the player tries to place feet and there is no ground.
     /// </summary>
@@ -355,6 +361,11 @@ public class PlayerController : MonoBehaviour
     public void SetJump(bool state)
     {
         IsJumping = state;
+    }
+
+    public void SetStandingUp(bool state)
+    {
+        IsStandingUp = state;
     }
 
     public void SetPlayerStumble(bool isStumble)
