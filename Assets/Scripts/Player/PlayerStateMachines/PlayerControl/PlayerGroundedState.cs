@@ -32,17 +32,22 @@ public class PlayerGroundedState : PlayerControlState
 
     public override void FixedUpdateState()
     {
-        Context.MoveToHipPoint(GetHipPosition());
+        Context.MoveToHipPoint(GetHipPositionOffset());
         
         if(Context.Player.RelativeMoveInput != Vector3.zero)
             Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
     }
 
     private Collider[] _result = new Collider[10];
-    private Vector3 GetHipPosition()
+    private Vector3 GetHipPositionOffset()
     {
+        // We set the initial position to the center of the feet
         var pos = Context.BetweenFeet(0.5f);
-        
+        // We also set the y position to 0,
+        // because the initial height is calculated in the CalculatePelvisPoint method.
+        // But we can still add an offset to the y position.
+        pos.y = 0f;
+
         // If we are sneaking, we want to move the hip towards the planted foot
         if (Context.Player.IsSneaking)
         {
@@ -54,6 +59,8 @@ public class PlayerGroundedState : PlayerControlState
 
             // Now we check if we should duck under something
             // We cast a box from the player forward, and if it hits, we adjust the height of the hip
+            // Make sure the y offset is not set before this
+            pos.y = 0f;
             if (Physics.BoxCast(player.Rigidbody.position + player.Camera.GetCameraYawTransform().forward * player.Collider.radius, 
                     new Vector3(player.Collider.radius, player.Collider.radius, player.Collider.radius + player.Collider.radius),
                     Vector3.up, out var hit, Quaternion.Euler(0, player.Camera.GetCameraYawTransform().rotation.eulerAngles.y, 0),
@@ -105,7 +112,7 @@ public class PlayerGroundedState : PlayerControlState
                 dir += wallDir;
             }
 
-            if (dir != Vector3.zero)
+            if (dir != Vector3.zero && false)
                 pos -= Vector3.Lerp(dir.normalized * 0.2f, Vector3.zero, closestMag/0.6f);
 
         }

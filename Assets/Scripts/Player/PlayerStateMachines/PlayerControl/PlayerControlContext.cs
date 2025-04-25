@@ -100,6 +100,7 @@ public class PlayerControlContext
             return Vector3.zero;
         }
 
+        // Using the lowest foot as a base, and adding the offset. We also add the paramater offset with limit of 0f.
         float pelvisYPosition = Mathf.Min(leftFootPos.y, rightFootPos.y) + pelvisYOffset + Mathf.Min(pelvisOffset.y, 0f);
         return new Vector3(pelvisOffset.x, pelvisYPosition, pelvisOffset.z);
 
@@ -184,7 +185,7 @@ public class PlayerControlContext
 
     public Vector3 BetweenFeet(float lerp)
     {
-        var pos = Vector3.Lerp(_leftFoot.Target.position, _rightFoot.Target.position, lerp);
+        var pos = Vector3.Lerp(_leftFoot.Position, _rightFoot.Position, lerp);
         return pos;
     }
 
