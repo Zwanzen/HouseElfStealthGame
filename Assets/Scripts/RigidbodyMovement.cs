@@ -15,15 +15,15 @@ public static class RigidbodyMovement
         public Vector3 ForceScale;
     }
     
-    public static void MoveRigidbody(Rigidbody rb, Vector3 moveInput, MovementSettings settings)
+    public static void MoveRigidbody(Rigidbody rb, Vector3 moveInput, MovementSettings settings, Vector3 relativeVelocity = default)
     {
         if(moveInput.magnitude > 1f)
             moveInput.Normalize();
-        
+
         // 1. Determine Target Velocity
         // Calculate the velocity we *want* to achieve based on input and max speed.
         // We primarily control movement on the XZ plane.
-        Vector3 targetVelocity = moveInput * settings.MaxSpeed;
+        Vector3 targetVelocity = relativeVelocity + (moveInput * settings.MaxSpeed);
 
         // Optional: Preserve existing vertical velocity (e.g., for jumping/gravity)
         // If you are handling jumping/gravity elsewhere, you might want to do this:
@@ -71,7 +71,7 @@ public static class RigidbodyMovement
         // Debug.DrawRay(transform.position, actualAccelerationVector, Color.red); // Applied acceleration
     }
 
-    public static void MoveToRigidbody(Rigidbody rb, Vector3 position, MovementSettings settings)
+    public static void MoveToRigidbody(Rigidbody rb, Vector3 position, MovementSettings settings, Vector3 relativeVelocity = default)
     {
         Vector3 currentPosition = rb.position;
         Vector3 targetPosition = position;
@@ -125,7 +125,7 @@ public static class RigidbodyMovement
         float targetSpeed = Mathf.Min(settings.MaxSpeed, maxSpeedToStop);
 
         // --- Calculate Desired Velocity ---
-        Vector3 desiredVelocity = directionToTarget.normalized * targetSpeed;
+        Vector3 desiredVelocity = relativeVelocity + (directionToTarget.normalized * targetSpeed);
 
         // --- Calculate Acceleration and Apply Force ---
         Vector3 currentVelocity = rb.linearVelocity;
@@ -135,7 +135,7 @@ public static class RigidbodyMovement
         Vector3 requiredAcceleration = velocityChange / Time.fixedDeltaTime;
 
         // Clamp the acceleration magnitude so it doesn't exceed maxAcceleration
-        Vector3 actualAcceleration = Vector3.ClampMagnitude(requiredAcceleration, settings.Acceleration);
+        Vector3 actualAcceleration = Vector3.ClampMagnitude(requiredAcceleration, settings.Acceleration + relativeVelocity.magnitude);
 
         // Apply the force: F = m * a
         var force2 = actualAcceleration * rb.mass;

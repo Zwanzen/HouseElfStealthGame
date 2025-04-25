@@ -108,7 +108,10 @@ public class PlayerControlContext
 
     public void MoveToHipPoint(Vector3 pelvisOffset)
     {
-        MoveToRigidbody(_player.Rigidbody, CalculatePelvisPoint(pelvisOffset), _bodyMovementSettings);
+        var targetPosition = CalculatePelvisPoint(pelvisOffset);
+        if (targetPosition == Vector3.zero)
+            return;
+        MoveToRigidbody(_player.Rigidbody, targetPosition, _bodyMovementSettings);
     }
 
     // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl

@@ -13,7 +13,7 @@ public class FootLiftedState : FootControlState
 
     public override FootControlStateMachine.EFootState GetNextState()
     {
-        if (!Context.IsFootLifting && Context.Player.IsSneaking)
+        if (!Context.IsFootLifting && Context.Player.IsSneaking && Context.OtherFoot.Planted)
             return FootControlStateMachine.EFootState.Placing;
         
         if (GetDistanceFromOtherFoot() > Context.StepLength * 0.45f && !Context.Player.IsSneaking)
@@ -46,13 +46,28 @@ public class FootLiftedState : FootControlState
     private float _timerSinceInput;
     public override void FixedUpdateState()
     {
-
-        SneakMovement();
+        // If the other foot is placing, we want to keep this foot close to the other foot
+        if (Context.OtherFoot.Placing)
+        {
+            // If we are in close enough to the other foot, we want to be able to move around again.
+            var velDir = Context.OtherFoot.Target.linearVelocity.normalized;
+            velDir.y = 0f;
+            if (velDir == Vector3.zero)
+                velDir = Context.Player.Camera.GetCameraYawTransform().forward;
+            var dist = Context.RelativeDistanceInDirection(Context.OtherFoot.Position, Context.Foot.Position, velDir);
+            var offsetPos = GetOffsetPosition(Context.Player.Camera.GetCameraYawTransform().forward, Context.OtherFoot.Position.y, 0.2f);
+            MoveToRigidbody(Context.Foot.Target, offsetPos, Context.WalkMovementSettings, Context.OtherFoot.Target.linearVelocity);
+        }
+        // If not, we use normal movement
+        else
+        {
+            Movement();
+        }
 
         HandleFootRotation();
     }
 
-    private void SneakMovement()
+    private void Movement()
     {
         var footPos = Context.Foot.Target.position;
         var otherFootPos = Context.OtherFoot.Target.position;
@@ -86,7 +101,7 @@ public class FootLiftedState : FootControlState
         // If the foot is behind the other foot,
         // We want to move this foot towards an offset to the side of the other foot
         // The position to the side of the other foot
-        var offsetPos = GetOffsetPosition(otherFootPos, wantedHeight, 0.2f);
+        var offsetPos = GetOffsetPosition(input,wantedHeight, 0.2f);
         
         // Depending on down angle, we dont care about offset
         var camAngle = Context.Player.Camera.CameraX;
@@ -282,11 +297,19 @@ public class FootLiftedState : FootControlState
         return true;
     }
 
-    private Vector3 GetOffsetPosition(Vector3 otherFootPos, float wantedHeight, float dist)
+    private enum EOffsetDirection
+    {
+        Left,
+        Right,
+        Backwards,
+        Forwards
+    }
+
+    private Vector3 GetOffsetPosition(Vector3 relDir, float wantedHeight, float dist, EOffsetDirection offsetDir = EOffsetDirection.Right)
     {
         // Maybe implement a dot product to see if we should offset forwards or backwards also?
         
-        var right = -Vector3.Cross(Context.Player.RelativeMoveInput.normalized, Vector3.up) * dist;
+        var right = -Vector3.Cross(relDir.normalized, Vector3.up) * dist;
         
         // If the foot is on the left side, we want it to move to the left
         if(Context.Foot.Side == Foot.EFootSide.Left)
@@ -297,21 +320,22 @@ public class FootLiftedState : FootControlState
         if (dot < -0.2f)
             right = -right;
         
-        return new Vector3(otherFootPos.x, wantedHeight, otherFootPos.z) + right;
+        return new Vector3(Context.OtherFoot.Position.x, wantedHeight, Context.OtherFoot.Position.z) + right;
     }
     
-    private Vector3 ClampedFootPosition(Vector3 footPos, Vector3 otherFootPos, Vector3 direction)
+    private Vector3 ClampedFootPosition(Vector3 footPos, Vector3 otherFootPos, Vector3 direction, float threshold = 0f)
     {
         // Offset the start position of the line to avoid not finding an intersection point when we should
         var lineStart = footPos - direction.normalized;
+        var stepLenght = Context.StepLength - threshold;
         
         // We dont want the otherFootIntersection to do anything on the y axis
         // So we set the other foot pos to the same y as the foot
         var footHeight = footPos.y;
         var otherPosSim = new Vector3(otherFootPos.x, footHeight, otherFootPos.z);
         // We also cant let the simulation go above or below step StepLength
-        var maxHeight = otherFootPos.y + Context.StepLength - 0.01f;
-        var minHeight = otherFootPos.y - Context.StepLength + 0.01f;
+        var maxHeight = otherFootPos.y + stepLenght - 0.01f;
+        var minHeight = otherFootPos.y - stepLenght + 0.01f;
         if (otherPosSim.y > maxHeight)
             otherPosSim.y = maxHeight;
         else if (otherPosSim.y < minHeight)
@@ -321,12 +345,12 @@ public class FootLiftedState : FootControlState
         var otherDir = (direction + footPos) - otherPosSim;
             
         // We check the other intersection point now, in case the normal one fails, this one will never fail
-        CalculateIntersectionPoint(otherFootPos, Context.StepLength, otherPosSim, otherDir.normalized,
+        CalculateIntersectionPoint(otherFootPos, stepLenght, otherPosSim, otherDir.normalized,
             out var otherFootIntersect);
         
         // If we don't fail, we should use this intersection point for more accurate movement
         // Else we use the other foot intersection point
-        if (!CalculateIntersectionPoint(otherFootPos, Context.StepLength, lineStart, direction.normalized,
+        if (!CalculateIntersectionPoint(otherFootPos, stepLenght, lineStart, direction.normalized,
                 out var footIntersect))
             return otherFootIntersect;
         
@@ -334,7 +358,7 @@ public class FootLiftedState : FootControlState
         if(InputManager.Instance.MoveInput == Vector3.zero)
             return footIntersect;
         
-        var startDist = Context.StepLength * 0.1f;
+        var startDist = stepLenght * 0.1f;
         var distToIntersect = Vector3.Distance(footPos, footIntersect);
         var lerp = distToIntersect / startDist;
         

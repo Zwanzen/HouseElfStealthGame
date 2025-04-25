@@ -66,6 +66,11 @@ public class Foot
     public Quaternion FootBoneRotation => _footBone.rotation;
     public BoxCollider Collider { get; }
     public EFootSide Side { get; }
+    // Common, so make it easy to access
+    public bool Lifted => _sm.State == FootControlStateMachine.EFootState.Lifted;
+    public bool Planted => _sm.State == FootControlStateMachine.EFootState.Planted;
+    public bool Falling => _sm.State == FootControlStateMachine.EFootState.Falling;
+    public bool Placing => _sm.State == FootControlStateMachine.EFootState.Placing;
     public FootControlStateMachine.EFootState State => _sm.State;
     public FootControlStateMachine Sm => _sm;
     
