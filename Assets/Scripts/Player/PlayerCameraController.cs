@@ -105,9 +105,9 @@ public class PlayerCameraController : MonoBehaviour
 
     private void HandleFallingCamera()
     {
-        var lookDirection = Quaternion.LookRotation(_player.Transform.up, Vector3.up);
-        if(_player.IsStandingUp)
-            lookDirection = Quaternion.LookRotation(_player.Transform.forward, Vector3.up);
+        Debug.Log(_player.IsStandingUp);
+        var lookDirection = !_player.IsStandingUp ? Quaternion.LookRotation(_player.Transform.up, Vector3.up) :
+            Quaternion.LookRotation(_player.Transform.forward, Vector3.up);
 
         // Lerp the rotations towards the look direction
         _yRotation = Mathf.LerpAngle(_yRotation, lookDirection.eulerAngles.y, Time.deltaTime * _lerpSpeed);
@@ -116,7 +116,7 @@ public class PlayerCameraController : MonoBehaviour
 
         // Rotate the camera
         _cameraYTransform.localRotation = Quaternion.Euler(0f, _yRotation, 0f);
-        _cameraXTransform.localRotation = Quaternion.Euler(_xRotation + 20f, 0f, 0f);
+        _cameraXTransform.localRotation = Quaternion.Euler(_xRotation + 50f, 0f, 0f);
         _cameraTransform.localRotation = Quaternion.Euler(0f, 0f, -_zRotation);
     }
 

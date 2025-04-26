@@ -26,6 +26,7 @@ public class PlayerFallingState : PlayerControlState
     public override void EnterState()
     {
         Context.FallCollider.enabled = true;
+        Context.BodyCollider.enabled = false;
         Context.Player.Rigidbody.useGravity = true;
         _stopped = false;
         _timer = 0f;
@@ -46,6 +47,23 @@ public class PlayerFallingState : PlayerControlState
             }
         }
 
+        // If we just fall, we set the rotation to the fall direction
+        if (Context.FallCondition == EFallCondition.Falling)
+        {
+            var direction = Context.Player.Rigidbody.transform.position - Context.Player.Rigidbody.transform.position;
+            direction.y = 0f;
+            // If the direction is zero, we set the up direction to the player forward direction
+            if (direction == Vector3.zero)
+                direction = Context.Player.Transform.forward;
+            _fallRotation = Quaternion.LookRotation(Vector3.down, direction);
+        }
+
+        // If the distance is too big, we set the rotation to just look down
+        if (Context.FallCondition == EFallCondition.Distance)
+        {
+            _fallRotation = Quaternion.LookRotation(Vector3.down, Context.Player.Transform.forward);
+        }
+
         Context.StopFeet();
     }
 
@@ -55,6 +73,9 @@ public class PlayerFallingState : PlayerControlState
         Context.Player.Rigidbody.transform.rotation = Quaternion.Euler(0f, Context.Player.Rigidbody.transform.rotation.eulerAngles.y, 0f);
         Context.StartFeet();
         Context.Player.SetStandingUp(false);
+
+        Context.LeftHandEffector.positionWeight = 0f;
+        Context.RightHandEffector.positionWeight = 0f;
     }
 
 
@@ -79,8 +100,12 @@ public class PlayerFallingState : PlayerControlState
             Context.Player.Rigidbody.rotation = Quaternion.Slerp(Context.Player.Rigidbody.rotation, targetRotation, Time.deltaTime * rotationSpeed);
 
             // Check if we are standing up
-            if (Context.Player.Rigidbody.rotation.eulerAngles.x < 10f)
+            if (Context.Player.Rigidbody.rotation.eulerAngles.x < 1f)
                 _canStandUp = true;
+
+            // Slerp the hand effector weights towards 1
+            Context.LeftHandEffector.positionWeight = Mathf.Lerp(Context.LeftHandEffector.positionWeight, 0f, Time.deltaTime * 5f);
+            Context.RightHandEffector.positionWeight = Mathf.Lerp(Context.RightHandEffector.positionWeight, 0f, Time.deltaTime * 5f);
 
         }
         else
@@ -89,6 +114,10 @@ public class PlayerFallingState : PlayerControlState
             var rotationSpeed = 5f;
             var targetRotation = Quaternion.Slerp(Context.Player.Rigidbody.rotation, _fallRotation, Time.deltaTime * rotationSpeed);
             Context.Player.Rigidbody.MoveRotation(targetRotation);
+
+            // Slerp the hand effector weights towards 1
+            Context.LeftHandEffector.positionWeight = Mathf.Lerp(Context.LeftHandEffector.positionWeight, 0.8f, Time.deltaTime * 5f);
+            Context.RightHandEffector.positionWeight = Mathf.Lerp(Context.RightHandEffector.positionWeight, 0.8f, Time.deltaTime * 5f);
         }
     }
 
@@ -108,6 +137,7 @@ public class PlayerFallingState : PlayerControlState
             // We can call trigger once stuff here
             Context.Player.Rigidbody.useGravity = false;
             Context.FallCollider.enabled = false;
+            Context.BodyCollider.enabled = true;
             _stoppedPos = Context.Player.Rigidbody.position;
             Context.Player.SetStandingUp(true);
         }

@@ -1,14 +1,19 @@
 using RootMotion.Dynamics;
+using RootMotion.FinalIK;
 using UnityEngine;
 using static RigidbodyMovement;
 
 public class PlayerControlContext
 {
     // Constructor
-    public PlayerControlContext(PlayerController player, SphereCollider fallCollider, LayerMask groundLayers,
+    public PlayerControlContext(PlayerController player, FullBodyBipedIK _bodyIK, CapsuleCollider bodyCollider, SphereCollider fallCollider, LayerMask groundLayers,
         Foot leftFoot, Foot rightFoot, MovementSettings bodyMovementSettings, float stepLength, float stepHeight)
     {
         Player = player;
+        LeftHandEffector = _bodyIK.solver.leftHandEffector;
+        RightHandEffector = _bodyIK.solver.rightHandEffector;
+
+        BodyCollider = bodyCollider;
         FallCollider = fallCollider;
         GroundLayers = groundLayers;
         LeftFoot = leftFoot;
@@ -20,6 +25,9 @@ public class PlayerControlContext
     
     // Read-only properties
     public PlayerController Player { get; }
+    public IKEffector LeftHandEffector { get; }
+    public IKEffector RightHandEffector { get; }
+    public CapsuleCollider BodyCollider { get; }
     public SphereCollider FallCollider { get; }
     public Foot LeftFoot { get; }
     public Foot RightFoot { get; }
@@ -183,9 +191,10 @@ public class PlayerControlContext
     }
 
     public enum EFallCondition
-    {
-        None,
+    { 
         Placing,
+        Falling,
+        Distance,
     }
 
     public struct FallData
@@ -200,7 +209,7 @@ public class PlayerControlContext
         if (condition == EFallCondition.Placing)
             fallData.PlaceFoot = LeftFoot.Placing ? LeftFoot : RightFoot;
 
-        Fall = fallData;
+            Fall = fallData;
     }
 
 }

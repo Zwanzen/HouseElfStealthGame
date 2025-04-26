@@ -43,6 +43,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField, Range(0,1)] private float _lowestBodyHeight = 0.5f;
     [SerializeField] private AnimationCurve _distanceHeightCurve;
     [SerializeField] private float _bodyRotationSpeed = 5f;
+    [SerializeField] private CapsuleCollider _bodyCollider;
     [SerializeField] private SphereCollider _fallCollider;
     
     [Space(10f)] 
@@ -174,7 +175,7 @@ public class PlayerController : MonoBehaviour
         var rightFoot = new Foot(_rightFoot, _rightFootStateMachine);
         
         // Then we construct the context files after the feet are created.
-        _controlContext = new PlayerControlContext(this, _fallCollider, _groundLayers,
+        _controlContext = new PlayerControlContext(this, _bodyIK, _bodyCollider, _fallCollider, _groundLayers,
             leftFoot, rightFoot, _bodyMovementSettings, _stepLength, _stepHeight);
         
         _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
