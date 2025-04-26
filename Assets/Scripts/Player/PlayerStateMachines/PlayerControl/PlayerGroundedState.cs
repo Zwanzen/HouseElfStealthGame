@@ -21,6 +21,8 @@ public class PlayerGroundedState : PlayerControlState
 
     public override void EnterState()
     {
+        // If we just fell, we would try to fall again unless we reset the fall condition
+        _isFalling = false;
     }
 
 
@@ -43,6 +45,8 @@ public class PlayerGroundedState : PlayerControlState
     }
 
     // Conditions to enter fall state
+    private bool _isFalling;
+    private float _fallHeightStart;
     private bool ShouldFall()
     {
         // When the planted foot is higher grounded than the max possible height
@@ -53,7 +57,35 @@ public class PlayerGroundedState : PlayerControlState
                 return true;
             }
 
-        return false;
+        // If the distance between the feet is too big, we fall
+        if (Vector3.Distance(Context.LeftFoot.Position, Context.RightFoot.Position) > Context.StepLength * 1.1f)
+        {
+            Context.SetFallCondition(EFallCondition.Distance);
+            return true;
+        }
+
+        // When both feet are not planted, save the fall start height
+        if (!Context.LeftFoot.Planted && !Context.RightFoot.Planted)
+        {
+            if (!_isFalling)
+            {
+                _isFalling = true;
+                _fallHeightStart = Context.Player.Transform.position.y;
+            } 
+            // If we fall 1 meter or more, we set the fall condition to falling
+            if ((_fallHeightStart - Context.Player.Transform.position.y) > 1 && _isFalling)
+            {
+                Context.SetFallCondition(EFallCondition.Falling);
+                return true;
+            }
+        }
+        else
+        {
+            _isFalling = false;
+            _fallHeightStart = 0f;
+        }
+
+            return false;
     }
 
 
