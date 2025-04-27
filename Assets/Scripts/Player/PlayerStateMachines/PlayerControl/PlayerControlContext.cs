@@ -203,14 +203,10 @@ public class PlayerControlContext
         public Foot PlaceFoot;
     }
 
-    public void SetFallCondition(EFallCondition condition)
+    public void SetFallCondition(EFallCondition condition, FallData data = default)
     {
         FallCondition = condition;
-        var fallData = new FallData();
-        if (condition == EFallCondition.Placing)
-            fallData.PlaceFoot = LeftFoot.Placing ? LeftFoot : RightFoot;
-
-            Fall = fallData;
+        Fall = data;
     }
 
 }

@@ -61,11 +61,12 @@ public class PlayerCameraController : MonoBehaviour
         {
             HandleRotation();
             UpdatePosition();
+            UpdateAimSolverWeight(Time.deltaTime * 0.5f);
         }
         else
         {
+            UpdateAimSolverWeight(-Time.deltaTime * 0.5f);
             HandleFallCameraRotation();
-            
         }
     }
 
@@ -148,6 +149,16 @@ public class PlayerCameraController : MonoBehaviour
 
         // Make this transform the child of the follow target
         transform.SetParent(_player.transform);
+
+        // Store the camera rotations
+        _yRotation = _cameraYTransform.localEulerAngles.y;
+        _xRotation = _cameraXTransform.localEulerAngles.x;
+        _zRotation = _cameraTransform.localEulerAngles.z;
+    }
+
+    private void UpdateAimSolverWeight(float amount)
+    {
+        _aimIK.solver.IKPositionWeight += amount;
     }
 
 

@@ -49,18 +49,21 @@ public class PlayerGroundedState : PlayerControlState
     private float _fallHeightStart;
     private bool ShouldFall()
     {
+        var data = new FallData();
+        var isPlacing = Context.IsPlacingFoot(out var placing, out var other);
+        data.PlaceFoot = placing;
         // When the planted foot is higher grounded than the max possible height
-        if(Context.IsPlacingFoot(out var placing, out var other))
+        if (isPlacing)
             if (placing.Position.y < other.Position.y - Context.StepHeight)
             {
-                Context.SetFallCondition(EFallCondition.Placing);
+                Context.SetFallCondition(EFallCondition.Placing, data);
                 return true;
             }
 
         // If the distance between the feet is too big, we fall
-        if (Vector3.Distance(Context.LeftFoot.Position, Context.RightFoot.Position) > Context.StepLength * 1.1f)
+        if (Vector3.Distance(Context.LeftFoot.Position, Context.RightFoot.Position) > Context.StepLength * 1.2f)
         {
-            Context.SetFallCondition(EFallCondition.Distance);
+            Context.SetFallCondition(EFallCondition.Distance, data);
             return true;
         }
 

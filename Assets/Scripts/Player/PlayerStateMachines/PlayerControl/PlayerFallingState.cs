@@ -49,14 +49,16 @@ public class PlayerFallingState : PlayerControlState
         // Get the fall direction used to rotate the body correctly
         _fallDirection = GetFallDirection();
         // We also add some force in that direction in certain conditions
-        if (Context.FallCondition == EFallCondition.Placing)
-            Context.Player.Rigidbody.AddForce(_fallDirection.normalized * 1f, ForceMode.VelocityChange);
+        if (Context.FallCondition == EFallCondition.Placing || Context.FallCondition == EFallCondition.Distance)
+            Context.Player.Rigidbody.AddForce(_fallDirection.normalized * 3f, ForceMode.VelocityChange);
     }
 
     public override void ExitState()
     {
         // Call on stop fall event
         Context.Player.StopFall();
+        // Update the standing up state
+        Context.Player.SetStandingUp(false);
 
         // Unsubscribe from events
         UnsubscribeFromEvents();
@@ -64,8 +66,7 @@ public class PlayerFallingState : PlayerControlState
         SetBodyToStand();
         // Start the feet again
         Context.StartFeet();
-        // Update the standing up state
-        Context.Player.SetStandingUp(false);
+
         // Make sure to turn off the fall bool
         Context.Player.Animator.OffAnim(EAnimType.FallStop);
         // Reset triggers
@@ -106,21 +107,24 @@ public class PlayerFallingState : PlayerControlState
         else
             _timer = 0f;
 
-        if (_timer >= 0.5f)
-            _stopped = true;
+        if (_timer <= 0.15f)
+            return;
 
-        if (_stopped)
-        {
-            // We can call trigger once stuff here
-            SetBodyToStop();
-            Context.Player.SetStandingUp(true);
-            // We want to play the standing up animation
-            Context.Player.Animator.SetAnim(EAnimType.FallStop);
-            // We also want to store that animation state to know when we are done
-            _stateInfo = Context.Player.Animator.CurrentAnimInfo;
-            // We can re-use the timer for standing up
-            _timer = 0f;
-        }
+        OnStop();
+    }
+
+    private void OnStop()
+    {
+        _stopped = true;
+        // We can call trigger once stuff here
+        SetBodyToStop();
+        Context.Player.SetStandingUp(true);
+        // We want to play the standing up animation
+        Context.Player.Animator.SetAnim(EAnimType.FallStop);
+        // We also want to store that animation state to know when we are done
+        _stateInfo = Context.Player.Animator.CurrentAnimInfo;
+        // We can re-use the timer for standing up
+        _timer = 0f;
     }
 
     private void CheckForStandUp()
@@ -191,8 +195,11 @@ public class PlayerFallingState : PlayerControlState
     private void SetBodyToStand()
     {
         // We also force the default animation to play
-        Context.Player.Animator.ForceAnim(EAnimType.Stealth);
-        Context.Player.Transform.position += Vector3.up;
+        //Context.Player.Animator.ForceAnim(EAnimType.Stealth);
+        var pelvisPos = Context.BetweenFeet(0.5f);
+        pelvisPos.y = 0f;
+        pelvisPos = Context.CalculatePelvisPoint(pelvisPos);
+        Context.Player.Transform.position = pelvisPos;
         Context.Player.Rigidbody.isKinematic = false;
         Context.FallCollider.enabled = false;
         Context.BodyCollider.enabled = true;
@@ -200,16 +207,30 @@ public class PlayerFallingState : PlayerControlState
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.relativeVelocity.magnitude > 2f)
+        // Check if the collision happend within a certain angle from the downward direction
+        var angle = Vector3.Angle(collision.contacts[0].normal, Vector3.up);
+        if (angle > 20f)
+            return;
+
+        if (collision.relativeVelocity.magnitude > 3f)
             Context.Player.Animator.SetAnim(EAnimType.FallHit);
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        if (Context.Player.Rigidbody.linearVelocity.magnitude < 0.25f)
+            OnStop();
     }
 
     private void SubscribeToEvents()
     {
         Context.Player.Rigidbody.GetComponent<CollisionBroadcaster>().OnCollisionEnterEvent += OnCollisionEnter;
+        Context.Player.Rigidbody.GetComponent<CollisionBroadcaster>().OnCollisionStayEvent += OnCollisionStay;
+
     }
     private void UnsubscribeFromEvents()
     {
         Context.Player.Rigidbody.GetComponent<CollisionBroadcaster>().OnCollisionEnterEvent -= OnCollisionEnter;
+        Context.Player.Rigidbody.GetComponent<CollisionBroadcaster>().OnCollisionStayEvent -= OnCollisionStay;
     }
 }
