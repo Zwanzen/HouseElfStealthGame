@@ -112,8 +112,8 @@ public class PlayerGroundedState : PlayerControlState
             // We cast a box from the player forward, and if it hits, we adjust the height of the hip
             // Make sure the y offset is not set before this
             pos.y = 0f;
-            if (Physics.BoxCast(player.Rigidbody.position + player.Camera.GetCameraYawTransform().forward * player.Collider.radius, 
-                    new Vector3(player.Collider.radius, player.Collider.radius, player.Collider.radius + player.Collider.radius),
+            if (Physics.BoxCast(player.Rigidbody.position + player.Camera.GetCameraYawTransform().forward * Context.BodyCollider.radius, 
+                    new Vector3(Context.BodyCollider.radius, Context.BodyCollider.radius, Context.BodyCollider.radius + Context.BodyCollider.radius),
                     Vector3.up, out var hit, Quaternion.Euler(0, player.Camera.GetCameraYawTransform().rotation.eulerAngles.y, 0),
                     (Context.LowestFootPosition + PlayerController.Height) - player.Rigidbody.position.y, Context.GroundLayers))
             {

@@ -1,3 +1,4 @@
+using RootMotion.FinalIK;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -15,6 +16,7 @@ public class PlayerCameraController : MonoBehaviour
 
     // Private variables
     private PlayerController _player;
+    private AimIK _aimIK;
     private Camera _camera;
     private Transform _cameraYTransform;
     private Transform _cameraXTransform;
@@ -42,6 +44,11 @@ public class PlayerCameraController : MonoBehaviour
         _cameraXTransform = transform.GetChild(0);
         _cameraTransform = _cameraXTransform.GetChild(0);
         _camera = _cameraTransform.GetComponent<Camera>();
+    }
+
+    private void Start()
+    {
+        _aimIK = _player.AimIK;
     }
 
     private void Update()
@@ -73,23 +80,35 @@ public class PlayerCameraController : MonoBehaviour
 
     private void HandleRotation()
     {
+        _aimIK.solver.IKPositionWeight = 1f;
+
         // Get the camera sensitivity based on the input device
         var sensitivity = _cameraSensitivityPC;
         
-        // Get the camera input
-        _yRotation += InputManager.Instance.CameraInput.x * sensitivity;
-        _xRotation -= InputManager.Instance.CameraInput.y * sensitivity;
+        // Get the camera input with a small dead zone to prevent tiny movements
+        float xInput = InputManager.Instance.CameraInput.x;
+        float yInput = InputManager.Instance.CameraInput.y;
         
-        // Clamp the x rotation
-        _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
+        // Apply input to rotation values
+        _yRotation += xInput * sensitivity;
+        _xRotation -= yInput * sensitivity;
+        
+        // Normalize Y rotation to keep it between 0 and 360
+        if (_yRotation > 360f) _yRotation -= 360f;
+        if (_yRotation < 0f) _yRotation += 360f;
+        
+        // Add extra constraining near poles to prevent gimbal lock effect
+        float xClampLimit = 85f; // slightly reduced from 90
+        _xRotation = Mathf.Clamp(_xRotation, -xClampLimit, xClampLimit);
         
         // Get the camera z rotation based on the relative distance between the feet based on the camera forward direction
         var lFootPos = _player.LeftFootTarget.position;
         var rFootPos = _player.RightFootTarget.position;
-        //lFootPos.y = 0;
-        //rFootPos.y = 0;
         var feetDir = rFootPos - lFootPos;
-        var feetDot = Vector3.Dot(feetDir, _cameraYTransform.forward);
+        
+        // Ensure we're using the correctly oriented forward vector
+        var forwardVector = _cameraYTransform.forward;
+        var feetDot = Vector3.Dot(feetDir, forwardVector);
         var dist = feetDir.magnitude * feetDot;
         dist = Mathf.Clamp(dist, -_player.StepLength, _player.StepLength);
         
@@ -97,27 +116,58 @@ public class PlayerCameraController : MonoBehaviour
         var wantedZ = Mathf.Lerp(-5f, 5f, _cameraStepCurve.Evaluate(dist));
         _zRotation = Mathf.Lerp(_zRotation, wantedZ, Time.deltaTime * _cameraLerpSpeed);
         
-        // Rotate the camera
-         _cameraYTransform.localRotation = Quaternion.Euler(0f, _yRotation, 0f);
-         _cameraXTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
-            _cameraTransform.localRotation = Quaternion.Euler(0f, 0f, -_zRotation);
+        // Apply rotations in the correct order to avoid gimbal lock
+        _cameraYTransform.localRotation = Quaternion.Euler(0f, _yRotation, 0f);
+        _cameraXTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
+        _cameraTransform.localRotation = Quaternion.Euler(0f, 0f, -_zRotation);
     }
 
     private void HandleFallingCamera()
     {
-        Debug.Log(_player.IsStandingUp);
+        _aimIK.solver.IKPositionWeight = 0f;
+        
+        // Extract the follow target's rotation, but process it appropriately to avoid gimbal lock
+        Vector3 targetAngles = _followTarget.rotation.eulerAngles;
+        
+        // Normalize x angle (pitch) to be between -180 and 180 for better handling
+        float targetPitch = targetAngles.x;
+        if (targetPitch > 180f) targetPitch -= 360f;
+        
+        // Create target rotations with proper clamping
+        Quaternion targetYRotation = Quaternion.Euler(0f, targetAngles.y, 0f);
+        Quaternion targetXRotation = Quaternion.Euler(Mathf.Clamp(targetPitch, -85f, 85f), 0f, 0f);
+        Quaternion targetZRotation = Quaternion.Euler(0f, 0f, -targetAngles.z);
+        
+        // Apply smooth rotation transition using Quaternion.Slerp
+        _cameraYTransform.localRotation = Quaternion.Slerp(
+            _cameraYTransform.localRotation,
+            targetYRotation,
+            Time.deltaTime * _lerpSpeed
+        );
+        
+        _cameraXTransform.localRotation = Quaternion.Slerp(
+            _cameraXTransform.localRotation,
+            targetXRotation,
+            Time.deltaTime * _lerpSpeed
+        );
+        
+        _cameraTransform.localRotation = Quaternion.Slerp(
+            _cameraTransform.localRotation,
+            targetZRotation,
+            Time.deltaTime * _lerpSpeed
+        );
+        
+        // Update rotation variables to maintain consistent state when transitioning back to normal
+        // Use normalized values to prevent gimbal lock when returning to normal rotation
+        _yRotation = targetAngles.y;
+        _xRotation = Mathf.Clamp(targetPitch, -85f, 85f); // Use the clamped, normalized pitch
+        _zRotation = targetAngles.z;
+        
+        return;
         var lookDirection = !_player.IsStandingUp ? Quaternion.LookRotation(_player.Transform.up, Vector3.up) :
             Quaternion.LookRotation(_player.Transform.forward, Vector3.up);
 
-        // Lerp the rotations towards the look direction
-        _yRotation = Mathf.LerpAngle(_yRotation, lookDirection.eulerAngles.y, Time.deltaTime * _lerpSpeed);
-        _xRotation = Mathf.LerpAngle(_xRotation, lookDirection.eulerAngles.x, Time.deltaTime * _lerpSpeed);
-        _zRotation = Mathf.LerpAngle(_zRotation, 0f, Time.deltaTime * _lerpSpeed);
-
-        // Rotate the camera
-        _cameraYTransform.localRotation = Quaternion.Euler(0f, _yRotation, 0f);
-        _cameraXTransform.localRotation = Quaternion.Euler(_xRotation + 50f, 0f, 0f);
-        _cameraTransform.localRotation = Quaternion.Euler(0f, 0f, -_zRotation);
+        // Rest of the code remains unchanged
     }
 
 

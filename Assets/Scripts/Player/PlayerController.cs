@@ -45,7 +45,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _bodyRotationSpeed = 5f;
     [SerializeField] private CapsuleCollider _bodyCollider;
     [SerializeField] private SphereCollider _fallCollider;
-    
+
     [Space(10f)] 
     [Header("Foot Control")] 
     [SerializeField] private FootRef _leftFoot;
@@ -78,8 +78,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform _leanTarget;
     [SerializeField] private Transform _leanRestTarget;
 
-    private CapsuleCollider _collider;
-    
+    // Private variables
     private float _wantedLScale;
     private float _wantedRScale;
     
@@ -108,8 +107,9 @@ public class PlayerController : MonoBehaviour
         InitializeStateMachines();
         
         // setting private variables
-        _collider = _rigidbody.GetComponent<CapsuleCollider>();
         Transform = _rigidbody.transform;
+        Animator = new PlayerAnimator(this, _anim);
+        AimIK = _bodyIK.GetComponent<AimIK>();
     }
 
     private void Start()
@@ -121,6 +121,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         HandleStepUI();
+        Animator.Update();
     }
 
     private void HandleStepUI()
@@ -208,9 +209,13 @@ public class PlayerController : MonoBehaviour
     public Transform[] Limbs => _limbs;
     public Rigidbody Rigidbody => _rigidbody;
     public Transform Transform { get; private set; }
-    public CapsuleCollider Collider => _collider;
-    public Animator Animator => _anim;
-    
+    public AimIK AimIK { get; private set; }
+
+    /// <summary>
+    /// This is used to control the player's animations.
+    /// </summary>
+    public PlayerAnimator Animator { get; private set; }
+
     // Sneaking Properties
     public Rigidbody LeftFootTarget => _leftFoot.Target;
     public Rigidbody RightFootTarget => _rightFoot.Target;

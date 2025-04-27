@@ -1,5 +1,6 @@
 using RootMotion.Dynamics;
 using RootMotion.FinalIK;
+using System;
 using UnityEngine;
 using static RigidbodyMovement;
 
@@ -22,7 +23,7 @@ public class PlayerControlContext
         StepLength = stepLength;
         StepHeight = stepHeight;
     }
-    
+
     // Read-only properties
     public PlayerController Player { get; }
     public IKEffector LeftHandEffector { get; }

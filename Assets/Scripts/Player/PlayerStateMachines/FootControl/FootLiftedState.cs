@@ -98,7 +98,7 @@ public class FootLiftedState : FootControlState
         // Depending on obstacles, we want to move the foot up
         // We create a boxcast from the max step height, downwards to the max step height
         // If we don't hit anything, the pressed height is the wanted height
-        if (ScanGroundObject(input, out var scanInfo))
+        if (ScanGroundObject(input, out var scanInfo) && !Input.GetKey(KeyCode.LeftShift))
             wantedHeight = scanInfo.Height + baseFootLiftedHeight;
         
         // This is the current position of the foot, but at the wanted height
