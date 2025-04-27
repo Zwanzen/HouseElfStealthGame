@@ -215,6 +215,7 @@ MonoBehaviour:
   _useCustomAnchorPoint: 1
   _anchorJoint: {fileID: 1634324025958955332}
   _anchorTarget: {fileID: 7703666590379611495}
+  _updateAnchorPosition: 0
   _useCustomConnectedAnchorPoint: 0
   _connectedJoint: {fileID: 0}
   _connectedTarget: {fileID: 0}
@@ -226,7 +227,7 @@ ConfigurableJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 78430843430486347}
   serializedVersion: 4
-  m_ConnectedBody: {fileID: 6445050877805935961}
+  m_ConnectedBody: {fileID: 0}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
@@ -2945,6 +2946,7 @@ MonoBehaviour:
   _useCustomAnchorPoint: 1
   _anchorJoint: {fileID: 3334041475322334049}
   _anchorTarget: {fileID: 3615172883931615191}
+  _updateAnchorPosition: 0
   _useCustomConnectedAnchorPoint: 1
   _connectedJoint: {fileID: 5254858583553248076}
   _connectedTarget: {fileID: 2145287144221059644}
@@ -2956,11 +2958,11 @@ ConfigurableJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2124810928653019098}
   serializedVersion: 4
-  m_ConnectedBody: {fileID: 8530786703311701857}
+  m_ConnectedBody: {fileID: 0}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
-  m_AutoConfigureConnectedAnchor: 1
+  m_AutoConfigureConnectedAnchor: 0
   m_ConnectedAnchor: {x: 0, y: 0, z: 0}
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 1
@@ -3801,13 +3803,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3642126708818854922}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0132899, y: -0.000000119198795, z: -0.0000000015842742, w: 0.9999117}
+  m_LocalRotation: {x: 0.013289895, y: -0.00059801334, z: -0.000007948353, w: 0.99991155}
   m_LocalPosition: {x: 0, y: 0.21552211, z: -0.008347174}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3685603571082569728}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 1.523, y: -0.069, z: -0.002}
 --- !u!135 &7599706450332201456
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3996,7 +3998,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3615172883931615191}
-  - component: {fileID: 8530786703311701857}
+  - component: {fileID: 5729281142028975372}
   m_Layer: 9
   m_Name: Thigh.R.Kinematic
   m_TagString: Untagged
@@ -4019,7 +4021,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3184722101480110856}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &8530786703311701857
+--- !u!54 &5729281142028975372
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4038,14 +4040,14 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
 --- !u!1 &4137976704113383655
 GameObject:
   m_ObjectHideFlags: 0
@@ -6657,8 +6659,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3299482255916794422}
   - component: {fileID: 6996059046047330749}
-  - component: {fileID: 5049964962281819942}
   - component: {fileID: 5642748052533875672}
+  - component: {fileID: 5049964962281819942}
+  - component: {fileID: 2247284163126984461}
   - component: {fileID: 7104340610871197806}
   m_Layer: 9
   m_Name: THIGH.L
@@ -6710,6 +6713,25 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
+--- !u!114 &5642748052533875672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6880390542065449197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4230f5c22db2af54ca28d6ca28e917ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _useCustomAnchorPoint: 0
+  _anchorJoint: {fileID: 5049964962281819942}
+  _anchorTarget: {fileID: 9143063025554710033}
+  _updateAnchorPosition: 0
+  _useCustomConnectedAnchorPoint: 0
+  _connectedJoint: {fileID: 5049964962281819942}
+  _connectedTarget: {fileID: 7703666590379611495}
 --- !u!153 &5049964962281819942
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -6812,7 +6834,7 @@ ConfigurableJoint:
   m_EnablePreprocessing: 1
   m_MassScale: 1
   m_ConnectedMassScale: 0.4
---- !u!114 &5642748052533875672
+--- !u!114 &2247284163126984461
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6824,12 +6846,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4230f5c22db2af54ca28d6ca28e917ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _useCustomAnchorPoint: 1
+  _useCustomAnchorPoint: 0
   _anchorJoint: {fileID: 7104340610871197806}
-  _anchorTarget: {fileID: 9143063025554710033}
-  _useCustomConnectedAnchorPoint: 1
-  _connectedJoint: {fileID: 5049964962281819942}
-  _connectedTarget: {fileID: 7703666590379611495}
+  _anchorTarget: {fileID: 0}
+  _updateAnchorPosition: 0
+  _useCustomConnectedAnchorPoint: 0
+  _connectedJoint: {fileID: 7104340610871197806}
+  _connectedTarget: {fileID: 0}
 --- !u!153 &7104340610871197806
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -6838,7 +6861,7 @@ ConfigurableJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6880390542065449197}
   serializedVersion: 4
-  m_ConnectedBody: {fileID: 406861843091138184}
+  m_ConnectedBody: {fileID: 0}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
@@ -7557,6 +7580,7 @@ MonoBehaviour:
   _useCustomAnchorPoint: 1
   _anchorJoint: {fileID: 4963274159992814574}
   _anchorTarget: {fileID: 2145287144221059644}
+  _updateAnchorPosition: 0
   _useCustomConnectedAnchorPoint: 0
   _connectedJoint: {fileID: 0}
   _connectedTarget: {fileID: 0}
@@ -7568,7 +7592,7 @@ ConfigurableJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7337572197924800790}
   serializedVersion: 4
-  m_ConnectedBody: {fileID: 7132955162012354121}
+  m_ConnectedBody: {fileID: 0}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
@@ -8124,7 +8148,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9143063025554710033}
-  - component: {fileID: 406861843091138184}
+  - component: {fileID: 4160748598680404966}
   m_Layer: 9
   m_Name: Thigh.l.Kinematic
   m_TagString: Untagged
@@ -8147,7 +8171,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6744714687142367910}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &406861843091138184
+--- !u!54 &4160748598680404966
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8166,14 +8190,14 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
 --- !u!1 &8033885046053469366
 GameObject:
   m_ObjectHideFlags: 0
@@ -8586,7 +8610,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7703666590379611495}
-  - component: {fileID: 6445050877805935961}
+  - component: {fileID: 154698864600588495}
   m_Layer: 9
   m_Name: Shin.L.Kinematic
   m_TagString: Untagged
@@ -8609,7 +8633,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8789936452861752090}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &6445050877805935961
+--- !u!54 &154698864600588495
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8628,14 +8652,14 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
 --- !u!1 &8601671481927542706
 GameObject:
   m_ObjectHideFlags: 0
@@ -8795,7 +8819,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2145287144221059644}
-  - component: {fileID: 7132955162012354121}
+  - component: {fileID: 7351811993289482346}
   m_Layer: 9
   m_Name: Shin.R.Kinematic
   m_TagString: Untagged
@@ -8818,7 +8842,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1104926210456637585}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &7132955162012354121
+--- !u!54 &7351811993289482346
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8837,14 +8861,14 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
 --- !u!1 &9034163759943810215
 GameObject:
   m_ObjectHideFlags: 0

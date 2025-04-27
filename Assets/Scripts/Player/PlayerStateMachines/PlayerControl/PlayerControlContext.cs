@@ -96,6 +96,7 @@ public class PlayerControlContext
 
         // Using the lowest foot as a base, and adding the offset. We also add the paramater offset with limit of 0f.
         float pelvisYPosition = Mathf.Min(leftFootPos.y, rightFootPos.y) + pelvisYOffset + Mathf.Min(pelvisOffset.y, 0f);
+        Debug.DrawLine(Player.Rigidbody.position, new Vector3(pelvisOffset.x, pelvisYPosition, pelvisOffset.z), Color.green);
         return new Vector3(pelvisOffset.x, pelvisYPosition, pelvisOffset.z);
 
     }
@@ -103,6 +104,7 @@ public class PlayerControlContext
     public void MoveToHipPoint(Vector3 pelvisOffset)
     {
         var targetPosition = CalculatePelvisPoint(pelvisOffset);
+        Debug.DrawLine(Player.Rigidbody.position, targetPosition, Color.red);
         if (targetPosition == Vector3.zero)
             return;
         MoveToRigidbody(Player.Rigidbody, targetPosition, BodyMovementSettings);

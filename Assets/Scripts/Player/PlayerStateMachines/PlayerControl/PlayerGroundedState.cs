@@ -126,7 +126,7 @@ public class PlayerGroundedState : PlayerControlState
                     // We want to move the hip down based on the hit point
                     var diff = Context.LowestFootPosition + PlayerController.Height - hit.point.y;
                     // If the difference is too big, we dont want to move the hip down
-                    if (diff < 0.35f)
+                    if (diff < 0.38f)
                         pos.y -= diff;
                 }
                 // For easy debugging
