@@ -49,21 +49,24 @@ public class PlayerCameraController : MonoBehaviour
     private void Start()
     {
         _aimIK = _player.AimIK;
+
+        _player.OnFall += OnFall;
+        _player.OnStopFall += OnStopFall;
     }
 
     private void Update()
     {
-        UpdatePosition();
 
-        if(_player.IsFalling)
+        if(!_player.IsFalling)
         {
-            HandleFallingCamera();
+            HandleRotation();
+            UpdatePosition();
         }
         else
         {
-            HandleRotation();
+            HandleFallCameraRotation();
+            
         }
-
     }
 
     private void UpdatePosition()
@@ -122,52 +125,29 @@ public class PlayerCameraController : MonoBehaviour
         _cameraTransform.localRotation = Quaternion.Euler(0f, 0f, -_zRotation);
     }
 
-    private void HandleFallingCamera()
+    private void HandleFallCameraRotation()
+    {
+        // Slerp all the camera rotations to local zero
+        _cameraYTransform.localRotation = Quaternion.Slerp(_cameraYTransform.localRotation, Quaternion.Euler(0f, 0f, 0f), Time.deltaTime * _followSpeed);
+        _cameraXTransform.localRotation = Quaternion.Slerp(_cameraXTransform.localRotation, Quaternion.Euler(0f, 0f, 0f), Time.deltaTime * _followSpeed);
+        _cameraTransform.localRotation = Quaternion.Slerp(_cameraTransform.localRotation, Quaternion.Euler(0f, 0f, 0f), Time.deltaTime * _followSpeed);
+    }
+
+    private void OnFall()
     {
         _aimIK.solver.IKPositionWeight = 0f;
-        
-        // Extract the follow target's rotation, but process it appropriately to avoid gimbal lock
-        Vector3 targetAngles = _followTarget.rotation.eulerAngles;
-        
-        // Normalize x angle (pitch) to be between -180 and 180 for better handling
-        float targetPitch = targetAngles.x;
-        if (targetPitch > 180f) targetPitch -= 360f;
-        
-        // Create target rotations with proper clamping
-        Quaternion targetYRotation = Quaternion.Euler(0f, targetAngles.y, 0f);
-        Quaternion targetXRotation = Quaternion.Euler(Mathf.Clamp(targetPitch, -85f, 85f), 0f, 0f);
-        Quaternion targetZRotation = Quaternion.Euler(0f, 0f, -targetAngles.z);
-        
-        // Apply smooth rotation transition using Quaternion.Slerp
-        _cameraYTransform.localRotation = Quaternion.Slerp(
-            _cameraYTransform.localRotation,
-            targetYRotation,
-            Time.deltaTime * _lerpSpeed
-        );
-        
-        _cameraXTransform.localRotation = Quaternion.Slerp(
-            _cameraXTransform.localRotation,
-            targetXRotation,
-            Time.deltaTime * _lerpSpeed
-        );
-        
-        _cameraTransform.localRotation = Quaternion.Slerp(
-            _cameraTransform.localRotation,
-            targetZRotation,
-            Time.deltaTime * _lerpSpeed
-        );
-        
-        // Update rotation variables to maintain consistent state when transitioning back to normal
-        // Use normalized values to prevent gimbal lock when returning to normal rotation
-        _yRotation = targetAngles.y;
-        _xRotation = Mathf.Clamp(targetPitch, -85f, 85f); // Use the clamped, normalized pitch
-        _zRotation = targetAngles.z;
-        
-        return;
-        var lookDirection = !_player.IsStandingUp ? Quaternion.LookRotation(_player.Transform.up, Vector3.up) :
-            Quaternion.LookRotation(_player.Transform.forward, Vector3.up);
 
-        // Rest of the code remains unchanged
+        // Make this transform the child of the follow target
+        transform.SetParent(_followTarget);
+
+    }
+
+    private void OnStopFall()
+    {
+        _aimIK.solver.IKPositionWeight = 0f;
+
+        // Make this transform the child of the follow target
+        transform.SetParent(_player.transform);
     }
 
 
@@ -189,4 +169,11 @@ public class PlayerCameraController : MonoBehaviour
     }
 
     public float CameraX => _xRotation;
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from events
+        _player.OnFall -= OnFall;
+        _player.OnStopFall -= OnStopFall;
+    }
 }

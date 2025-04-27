@@ -4,6 +4,7 @@ using RootMotion.FinalIK;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using static RigidbodyMovement;
@@ -200,7 +201,11 @@ public class PlayerController : MonoBehaviour
         InputManager.Instance.OnScroll += UpdateMovementSpeed;
         InputManager.Instance.OnSneakPressed += UpdateIsSneaking;
     }
-    
+
+    // Events
+    public event Action OnFall;
+    public event Action OnStopFall;
+
     // Read-only properties
     /// <summary>
     /// Limbs:
@@ -374,9 +379,14 @@ public class PlayerController : MonoBehaviour
         IsStandingUp = state;
     }
 
-    public void SetPlayerStumble(bool isStumble)
+    public void StartFall()
     {
-        _isStumble = isStumble;
+        OnFall.Invoke();
+    }
+
+    public void StopFall()
+    {
+        OnStopFall.Invoke();
     }
 
     private void OnGUI()

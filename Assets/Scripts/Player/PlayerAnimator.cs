@@ -85,7 +85,13 @@ public class PlayerAnimator
         if (animHash != -1)
             if (_isTigger.TryGetValue(animType, out bool isTrigger))
                 if (isTrigger)
+                {
+                    // We need to check if this trigger animation is already playing
+                    // If it is, we don't want to set it again
+                    if (_anim.GetCurrentAnimatorStateInfo(0).IsName(GetAnimName(animType)))
+                        return;
                     _anim.SetTrigger(animHash);
+                }
                 else
                     _anim.SetBool(animHash, true);
             else

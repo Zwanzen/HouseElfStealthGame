@@ -28,6 +28,9 @@ public class PlayerFallingState : PlayerControlState
 
     public override void EnterState()
     {
+        // Call on fall event
+        Context.Player.StartFall();
+
         // Subscribe to events
         SubscribeToEvents();
         // Get the body ready to fall
@@ -52,6 +55,9 @@ public class PlayerFallingState : PlayerControlState
 
     public override void ExitState()
     {
+        // Call on stop fall event
+        Context.Player.StopFall();
+
         // Unsubscribe from events
         UnsubscribeFromEvents();
         // Ready the body to stand up
@@ -61,7 +67,7 @@ public class PlayerFallingState : PlayerControlState
         // Update the standing up state
         Context.Player.SetStandingUp(false);
         // Make sure to turn off the fall bool
-        Context.Player.Animator.OffAnim(EAnimType.Fall);
+        Context.Player.Animator.OffAnim(EAnimType.FallStop);
         // Reset triggers
         Context.Player.Animator.ResetTriggers();
     }
