@@ -7,6 +7,7 @@ public class CustomAnchorPoint : MonoBehaviour
     [SerializeField] private ConfigurableJoint _anchorJoint;
     [SerializeField] private Transform _anchorTarget;
     [SerializeField] private bool _updateAnchorPosition = false;
+    [SerializeField] private Transform _anchorPoleDirectionTarget;
 
     [Space(10f)]
     [Header("Custom Connected Anchor Point")]
@@ -15,19 +16,16 @@ public class CustomAnchorPoint : MonoBehaviour
     [SerializeField] private Transform _connectedTarget;
 
     private Vector3 AnchorPosition => GetAnchorPosition();
-    private Vector3 AnchorPoleDirection;
+    private Vector3 AnchorPoleDirection => _anchorPoleDirectionTarget ? _anchorPoleDirectionTarget.position - _anchorJoint.targetPosition : AnchorPosition.normalized;
     private Vector3 ConnectedTargetPosition => GetConnectedAnchorPosition();
-    
+
     private void Awake()
     {
-        if(_useCustomConnectedAnchorPoint)
+        if (_useCustomConnectedAnchorPoint)
             _connectedJoint.autoConfigureConnectedAnchor = false;
-        
+
         if (_useCustomAnchorPoint)
             _anchorJoint.anchor = AnchorPosition;
-            
-        if(_updateAnchorPosition)
-            AnchorPoleDirection = AnchorPosition.normalized;
     }
 
     private void FixedUpdate()
@@ -77,8 +75,32 @@ public class CustomAnchorPoint : MonoBehaviour
     {
         var targetPositionWorld = _connectedTarget.position;
         var connectedBody = _connectedJoint.connectedBody;
-        var targetConnectedAnchorPosition = connectedBody != null ? 
+        var targetConnectedAnchorPosition = connectedBody != null ?
             connectedBody.transform.InverseTransformPoint(targetPositionWorld) : targetPositionWorld;
         return targetConnectedAnchorPosition;
+    }
+
+
+    private void OnDrawGizmosSelected()
+    {
+        if(!Application.isPlaying)
+            return;
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(_anchorJoint.transform.TransformPoint(_anchorJoint.anchor), 0.025f);
+        Gizmos.color = Color.blue;
+        if (_connectedJoint.connectedBody)
+        {
+            Gizmos.DrawSphere(_connectedJoint.connectedBody.transform.TransformPoint(_connectedJoint.connectedAnchor), 0.03f);
+        }
+        else
+        {
+            Gizmos.DrawSphere(_connectedJoint.transform.TransformPoint(_connectedJoint.connectedAnchor), 0.03f);
+        }
+        // Anchor Pole Direction
+
+        if (!_updateAnchorPosition)
+            return;
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(_anchorJoint.transform.TransformPoint(_anchorJoint.anchor), _anchorJoint.transform.TransformPoint(_anchorJoint.anchor) + _anchorJoint.transform.TransformDirection(AnchorPoleDirection) * 0.5f);
     }
 }
