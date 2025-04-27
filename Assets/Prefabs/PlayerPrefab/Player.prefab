@@ -45,8 +45,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6411515857630710152}
   - component: {fileID: 6475399462512537193}
-  - component: {fileID: 5736933636843159117}
   - component: {fileID: 8360856224323137919}
+  - component: {fileID: 5736933636843159117}
+  - component: {fileID: 5705912716447895822}
   - component: {fileID: 1634324025958955332}
   m_Layer: 9
   m_Name: SHIN.L
@@ -54,7 +55,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &6411515857630710152
 Transform:
   m_ObjectHideFlags: 0
@@ -98,6 +99,25 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
+--- !u!114 &8360856224323137919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 78430843430486347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4230f5c22db2af54ca28d6ca28e917ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _useCustomAnchorPoint: 1
+  _anchorJoint: {fileID: 5736933636843159117}
+  _anchorTarget: {fileID: 7703666590379611495}
+  _updateAnchorPosition: 1
+  _useCustomConnectedAnchorPoint: 1
+  _connectedJoint: {fileID: 5736933636843159117}
+  _connectedTarget: {fileID: 7703666590379611495}
 --- !u!153 &5736933636843159117
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -106,11 +126,11 @@ ConfigurableJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 78430843430486347}
   serializedVersion: 4
-  m_ConnectedBody: {fileID: 2648459860100371894}
+  m_ConnectedBody: {fileID: 154698864600588495}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
-  m_AutoConfigureConnectedAnchor: 1
+  m_AutoConfigureConnectedAnchor: 0
   m_ConnectedAnchor: {x: 0, y: 0, z: 0}
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 0
@@ -200,7 +220,7 @@ ConfigurableJoint:
   m_EnablePreprocessing: 1
   m_MassScale: 1
   m_ConnectedMassScale: 0.4
---- !u!114 &8360856224323137919
+--- !u!114 &5705912716447895822
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -214,11 +234,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _useCustomAnchorPoint: 1
   _anchorJoint: {fileID: 1634324025958955332}
-  _anchorTarget: {fileID: 7703666590379611495}
+  _anchorTarget: {fileID: 8706248603335028441}
   _updateAnchorPosition: 0
   _useCustomConnectedAnchorPoint: 0
-  _connectedJoint: {fileID: 0}
-  _connectedTarget: {fileID: 0}
+  _connectedJoint: {fileID: 1634324025958955332}
+  _connectedTarget: {fileID: 1123331334865201709}
 --- !u!153 &1634324025958955332
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -227,7 +247,7 @@ ConfigurableJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 78430843430486347}
   serializedVersion: 4
-  m_ConnectedBody: {fileID: 0}
+  m_ConnectedBody: {fileID: 2648459860100371894}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
@@ -6669,7 +6689,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3299482255916794422
 Transform:
   m_ObjectHideFlags: 0
@@ -6725,13 +6745,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4230f5c22db2af54ca28d6ca28e917ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _useCustomAnchorPoint: 0
+  _useCustomAnchorPoint: 1
   _anchorJoint: {fileID: 5049964962281819942}
   _anchorTarget: {fileID: 9143063025554710033}
-  _updateAnchorPosition: 0
-  _useCustomConnectedAnchorPoint: 0
+  _updateAnchorPosition: 1
+  _useCustomConnectedAnchorPoint: 1
   _connectedJoint: {fileID: 5049964962281819942}
-  _connectedTarget: {fileID: 7703666590379611495}
+  _connectedTarget: {fileID: 9143063025554710033}
 --- !u!153 &5049964962281819942
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -6740,7 +6760,7 @@ ConfigurableJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6880390542065449197}
   serializedVersion: 4
-  m_ConnectedBody: {fileID: 2648459860100371894}
+  m_ConnectedBody: {fileID: 4160748598680404966}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
@@ -6847,12 +6867,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _useCustomAnchorPoint: 0
-  _anchorJoint: {fileID: 7104340610871197806}
+  _anchorJoint: {fileID: 0}
   _anchorTarget: {fileID: 0}
   _updateAnchorPosition: 0
-  _useCustomConnectedAnchorPoint: 0
+  _useCustomConnectedAnchorPoint: 1
   _connectedJoint: {fileID: 7104340610871197806}
-  _connectedTarget: {fileID: 0}
+  _connectedTarget: {fileID: 7703666590379611495}
 --- !u!153 &7104340610871197806
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -6861,7 +6881,7 @@ ConfigurableJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6880390542065449197}
   serializedVersion: 4
-  m_ConnectedBody: {fileID: 0}
+  m_ConnectedBody: {fileID: 2648459860100371894}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}

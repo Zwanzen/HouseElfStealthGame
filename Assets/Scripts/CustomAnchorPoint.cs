@@ -34,6 +34,9 @@ public class CustomAnchorPoint : MonoBehaviour
     {
         if (_useCustomConnectedAnchorPoint)
             _connectedJoint.connectedAnchor = ConnectedTargetPosition;
+
+        if (_useCustomAnchorPoint && _updateAnchorPosition)
+            _anchorJoint.anchor = GetPoledAnchorPosition();
     }
 
     private Vector3 GetAnchorPosition()
@@ -51,14 +54,17 @@ public class CustomAnchorPoint : MonoBehaviour
     {
         // We need the anchor point in world space
         var anchorPositionWorld = _anchorJoint.transform.TransformPoint(_anchorJoint.anchor);
+
         // We need the direction from the anchor point to the target
         var direction = _anchorTarget.position - anchorPositionWorld;
         // We need the direction of the pole
         var poleDirection = _anchorJoint.transform.TransformDirection(AnchorPoleDirection);
 
+
         // If we want the anchor point to be along the pole closest to the target
         // we need to get the projection of the direction onto the pole direction
         var projection = Vector3.Project(direction, poleDirection);
+
 
         // Now we can add the projection to the anchor point
         var anchorPosition = anchorPositionWorld + projection;
