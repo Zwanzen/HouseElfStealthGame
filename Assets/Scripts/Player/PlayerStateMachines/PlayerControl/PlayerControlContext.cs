@@ -112,7 +112,8 @@ public class PlayerControlContext
     
     public void MoveBody(Vector3 targetPosition)
     {
-        MoveToRigidbody(Player.Rigidbody, targetPosition, BodyMovementSettings);
+        // The combined velocity of the feet
+        MoveToRigidbody(Player.Rigidbody, targetPosition, BodyMovementSettings, LeftFoot.Velocity + RightFoot.Velocity);
     }
 
     public Vector3 BetweenFeet(float lerp)

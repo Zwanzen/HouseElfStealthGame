@@ -60,6 +60,7 @@ public class Foot
     
     // Properties
     public Vector3 Position => Target.position;
+    public Vector3 Velocity => Target.linearVelocity;
     public Rigidbody Target { get; }
     public Vector3 RestPosition => _restTransform.position;
     public Vector3 FootBonePosition => _footBone.position;
