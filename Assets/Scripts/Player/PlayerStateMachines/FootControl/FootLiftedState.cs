@@ -17,7 +17,7 @@ public class FootLiftedState : FootControlState
         // If not, we are in a leaping state, this is detected by the player control sm.
         if (!Context.IsFootLifting && Context.Player.IsSneaking && Context.OtherFoot.Planted)
             return FootControlStateMachine.EFootState.Placing;
-        
+
         // Used for auto walk rn
         if (GetDistanceFromOtherFoot() > Context.StepLength * 0.45f && !Context.Player.IsSneaking)
             return FootControlStateMachine.EFootState.Placing;
@@ -74,63 +74,14 @@ public class FootLiftedState : FootControlState
         HandleFootRotation();
     }
 
-    private RaycastHit[] _hits = new RaycastHit[10];
-    private void Test()
-    {
-        // Clear the hits array before each cast
-        for (int i = 0; i < _hits.Length; i++)
-        {
-            _hits[i] = new RaycastHit();
-        }
 
-        // Get the number of actual hits
-        int hitCount = Physics.SphereCastNonAlloc(Context.Foot.Position + Vector3.up * 3,
-            0.5f, Vector3.down, _hits, 6f, Context.GroundLayers);
-
-        // Only process valid hits
-        for (int i = 0; i < hitCount; i++)
-        {
-            var hit = _hits[i];
-            // Debug With CheckSphere
-            var noLayer = 0;
-            Debug.DrawLine(_hits[i].point, _hits[i].point + Vector3.up, Color.green);
-        }
-
-        if (!Context.Player.IsMoving)
-            return;
-
-        var input = Context.Player.RelativeMoveInput.normalized;
-
-        CalculateIntersectionPoint(Context.OtherFoot.Position, Context.StepLength, Context.Foot.Position - input, input, out var intersectionPoint);
-
-        // Clamp the intersection point to the step height from the other foot
-        var maxHeight = Context.OtherFoot.Position.y + Context.StepHeight;
-        var minHeight = Context.OtherFoot.Position.y - Context.StepHeight;
-        if (intersectionPoint.y > maxHeight)
-            intersectionPoint.y = maxHeight;
-        else if (intersectionPoint.y < minHeight)
-            intersectionPoint.y = minHeight;
-
-
-        // Scan from the forward point
-        hitCount = Physics.SphereCastNonAlloc(intersectionPoint + Vector3.up * 3,
-            0.5f, Vector3.down, _hits, 6f, Context.GroundLayers);
-
-        // Only process valid hits
-        for (int i = 0; i < hitCount; i++)
-        {
-            var hit = _hits[i];
-            // Debug With CheckSphere
-            var noLayer = 0;
-            Debug.DrawLine(_hits[i].point, _hits[i].point + Vector3.up, Color.red);
-        }
-    }
 
     private void Movement()
     {
         var footPos = Context.Foot.Target.position;
         var otherFootPos = Context.OtherFoot.Target.position;
         var input = Context.Player.RelativeMoveInput;
+        TryWantedHeightPos(input, footPos, otherFootPos, out var r);
         if (input.normalized == Vector3.zero)
         {
             _timerSinceInput += Time.fixedDeltaTime;
@@ -139,38 +90,38 @@ public class FootLiftedState : FootControlState
         {
             _timerSinceInput = 0f;
         }
-        
+
         var baseFootLiftedHeight = 0.1f;
         var wantedHeight = otherFootPos.y + baseFootLiftedHeight;
-        
+
         // Depending on obstacles, we want to move the foot up
         // We create a boxcast from the max step height, downwards to the max step height
         // If we don't hit anything, the pressed height is the wanted height
         if (ScanGroundObject(input, out var scanInfo) && !Input.GetKey(KeyCode.LeftShift))
             wantedHeight = scanInfo.Height + baseFootLiftedHeight;
-        
+
         // This is the current position of the foot, but at the wanted height
         var wantedHeightPos = new Vector3(footPos.x, wantedHeight, footPos.z);
-        
+
         // We also calculate the input position based on the player input
         // But also take into account the wanted height
         var wantedInputPos = wantedHeightPos + input.normalized;
-        
+
         // *** TEMP ***
         // If the foot is behind the other foot,
         // We want to move this foot towards an offset to the side of the other foot
         // The position to the side of the other foot
-        var offsetPos = GetOffsetPosition(input,wantedHeight, 0.2f);
-        
+        var offsetPos = GetOffsetPosition(input, wantedHeight, 0.2f);
+
         // Depending on down angle, we dont care about offset
         var camAngle = Context.Player.Camera.CameraX;
         var offsetLerp = camAngle / 60f;
         offsetPos = Vector3.Lerp(offsetPos, wantedInputPos, offsetLerp);
-        
+
         // We lerp our input position with the offset position based on how far behind the foot is
         var distBehind = Context.RelativeDistanceInDirection(footPos, otherFootPos, input.normalized);
-        var wantedPos = Vector3.Lerp(wantedInputPos, offsetPos, Context.OffsetCurve.Evaluate(distBehind/Context.StepLength));
-        
+        var wantedPos = Vector3.Lerp(wantedInputPos, offsetPos, Context.OffsetCurve.Evaluate(distBehind / Context.StepLength));
+
         // Depending on our distance to the wanted height compared to our current height
         // We lerp what position we want to go to
         var currentHeight = footPos.y - otherFootPos.y;
@@ -178,40 +129,124 @@ public class FootLiftedState : FootControlState
         // Doesn't start to lerp until we are 50% of the way to the max height
         var posLerp = currentHeight / maxHeight;
         var pos = Vector3.Lerp(wantedHeightPos, wantedPos, Context.HeightCurve.Evaluate(posLerp));
-        
+
         // *** TEMP ***
         // If the wanted height is downwards, we dont care to lerp
-        if(currentHeight > maxHeight)
+        if (currentHeight > maxHeight)
             pos = wantedPos;
-        
+
         // If scan is stuck, we want to move the foot backwards
         if (scanInfo.Stuck)
             pos = footPos - Context.Player.Rigidbody.transform.forward * 0.5f;
-        
+
         // We get the direction towards the wanted position
         var dirToPos = pos - footPos;
 
         // Now clamp if we are going out of step length
         if (Vector3.Distance(pos, otherFootPos) > Context.StepLength)
             pos = ClampedFootPosition(footPos, otherFootPos, dirToPos);
-        
+
         var settings = Context.Player.IsSneaking ? Context.CurrentSneakSettings : Context.CurrentWalkSettings;
         MoveToRigidbody(Context.Foot.Target, pos, settings);
 
     }
-    
+
     private struct ScanInfo
     {
         public readonly float Height;
         public readonly bool Stuck;
-        
+
         public ScanInfo(float height, bool stuck)
         {
             Height = height;
             Stuck = stuck;
         }
     }
-    
+
+    private RaycastHit[] _hits = new RaycastHit[20];
+
+    /// <summary>
+    /// Calculates the target height position we want to go to depending on the input.
+    /// </summary>
+    private bool TryWantedHeightPos(Vector3 input, Vector3 footPos, Vector3 otherPos, out Vector3 heightPos)
+    {
+        if(input == Vector3.zero)
+        {
+            heightPos = Vector3.zero;
+            return false;
+        }
+
+        // Based on the input direction and foot position,
+        // we want to calculate the radius of the sphere cast.
+        // First get the max step length in that direction.
+        // If our foot is currently outside of the step length,
+        // we need to create a copy of the foot position to avoid errors.
+        var t = 0.02f;
+        var circleFootPos = Vector3.Distance(footPos, otherPos) > Context.StepLength - t? 
+            otherPos + (footPos - otherPos).normalized * (Context.StepLength - t) : footPos;
+        // Now use that to calculate the intersection point
+        if(!CalculateIntersectionPoint(otherPos, Context.StepLength, circleFootPos, input.normalized, out var intersectionPointXZ))
+        {
+            // Error
+            Debug.LogError("Failed to calculate intersection point");
+            heightPos = Vector3.zero;
+            return false;
+        }
+
+        // The radius is half the distance between the two points.
+        var radius = Vector3.Distance(footPos, intersectionPointXZ);
+
+        // Now we need the y height of the cast position.
+        // So we calculate the intersection point from the foot pos upwards
+        if (!CalculateIntersectionPoint(otherPos, Context.StepLength, circleFootPos, Vector3.up, out var intersectionPointY))
+        {
+            // Error
+            Debug.LogError("Failed to calculate intersection point Y");
+            heightPos = Vector3.zero;
+            return false;
+        }
+
+        var yCastHeight = intersectionPointY.y;
+
+        // If the cast height is higher than the other foot + step height,
+        // we want to set the height to the other foot + step height
+        if(yCastHeight > otherPos.y + Context.StepHeight)
+        {
+            yCastHeight = otherPos.y + Context.StepHeight;
+        }
+
+        // Now we need to calculate the dist of the sphere cast.
+        // We can do this by using the gathered intersectionY point,
+        // because we know the other intersection point is flipped from the other foot.
+        var heightDiff =  yCastHeight - otherPos.y;
+        // Now the dist should end at the bottom intersection point
+        var dist = heightDiff * 2f;
+
+        // Since the sphere cast does not hit anything withing it's start radius,
+        // we want to add the radius to the height position,
+        // and also the distance to account for the added height.
+        yCastHeight += radius;
+        dist += radius;
+
+        // Now we have the final start position, radius, direction and distance.
+        var castPos = new Vector3(footPos.x, yCastHeight, footPos.z);
+
+        var hitCount = Physics.SphereCastNonAlloc(castPos, radius, Vector3.down, _hits, dist, Context.GroundLayers);
+        if (hitCount <= 0)
+        {
+            heightPos = Vector3.zero;
+            return false;
+        }
+
+        // We need to go through all the hits and compare the angle
+        for (var i = 0; i < hitCount; i++)
+        {
+
+        }
+        heightPos = Vector3.zero;
+        return false;
+    }
+
     private bool ScanGroundObject(Vector3 input, out ScanInfo scanInfo)
     {
         var footPos = Context.Foot.Target.position;
