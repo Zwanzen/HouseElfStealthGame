@@ -185,6 +185,7 @@ GameObject:
   - component: {fileID: 4944782750190567908}
   - component: {fileID: 1442867167510682187}
   - component: {fileID: 7962706197467370124}
+  - component: {fileID: 3364091361035671336}
   m_Layer: 0
   m_Name: CauldronHanging
   m_TagString: Untagged
@@ -262,6 +263,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &3364091361035671336
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2686598503957133135}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4071001975826971453, guid: 1854dc2c00f32dd4e87a1b58b46891e8, type: 3}
 --- !u!1 &3847557023698247357
 GameObject:
   m_ObjectHideFlags: 0
