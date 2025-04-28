@@ -23,8 +23,15 @@ public class FootControlContext
     private readonly float _stepLength;
     private readonly float _stepHeight;
 
+    private readonly MovementSettings _minSneakSetting;
+    private readonly MovementSettings _maxSneakSettings;
+
+    private readonly MovementSettings _minWalkSetting;
+    private readonly MovementSettings _maxWalkSettings;
+
     public FootControlContext(PlayerController player, FullBodyBipedIK bodyIK, PlayerFootSoundPlayer footSoundPlayer,
-        LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight, MovementSettings sneakMovementSettings, MovementSettings walkMovementSettings,
+        LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight,
+        MovementSettings minSneakSetting, MovementSettings maxSneakSetting, MovementSettings minWalkSettings, MovementSettings maxWalkSettings,
         MovementSettings placementSettings, AnimationCurve speedCurve, AnimationCurve heightCurve, AnimationCurve placeCurve, AnimationCurve offsetCurve)
     {
         _player = player;
@@ -35,9 +42,13 @@ public class FootControlContext
         _otherFoot = otherFoot;
         _stepLength = stepLength;
         _stepHeight = stepHeight;
-        SneakMovementSettings = sneakMovementSettings;
-        WalkMovementSettings = walkMovementSettings;
-        PlacementSettings = placementSettings;
+
+        _minSneakSetting = minSneakSetting;
+        _maxSneakSettings = maxSneakSetting;
+        _minWalkSetting = minWalkSettings;
+        _maxWalkSettings = maxWalkSettings;
+
+        PlaceSettings = placementSettings;
         SpeedCurve = speedCurve;
         HeightCurve = heightCurve;
         PlaceCurve = placeCurve;
@@ -53,7 +64,6 @@ public class FootControlContext
     public BoxCastValues FootCastValues => GetBoxCastValues();
     public IKEffector FootIKEffector { get; }
     public IKMappingLimb FootMapping { get; }
-
     public FullBodyBipedIK BodyIK => _bodyIK;
     public PlayerFootSoundPlayer FootSoundPlayer => _footSoundPlayer;
     public Foot Foot => _foot;
@@ -75,11 +85,20 @@ public class FootControlContext
 
     public AnimationCurve OffsetCurve { get; }
 
-    public MovementSettings SneakMovementSettings { get; }
-    public MovementSettings WalkMovementSettings { get; }
+    /// <summary>
+    /// The lerped sneak settings based on the current speed.
+    /// </summary>
+    public MovementSettings CurrentSneakSettings => _minSneakSetting.Lerp(_maxSneakSettings, _player.CurrentPlayerSpeed);
 
+    /// <summary>
+    /// The lerped walk settings based on the current speed.
+    /// </summary>
+    public MovementSettings CurrentWalkSettings => _minWalkSetting.Lerp(_maxWalkSettings, _player.CurrentPlayerSpeed);
 
-    public MovementSettings PlacementSettings { get; }
+    /// <summary>
+    /// The settings used for placing the foot.
+    /// </summary>
+    public MovementSettings PlaceSettings { get; }
     
     // Private methods
     private IKEffector GetEffector()
@@ -296,14 +315,12 @@ public class FootControlContext
     }
 
 
-    private float _lastMoveTime;
-    private float _lerp;
     public void MoveFootToPosition(Vector3 direction)
     {
         // Move the foot to position using its rigidbody
         if(direction.magnitude > 1)
             direction.Normalize();
-        MoveRigidbody(Foot.Target, direction, SneakMovementSettings);
+        MoveRigidbody(Foot.Target, direction, CurrentSneakSettings);
     }
     
     public bool CheckStuckOnLedge(out RaycastHit hit)

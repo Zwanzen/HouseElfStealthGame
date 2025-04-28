@@ -67,7 +67,7 @@ public class FootLiftedState : FootControlState
                 velDir = Context.Player.Camera.GetCameraYawTransform().forward;
             var dist = Context.RelativeDistanceInDirection(Context.OtherFoot.Position, Context.Foot.Position, velDir);
             var offsetPos = GetOffsetPosition(Context.Player.Camera.GetCameraYawTransform().forward, Context.OtherFoot.Position.y, 0.2f);
-            MoveToRigidbody(Context.Foot.Target, offsetPos, Context.WalkMovementSettings, Context.OtherFoot.Target.linearVelocity);
+            MoveToRigidbody(Context.Foot.Target, offsetPos, Context.CurrentWalkSettings, Context.OtherFoot.Target.linearVelocity);
         }
         // If not, we use normal movement
         else
@@ -147,8 +147,7 @@ public class FootLiftedState : FootControlState
         if (Vector3.Distance(pos, otherFootPos) > Context.StepLength)
             pos = ClampedFootPosition(footPos, otherFootPos, dirToPos);
         
-        // If we are letting go of movement, slowly lerp to default speed
-        var settings = Context.Player.IsSneaking ? Context.SneakMovementSettings : Context.WalkMovementSettings;
+        var settings = Context.Player.IsSneaking ? Context.CurrentSneakSettings : Context.CurrentWalkSettings;
         MoveToRigidbody(Context.Foot.Target, pos, settings);
 
     }

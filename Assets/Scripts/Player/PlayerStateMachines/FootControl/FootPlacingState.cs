@@ -75,7 +75,7 @@ public class FootPlacingState : FootControlState
         dir.Normalize();
         dir *= Context.SpeedCurve.Evaluate(magLerp);
         
-        RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dir, Context.SneakMovementSettings);
+        RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dir, Context.CurrentSneakSettings);
     }
     private void HandleRotation()
     {
