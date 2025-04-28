@@ -74,6 +74,58 @@ public class FootLiftedState : FootControlState
         HandleFootRotation();
     }
 
+    private RaycastHit[] _hits = new RaycastHit[10];
+    private void Test()
+    {
+        // Clear the hits array before each cast
+        for (int i = 0; i < _hits.Length; i++)
+        {
+            _hits[i] = new RaycastHit();
+        }
+
+        // Get the number of actual hits
+        int hitCount = Physics.SphereCastNonAlloc(Context.Foot.Position + Vector3.up * 3,
+            0.5f, Vector3.down, _hits, 6f, Context.GroundLayers);
+
+        // Only process valid hits
+        for (int i = 0; i < hitCount; i++)
+        {
+            var hit = _hits[i];
+            // Debug With CheckSphere
+            var noLayer = 0;
+            Debug.DrawLine(_hits[i].point, _hits[i].point + Vector3.up, Color.green);
+        }
+
+        if (!Context.Player.IsMoving)
+            return;
+
+        var input = Context.Player.RelativeMoveInput.normalized;
+
+        CalculateIntersectionPoint(Context.OtherFoot.Position, Context.StepLength, Context.Foot.Position - input, input, out var intersectionPoint);
+
+        // Clamp the intersection point to the step height from the other foot
+        var maxHeight = Context.OtherFoot.Position.y + Context.StepHeight;
+        var minHeight = Context.OtherFoot.Position.y - Context.StepHeight;
+        if (intersectionPoint.y > maxHeight)
+            intersectionPoint.y = maxHeight;
+        else if (intersectionPoint.y < minHeight)
+            intersectionPoint.y = minHeight;
+
+
+        // Scan from the forward point
+        hitCount = Physics.SphereCastNonAlloc(intersectionPoint + Vector3.up * 3,
+            0.5f, Vector3.down, _hits, 6f, Context.GroundLayers);
+
+        // Only process valid hits
+        for (int i = 0; i < hitCount; i++)
+        {
+            var hit = _hits[i];
+            // Debug With CheckSphere
+            var noLayer = 0;
+            Debug.DrawLine(_hits[i].point, _hits[i].point + Vector3.up, Color.red);
+        }
+    }
+
     private void Movement()
     {
         var footPos = Context.Foot.Target.position;
