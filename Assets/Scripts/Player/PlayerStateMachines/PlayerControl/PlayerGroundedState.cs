@@ -45,7 +45,7 @@ public class PlayerGroundedState : PlayerControlState
             Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
     }
 
-    private Collider[] _result = new Collider[10];
+    private Collider[] _overlapResult = new Collider[10];
     private Vector3 GetHipPositionOffset()
     {
         // We set the initial position to the center of the feet
@@ -67,38 +67,7 @@ public class PlayerGroundedState : PlayerControlState
             // Add the hip height offset
             pos.y += GetHipHeight();
 
-            // We also want a local avoidance if there are walls close to the body
-            // We need to check around the player if there are walls
-            // We use the current calculated pelvis position to check for walls
-            var normalPelvisPos = Context.CalculatePelvisPoint(pos);
-            var size = Physics.BoxCastNonAlloc(normalPelvisPos, 0.6f, _result, Context.GroundLayers);
-            var dir = Vector3.zero;
-            var closestMag = 0f;
-            for (int i = 0; i < size; i++)
-            {
-                var col = _result[i];
-                if (!col || col.isTrigger) continue;
-
-                // We want to move away from the wall
-                var wallPos = col.ClosestPoint(calculatedPelvisPos);
-                var wallDir = (wallPos - calculatedPelvisPos);
-
-                if (i == 0)
-                {
-                    closestMag = wallDir.magnitude;
-                }
-                else
-                {
-                    if (wallDir.magnitude < closestMag)
-                        closestMag = wallDir.magnitude;
-                }
-                // we dont care about the y axis
-                wallDir.y = 0;
-                dir += wallDir;
-            }
-
-            if (dir != Vector3.zero && false)
-                pos -= Vector3.Lerp(dir.normalized * 0.2f, Vector3.zero, closestMag/0.6f);
+            pos += GetHipLocalAvoidance(pos);
 
         }
 
@@ -136,11 +105,8 @@ public class PlayerGroundedState : PlayerControlState
                 var boxPos = new Vector3(xzPos.x, yPos, xzPos.z);
 
                 // Create a overlap capsule that simulates the player's body collider, but in front of the player
-                var overlap = Physics.OverlapBoxNonAlloc(boxPos,
-                    new Vector3(radius, boxHeight, radius * 2), _result, player.Camera.GetCameraYawTransform().rotation, Context.GroundLayers);
-
-                if (overlap > 0)
-                    shouldDuck = false;
+                shouldDuck = !Physics.CheckBox(boxPos,
+                    new Vector3(radius, boxHeight, radius * 2), player.Camera.GetCameraYawTransform().rotation, Context.GroundLayers);
             }
 
 
@@ -157,5 +123,28 @@ public class PlayerGroundedState : PlayerControlState
 
         // If we are not ducking, we return the default height
         return 0;
+    }
+
+    private Vector3 GetHipLocalAvoidance(Vector3 pos)
+    {
+        // We also want a local avoidance if there are walls close to the body
+        // We need to check around the player if there are walls
+        // We use the current calculated pelvis position to check for walls
+        // For convinience
+        var player = Context.Player;
+        var radius = Context.BodyCollider.radius;
+        var normalPelvisPos = Context.CalculatePelvisPoint(pos);
+
+        // Cast in front of the player to see if we should move the hip
+        if (Physics.CapsuleCast(new Vector3(normalPelvisPos.x, Context.LowestFootPosition, normalPelvisPos.z), new Vector3(normalPelvisPos.x, player.EyePosition.y, normalPelvisPos.z),
+           radius, player.Camera.GetCameraYawTransform().forward, out var hit, radius * 3, Context.GroundLayers))
+        {
+            var directionFromWallToPlayer = player.Rigidbody.position - hit.point;
+            directionFromWallToPlayer.y = 0;
+            directionFromWallToPlayer.Normalize();
+            return directionFromWallToPlayer * radius;
+        }
+
+        return Vector3.zero;
     }
 }
