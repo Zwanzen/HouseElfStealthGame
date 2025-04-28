@@ -112,6 +112,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleMovement",
+                    "type": "Button",
+                    "id": "d58c0ef7-b90c-4496-8948-24ea9cebdba5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -552,6 +561,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "RightFoot",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "744bdc17-b808-423d-a4de-61d56c67a688",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "ToggleMovement",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

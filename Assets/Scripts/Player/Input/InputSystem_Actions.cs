@@ -198,6 +198,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleMovement"",
+                    ""type"": ""Button"",
+                    ""id"": ""d58c0ef7-b90c-4496-8948-24ea9cebdba5"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -638,6 +647,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""RightFoot"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""744bdc17-b808-423d-a4de-61d56c67a688"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""ToggleMovement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1237,6 +1257,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Scroll = m_Player.FindAction("Scroll", throwIfNotFound: true);
         m_Player_LeftFoot = m_Player.FindAction("LeftFoot", throwIfNotFound: true);
         m_Player_RightFoot = m_Player.FindAction("RightFoot", throwIfNotFound: true);
+        m_Player_ToggleMovement = m_Player.FindAction("ToggleMovement", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1342,6 +1363,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Scroll;
     private readonly InputAction m_Player_LeftFoot;
     private readonly InputAction m_Player_RightFoot;
+    private readonly InputAction m_Player_ToggleMovement;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1401,6 +1423,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/RightFoot".
         /// </summary>
         public InputAction @RightFoot => m_Wrapper.m_Player_RightFoot;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleMovement".
+        /// </summary>
+        public InputAction @ToggleMovement => m_Wrapper.m_Player_ToggleMovement;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1463,6 +1489,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @RightFoot.started += instance.OnRightFoot;
             @RightFoot.performed += instance.OnRightFoot;
             @RightFoot.canceled += instance.OnRightFoot;
+            @ToggleMovement.started += instance.OnToggleMovement;
+            @ToggleMovement.performed += instance.OnToggleMovement;
+            @ToggleMovement.canceled += instance.OnToggleMovement;
         }
 
         /// <summary>
@@ -1510,6 +1539,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @RightFoot.started -= instance.OnRightFoot;
             @RightFoot.performed -= instance.OnRightFoot;
             @RightFoot.canceled -= instance.OnRightFoot;
+            @ToggleMovement.started -= instance.OnToggleMovement;
+            @ToggleMovement.performed -= instance.OnToggleMovement;
+            @ToggleMovement.canceled -= instance.OnToggleMovement;
         }
 
         /// <summary>
@@ -1894,6 +1926,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnRightFoot(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleMovement" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleMovement(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

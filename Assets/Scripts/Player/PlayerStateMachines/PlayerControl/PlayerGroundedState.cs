@@ -12,8 +12,11 @@ public class PlayerGroundedState : PlayerControlState
 
     public override PlayerControlStateMachine.EPlayerControlState GetNextState()
     {
-        if(ShouldFall())
+        if(Context.ShouldFall)
             return PlayerControlStateMachine.EPlayerControlState.Falling;
+
+        if (Context.ShouldLeap)
+            return PlayerControlStateMachine.EPlayerControlState.Leap;
 
 
         return StateKey;
@@ -22,7 +25,7 @@ public class PlayerGroundedState : PlayerControlState
     public override void EnterState()
     {
         // If we just fell, we would try to fall again unless we reset the fall condition
-        _isFalling = false;
+        //_isFalling = false;
     }
 
 
@@ -43,54 +46,6 @@ public class PlayerGroundedState : PlayerControlState
         if(Context.Player.RelativeMoveInput != Vector3.zero)
             Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
     }
-
-    // Conditions to enter fall state
-    private bool _isFalling;
-    private float _fallHeightStart;
-    private bool ShouldFall()
-    {
-        var data = new FallData();
-        var isPlacing = Context.IsPlacingFoot(out var placing, out var other);
-        data.PlaceFoot = placing;
-        // When the planted foot is higher grounded than the max possible height
-        if (isPlacing)
-            if (placing.Position.y < other.Position.y - Context.StepHeight)
-            {
-                Context.SetFallCondition(EFallCondition.Placing, data);
-                return true;
-            }
-
-        // If the distance between the feet is too big, we fall
-        if (Vector3.Distance(Context.LeftFoot.Position, Context.RightFoot.Position) > Context.StepLength * 1.2f)
-        {
-            Context.SetFallCondition(EFallCondition.Distance, data);
-            return true;
-        }
-
-        // When both feet are not planted, save the fall start height
-        if (!Context.LeftFoot.Planted && !Context.RightFoot.Planted)
-        {
-            if (!_isFalling)
-            {
-                _isFalling = true;
-                _fallHeightStart = Context.Player.Transform.position.y;
-            } 
-            // If we fall 1 meter or more, we set the fall condition to falling
-            if ((_fallHeightStart - Context.Player.Transform.position.y) > 1 && _isFalling)
-            {
-                Context.SetFallCondition(EFallCondition.Falling);
-                return true;
-            }
-        }
-        else
-        {
-            _isFalling = false;
-            _fallHeightStart = 0f;
-        }
-
-            return false;
-    }
-
 
     private Collider[] _result = new Collider[10];
     private Vector3 GetHipPositionOffset()

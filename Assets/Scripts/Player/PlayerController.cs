@@ -203,7 +203,7 @@ public class PlayerController : MonoBehaviour
     {
         // Subscribe to the input events
         InputManager.Instance.OnScroll += UpdateMovementSpeed;
-        InputManager.Instance.OnSneakPressed += UpdateIsSneaking;
+        InputManager.Instance.OnToggleMovement += UpdateIsSneaking;
     }
 
     // Events
@@ -321,27 +321,12 @@ public class PlayerController : MonoBehaviour
         UpdateMovementSpeedSlider();
     }
 
-    private void UpdateIsSneaking(bool updated)
+    private void UpdateIsSneaking()
     {
-        // Toggle the sneaking input
-        if (_isSneaking && updated == true)
-        {
-            _isSneaking = false;
-        }
-        else if (!_isSneaking && updated == true)
-        {
-            _isSneaking = true;
-        }
-        else if (updated == false)
-        {
-            _isSneaking = false;
-        }
-        
-        // We need to update the player speed state
-        // to make sure the correct speed is set
-        UpdateMovementSpeed();
+        // Toggle sneaking
+        _isSneaking = !_isSneaking;
     }
-    
+
     // Public methods
     public void SetJump(bool state)
     {

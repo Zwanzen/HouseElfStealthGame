@@ -37,6 +37,8 @@ public class PlayerFallingState : PlayerControlState
         SetBodyToFall();
         // Disable the feet
         Context.StopFeet();
+        // Reset the animator triggers
+        Context.Player.Animator.ResetTriggers();
         // Set the animation to fall
         Context.Player.Animator.SetAnim(EAnimType.Fall);
 
@@ -71,6 +73,8 @@ public class PlayerFallingState : PlayerControlState
         Context.Player.Animator.OffAnim(EAnimType.FallStop);
         // Reset triggers
         Context.Player.Animator.ResetTriggers();
+        // Reset fall conditions
+        Context.ResetFall();
     }
 
 

@@ -13,20 +13,15 @@ public class FootLiftedState : FootControlState
 
     public override FootControlStateMachine.EFootState GetNextState()
     {
-        if (!Context.IsFootLifting && Context.Player.IsSneaking && Context.OtherFoot.Planted && !Context.Player.IsJumping)
+        // If we let go, and not auto waliking, we can try stop as long as the other foot is planted.
+        // If not, we are in a leaping state, this is detected by the player control sm.
+        if (!Context.IsFootLifting && Context.Player.IsSneaking && Context.OtherFoot.Planted)
             return FootControlStateMachine.EFootState.Placing;
         
+        // Used for auto walk rn
         if (GetDistanceFromOtherFoot() > Context.StepLength * 0.45f && !Context.Player.IsSneaking)
             return FootControlStateMachine.EFootState.Placing;
 
-        if(InputManager.Instance.IsJumping && Context.OtherFoot.Planted)
-        {
-            Context.Foot.Target.AddForce(Vector3.up * 3f, ForceMode.VelocityChange);
-            Context.OtherFoot.Sm.TransitionToState(FootControlStateMachine.EFootState.Lifted);
-            Context.Player.SetJump(true);
-            return FootControlStateMachine.EFootState.Placing;
-        }
-        
         return StateKey;
     }
 
@@ -35,6 +30,7 @@ public class FootLiftedState : FootControlState
     {
         // get the start angle
         _startAngle = Context.Foot.Target.transform.localRotation.x;
+
     }
 
     public override void ExitState()
