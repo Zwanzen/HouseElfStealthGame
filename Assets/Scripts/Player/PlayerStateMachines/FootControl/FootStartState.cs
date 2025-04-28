@@ -32,28 +32,17 @@ public class FootStartState : FootControlState
         if(Context.FootGroundCast(0.2f,out var hit))
             Context.Foot.Target.position = hit.point + Vector3.up * Context.FootRadius;
 
-        Context.Foot.Thigh.position = Context.Foot.ThighPosition;
-        Context.Foot.Thigh.rotation = Context.Foot.ThighRotation;
-        Context.Foot.Calf.position = Context.Foot.CalfPosition;
-        Context.Foot.Calf.rotation = Context.Foot.CalfRotation;
-        
         // Set everything to non-kinematic
         Context.Foot.Target.isKinematic = false;
-        Context.Foot.Thigh.isKinematic = false;
-        Context.Foot.Calf.isKinematic = false;
         
         // Make sure the feet have no velocity
         Context.Foot.Target.linearVelocity = Vector3.zero;
         Context.Foot.Target.angularVelocity = Vector3.zero;
-        Context.Foot.Thigh.linearVelocity = Vector3.zero;
-        Context.Foot.Thigh.angularVelocity = Vector3.zero;
-        Context.Foot.Calf.linearVelocity = Vector3.zero;
-        Context.Foot.Calf.angularVelocity = Vector3.zero;
         
         // Enable the colliders
         Context.Foot.Collider.enabled = true;
-        Context.Foot.ThighCollider.enabled = true;
-        Context.Foot.CalfCollider.enabled = true;
+        Context.Foot.Thigh.enabled = true;
+        Context.Foot.Calf.enabled = true;
         
         // Enable the foot weights
         Context.FootIKEffector.positionWeight = 1f;

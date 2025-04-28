@@ -35,20 +35,14 @@ public class FootStopState : FootControlState
         // Set velocity to zero, not sure if this is needed
         Context.Foot.Target.linearVelocity = Vector3.zero;
         Context.Foot.Target.angularVelocity = Vector3.zero;
-        Context.Foot.Thigh.linearVelocity = Vector3.zero;
-        Context.Foot.Thigh.angularVelocity = Vector3.zero;
-        Context.Foot.Calf.linearVelocity = Vector3.zero;
-        Context.Foot.Calf.angularVelocity = Vector3.zero;
 
         // Set everything to kinematic
         Context.Foot.Target.isKinematic = true;
-        Context.Foot.Thigh.isKinematic = true;
-        Context.Foot.Calf.isKinematic = true;
 
         // Disable the colliders
         Context.Foot.Collider.enabled = false;
-        Context.Foot.ThighCollider.enabled = false;
-        Context.Foot.CalfCollider.enabled = false;
+        Context.Foot.Thigh.enabled = false;
+        Context.Foot.Calf.enabled = false;
         _hasStopped = true;
     }
 

@@ -5,7 +5,8 @@ public class PlayerControlStateMachine : StateMachine<PlayerControlStateMachine.
     public enum EPlayerControlState
     {
         Grounded,
-        Falling
+        Falling,
+        Leap
     }
 
     private PlayerControlContext _context;
@@ -17,6 +18,7 @@ public class PlayerControlStateMachine : StateMachine<PlayerControlStateMachine.
     {
         States.Add(EPlayerControlState.Grounded, new PlayerGroundedState(_context, EPlayerControlState.Grounded));
         States.Add(EPlayerControlState.Falling, new PlayerFallingState(_context, EPlayerControlState.Falling));
+        States.Add(EPlayerControlState.Leap, new PlayerLeapState(_context, EPlayerControlState.Leap));
 
         CurrentState = States[EPlayerControlState.Grounded];
     }

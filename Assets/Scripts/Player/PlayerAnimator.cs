@@ -53,6 +53,8 @@ public class PlayerAnimator
         { EAnimType.FallHit, "FallHit" },
         { EAnimType.FallStop, "FallStop" },
         { EAnimType.FallStand, "FallStand" },
+        { EAnimType.Jump, "Jump" },
+        { EAnimType.Land, "Land" }
     };
 
     // This is used to define what anim type is a bool or trigger
@@ -63,6 +65,8 @@ public class PlayerAnimator
         { EAnimType.FallHit, true },
         { EAnimType.FallStop, false },
         { EAnimType.FallStand, true },
+        { EAnimType.Jump, true },
+        { EAnimType.Land, true }
     };
 
     // Public Methods
@@ -73,6 +77,10 @@ public class PlayerAnimator
         FallHit,
         FallStop,
         FallStand,
+
+        // Leaping
+        Jump,
+        Land
     }
 
     /// <summary>

@@ -25,9 +25,6 @@ public class FootPlacingState : FootControlState
     
     public override void EnterState()
     {
-        _validPlacement = CheckValidPlacement();
-        if(!_validPlacement)
-            Context.Player.Camera.Stumble();
         _startPos = Context.Foot.Target.position;
         Context.Foot.Target.useGravity = true;
     }
@@ -45,11 +42,6 @@ public class FootPlacingState : FootControlState
     {
         //MoveToGround();
         HandleRotation();
-    }
-    
-    private bool CheckValidPlacement()
-    {
-        return Context.FootGroundCast(0.5f);
     }
     
     private void MoveToGround()
@@ -75,7 +67,7 @@ public class FootPlacingState : FootControlState
         dir.Normalize();
         dir *= Context.SpeedCurve.Evaluate(magLerp);
         
-        RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dir, Context.SneakMovementSettings);
+        RigidbodyMovement.MoveRigidbody(Context.Foot.Target, dir, Context.CurrentSneakSettings);
     }
     private void HandleRotation()
     {

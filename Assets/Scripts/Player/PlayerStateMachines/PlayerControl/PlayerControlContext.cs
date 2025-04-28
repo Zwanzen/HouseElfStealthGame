@@ -3,6 +3,7 @@ using RootMotion.FinalIK;
 using System;
 using UnityEngine;
 using static RigidbodyMovement;
+using static FootControlStateMachine;
 
 public class PlayerControlContext
 {
@@ -39,6 +40,11 @@ public class PlayerControlContext
     public float LowestFootPosition => Mathf.Min(LeftFoot.Position.y, RightFoot.Position.y);
     public EFallCondition FallCondition { get; private set; }
     public FallData Fall { get; private set; }
+    public bool ShouldFall => GetShouldFall();
+    public bool ShouldLeap => GetShouldLeap();
+
+    // private fields
+    private float _leapTimer;
 
     // Public methods
     public bool IsGrounded()
@@ -210,6 +216,93 @@ public class PlayerControlContext
     {
         FallCondition = condition;
         Fall = data;
+    }
+
+    // Conditions to enter fall state
+    private bool _isTemporaryFall;
+    private float _temporaryFallHeight;
+    public bool GetShouldFall()
+    {
+        var data = new FallData();
+        var isPlacing = IsPlacingFoot(out var placing, out var other);
+        data.PlaceFoot = placing;
+        // When the planted foot is higher grounded than the max possible height
+        if (isPlacing)
+            if (placing.Position.y < other.Position.y - StepHeight)
+            {
+                SetFallCondition(EFallCondition.Placing, data);
+                return true;
+            }
+
+        // If the distance between the feet is too big, we fall
+        if (Vector3.Distance(LeftFoot.Position, RightFoot.Position) > StepLength * 1.2f)
+        {
+            SetFallCondition(EFallCondition.Distance, data);
+            return true;
+        }
+
+        // When both feet are not planted, save the fall start height
+        if (!LeftFoot.Planted && !RightFoot.Planted)
+        {
+            if (!_isTemporaryFall)
+            {
+                _isTemporaryFall = true;
+                _temporaryFallHeight = Player.Transform.position.y;
+            }
+            // If we fall 1 meter or more, we set the fall condition to falling
+            if ((_temporaryFallHeight - Player.Transform.position.y) > 1 && _isTemporaryFall)
+            {
+                SetFallCondition(EFallCondition.Falling);
+                return true;
+            }
+        }
+        else
+        {
+            _isTemporaryFall = false;
+            _temporaryFallHeight = 0f;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// This method is used to check if the player should consider or stop leaping.
+    /// Another method is used to check if the player should actually leap.
+    /// </summary>
+    public bool CanLeap()
+    {
+        // If the feet state combination is lifted and placing, we want to leap
+        if (IsLiftingFoot(out var lifted, out var other))
+            return other.Placing;
+        return false;
+    }
+
+    public bool GetShouldLeap()
+    {
+        if (CanLeap())
+        {
+            // If we can leap, we increment the timer
+            _leapTimer += Time.deltaTime;
+            // If the timer is great enough, we can leap
+            if (_leapTimer > 0.2f)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        // When we should not leap, we reset the timer
+        _leapTimer = 0f;
+        return false;
+    }
+
+    /// <summary>
+    /// When we exit falling state, we need to reset the fall condition.
+    /// </summary>
+    public void ResetFall()
+    {
+        _isTemporaryFall = false;
+        _temporaryFallHeight = 0f;
     }
 
 }

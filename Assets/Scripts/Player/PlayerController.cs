@@ -34,15 +34,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask _groundLayers;
     [SerializeField] private PlayerFootSoundPlayer _leftFootSoundPlayer;
     [SerializeField] private PlayerFootSoundPlayer _rightFootSoundPlayer;
-    [SerializeField] private MovementSettings _bodyMovementSettings;
     [SerializeField] private Transform[] _limbs;
 
     [Space(10f)]
     [Header("Body Variables")]
-    [SerializeField] private float _springStrength = 250f;
-    [SerializeField] private float _springDampener = 5f;
-    [SerializeField, Range(0,1)] private float _lowestBodyHeight = 0.5f;
-    [SerializeField] private AnimationCurve _distanceHeightCurve;
     [SerializeField] private float _bodyRotationSpeed = 5f;
     [SerializeField] private CapsuleCollider _bodyCollider;
     [SerializeField] private SphereCollider _fallCollider;
@@ -55,19 +50,21 @@ public class PlayerController : MonoBehaviour
     [Space(10f)]
     [SerializeField] private float _stepLength = 0.5f;
     [SerializeField] private float _stepHeight = 0.5f;
-    [SerializeField] private MovementSettings _liftedSettings;
-    [SerializeField] private MovementSettings _walkSettings;
-    [SerializeField] private MovementSettings _placeSettings;
     [SerializeField] private AnimationCurve _speedCurve;
     [SerializeField] private AnimationCurve _heightCurve;
     [SerializeField] private AnimationCurve _placeSpeedCurve;
     [SerializeField] private AnimationCurve _offsetCurve;
     
     [Space(10f)]
-    [Header("Sneak Variables")]
-    [SerializeField] private float _minSneakSpeed = 1f;
-    [SerializeField] private float _maxSneakSpeed = 2f;
-    
+    [Header("Movement Settings")]
+    [SerializeField] private MovementSettings _bodyMovementSetting;
+    [SerializeField] private MovementSettings _minSneakSetting;
+    [SerializeField] private MovementSettings _maxSneakSetting;
+    [SerializeField] private MovementSettings _minWalkSetting;
+    [SerializeField] private MovementSettings _maxWalkSetting;
+
+    [SerializeField] private MovementSettings _placeSettings;
+
     [Space(10f)] [Header("Temp")] 
     [SerializeField] private RectTransform _leftClick;
     [SerializeField] private RectTransform _rightClick;
@@ -76,8 +73,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AnimationCurve _imageScaleCurve;
     [SerializeField] private Image _leftImage;
     [SerializeField] private Image _rightImage;
-    [SerializeField] private Transform _leanTarget;
-    [SerializeField] private Transform _leanRestTarget;
+    [SerializeField] private Slider _movementSpeedSlider;
 
     // Private variables
     private float _wantedLScale;
@@ -87,13 +83,12 @@ public class PlayerController : MonoBehaviour
     private Color _wantedRColor;
     
     private bool _isSneaking;
-    private bool _isStumble;
 
     // This is the maximum speed range for the player
     // Helps determine the speed state of the player
-    private const int MaxSpeedRange = 15;
+    [HideInInspector]
+    public const int MaxSpeedRange = 10;
     private int _currentPlayerSpeed = 5;
-    private EPlayerSpeedState _playerSpeedState;
     
     public enum EPlayerSpeedState
     {
@@ -116,13 +111,22 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         InitializeInputEvents();
-        _playerSpeedState = UpdatePlayerSpeedState();
+        UpdateMovementSpeedSlider();
     }
 
     private void Update()
     {
         HandleStepUI();
         Animator.Update();
+    }
+
+    private void UpdateMovementSpeedSlider()
+    {
+        if(!_movementSpeedSlider)
+            return;
+
+        // Update the movement speed slider value
+        _movementSpeedSlider.value = _currentPlayerSpeed;
     }
 
     private void HandleStepUI()
@@ -178,14 +182,14 @@ public class PlayerController : MonoBehaviour
         
         // Then we construct the context files after the feet are created.
         _controlContext = new PlayerControlContext(this, _bodyIK, _bodyCollider, _fallCollider, _groundLayers,
-            leftFoot, rightFoot, _bodyMovementSettings, _stepLength, _stepHeight);
+            leftFoot, rightFoot, _bodyMovementSetting, _stepLength, _stepHeight);
         
         _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
-            leftFoot, rightFoot, _stepLength, _stepHeight, _liftedSettings, _walkSettings, _placeSettings, _speedCurve, _heightCurve, 
-            _placeSpeedCurve, _offsetCurve);
+            leftFoot, rightFoot, _stepLength, _stepHeight, _minSneakSetting, _maxSneakSetting, _minWalkSetting, _maxWalkSetting, 
+            _placeSettings, _speedCurve, _heightCurve, _placeSpeedCurve, _offsetCurve);
         _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
-            rightFoot, leftFoot, _stepLength, _stepHeight, _liftedSettings, _walkSettings, _placeSettings, _speedCurve, _heightCurve, 
-            _placeSpeedCurve, _offsetCurve);
+            rightFoot, leftFoot, _stepLength, _stepHeight, _minSneakSetting, _maxSneakSetting, _minWalkSetting, _maxWalkSetting, _placeSettings, 
+            _speedCurve, _heightCurve, _placeSpeedCurve, _offsetCurve);
         
         // Set the context for the state machines
         // This also initializes the states within the state machines
@@ -199,7 +203,7 @@ public class PlayerController : MonoBehaviour
     {
         // Subscribe to the input events
         InputManager.Instance.OnScroll += UpdateMovementSpeed;
-        InputManager.Instance.OnSneakPressed += UpdateIsSneaking;
+        InputManager.Instance.OnToggleMovement += UpdateIsSneaking;
     }
 
     // Events
@@ -224,7 +228,7 @@ public class PlayerController : MonoBehaviour
     // Sneaking Properties
     public Rigidbody LeftFootTarget => _leftFoot.Target;
     public Rigidbody RightFootTarget => _rightFoot.Target;
-    public MovementSettings BodyMovementSettings => _bodyMovementSettings;
+    public MovementSettings BodyMovementSettings => _bodyMovementSetting;
     public static float Height => 1.0f;
     public float StepLength => _stepLength;
 
@@ -258,7 +262,7 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// If the player tries to place feet and there is no ground.
     /// </summary>
-    public bool IsStumble => _isStumble;
+    public bool IsStumble { get; private set; }
     
     public bool IsSneaking => _isSneaking;
 
@@ -267,15 +271,10 @@ public class PlayerController : MonoBehaviour
     public bool IsMoving => InputManager.Instance.MoveInput != Vector3.zero;
     
     /// <summary>
-    /// This is the control state of the player based on the selected speed.
-    /// </summary>
-    public EPlayerSpeedState PlayerSpeedState => _playerSpeedState;
-    
-    /// <summary>
-    /// This is the current speed of the player.
+    /// This is the current lerped speed of the player.
     /// Used to control the speed of the player in the state machines.
     /// </summary>
-    public int CurrentPlayerSpeed => _currentPlayerSpeed;
+    public float CurrentPlayerSpeed => ((float)_currentPlayerSpeed / (float)MaxSpeedRange);
     
     // Movement input based on camera direction
     public Vector3 RelativeMoveInput => GetRelativeMoveInput();
@@ -285,7 +284,6 @@ public class PlayerController : MonoBehaviour
     public PlayerFootSoundPlayer LeftFootSoundPlayer => _leftFootSoundPlayer;
     public PlayerFootSoundPlayer RightFootSoundPlayer => _rightFootSoundPlayer;
     
-
     // Private methods
     private Vector3 GetRelativeMoveInput()
     {
@@ -318,56 +316,17 @@ public class PlayerController : MonoBehaviour
         // Clamp the speed to the max speed range
         // The player should not be able to select a zero speed
         _currentPlayerSpeed = Math.Clamp(_currentPlayerSpeed, 1, MaxSpeedRange);
-        
-        // If the player is sneaking, we clamp it to the sneak speed
-        if (_isSneaking)
-        {
-            _currentPlayerSpeed = Math.Clamp(_currentPlayerSpeed, 1, 5);
-        }
-        
-        // Update the player speed state
-        _playerSpeedState = UpdatePlayerSpeedState();
-    }
-    
-    private EPlayerSpeedState UpdatePlayerSpeedState()
-    {
-        // The range is split into 3 states,
-        // With sneak only being active when sneak is active
-    
-        // Fast: 15 - 11
-        // Medium: 10 - 6
-        // Slow: 5 - 1
 
-        return _currentPlayerSpeed switch
-        {
-            >= 11 and <= 15 => EPlayerSpeedState.Fast,
-            >= 6 and <= 10 => EPlayerSpeedState.Medium,
-            >= 1 and <= 5 => EPlayerSpeedState.Slow,
-            _ => EPlayerSpeedState.Slow // Default case
-        };
+        // Update the visual slider UI
+        UpdateMovementSpeedSlider();
     }
 
-    private void UpdateIsSneaking(bool updated)
+    private void UpdateIsSneaking()
     {
-        // Toggle the sneaking input
-        if (_isSneaking && updated == true)
-        {
-            _isSneaking = false;
-        }
-        else if (!_isSneaking && updated == true)
-        {
-            _isSneaking = true;
-        }
-        else if (updated == false)
-        {
-            _isSneaking = false;
-        }
-        
-        // We need to update the player speed state
-        // to make sure the correct speed is set
-        UpdateMovementSpeed();
+        // Toggle sneaking
+        _isSneaking = !_isSneaking;
     }
-    
+
     // Public methods
     public void SetJump(bool state)
     {
@@ -403,6 +362,7 @@ public class PlayerController : MonoBehaviour
         GUI.Label(new Rect(20, 35, 240, 20), $"Left Foot State: {_leftFootStateMachine.State}", style);
         GUI.Label(new Rect(20, 55, 240, 20), $"Right Foot State: {_rightFootStateMachine.State}", style);
         GUI.Label(new Rect(20, 75, 240, 20), $"Player Sneak: {_isSneaking}", style);
+        GUI.Label(new Rect(20, 95, 240, 20), $"Player Speed: {_currentPlayerSpeed}", style);
     }
     
     private void OnDestroy()

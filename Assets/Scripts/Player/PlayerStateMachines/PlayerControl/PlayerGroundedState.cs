@@ -1,6 +1,4 @@
-using Unity.Mathematics;
 using UnityEngine;
-using static PlayerControlContext;
 
 public class PlayerGroundedState : PlayerControlState
 {
@@ -12,8 +10,11 @@ public class PlayerGroundedState : PlayerControlState
 
     public override PlayerControlStateMachine.EPlayerControlState GetNextState()
     {
-        if(ShouldFall())
+        if(Context.ShouldFall)
             return PlayerControlStateMachine.EPlayerControlState.Falling;
+
+        if (Context.ShouldLeap)
+            return PlayerControlStateMachine.EPlayerControlState.Leap;
 
 
         return StateKey;
@@ -22,7 +23,7 @@ public class PlayerGroundedState : PlayerControlState
     public override void EnterState()
     {
         // If we just fell, we would try to fall again unless we reset the fall condition
-        _isFalling = false;
+        //_isFalling = false;
     }
 
 
@@ -44,55 +45,7 @@ public class PlayerGroundedState : PlayerControlState
             Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
     }
 
-    // Conditions to enter fall state
-    private bool _isFalling;
-    private float _fallHeightStart;
-    private bool ShouldFall()
-    {
-        var data = new FallData();
-        var isPlacing = Context.IsPlacingFoot(out var placing, out var other);
-        data.PlaceFoot = placing;
-        // When the planted foot is higher grounded than the max possible height
-        if (isPlacing)
-            if (placing.Position.y < other.Position.y - Context.StepHeight)
-            {
-                Context.SetFallCondition(EFallCondition.Placing, data);
-                return true;
-            }
-
-        // If the distance between the feet is too big, we fall
-        if (Vector3.Distance(Context.LeftFoot.Position, Context.RightFoot.Position) > Context.StepLength * 1.2f)
-        {
-            Context.SetFallCondition(EFallCondition.Distance, data);
-            return true;
-        }
-
-        // When both feet are not planted, save the fall start height
-        if (!Context.LeftFoot.Planted && !Context.RightFoot.Planted)
-        {
-            if (!_isFalling)
-            {
-                _isFalling = true;
-                _fallHeightStart = Context.Player.Transform.position.y;
-            } 
-            // If we fall 1 meter or more, we set the fall condition to falling
-            if ((_fallHeightStart - Context.Player.Transform.position.y) > 1 && _isFalling)
-            {
-                Context.SetFallCondition(EFallCondition.Falling);
-                return true;
-            }
-        }
-        else
-        {
-            _isFalling = false;
-            _fallHeightStart = 0f;
-        }
-
-            return false;
-    }
-
-
-    private Collider[] _result = new Collider[10];
+    private Collider[] _overlapResult = new Collider[10];
     private Vector3 GetHipPositionOffset()
     {
         // We set the initial position to the center of the feet
@@ -106,72 +59,92 @@ public class PlayerGroundedState : PlayerControlState
         if (Context.Player.IsSneaking)
         {
             // But only if we are lifting the foot
-            if(Context.IsLiftingFoot(out var lifted, out var planted))
+            if (Context.IsLiftingFoot(out var lifted, out var planted))
                 pos = Vector3.Lerp(lifted.Position, planted.Position, 0.8f); // Slightly towards the planted foot
-                
-            var player = Context.Player; // For convinience
+            pos.y = 0f; // This offset should be set below.
 
-            // Now we check if we should duck under something
-            // We cast a box from the player forward, and if it hits, we adjust the height of the hip
-            // Make sure the y offset is not set before this
-            pos.y = 0f;
-            if (Physics.BoxCast(player.Rigidbody.position + player.Camera.GetCameraYawTransform().forward * Context.BodyCollider.radius, 
-                    new Vector3(Context.BodyCollider.radius, Context.BodyCollider.radius, Context.BodyCollider.radius + Context.BodyCollider.radius),
-                    Vector3.up, out var hit, Quaternion.Euler(0, player.Camera.GetCameraYawTransform().rotation.eulerAngles.y, 0),
-                    (Context.LowestFootPosition + PlayerController.Height) - player.Rigidbody.position.y, Context.GroundLayers))
-            {
-                // Now if we should duck, we add the difference to the hip position
-                if(hit.point.y < Context.LowestFootPosition + PlayerController.Height)
-                {
-                    // We want to move the hip down based on the hit point
-                    var diff = Context.LowestFootPosition + PlayerController.Height - hit.point.y;
-                    // If the difference is too big, we dont want to move the hip down
-                    if (diff < 0.38f)
-                        pos.y -= diff;
-                }
-                // For easy debugging
-                Physics.CheckSphere(
-                    new Vector3(hit.point.x, (Context.LowestFootPosition + PlayerController.Height), hit.point.z),
-                    0.01f);
-                Physics.CheckSphere(hit.point, 0.01f);
-            }
 
-            // We also want a local avoidance if there are walls close to the body
-            // We need to check around the player if there are walls
-            // We use the current calculated pelvis position to check for walls
-            var calculatedPelvisPos = Context.CalculatePelvisPoint(pos);
-            var size = Physics.OverlapSphereNonAlloc(calculatedPelvisPos, 0.6f, _result, Context.GroundLayers);
-            var dir = Vector3.zero;
-            var closestMag = 0f;
-            for (int i = 0; i < size; i++)
-            {
-                var col = _result[i];
-                if (!col || col.isTrigger) continue;
+            // Add the hip height offset
+            pos.y += GetHipHeight();
 
-                // We want to move away from the wall
-                var wallPos = col.ClosestPoint(calculatedPelvisPos);
-                var wallDir = (wallPos - calculatedPelvisPos);
-
-                if (i == 0)
-                {
-                    closestMag = wallDir.magnitude;
-                }
-                else
-                {
-                    if (wallDir.magnitude < closestMag)
-                        closestMag = wallDir.magnitude;
-                }
-                // we dont care about the y axis
-                wallDir.y = 0;
-                dir += wallDir;
-            }
-
-            if (dir != Vector3.zero && false)
-                pos -= Vector3.Lerp(dir.normalized * 0.2f, Vector3.zero, closestMag/0.6f);
+            pos += GetHipLocalAvoidance(pos);
 
         }
 
         // The default hip position is the center of the feet
         return pos;
+    }
+
+    private float GetHipHeight()
+    {
+        // For convinience
+        var player = Context.Player;
+        var radius = Context.BodyCollider.radius;
+
+        // Now we check if we should duck under something
+        // We cast a box from the player forward, and if it hits, we adjust the height of the hip
+        if (Physics.BoxCast(player.Rigidbody.position + player.Camera.GetCameraYawTransform().forward * radius,
+                new Vector3(radius, radius, radius + radius),
+                Vector3.up, out var hit, Quaternion.Euler(0, player.Camera.GetCameraYawTransform().rotation.eulerAngles.y, 0),
+                (Context.LowestFootPosition + PlayerController.Height) - player.Rigidbody.position.y, Context.GroundLayers))
+        {
+
+            // If we do hit something in front and above us, we need to check if we have space in front of us to duck to allow ducking
+            // But only if we dont have anything above us at the time, then we are already ducking, and therefore should continue ducking
+            var shouldDuck = true;
+            // Check if we are already ducking
+            var ducking = Physics.SphereCast(player.Rigidbody.position, radius * 0.9f, Vector3.up, out var upHit,
+                (Context.LowestFootPosition + PlayerController.Height) - player.Rigidbody.position.y - (radius * 2), Context.GroundLayers);
+
+            // If we are not ducking, check if we have space in front of us to duck
+            if (!ducking)
+            {
+                var xzPos = player.Rigidbody.position + player.Camera.GetCameraYawTransform().forward * (radius * 2);
+                var boxHeight = (hit.point.y - (Context.LowestFootPosition + 0.02f)) / 2;
+                var yPos = hit.point.y - (boxHeight + 0.02f);
+                var boxPos = new Vector3(xzPos.x, yPos, xzPos.z);
+
+                // Create a overlap capsule that simulates the player's body collider, but in front of the player
+                shouldDuck = !Physics.CheckBox(boxPos,
+                    new Vector3(radius, boxHeight, radius * 2), player.Camera.GetCameraYawTransform().rotation, Context.GroundLayers);
+            }
+
+
+            // Now if we should duck, we add the difference to the hip position
+            if (hit.point.y < Context.LowestFootPosition + PlayerController.Height && shouldDuck)
+            {
+                // We want to move the hip down based on the hit point
+                var diff = Context.LowestFootPosition + PlayerController.Height - hit.point.y;
+                // If the difference is too big, we dont want to move the hip down
+                if (diff < 0.38f)
+                    return -diff;
+            }
+        }
+
+        // If we are not ducking, we return the default height
+        return 0;
+    }
+
+    private Vector3 GetHipLocalAvoidance(Vector3 pos)
+    {
+        // We also want a local avoidance if there are walls close to the body
+        // We need to check around the player if there are walls
+        // We use the current calculated pelvis position to check for walls
+        // For convinience
+        var player = Context.Player;
+        var radius = Context.BodyCollider.radius;
+        var normalPelvisPos = Context.CalculatePelvisPoint(pos);
+
+        // Cast in front of the player to see if we should move the hip
+        if (Physics.CapsuleCast(new Vector3(normalPelvisPos.x, Context.LowestFootPosition, normalPelvisPos.z), new Vector3(normalPelvisPos.x, player.EyePosition.y, normalPelvisPos.z),
+           radius, player.Camera.GetCameraYawTransform().forward, out var hit, radius * 3, Context.GroundLayers))
+        {
+            var directionFromWallToPlayer = player.Rigidbody.position - hit.point;
+            directionFromWallToPlayer.y = 0;
+            directionFromWallToPlayer.Normalize();
+            return directionFromWallToPlayer * radius;
+        }
+
+        return Vector3.zero;
     }
 }
