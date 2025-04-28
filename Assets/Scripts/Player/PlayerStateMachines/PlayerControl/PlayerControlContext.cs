@@ -227,7 +227,7 @@ public class PlayerControlContext
         var isPlacing = IsPlacingFoot(out var placing, out var other);
         data.PlaceFoot = placing;
         // When the planted foot is higher grounded than the max possible height
-        if (isPlacing)
+        if (isPlacing && false)
             if (placing.Position.y < other.Position.y - StepHeight)
             {
                 SetFallCondition(EFallCondition.Placing, data);
@@ -235,7 +235,7 @@ public class PlayerControlContext
             }
 
         // If the distance between the feet is too big, we fall
-        if (Vector3.Distance(LeftFoot.Position, RightFoot.Position) > StepLength * 1.2f)
+        if (Vector3.Distance(LeftFoot.Position, RightFoot.Position) > StepLength * 2)
         {
             SetFallCondition(EFallCondition.Distance, data);
             return true;
@@ -250,7 +250,7 @@ public class PlayerControlContext
                 _temporaryFallHeight = Player.Transform.position.y;
             }
             // If we fall 1 meter or more, we set the fall condition to falling
-            if ((_temporaryFallHeight - Player.Transform.position.y) > 1 && _isTemporaryFall)
+            if ((_temporaryFallHeight - Player.Transform.position.y) > 2 && _isTemporaryFall)
             {
                 SetFallCondition(EFallCondition.Falling);
                 return true;

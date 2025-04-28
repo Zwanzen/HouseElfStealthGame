@@ -136,7 +136,7 @@ public class PlayerGroundedState : PlayerControlState
         var normalPelvisPos = Context.CalculatePelvisPoint(pos);
 
         // Cast in front of the player to see if we should move the hip
-        if (Physics.CapsuleCast(new Vector3(normalPelvisPos.x, Context.LowestFootPosition, normalPelvisPos.z), new Vector3(normalPelvisPos.x, player.EyePosition.y, normalPelvisPos.z),
+        if (Physics.CapsuleCast(new Vector3(normalPelvisPos.x, Context.LowestFootPosition + 0.05f, normalPelvisPos.z), new Vector3(normalPelvisPos.x, player.EyePosition.y, normalPelvisPos.z),
            radius, player.Camera.GetCameraYawTransform().forward, out var hit, radius * 3, Context.GroundLayers))
         {
             var directionFromWallToPlayer = player.Rigidbody.position - hit.point;

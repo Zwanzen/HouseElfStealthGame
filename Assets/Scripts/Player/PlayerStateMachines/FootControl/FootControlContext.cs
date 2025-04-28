@@ -68,6 +68,7 @@ public class FootControlContext
     public PlayerFootSoundPlayer FootSoundPlayer => _footSoundPlayer;
     public Foot Foot => _foot;
     public Foot OtherFoot => _otherFoot;
+    public Vector3 LowestFootPosition => _foot.Position.y < _otherFoot.Position.y ? _foot.Position : _otherFoot.Position;
     public Quaternion RotationOffset { get; }
     public float StepLength => _stepLength;
     public float StepHeight => _stepLength;
