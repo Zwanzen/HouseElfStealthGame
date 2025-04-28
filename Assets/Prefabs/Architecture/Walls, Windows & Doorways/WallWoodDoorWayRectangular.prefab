@@ -11,7 +11,9 @@ GameObject:
   - component: {fileID: 6791546553204168791}
   - component: {fileID: 7568764325767291179}
   - component: {fileID: 9206371675933504524}
-  - component: {fileID: 2256440247622991330}
+  - component: {fileID: 8520858595036360385}
+  - component: {fileID: 461997713486031624}
+  - component: {fileID: 579410228448101038}
   m_Layer: 28
   m_Name: WallWoodDoorWayRectangular
   m_TagString: Wood
@@ -65,8 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 172b30f9142bbc14ba25a99e1c788b90, type: 2}
-  - {fileID: 2100000, guid: fda2b4eea00f01240b60567f0df32861, type: 2}
+  - {fileID: 2100000, guid: dd5ce6d246092ed449659e6a1c6ad15d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -88,8 +89,8 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &2256440247622991330
-MeshCollider:
+--- !u!65 &8520858595036360385
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -106,7 +107,48 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -4866455340882403280, guid: 52880d4d18f91b0409d11c54a0164b7c, type: 3}
+  serializedVersion: 3
+  m_Size: {x: 0.30066997, y: 2.159778, z: 0.1500004}
+  m_Center: {x: 0.0003361255, y: 1.079889, z: 0.52499986}
+--- !u!65 &461997713486031624
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8042509197748349772}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.37099272, y: 2.1957352, z: 0.1908347}
+  m_Center: {x: 0.0017222762, y: 1.0978676, z: -0.5454172}
+--- !u!65 &579410228448101038
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8042509197748349772}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.37099272, y: 0.20065975, z: 1.2401122}
+  m_Center: {x: 0.0017222762, y: 2.0954053, z: -0.020778477}

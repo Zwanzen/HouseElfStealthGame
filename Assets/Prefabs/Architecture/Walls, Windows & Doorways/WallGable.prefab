@@ -12,8 +12,9 @@ GameObject:
   - component: {fileID: 8484598640932760573}
   - component: {fileID: 6398237850597887937}
   - component: {fileID: 1055167367152908235}
+  - component: {fileID: 8115530006058818767}
   m_Layer: 28
-  m_Name: WallGable45
+  m_Name: WallGable
   m_TagString: Wood
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6741746670121891655}
-  m_Mesh: {fileID: 2258470947803378107, guid: 52880d4d18f91b0409d11c54a0164b7c, type: 3}
+  m_Mesh: {fileID: 3233287903031746579, guid: 52880d4d18f91b0409d11c54a0164b7c, type: 3}
 --- !u!23 &6398237850597887937
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -108,4 +109,19 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 2258470947803378107, guid: 52880d4d18f91b0409d11c54a0164b7c, type: 3}
+  m_Mesh: {fileID: 3233287903031746579, guid: 52880d4d18f91b0409d11c54a0164b7c, type: 3}
+--- !u!114 &8115530006058818767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6741746670121891655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27c31b8da5886e04d964c4e6974dfe02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useObjectScale: 1
+  axisMapping: 2
+  tilingMultiplier: {x: 1, y: 1}
