@@ -239,12 +239,29 @@ public class FootLiftedState : FootControlState
         }
 
         // We need to go through all the hits and compare the angle
+        // If the angle is too steep, we want to ignore it
+        //
         for (var i = 0; i < hitCount; i++)
         {
-
+            if (IsReachablePoint(_hits[i].point, otherPos))
+            {
+                Debug.DrawRay(_hits[i].point, Vector3.up * 0.5f, Color.red);
+            }
         }
         heightPos = Vector3.zero;
         return false;
+    }
+
+    private bool IsReachablePoint(Vector3 point, Vector3 otherPos)
+    {
+        // Check if it is too far way
+        if(Vector3.Distance(otherPos, point) > Context.StepLength)
+            return false;
+        // Check if it is too high or too low
+        if(point.y > otherPos.y + Context.StepHeight - 0.05f || point.y < otherPos.y - Context.StepHeight + 0.05f)
+            return false;
+        // If nothing is wrong, we can return true
+        return true;
     }
 
     private bool ScanGroundObject(Vector3 input, out ScanInfo scanInfo)
