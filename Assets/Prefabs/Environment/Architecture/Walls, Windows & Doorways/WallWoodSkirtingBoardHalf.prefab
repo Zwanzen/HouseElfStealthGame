@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 9049131741339197921}
   - component: {fileID: 5699703759140374439}
   - component: {fileID: -3054269225580727769}
+  - component: {fileID: -5771290850074921287}
   m_Layer: 3
   m_Name: WallWoodSkirtingBoardHalf
   m_TagString: Wood
@@ -108,3 +109,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.20000227, y: 0.29999995, z: 1.0032816}
   m_Center: {x: -0.00000115484, y: 0.15, z: -0.0010986626}
+--- !u!114 &-5771290850074921287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1937223513259338454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e829c87dc2a2ed2419c5f67848317fe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 11400000, guid: a086f686223eed942816c70be67841b0, type: 2}
+  exportAllChildren: 0
+  terrainSimplificationLevel: 0

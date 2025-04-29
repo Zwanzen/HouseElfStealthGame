@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5618128361730137553}
   - component: {fileID: 1478885636427665749}
   - component: {fileID: 1610895026928685182}
+  - component: {fileID: 3353345333459337918}
   m_Layer: 3
   m_Name: FloorWood2x2Broken1
   m_TagString: Wood
@@ -133,6 +134,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2, y: 0.05, z: 0.50067997}
   m_Center: {x: -3.7326e-15, y: -0.025, z: -0.7496599}
+--- !u!114 &3353345333459337918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 958401891797239402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e829c87dc2a2ed2419c5f67848317fe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 11400000, guid: a086f686223eed942816c70be67841b0, type: 2}
+  exportAllChildren: 0
+  terrainSimplificationLevel: 0
 --- !u!1001 &219601977701123542
 PrefabInstance:
   m_ObjectHideFlags: 0
