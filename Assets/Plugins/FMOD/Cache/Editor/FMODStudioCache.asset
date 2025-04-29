@@ -15,11 +15,89 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 638815404309506937
+  lastModified: 638815642740729288
   FileSizes:
   - Name: Desktop
     Value: 660224
   Exists: 1
+--- !u!114 &-7587133122272956246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Ambience/Attic & Grand Hall/Wind Gusts
+  m_EditorClassIdentifier: 
+  Path: event:/Ambience/Attic & Grand Hall/Wind Gusts
+  Guid:
+    Data1: -749474010
+    Data2: 1264954915
+    Data3: 1010668955
+    Data4: 33937341
+  Banks:
+  - {fileID: -2540372102523804866}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 60000
+--- !u!114 &-6239655919085464107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/Footsteps/PlayerHuman
+  m_EditorClassIdentifier: 
+  Name: PlayerHuman
+  StudioPath: 
+  Min: 0
+  Max: 1
+  Default: 0
+  ID:
+    data1: 1726360952
+    data2: 946534118
+  Type: 1
+  IsGlobal: 0
+  Labels: []
+  Exists: 1
+--- !u!114 &-5562068941319250851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Ambience/Attic & Grand Hall/Attic Rafters Rain
+  m_EditorClassIdentifier: 
+  Path: event:/Ambience/Attic & Grand Hall/Attic Rafters Rain
+  Guid:
+    Data1: -238575022
+    Data2: 1254274115
+    Data3: -1254500976
+    Data4: 1984002496
+  Banks:
+  - {fileID: -2540372102523804866}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 10
+  MaxDistance: 30
+  Length: 60000
 --- !u!114 &-2713093470380351121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35,7 +113,7 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Props.bank
   Name: Props
   StudioPath: bank:/Props
-  lastModified: 638815404309545390
+  lastModified: 638815439911549146
   FileSizes:
   - Name: Desktop
     Value: 576448
@@ -55,12 +133,12 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Ambience.bank
   Name: Ambience
   StudioPath: bank:/Ambience
-  lastModified: 638815404309452987
+  lastModified: 638815642761632064
   FileSizes:
   - Name: Desktop
-    Value: 417568
+    Value: 2185760
   Exists: 1
---- !u!114 &-2200695328030742359
+--- !u!114 &-2450253195508369927
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -70,23 +148,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Attic & Grand Hall
+  m_Name: event:/Moods/Attic & Grand Hall Mood
   m_EditorClassIdentifier: 
-  Path: event:/Attic & Grand Hall
+  Path: event:/Moods/Attic & Grand Hall Mood
   Guid:
-    Data1: -977120682
-    Data2: 1155779373
-    Data3: 45140404
-    Data4: 342100559
+    Data1: -2086413689
+    Data2: 1082456133
+    Data3: 1934052237
+    Data4: -1392200262
   Banks:
-  - {fileID: -2540372102523804866}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
+  - {fileID: -830520927705705446}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 0
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 5000
+  Length: 80269
 --- !u!114 &-1991368888401087721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114,6 +192,26 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 51933
+--- !u!114 &-830520927705705446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Mood.bank
+  m_EditorClassIdentifier: 
+  Path: AudioStuff/Build/Desktop/Mood.bank
+  Name: Mood
+  StudioPath: bank:/Mood
+  lastModified: 638815642774553952
+  FileSizes:
+  - Name: Desktop
+    Value: 1579488
+  Exists: 1
 --- !u!114 &-490219299410870130
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -129,10 +227,10 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Footsteps.bank
   Name: Footsteps
   StudioPath: bank:/Footsteps
-  lastModified: 638815404309468002
+  lastModified: 638815642744037085
   FileSizes:
   - Name: Desktop
-    Value: 494
+    Value: 275456
   Exists: 1
 --- !u!114 &11400000
 MonoBehaviour:
@@ -154,19 +252,48 @@ MonoBehaviour:
   - {fileID: -490219299410870130}
   - {fileID: 2178090963170298982}
   - {fileID: -2713093470380351121}
+  - {fileID: -830520927705705446}
   EditorEvents:
   - {fileID: -1991368888401087721}
-  - {fileID: 8094125678529051155}
-  - {fileID: -2200695328030742359}
   - {fileID: 7945147199824411675}
   - {fileID: 4438712683090300271}
+  - {fileID: 2933542391311502379}
+  - {fileID: -7587133122272956246}
+  - {fileID: -5562068941319250851}
+  - {fileID: 8238929473506703091}
+  - {fileID: -2450253195508369927}
+  - {fileID: 5331863846457297039}
   EditorParameters: []
   MasterBanks:
   - {fileID: -8439421022672543075}
   StringsBanks:
   - {fileID: 1070774867235751490}
-  cacheTime: 638815404309545390
+  cacheTime: 638815642774553952
   cacheVersion: 131624
+--- !u!114 &87131920114616628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/Footsteps/SurfaceType
+  m_EditorClassIdentifier: 
+  Name: SurfaceType
+  StudioPath: 
+  Min: 0
+  Max: 5
+  Default: 0
+  ID:
+    data1: 3559188332
+    data2: 1532404273
+  Type: 1
+  IsGlobal: 0
+  Labels: []
+  Exists: 1
 --- !u!114 &1070774867235751490
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,10 +309,10 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 638815404309512025
+  lastModified: 638815642740755889
   FileSizes:
   - Name: Desktop
-    Value: 1188
+    Value: 1602
   Exists: 1
 --- !u!114 &2178090963170298982
 MonoBehaviour:
@@ -202,11 +329,38 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Musical Cues.bank
   Name: Musical Cues
   StudioPath: bank:/Musical Cues
-  lastModified: 638815404309512025
+  lastModified: 638815439906656213
   FileSizes:
   - Name: Desktop
     Value: 494
   Exists: 1
+--- !u!114 &2933542391311502379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Ambience/Attic & Grand Hall/Rain Window & Opening
+  m_EditorClassIdentifier: 
+  Path: event:/Ambience/Attic & Grand Hall/Rain Window & Opening
+  Guid:
+    Data1: 1195784970
+    Data2: 1099556778
+    Data3: -1439006826
+    Data4: 1285039190
+  Banks:
+  - {fileID: -2540372102523804866}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 15029
 --- !u!114 &4438712683090300271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249,11 +403,38 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Dialogue.bank
   Name: Dialogue
   StudioPath: bank:/Dialogue
-  lastModified: 638815404309462960
+  lastModified: 638815439865094546
   FileSizes:
   - Name: Desktop
     Value: 494
   Exists: 1
+--- !u!114 &5331863846457297039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Moods/Basement
+  m_EditorClassIdentifier: 
+  Path: event:/Moods/Basement
+  Guid:
+    Data1: -1161117705
+    Data2: 1300350823
+    Data3: -84556371
+    Data4: 1307512557
+  Banks:
+  - {fileID: -830520927705705446}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 5442
 --- !u!114 &7945147199824411675
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281,7 +462,7 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 8
   Length: 54781
---- !u!114 &8094125678529051155
+--- !u!114 &8238929473506703091
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -291,20 +472,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Outside Wind
+  m_Name: event:/Characters/Player/SFX/Footsteps/Footsteps
   m_EditorClassIdentifier: 
-  Path: event:/Outside Wind
+  Path: event:/Characters/Player/SFX/Footsteps/Footsteps
   Guid:
-    Data1: -749474010
-    Data2: 1264954915
-    Data3: 1010668955
-    Data4: 33937341
+    Data1: 1237082114
+    Data2: 1135735223
+    Data3: -708143730
+    Data4: -284126951
   Banks:
-  - {fileID: -2540372102523804866}
+  - {fileID: -490219299410870130}
   IsStream: 0
-  Is3D: 0
-  IsOneShot: 0
-  Parameters: []
+  Is3D: 1
+  IsOneShot: 1
+  Parameters:
+  - {fileID: -6239655919085464107}
+  - {fileID: 87131920114616628}
   MinDistance: 1
   MaxDistance: 20
-  Length: 9600
+  Length: 0
