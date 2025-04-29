@@ -176,60 +176,10 @@ public class FootLiftedState : FootControlState
             return false;
         }
 
-        // Based on the input direction and foot position,
-        // we want to calculate the radius of the sphere cast.
-        // First get the max step length in that direction.
-        // If our foot is currently outside of the step length,
-        // we need to create a copy of the foot position to avoid errors.
-        var t = 0.02f;
-        var circleFootPos = Vector3.Distance(footPos, otherPos) > Context.StepLength - t? 
-            otherPos + (footPos - otherPos).normalized * (Context.StepLength - t) : footPos;
-        // Now use that to calculate the intersection point
-        if(!CalculateIntersectionPoint(otherPos, Context.StepLength, circleFootPos, input.normalized, out var intersectionPointXZ))
-        {
-            // Error
-            Debug.LogError("Failed to calculate intersection point");
-            heightPos = Vector3.zero;
-            return false;
-        }
-
-        // The radius is half the distance between the two points.
-        var radius = Vector3.Distance(footPos, intersectionPointXZ);
-
-        // Now we need the y height of the cast position.
-        // So we calculate the intersection point from the foot pos upwards
-        if (!CalculateIntersectionPoint(otherPos, Context.StepLength, circleFootPos, Vector3.up, out var intersectionPointY))
-        {
-            // Error
-            Debug.LogError("Failed to calculate intersection point Y");
-            heightPos = Vector3.zero;
-            return false;
-        }
-
-        var yCastHeight = intersectionPointY.y;
-
-        // If the cast height is higher than the other foot + step height,
-        // we want to set the height to the other foot + step height
-        if(yCastHeight > otherPos.y + Context.StepHeight)
-        {
-            yCastHeight = otherPos.y + Context.StepHeight;
-        }
-
-        // Now we need to calculate the dist of the sphere cast.
-        // We can do this by using the gathered intersectionY point,
-        // because we know the other intersection point is flipped from the other foot.
-        var heightDiff =  yCastHeight - otherPos.y;
-        // Now the dist should end at the bottom intersection point
-        var dist = heightDiff * 2f;
-
-        // Since the sphere cast does not hit anything withing it's start radius,
-        // we want to add the radius to the height position,
-        // and also the distance to account for the added height.
-        yCastHeight += radius;
-        dist += radius;
-
-        // Now we have the final start position, radius, direction and distance.
-        var castPos = new Vector3(footPos.x, yCastHeight, footPos.z);
+        var radius = Context.StepLength * 0.5f;
+        var castHeight = otherPos.y + Context.StepHeight + radius;
+        var castPos = new Vector3(footPos.x, castHeight, footPos.z);
+        var dist = Context.StepHeight * 2f + radius;
 
         var hitCount = Physics.SphereCastNonAlloc(castPos, radius, Vector3.down, _hits, dist, Context.GroundLayers);
         if (hitCount <= 0)
@@ -240,7 +190,6 @@ public class FootLiftedState : FootControlState
 
         // We need to go through all the hits and compare the angle
         // If the angle is too steep, we want to ignore it
-        //
         for (var i = 0; i < hitCount; i++)
         {
             if (IsReachablePoint(_hits[i].point, otherPos))
