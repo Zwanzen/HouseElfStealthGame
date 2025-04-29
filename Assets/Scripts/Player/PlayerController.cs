@@ -4,6 +4,7 @@ using RootMotion.FinalIK;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using static RigidbodyMovement;
@@ -25,6 +26,7 @@ public class PlayerController : MonoBehaviour
     [Header("Components")]
     [SerializeField] private Rigidbody _rigidbody;
     [SerializeField] private FullBodyBipedIK _bodyIK;
+    [SerializeField] private Animator _anim;
     [SerializeField] private PlayerCameraController _cameraController;
     
     [Space(10f)]
@@ -32,35 +34,37 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask _groundLayers;
     [SerializeField] private PlayerFootSoundPlayer _leftFootSoundPlayer;
     [SerializeField] private PlayerFootSoundPlayer _rightFootSoundPlayer;
-    [SerializeField] private MovementSettings _bodyMovementSettings;
     [SerializeField] private Transform[] _limbs;
 
     [Space(10f)]
     [Header("Body Variables")]
-    [SerializeField] private float _springStrength = 250f;
-    [SerializeField] private float _springDampener = 5f;
-    [SerializeField, Range(0,1)] private float _lowestBodyHeight = 0.5f;
-    [SerializeField] private AnimationCurve _distanceHeightCurve;
     [SerializeField] private float _bodyRotationSpeed = 5f;
-    
+    [SerializeField] private CapsuleCollider _bodyCollider;
+    [SerializeField] private SphereCollider _fallCollider;
+
     [Space(10f)] 
     [Header("Foot Control")] 
-    [SerializeField] private Foot _leftFoot;
-    [SerializeField] private Foot _rightFoot;
+    [SerializeField] private FootRef _leftFoot;
+    [Space(10f)]
+    [SerializeField] private FootRef _rightFoot;
+    [Space(10f)]
     [SerializeField] private float _stepLength = 0.5f;
     [SerializeField] private float _stepHeight = 0.5f;
-    [SerializeField] private MovementSettings _liftedSettings;
-    [SerializeField] private MovementSettings _placeSettings;
     [SerializeField] private AnimationCurve _speedCurve;
     [SerializeField] private AnimationCurve _heightCurve;
     [SerializeField] private AnimationCurve _placeSpeedCurve;
     [SerializeField] private AnimationCurve _offsetCurve;
     
     [Space(10f)]
-    [Header("Sneak Variables")]
-    [SerializeField] private float _minSneakSpeed = 1f;
-    [SerializeField] private float _maxSneakSpeed = 2f;
-    
+    [Header("Movement Settings")]
+    [SerializeField] private MovementSettings _bodyMovementSetting;
+    [SerializeField] private MovementSettings _minSneakSetting;
+    [SerializeField] private MovementSettings _maxSneakSetting;
+    [SerializeField] private MovementSettings _minWalkSetting;
+    [SerializeField] private MovementSettings _maxWalkSetting;
+
+    [SerializeField] private MovementSettings _placeSettings;
+
     [Space(10f)] [Header("Temp")] 
     [SerializeField] private RectTransform _leftClick;
     [SerializeField] private RectTransform _rightClick;
@@ -69,9 +73,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AnimationCurve _imageScaleCurve;
     [SerializeField] private Image _leftImage;
     [SerializeField] private Image _rightImage;
-    [SerializeField] private Transform _leanTarget;
-    [SerializeField] private Transform _leanRestTarget;
-    
+    [SerializeField] private Slider _movementSpeedSlider;
+
+    // Private variables
     private float _wantedLScale;
     private float _wantedRScale;
     
@@ -79,13 +83,12 @@ public class PlayerController : MonoBehaviour
     private Color _wantedRColor;
     
     private bool _isSneaking;
-    private bool _isStumble;
 
     // This is the maximum speed range for the player
     // Helps determine the speed state of the player
-    private const int MaxSpeedRange = 15;
+    [HideInInspector]
+    public const int MaxSpeedRange = 10;
     private int _currentPlayerSpeed = 5;
-    private EPlayerSpeedState _playerSpeedState;
     
     public enum EPlayerSpeedState
     {
@@ -97,21 +100,33 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        // Order of initialization is important
-        CreateStateMachines();
-        InitializeStateMachineContexts();
         InitializeStateMachines();
+        
+        // setting private variables
+        Transform = _rigidbody.transform;
+        Animator = new PlayerAnimator(this, _anim);
+        AimIK = _bodyIK.GetComponent<AimIK>();
     }
 
     private void Start()
     {
         InitializeInputEvents();
-        _playerSpeedState = UpdatePlayerSpeedState();
+        UpdateMovementSpeedSlider();
     }
 
     private void Update()
     {
         HandleStepUI();
+        Animator.Update();
+    }
+
+    private void UpdateMovementSpeedSlider()
+    {
+        if(!_movementSpeedSlider)
+            return;
+
+        // Update the movement speed slider value
+        _movementSpeedSlider.value = _currentPlayerSpeed;
     }
 
     private void HandleStepUI()
@@ -125,7 +140,7 @@ public class PlayerController : MonoBehaviour
             relativeDir = RelativeMoveInput;
         var feetDot = Vector3.Dot(feetDir, relativeDir);
         var dist = feetDir.magnitude * feetDot;
-        dist = Mathf.Clamp(dist, -StepLength, StepLength);
+        dist = Mathf.Clamp(dist, -_stepLength, _stepLength);
 
         var lerp = _imageScaleCurve.Evaluate(dist);
         
@@ -153,37 +168,31 @@ public class PlayerController : MonoBehaviour
         _rightImage.color = Color.Lerp(_rightImage.color, _wantedRColor, Time.deltaTime * lerpSpeed * 10f);
     }
 
-    // Initialize the state machine contexts
-    private void InitializeStateMachineContexts()
-    {
-        _controlContext = new PlayerControlContext(this, _controlStateMachine, _rigidbody, _groundLayers,
-             _leftFoot, _rightFoot, _springStrength, _springDampener, _bodyMovementSettings, _distanceHeightCurve,
-             _lowestBodyHeight);
-        
-        _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
-            _leftFoot, _rightFoot, _stepLength, _stepHeight, _liftedSettings, _placeSettings, _speedCurve, _heightCurve, 
-            _placeSpeedCurve, _offsetCurve);
-        _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
-            _rightFoot, _leftFoot, _stepLength, _stepHeight, _liftedSettings, _placeSettings, _speedCurve, _heightCurve, 
-            _placeSpeedCurve, _offsetCurve);
-    }
-
-    private void CreateStateMachines()
+    private void InitializeStateMachines()
     {
         // Add the state machines to the player controller
         _controlStateMachine = this.AddComponent<PlayerControlStateMachine>();
         _leftFootStateMachine = this.AddComponent<FootControlStateMachine>();
         _rightFootStateMachine = this.AddComponent<FootControlStateMachine>();
         
-        // Give the foot structs reference to the state machines
-        _leftFoot.SM = _leftFootStateMachine;
-        _rightFoot.SM = _rightFootStateMachine;
-    }
-
-    // Adding and initializing the state machines with contexts
-    private void InitializeStateMachines()
-    {
+        // Then we construct the feet.
+        // The feet need references to their state machine.
+        var leftFoot = new Foot(_leftFoot, _leftFootStateMachine);
+        var rightFoot = new Foot(_rightFoot, _rightFootStateMachine);
+        
+        // Then we construct the context files after the feet are created.
+        _controlContext = new PlayerControlContext(this, _bodyIK, _bodyCollider, _fallCollider, _groundLayers,
+            leftFoot, rightFoot, _bodyMovementSetting, _stepLength, _stepHeight);
+        
+        _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
+            leftFoot, rightFoot, _stepLength, _stepHeight, _minSneakSetting, _maxSneakSetting, _minWalkSetting, _maxWalkSetting, 
+            _placeSettings, _speedCurve, _heightCurve, _placeSpeedCurve, _offsetCurve);
+        _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
+            rightFoot, leftFoot, _stepLength, _stepHeight, _minSneakSetting, _maxSneakSetting, _minWalkSetting, _maxWalkSetting, _placeSettings, 
+            _speedCurve, _heightCurve, _placeSpeedCurve, _offsetCurve);
+        
         // Set the context for the state machines
+        // This also initializes the states within the state machines
         _controlStateMachine.SetContext(_controlContext);
         _leftFootStateMachine.SetContext(_leftFootContext);
         _rightFootStateMachine.SetContext(_rightFootContext);
@@ -194,9 +203,13 @@ public class PlayerController : MonoBehaviour
     {
         // Subscribe to the input events
         InputManager.Instance.OnScroll += UpdateMovementSpeed;
-        InputManager.Instance.OnSneakPressed += UpdateIsSneaking;
+        InputManager.Instance.OnToggleMovement += UpdateIsSneaking;
     }
-    
+
+    // Events
+    public event Action OnFall;
+    public event Action OnStopFall;
+
     // Read-only properties
     /// <summary>
     /// Limbs:
@@ -204,45 +217,64 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public Transform[] Limbs => _limbs;
     public Rigidbody Rigidbody => _rigidbody;
-    
+    public Transform Transform { get; private set; }
+    public AimIK AimIK { get; private set; }
+
+    /// <summary>
+    /// This is used to control the player's animations.
+    /// </summary>
+    public PlayerAnimator Animator { get; private set; }
+
     // Sneaking Properties
     public Rigidbody LeftFootTarget => _leftFoot.Target;
     public Rigidbody RightFootTarget => _rightFoot.Target;
-    public float StepLength => _stepLength;
-    public MovementSettings BodyMovementSettings => _bodyMovementSettings;
+    public MovementSettings BodyMovementSettings => _bodyMovementSetting;
     public static float Height => 1.0f;
-    
+    public float StepLength => _stepLength;
+
     /// <summary>
     /// The player's offset position from the rigidbody's position, adjusted by the character height.
     /// The player rigidbody is actually at the feet of the player, so we need to add the character height to the position.
     /// </summary>
+    [Obsolete]
     public Vector3 Position => _rigidbody.position + new Vector3(0, Height, 0); 
+    /// <summary>
+    /// This is the new player position^
+    /// </summary>
+    public Vector3 EyePosition => _limbs[0].position;
     
     /// <summary>
     /// The threshold for the height difference to consider the player grounded.
     /// </summary>
     public static float HeightThreshold => 0.07f;
-    
+
     /// <summary>
-    /// If the player's control state is grounded.
+    /// If the player is in the grounded state.
     /// </summary>
     public bool IsGrounded => _controlStateMachine.State == PlayerControlStateMachine.EPlayerControlState.Grounded;
-    
+
+    /// <summary>
+    /// If the player is in the falling state.
+    /// </summary>
+    public bool IsFalling => _controlStateMachine.State == PlayerControlStateMachine.EPlayerControlState.Falling;
+    public bool IsStandingUp { get; private set; } = false;
+
     /// <summary>
     /// If the player tries to place feet and there is no ground.
     /// </summary>
-    public bool IsStumble => _isStumble;
+    public bool IsStumble { get; private set; }
+    
+    public bool IsSneaking => _isSneaking;
+
+    public bool IsJumping { get; private set; }
+
+    public bool IsMoving => InputManager.Instance.MoveInput != Vector3.zero;
     
     /// <summary>
-    /// This is the control state of the player based on the selected speed.
-    /// </summary>
-    public EPlayerSpeedState PlayerSpeedState => _playerSpeedState;
-    
-    /// <summary>
-    /// This is the current speed of the player.
+    /// This is the current lerped speed of the player.
     /// Used to control the speed of the player in the state machines.
     /// </summary>
-    public int CurrentPlayerSpeed => _currentPlayerSpeed;
+    public float CurrentPlayerSpeed => ((float)_currentPlayerSpeed / (float)MaxSpeedRange);
     
     // Movement input based on camera direction
     public Vector3 RelativeMoveInput => GetRelativeMoveInput();
@@ -252,7 +284,6 @@ public class PlayerController : MonoBehaviour
     public PlayerFootSoundPlayer LeftFootSoundPlayer => _leftFootSoundPlayer;
     public PlayerFootSoundPlayer RightFootSoundPlayer => _rightFootSoundPlayer;
     
-
     // Private methods
     private Vector3 GetRelativeMoveInput()
     {
@@ -285,60 +316,36 @@ public class PlayerController : MonoBehaviour
         // Clamp the speed to the max speed range
         // The player should not be able to select a zero speed
         _currentPlayerSpeed = Math.Clamp(_currentPlayerSpeed, 1, MaxSpeedRange);
-        
-        // If the player is sneaking, we clamp it to the sneak speed
-        if (_isSneaking)
-        {
-            _currentPlayerSpeed = Math.Clamp(_currentPlayerSpeed, 1, 5);
-        }
-        
-        // Update the player speed state
-        _playerSpeedState = UpdatePlayerSpeedState();
-    }
-    
-    private EPlayerSpeedState UpdatePlayerSpeedState()
-    {
-        // The range is split into 3 states,
-        // With sneak only being active when sneak is active
-    
-        // Fast: 15 - 11
-        // Medium: 10 - 6
-        // Slow: 5 - 1
 
-        return _currentPlayerSpeed switch
-        {
-            >= 11 and <= 15 => EPlayerSpeedState.Fast,
-            >= 6 and <= 10 => EPlayerSpeedState.Medium,
-            >= 1 and <= 5 => EPlayerSpeedState.Slow,
-            _ => EPlayerSpeedState.Slow // Default case
-        };
+        // Update the visual slider UI
+        UpdateMovementSpeedSlider();
     }
 
-    private void UpdateIsSneaking(bool updated)
+    private void UpdateIsSneaking()
     {
-        // Toggle the sneaking input
-        if (_isSneaking && updated == true)
-        {
-            _isSneaking = false;
-        }
-        else if (!_isSneaking && updated == true)
-        {
-            _isSneaking = true;
-        }
-        else if (updated == false)
-        {
-            _isSneaking = false;
-        }
-        
-        // We need to update the player speed state
-        // to make sure the correct speed is set
-        UpdateMovementSpeed();
+        // Toggle sneaking
+        _isSneaking = !_isSneaking;
     }
-    
+
     // Public methods
-    public void SetPlayerStumble(bool isStumble)
+    public void SetJump(bool state)
     {
-        _isStumble = isStumble;
+        IsJumping = state;
+    }
+
+    public void SetStandingUp(bool state)
+    {
+        IsStandingUp = state;
+    }
+
+    public void StartFall()
+    {
+        OnFall.Invoke();
+    }
+
+    public void StopFall()
+    {
+        OnStopFall.Invoke();
     }
 
     private void OnGUI()
@@ -354,8 +361,8 @@ public class PlayerController : MonoBehaviour
         GUI.Label(new Rect(20, 15, 240, 20), $"Control State: {_controlStateMachine.State}", style);
         GUI.Label(new Rect(20, 35, 240, 20), $"Left Foot State: {_leftFootStateMachine.State}", style);
         GUI.Label(new Rect(20, 55, 240, 20), $"Right Foot State: {_rightFootStateMachine.State}", style);
-        GUI.Label(new Rect(20, 75, 240, 20), $"Left State: {_leftFoot.SM.State}", style);
-        GUI.Label(new Rect(20, 95, 240, 20), $"Right State: {_rightFoot.SM.State}", style);
+        GUI.Label(new Rect(20, 75, 240, 20), $"Player Sneak: {_isSneaking}", style);
+        GUI.Label(new Rect(20, 95, 240, 20), $"Player Speed: {_currentPlayerSpeed}", style);
     }
     
     private void OnDestroy()

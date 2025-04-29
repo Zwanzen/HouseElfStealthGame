@@ -14,7 +14,6 @@ struct EdgeConstants
 };
 struct SurfaceVariables
 {
-    float3 shadowColor;
     float3 normal;
     float3 viewDir;
     float bandSmoothness;
@@ -63,7 +62,7 @@ float3 CalculateCelShading(Light l, SurfaceVariables s, int numBands) {
 }
 #endif
 
-void LightingCelShaded_float(int Bands, float BandSmoothness, float3 ShadowColor, float Smoothness, float RimThreshold, float3 Position, float3 Normal, float3 View,
+void LightingCelShaded_float(int Bands, float BandSmoothness, float3 AmbientColor, float3 HighlightColor, float Smoothness, float RimThreshold, float3 Position, float3 Normal, float3 View,
     float EdgeDiffuse, float EdgeSpecular, float EdgeSpecularOffset, float EdgeDistanceAttenuation, float EdgeShadowAttenuation,
     float EdgeRim, float EdgeRimOffset, out float3 Color){
 #if defined(SHADERGRAPH_PREVIEW)
@@ -74,7 +73,6 @@ void LightingCelShaded_float(int Bands, float BandSmoothness, float3 ShadowColor
     s.normal = Normal;
     s.viewDir = View;
     s.bandSmoothness = BandSmoothness;
-    s.shadowColor = ShadowColor;
     s.smoothness = Smoothness;
     s.shininess = exp2(10.0 * Smoothness + 1.0);
     s.rimThreshold = RimThreshold;
@@ -96,22 +94,23 @@ void LightingCelShaded_float(int Bands, float BandSmoothness, float3 ShadowColor
     float4 shadowCoord = TransformWorldToShadowCoord(Position);
 #endif
 
-    Light light = GetMainLight();
-    Color = CalculateCelShading(light, s, Bands);
-
+    // Main light with and without shadows
+    Light light = GetMainLight(shadowCoord);
+    Light light2 = GetMainLight();
+    // First we set the base light color to the ambient color
+    Color = AmbientColor;
+    // TODO: Add shine to the ambient color based on the shadowless light
+    light2.color = HighlightColor;
+    Color += CalculateCelShading(light2, s, Bands);
+    // Then we add the main light with shadows
+    Color += CalculateCelShading(light, s, Bands);
+    // Then we add additional lights with shadows
     int pixelLightCount = GetAdditionalLightsCount();
     for (int i = 0; i < pixelLightCount; ++i)
     {
         light = GetAdditionalLight(i, Position, 1.0);
         Color += CalculateCelShading(light, s, Bands);
     }
-
-    // Calculate the intensity of the light (brightness)
-    float lightIntensity = saturate(dot(Color, float3(0.299, 0.587, 0.114))); // Luminance approximation
-
-    // Blend toward the shadow color based on the inverse of the light intensity
-    float3 shadowedColor = lerp(s.shadowColor, Color, lightIntensity);
-    Color = shadowedColor;
 #endif
 }
 

@@ -18,8 +18,6 @@ public class InputManager : MonoBehaviour
     private bool _isHoldingLMB;
     private bool _isHoldingRMB;
 
-    private bool _isLifting;
-
 
     // Read-only
     public Vector3 MoveInput => new Vector3(_moveInput.x, 0f, _moveInput.y);
@@ -27,7 +25,6 @@ public class InputManager : MonoBehaviour
     public int ScrollInput => (int)_scrollInput;
     public bool IsHoldingLMB => _isHoldingLMB;
     public bool IsHoldingRMB => _isHoldingRMB;
-    public bool IsLifting => _isLifting;
 
     private void Awake()
     {
@@ -51,10 +48,10 @@ public class InputManager : MonoBehaviour
     // Event used to update the player speed state more efficiently
     // This is called twice, but doesn't seem like it can double the value
     public event Action<int> OnScroll;
-    
-    // Event to toggle sneaking
-    public event Action<bool> OnSneakPressed;
-    
+
+    // Event to toggle sneaking / walking
+    public event Action OnToggleMovement;
+
     // Event for interact attempt
     public event Action OnInteract;
     
@@ -68,11 +65,6 @@ public class InputManager : MonoBehaviour
         _isHoldingRMB = context.ReadValueAsButton();
     }
 
-    private void OnLift(InputAction.CallbackContext context)
-    {
-        _isLifting = context.ReadValueAsButton();
-    }
-    
     private void OnSceneChange(Scene oldScene, Scene newScene)
     {
         // If we are loading into our world scene, enable 
@@ -95,12 +87,10 @@ public class InputManager : MonoBehaviour
             _inputActions.Player.RightFoot.performed += OnRMB;
             _inputActions.Player.RightFoot.canceled += OnRMB;
             
-            _inputActions.Player.Sneak.performed += i => OnSneakPressed?.Invoke(i.ReadValueAsButton());
-
-            _inputActions.Player.Lift.performed += OnLift;
-            _inputActions.Player.Lift.canceled += OnLift;
-            
             _inputActions.Player.Interact.performed += i => OnInteract?.Invoke();
+
+            // When we press toggle movement, we want to call the event
+            _inputActions.Player.ToggleMovement.performed += i => OnToggleMovement?.Invoke();
         }
 
         _inputActions.Enable();

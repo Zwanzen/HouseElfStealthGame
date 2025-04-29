@@ -1,6 +1,6 @@
-using System;
+using RootMotion.FinalIK;
+using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerCameraController : MonoBehaviour
 {
@@ -11,10 +11,12 @@ public class PlayerCameraController : MonoBehaviour
     [SerializeField] private float _cameraSensitivityPC = 0.03f;
     [SerializeField] private float _cameraSensitivityController = 1f;
     [SerializeField] private float _followSpeed = 0.1f;
+    [SerializeField] private float _lerpSpeed = 10f;
 
 
     // Private variables
     private PlayerController _player;
+    private AimIK _aimIK;
     private Camera _camera;
     private Transform _cameraYTransform;
     private Transform _cameraXTransform;
@@ -44,24 +46,34 @@ public class PlayerCameraController : MonoBehaviour
         _camera = _cameraTransform.GetComponent<Camera>();
     }
 
+    private void Start()
+    {
+        _aimIK = _player.AimIK;
+
+        _player.OnFall += OnFall;
+        _player.OnStopFall += OnStopFall;
+    }
+
     private void Update()
     {
-        UpdatePosition();
-        HandleRotation();
+
+        if(!_player.IsFalling)
+        {
+            HandleRotation();
+            UpdatePosition();
+            UpdateAimSolverWeight(Time.deltaTime * 0.5f);
+        }
+        else
+        {
+            UpdateAimSolverWeight(-Time.deltaTime * 0.5f);
+            HandleFallCameraRotation();
+        }
     }
 
     private void UpdatePosition()
     {
-        if (_player.IsGrounded)
-        {
-            transform.position = _followTarget.position;
-            //transform.position = Vector3.Lerp(transform.position, _followTarget.position, Time.deltaTime * _followSpeed);
-        }
-        else
-        {
-            transform.position = Vector3.Lerp(transform.position, _player.Position, Time.deltaTime * _followSpeed);
-        }
-        
+        transform.position = _followTarget.position;
+
         // if camera fov is not 90, lerp it to 90
         if (!Mathf.Approximately(_camera.fieldOfView, 90))
         {
@@ -72,23 +84,35 @@ public class PlayerCameraController : MonoBehaviour
 
     private void HandleRotation()
     {
+        _aimIK.solver.IKPositionWeight = 1f;
+
         // Get the camera sensitivity based on the input device
         var sensitivity = _cameraSensitivityPC;
         
-        // Get the camera input
-        _yRotation += InputManager.Instance.CameraInput.x * sensitivity;
-        _xRotation -= InputManager.Instance.CameraInput.y * sensitivity;
+        // Get the camera input with a small dead zone to prevent tiny movements
+        float xInput = InputManager.Instance.CameraInput.x;
+        float yInput = InputManager.Instance.CameraInput.y;
         
-        // Clamp the x rotation
-        _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
+        // Apply input to rotation values
+        _yRotation += xInput * sensitivity;
+        _xRotation -= yInput * sensitivity;
+        
+        // Normalize Y rotation to keep it between 0 and 360
+        if (_yRotation > 360f) _yRotation -= 360f;
+        if (_yRotation < 0f) _yRotation += 360f;
+        
+        // Add extra constraining near poles to prevent gimbal lock effect
+        float xClampLimit = 85f; // slightly reduced from 90
+        _xRotation = Mathf.Clamp(_xRotation, -xClampLimit, xClampLimit);
         
         // Get the camera z rotation based on the relative distance between the feet based on the camera forward direction
         var lFootPos = _player.LeftFootTarget.position;
         var rFootPos = _player.RightFootTarget.position;
-        //lFootPos.y = 0;
-        //rFootPos.y = 0;
         var feetDir = rFootPos - lFootPos;
-        var feetDot = Vector3.Dot(feetDir, _cameraYTransform.forward);
+        
+        // Ensure we're using the correctly oriented forward vector
+        var forwardVector = _cameraYTransform.forward;
+        var feetDot = Vector3.Dot(feetDir, forwardVector);
         var dist = feetDir.magnitude * feetDot;
         dist = Mathf.Clamp(dist, -_player.StepLength, _player.StepLength);
         
@@ -96,25 +120,71 @@ public class PlayerCameraController : MonoBehaviour
         var wantedZ = Mathf.Lerp(-5f, 5f, _cameraStepCurve.Evaluate(dist));
         _zRotation = Mathf.Lerp(_zRotation, wantedZ, Time.deltaTime * _cameraLerpSpeed);
         
-        // Rotate the camera
-         _cameraYTransform.localRotation = Quaternion.Euler(0f, _yRotation, 0f);
-         _cameraXTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
-            _cameraTransform.localRotation = Quaternion.Euler(0f, 0f, -_zRotation);
+        // Apply rotations in the correct order to avoid gimbal lock
+        _cameraYTransform.localRotation = Quaternion.Euler(0f, _yRotation, 0f);
+        _cameraXTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
+        _cameraTransform.localRotation = Quaternion.Euler(0f, 0f, -_zRotation);
+    }
+
+    private void HandleFallCameraRotation()
+    {
+        // Slerp all the camera rotations to local zero
+        _cameraYTransform.localRotation = Quaternion.Slerp(_cameraYTransform.localRotation, Quaternion.Euler(0f, 0f, 0f), Time.deltaTime * _followSpeed);
+        _cameraXTransform.localRotation = Quaternion.Slerp(_cameraXTransform.localRotation, Quaternion.Euler(0f, 0f, 0f), Time.deltaTime * _followSpeed);
+        _cameraTransform.localRotation = Quaternion.Slerp(_cameraTransform.localRotation, Quaternion.Euler(0f, 0f, 0f), Time.deltaTime * _followSpeed);
+    }
+
+    private void OnFall()
+    {
+        _aimIK.solver.IKPositionWeight = 0f;
+
+        // Make this transform the child of the follow target
+        transform.SetParent(_followTarget);
+
+    }
+
+    private void OnStopFall()
+    {
+        _aimIK.solver.IKPositionWeight = 0f;
+
+        // Make this transform the child of the follow target
+        transform.SetParent(_player.transform);
+
+        // Store the camera rotations
+        _yRotation = _cameraYTransform.localEulerAngles.y;
+        _xRotation = _cameraXTransform.localEulerAngles.x;
+        _zRotation = _cameraTransform.localEulerAngles.z;
+    }
+
+    private void UpdateAimSolverWeight(float amount)
+    {
+        _aimIK.solver.IKPositionWeight += amount;
+    }
+
+
+
+
+    // Public methods
+    public Transform GetCameraYawTransform()
+    {
+        return _cameraYTransform;
     }
 
     private float _timer;
+
     public void Stumble()
     {
         // set the camera fov to 60
         _camera.fieldOfView = _minFov;
         _timer = 0f;
     }
-    
-    // Public methods
-    public Transform GetCameraYawTransform()
-    {
-        return _cameraYTransform;
-    }
-    
+
     public float CameraX => _xRotation;
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from events
+        _player.OnFall -= OnFall;
+        _player.OnStopFall -= OnStopFall;
+    }
 }

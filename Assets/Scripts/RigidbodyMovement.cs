@@ -3,27 +3,49 @@ using UnityEngine;
 
 public static class RigidbodyMovement
 {
+    /// <summary>
+    /// Movement settings used by this rigdbody movement system.
+    /// </summary>
     [Serializable]
     public struct MovementSettings
     {
         public float MaxSpeed;
         public float Acceleration;
         public float Deceleration;
-        public AnimationCurve AccelerationFactorFromDot;
-        //public float MaxAccelForce;
-        //public AnimationCurve MaxAccelerationForceFactorFromDot;
         public Vector3 ForceScale;
+
+        /// <summary>
+        /// Returns a lerped movement setting based on a normalized value.
+        /// </summary>
+        /// <param name="other"> The other movement settings to lerp to.</param>
+        public MovementSettings Lerp(MovementSettings other, float t)
+        {
+            return new MovementSettings
+            {
+                MaxSpeed = Mathf.Lerp(MaxSpeed, other.MaxSpeed, t),
+                Acceleration = Mathf.Lerp(Acceleration, other.Acceleration, t),
+                Deceleration = Mathf.Lerp(Deceleration, other.Deceleration, t),
+                ForceScale = Vector3.Lerp(ForceScale, other.ForceScale, t)
+            };
+        }
     }
-    
-    public static void MoveRigidbody(Rigidbody rb, Vector3 moveInput, MovementSettings settings)
+
+    /// <summary>
+    /// Moves the rigidbody based on the input and settings.
+    /// </summary>
+    /// <param name="rb"></param>
+    /// <param name="moveInput"></param>
+    /// <param name="settings"></param>
+    /// <param name="relativeVelocity"></param>
+    public static void MoveRigidbody(Rigidbody rb, Vector3 moveInput, MovementSettings settings, Vector3 relativeVelocity = default)
     {
         if(moveInput.magnitude > 1f)
             moveInput.Normalize();
-        
+
         // 1. Determine Target Velocity
         // Calculate the velocity we *want* to achieve based on input and max speed.
         // We primarily control movement on the XZ plane.
-        Vector3 targetVelocity = moveInput * settings.MaxSpeed;
+        Vector3 targetVelocity = relativeVelocity + (moveInput * settings.MaxSpeed);
 
         // Optional: Preserve existing vertical velocity (e.g., for jumping/gravity)
         // If you are handling jumping/gravity elsewhere, you might want to do this:
@@ -44,10 +66,6 @@ public static class RigidbodyMovement
         // Use deceleration value if specified and there's no input, otherwise use acceleration.
         bool isDecelerating = moveInput == Vector3.zero && settings.Deceleration > 0f;
         var actualAcceleration = isDecelerating ? settings.Deceleration : settings.Acceleration;
-        
-        // Multiply the acceleration by the factor from the animation curve based on the dot product of the current and target velocity.
-        var dot = Vector3.Dot(currentVelocity.normalized, targetVelocity.normalized);
-        actualAcceleration *= settings.AccelerationFactorFromDot.Evaluate(dot);
 
         // 5. Calculate Acceleration Needed (and Clamp)
         // Calculate the acceleration required *this frame* to bridge the velocity difference.
@@ -71,7 +89,14 @@ public static class RigidbodyMovement
         // Debug.DrawRay(transform.position, actualAccelerationVector, Color.red); // Applied acceleration
     }
 
-    public static void MoveToRigidbody(Rigidbody rb, Vector3 position, MovementSettings settings)
+    /// <summary>
+    /// Moves the rigidbody to a target position based on the input and settings.
+    /// </summary>
+    /// <param name="rb"></param>
+    /// <param name="position"></param>
+    /// <param name="settings"></param>
+    /// <param name="relativeVelocity"></param>
+    public static void MoveToRigidbody(Rigidbody rb, Vector3 position, MovementSettings settings, Vector3 relativeVelocity = default)
     {
         Vector3 currentPosition = rb.position;
         Vector3 targetPosition = position;
@@ -88,8 +113,6 @@ public static class RigidbodyMovement
         
         // Calculate the dot of the current velocity and the direction to the target
         float dot = Vector3.Dot(rb.linearVelocity.normalized, directionToTarget.normalized);
-        // Use this to apm our deceleration based on the accel dot curve
-        deceleration *= settings.AccelerationFactorFromDot.Evaluate(dot);
         
         float stoppingDistance = (currentSpeed * currentSpeed) / (2 * deceleration);
 
@@ -98,7 +121,7 @@ public static class RigidbodyMovement
         if (distanceToTarget <= 0.01f || (distanceToTarget <= stoppingDistance && currentSpeed > 0))
         {
             // If very close, perform hard stop
-            if (distanceToTarget <= 0.01f)
+            if (distanceToTarget <= 0.005f)
             {
                 rb.linearVelocity = Vector3.zero;
                 return;
@@ -125,7 +148,7 @@ public static class RigidbodyMovement
         float targetSpeed = Mathf.Min(settings.MaxSpeed, maxSpeedToStop);
 
         // --- Calculate Desired Velocity ---
-        Vector3 desiredVelocity = directionToTarget.normalized * targetSpeed;
+        Vector3 desiredVelocity = relativeVelocity + (directionToTarget.normalized * targetSpeed);
 
         // --- Calculate Acceleration and Apply Force ---
         Vector3 currentVelocity = rb.linearVelocity;
@@ -135,14 +158,19 @@ public static class RigidbodyMovement
         Vector3 requiredAcceleration = velocityChange / Time.fixedDeltaTime;
 
         // Clamp the acceleration magnitude so it doesn't exceed maxAcceleration
-        Vector3 actualAcceleration = Vector3.ClampMagnitude(requiredAcceleration, settings.Acceleration);
+        Vector3 actualAcceleration = Vector3.ClampMagnitude(requiredAcceleration, settings.Acceleration + relativeVelocity.magnitude);
 
         // Apply the force: F = m * a
         var force2 = actualAcceleration * rb.mass;
         rb.AddForce(Vector3.Scale(Vector3.Scale(force2, settings.ForceScale), settings.ForceScale), ForceMode.Force);
     }
-    
-    // Rotates the rigidbody towards direction based on a rotation speed
+
+    /// <summary>
+    /// Rotates the rigidbody towards a direction.
+    /// </summary>
+    /// <param name="rb"></param>
+    /// <param name="dir"></param>
+    /// <param name="rotationSpeed"></param>
     public static void RotateRigidbody(Rigidbody rb, Vector3 dir, float rotationSpeed)
     {
         dir.Normalize();
