@@ -1,7 +1,10 @@
 using System;
+using FMOD.Studio;
+using FMODUnity;
 using Pathfinding;
 using UnityEngine;
 using static RigidbodyMovement;
+using static SoundTools;
 
 [RequireComponent(typeof(Rigidbody), typeof(Seeker))]
 public class NPC : MonoBehaviour
@@ -86,5 +89,42 @@ public class NPC : MonoBehaviour
     private void OnAnimStateChange(NPCAnimator.AnimState state)
     {
         _animator.SetNewAnimState(state);
+    }
+
+    private RaycastHit[] _stepColliders = new RaycastHit[10];
+    private void PlayFootSound()
+    {
+        EventInstance step = RuntimeManager.CreateInstance("event:/Characters/Player/SFX/Footsteps Elf");
+        RuntimeManager.AttachInstanceToGameObject(step, transform);
+
+        // Check colliders below the foot for tag
+        var amouont = Physics.SphereCastNonAlloc(transform.position + Vector3.up * 0.3f, 0.18f,Vector3.down, _stepColliders, 1f, _groundLayers);
+
+        // Loop through and return the first working tag
+        var material = EMaterialTag.None;
+        for (int i = 0; i < amouont; i++)
+        {
+            var tag = _stepColliders[i].collider.tag;
+            if (tag == "Untagged")
+                continue;
+            var m = GetMaterialFromTag(tag);
+            if (m == EMaterialTag.None)
+                continue;
+            else
+                material = m;
+        }
+
+        FootSoundInfo info = SoundTools.GetFootSound(material, transform.position, _rigidbody.linearVelocity.magnitude);
+
+        step.setParameterByName("SurfaceType", info.MaterialIndex);
+
+        step.start();
+        step.release();
+    }
+
+    // Public Methods
+    public void OnStepAnimation()
+    {
+        PlayFootSound();
     }
 }

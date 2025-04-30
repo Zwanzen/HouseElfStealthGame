@@ -1,10 +1,13 @@
 ﻿using System;
+using FMOD.Studio;
+using FMODUnity;
 using RootMotion.FinalIK;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
 using static CircleLineIntersection;
 using static RigidbodyMovement;
+using static SoundTools;
 
 public class FootControlContext
 {
@@ -12,7 +15,6 @@ public class FootControlContext
     [Header("Components")]
     private readonly PlayerController _player;
     private readonly FullBodyBipedIK _bodyIK;
-    private PlayerFootSoundPlayer _footSoundPlayer;
 
     [Header("Common")]
     private LayerMask _groundLayers;
@@ -29,14 +31,13 @@ public class FootControlContext
     private readonly MovementSettings _minWalkSetting;
     private readonly MovementSettings _maxWalkSettings;
 
-    public FootControlContext(PlayerController player, FullBodyBipedIK bodyIK, PlayerFootSoundPlayer footSoundPlayer,
+    public FootControlContext(PlayerController player, FullBodyBipedIK bodyIK,
         LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight,
         MovementSettings minSneakSetting, MovementSettings maxSneakSetting, MovementSettings minWalkSettings, MovementSettings maxWalkSettings,
         MovementSettings placementSettings, AnimationCurve speedCurve, AnimationCurve heightCurve, AnimationCurve placeCurve, AnimationCurve offsetCurve)
     {
         _player = player;
         _bodyIK = bodyIK;
-        _footSoundPlayer = footSoundPlayer;
         _groundLayers = groundLayers;
         _foot = foot;
         _otherFoot = otherFoot;
@@ -65,7 +66,6 @@ public class FootControlContext
     public IKEffector FootIKEffector { get; }
     public IKMappingLimb FootMapping { get; }
     public FullBodyBipedIK BodyIK => _bodyIK;
-    public PlayerFootSoundPlayer FootSoundPlayer => _footSoundPlayer;
     public Foot Foot => _foot;
     public Foot OtherFoot => _otherFoot;
     public Vector3 LowestFootPosition => _foot.Position.y < _otherFoot.Position.y ? _foot.Position : _otherFoot.Position;
@@ -237,74 +237,23 @@ public class FootControlContext
         return true;
     }
     
-    public bool FootGroundCast(float up, out RaycastHit hit)
+    public bool FootGroundCast(float dist, out RaycastHit hit)
     {
         // We need to move the start pos of the ray backwards relative to the line direction
         var lineDir = Vector3.down;
         var footPos = Foot.Target.position;
-        var otherFootPos = OtherFoot.Target.position;
-        
-        // Now we set the line start backwards
-        // If the foot passed the radius, we still get the intersection point
-        var offsetLineStart = footPos - lineDir;
-        
-        // We need to dynamically calculate the distance to the ground
-        // based on the feet positions to not overshoot the step height
-        // We use a custom-made CircleLineIntersection to calculate the distance
-        if (!CalculateIntersectionPoint(otherFootPos, StepLength, offsetLineStart, lineDir,
-                out var result))
-            result = footPos; // This will make the max distance 0
-        
-        // This is the length between the foot and the max step length/intersection point
-        var maxDistance = (result - footPos).magnitude;
         
         var defaultValues = FootCastValues;
         var position = defaultValues.Position;
         var size = defaultValues.Size;
         var rotation = defaultValues.Rotation;
         position.y += size.y;
-        
-        // We use a sphere cast to check with a radius downwards
-        var upOffset = Vector3.up * (_foot.Collider.size.y + up);
-        if(!Physics.BoxCast(position, size, Vector3.down, out hit, rotation, maxDistance + size.y, GroundLayers))
-            return false;
-        
-        return true;
-    }
-    
-    public bool FootGroundCast(float minDist = 0f)
-    {
-        // We need to move the start pos of the ray backwards relative to the line direction
-        var lineDir = Vector3.down;
-        var footPos = Foot.Target.position;
-        var otherFootPos = OtherFoot.Target.position;
-        
-        // Now we set the line start backwards
-        // If the foot passed the radius, we still get the intersection point
-        var offsetLineStart = footPos - lineDir;
-        
-        // We need to dynamically calculate the distance to the ground
-        // based on the feet positions to not overshoot the step height
-        // We use a custom-made CircleLineIntersection to calculate the distance
-        if (!CalculateIntersectionPoint(otherFootPos, StepLength, offsetLineStart, lineDir,
-                out var result))
-            result = footPos; // This will make the max distance min dist
-        
-        // This is the length between the foot and the max step length/intersection point
-        var maxDistance = (result - footPos).magnitude;
-        maxDistance = Mathf.Clamp(maxDistance, minDist, maxDistance);
-        
-        var defaultValues = FootCastValues;
-        var position = defaultValues.Position;
-        var size = defaultValues.Size;
-        var rotation = defaultValues.Rotation;
-        position.y += size.y;
-        
-        // We use a sphere cast to check with a radius downwards
+
         var upOffset = Vector3.up * _foot.Collider.size.y;
-        if(!Physics.BoxCast(position, size, Vector3.down, rotation, maxDistance + size.y, GroundLayers))
+        if(!Physics.BoxCast(position, size, Vector3.down, out hit, rotation, dist + size.y, GroundLayers))
             return false;
-        
+
+
         return true;
     }
     
@@ -337,5 +286,43 @@ public class FootControlContext
 
         return Physics.BoxCast(position, size, Vector3.down, out hit, rotation, size.y * 1.5f,
             GroundLayers);
+    }
+
+    private Collider[] _stepColliders = new Collider[10];
+    public void PlayFootSound()
+    {
+        EventInstance step = RuntimeManager.CreateInstance("event:/Characters/Player/SFX/Footsteps Elf");
+        RuntimeManager.AttachInstanceToGameObject(step, Foot.Target.transform);
+
+        // Check colliders below the foot for tag
+        var defaultValues = FootCastValues;
+        var position = defaultValues.Position;
+        var size = defaultValues.Size;
+        var rotation = defaultValues.Rotation;
+        size *= 1.1f;
+        size.y *= 2f;
+        position.y -= size.y/2;
+        var amouont = Physics.OverlapBoxNonAlloc(position, size, _stepColliders, rotation, GroundLayers);
+
+        // Loop through and return the first working tag
+        var material = EMaterialTag.None;
+        for (int i = 0; i < amouont; i++)
+        {
+            var tag = _stepColliders[i].tag;
+            if(tag == "Untagged")
+                continue;
+            var m = GetMaterialFromTag(tag);
+            if (m == EMaterialTag.None)
+                continue;
+            else
+                material = m;
+        }
+
+        FootSoundInfo info = SoundTools.GetFootSound(material, Foot.Position, Foot.Target.linearVelocity.magnitude);
+
+        step.setParameterByName("SurfaceType", info.MaterialIndex);
+
+        step.start();
+        step.release();
     }
 }
