@@ -86,19 +86,19 @@ public class FootLiftedState : FootControlState
         var baseFootLiftedHeight = 0.1f;
         var wantedHeight = otherFootPos.y + baseFootLiftedHeight;
 
-        /*
-        // Depending on obstacles, we want to move the foot up
-        // We create a boxcast from the max step height, downwards to the max step height
-        // If we don't hit anything, the pressed height is the wanted height
-        if (ScanGroundObject(input, out var scanInfo) && !Input.GetKey(KeyCode.LeftShift))
-            wantedHeight = scanInfo.Height + baseFootLiftedHeight;
-        */
-        if (TryWantedHeightPos(input, footPos, otherFootPos, out var r))
+        if (input != Vector3.zero) 
         {
-            Physics.CheckSphere(r, 0.1f, 0);
-            if (r.y < otherFootPos.y)
-                r.y = otherFootPos.y - 0.15f;
-            wantedHeight = r.y + baseFootLiftedHeight;
+            if (TryWantedHeightPos(input, footPos, otherFootPos, out var r))
+            {
+                Physics.CheckSphere(r, 0.1f, 0);
+                if (r.y < otherFootPos.y - 0.15f)
+                    r.y = otherFootPos.y - 0.15f;
+                wantedHeight = r.y + baseFootLiftedHeight;
+            }
+        }
+        else if (!Input.GetKey(KeyCode.LeftControl))
+        {
+            wantedHeight = footPos.y;
         }
 
         // This is the current position of the foot, but at the wanted height
@@ -214,36 +214,30 @@ public class FootLiftedState : FootControlState
         }
 
         // If we have more than 1 point,
-        // And we there is no input, we want to get the closest point
+        // And we there is no input, we want to get the closest xz point
         // Used multiple times, so we store it
         var footXZPos = new Vector3(footPos.x, 0f, footPos.z);
         var closestPoint = Vector3.zero;
-        var xzPoint = Vector3.zero;
+        var closestXZPoint = Vector3.zero;
         if (input == Vector3.zero)
         {
-            for (var i = 0; i < validPointCount; i++)
-            {
-                // If it has no point, we want to use the first point
-                if (closestPoint == Vector3.zero)
-                {
-                    closestPoint = hitPoints[i].point;
-                    continue;
-                }
-                // Check if the point is closer than the closest point
-                if (Vector3.Distance(hitPoints[i].point, footPos) < Vector3.Distance(closestPoint, footPos))
-                    closestPoint = hitPoints[i].point;
-            }
+            // If nothing is above, we want to use the point closest to the foot
+            closestPoint = GetClosestXZPoint(hitPoints, validPointCount, footPos, out closestXZPoint);
 
             // Only if it is close enough to the foot, we want to use it
-            xzPoint = closestPoint;
-            xzPoint.y = 0f;
-            if (Vector3.Distance(xzPoint, footXZPos) < 0.2f)
+            if (Vector3.Distance(closestXZPoint, footXZPos) < 0.1f)
             {
                 heightPos = closestPoint;
                 // Always dispose NativeArray when done
                 hitPoints.Dispose();
                 return true;
             }
+
+            // If we have no input, and we havent returned yet,
+            // We want to return false
+            // Always dispose NativeArray when done
+            hitPoints.Dispose();
+            return false;
         }
 
         // If there are multiple points, we check if there are points above the foot
@@ -263,50 +257,18 @@ public class FootLiftedState : FootControlState
             // If we have points above,
             // we want to use the point closest to the foot on the xz plane
             // but if they are below, and they are close, we skip them
-            var closestXZPoint = Vector3.zero;
-            for (var i = 0; i < validPointCount; i++)
-            {
-                var hitXZPos = new Vector3(hitPoints[i].point.x, 0f, hitPoints[i].point.z);
-                var d = Vector3.Distance(hitXZPos, footXZPos);
-                if (hitPoints[i].point.y < footPos.y)
-                    if (d < 0.25f)
-                        continue;
-                // If it has no point, we want to use the first point
-                if (closestXZPoint == Vector3.zero)
-                {
-                    closestXZPoint = hitPoints[i].point;
-                    continue;
-                }
-
-                // Check if the point is closer than the closest point
-                if (d < Vector3.Distance(closestXZPoint, footXZPos))
-                    closestXZPoint = hitPoints[i].point;
-            }
+            closestPoint = GetClosestXZPoint(hitPoints, validPointCount, footPos, out closestXZPoint, true);
             // We want to use the point closest to the foot on the xz plane
-            heightPos = closestXZPoint;
+            heightPos = closestPoint;
             // Always dispose NativeArray when done
             hitPoints.Dispose();
             return true;
         }
 
         // If nothing is above, we want to use the point closest to the foot
-        for (var i = 0; i < validPointCount; i++)
-        {
-            // If it has no point, we want to use the first point
-            if (closestPoint == Vector3.zero)
-            {
-                closestPoint = hitPoints[i].point;
-                continue;
-            }
-            // Check if the point is closer than the closest point
-            if (Vector3.Distance(hitPoints[i].point, footPos) < Vector3.Distance(closestPoint, footPos))
-                closestPoint = hitPoints[i].point;
-        }
-
+        closestPoint = GetClosestXZPoint(hitPoints, validPointCount, footPos, out closestXZPoint);
         // Only if it is close enough to the foot, we want to use it
-        xzPoint = closestPoint;
-        xzPoint.y = 0f;
-        if (Vector3.Distance(xzPoint, footXZPos) < 0.2f)
+        if (Vector3.Distance(closestXZPoint, footXZPos) < 0.2f)
         {
             heightPos = closestPoint;
             // Always dispose NativeArray when done
@@ -317,6 +279,58 @@ public class FootLiftedState : FootControlState
         // Always dispose NativeArray when done
         hitPoints.Dispose();
         return false;
+    }
+
+    private Vector3 GetClosestXZPoint(NativeArray<RaycastHit> hitPoints, int count, Vector3 footPos, out Vector3 xzPoint, bool useMinDist = false)
+    {
+        var footXZPos = new Vector3(footPos.x, 0f, footPos.z);
+        var closestPoint = Vector3.zero;
+        xzPoint = Vector3.zero;
+        var storedDist = 0f;
+        for (var i = 0; i < count; i++)
+        {
+            var xzHit = hitPoints[i].point;
+            xzHit.y = 0f;
+            var d = Vector3.Distance(xzHit, footXZPos);
+            if (hitPoints[i].point.y < footPos.y && useMinDist)
+                if (d < 0.25f)
+                    continue;
+
+            // If it has no point, we want to use the first point
+            if (closestPoint == Vector3.zero)
+            {
+                closestPoint = hitPoints[i].point;
+                storedDist = d;
+                xzPoint = xzHit;
+                continue;
+            }
+            // Check if the new point, has a similar distance as the stored point
+            // If they are similar, we want to use the one that is closest to the foot
+            var diff = Mathf.Abs(storedDist - d);
+            var threshold = 0.02f;
+
+            // If the distances are similar within the threshold
+            if (diff < threshold)
+            {
+                // If the new point is higher than the current point, use the new point
+                if (hitPoints[i].point.y > closestPoint.y)
+                {
+                    storedDist = d;
+                    xzPoint = xzHit;
+                    closestPoint = hitPoints[i].point;
+                }
+            }
+
+            // Check if the point is closer than the closest point
+            if (d < storedDist)
+            {
+                storedDist = d;
+                xzPoint = xzHit;
+                closestPoint = hitPoints[i].point;
+            }
+        }
+
+        return closestPoint;
     }
 
     private bool IsReachablePoint(Vector3 point,Vector3 footPos, Vector3 otherPos, Vector3 input)
@@ -334,6 +348,12 @@ public class FootLiftedState : FootControlState
 
         if(input != Vector3.zero)
         {
+            // If the point is behind the foot,
+            // we can rule out the point
+            var footToPoint = point - footPos;
+            if(Vector3.Dot(footToPoint.normalized, input.normalized) < 0f)
+                return false;
+
             var maxAngle = 10f;
             var with = 0.03f;
             var left = Vector3.Cross(Vector3.up, input.normalized) * with;
@@ -344,7 +364,6 @@ public class FootLiftedState : FootControlState
             var rightRotation = Quaternion.AngleAxis(-maxAngle, Vector3.up);
             var leftDir = (leftRotation * input.normalized).normalized;
             var rightDir = (rightRotation * input.normalized).normalized;
-            var footToPoint = point - footPos;
             Debug.DrawLine(leftAnglePos, rightAnglePos, Color.magenta);
             Debug.DrawRay(leftAnglePos, leftDir * Context.StepLength, Color.magenta);
             Debug.DrawRay(rightAnglePos, rightDir * Context.StepLength, Color.magenta);
@@ -375,8 +394,8 @@ public class FootLiftedState : FootControlState
         }
 
 
-        // If nothing is wrong, we can return true
-        return true;
+            // If nothing is wrong, we can return true
+            return true;
     }
 
     private bool ScanGroundObject(Vector3 input, out ScanInfo scanInfo)
