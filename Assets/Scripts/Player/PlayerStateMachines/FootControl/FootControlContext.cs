@@ -291,9 +291,6 @@ public class FootControlContext
     private Collider[] _stepColliders = new Collider[10];
     public void PlayFootSound()
     {
-        EventInstance step = RuntimeManager.CreateInstance("event:/Characters/Player/SFX/Footsteps Elf");
-        RuntimeManager.AttachInstanceToGameObject(step, Foot.Target.transform);
-
         // Check colliders below the foot for tag
         var defaultValues = FootCastValues;
         var position = defaultValues.Position;
@@ -319,10 +316,9 @@ public class FootControlContext
         }
 
         FootSoundInfo info = SoundTools.GetFootSound(material, Foot.Position, Foot.Target.linearVelocity.magnitude);
+        Foot.SoundEmitter.EventInstance.setParameterByName("SurfaceType", info.MaterialIndex);
+        Foot.SoundEmitter.SetParameter("SurfaceType", info.MaterialIndex);
+        Foot.SoundEmitter.Play();
 
-        step.setParameterByName("SurfaceType", info.MaterialIndex);
-
-        step.start();
-        step.release();
     }
 }

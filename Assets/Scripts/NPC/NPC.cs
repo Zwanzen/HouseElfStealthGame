@@ -26,7 +26,8 @@ public class NPC : MonoBehaviour
     // ___ Components ___
     private Rigidbody _rigidbody;
     private Animator _anim;
-    
+    private FMODUnity.StudioEventEmitter _soundEmitter;
+
     // ___ NPC Specific ___
     private NPCMovement _movement;
     NPCAnimator _animator;
@@ -55,7 +56,8 @@ public class NPC : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody>();
         _anim = GetComponentInChildren<Animator>();
-        
+        _soundEmitter = GetComponent<StudioEventEmitter>();
+
         _movement = new NPCMovement(this,_maxRecalcPathTime, _lookAhead, _groundLayers, _springStrength, _springDamper, _rotationSpeed);
         _animator = new NPCAnimator(this, _anim);
         
@@ -94,9 +96,6 @@ public class NPC : MonoBehaviour
     private RaycastHit[] _stepColliders = new RaycastHit[10];
     private void PlayFootSound()
     {
-        EventInstance step = RuntimeManager.CreateInstance("event:/Characters/Player/SFX/Footsteps Elf");
-        RuntimeManager.AttachInstanceToGameObject(step, transform);
-
         // Check colliders below the foot for tag
         var amouont = Physics.SphereCastNonAlloc(transform.position + Vector3.up * 0.3f, 0.18f,Vector3.down, _stepColliders, 1f, _groundLayers);
 
@@ -115,11 +114,8 @@ public class NPC : MonoBehaviour
         }
 
         FootSoundInfo info = SoundTools.GetFootSound(material, transform.position, _rigidbody.linearVelocity.magnitude);
-
-        step.setParameterByName("SurfaceType", info.MaterialIndex);
-
-        step.start();
-        step.release();
+        _soundEmitter.SetParameter("SurfaceType", info.MaterialIndex);
+        _soundEmitter.Play();
     }
 
     // Public Methods

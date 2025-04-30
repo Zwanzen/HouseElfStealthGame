@@ -165,6 +165,7 @@ GameObject:
   - component: {fileID: 4627731705761253655}
   - component: {fileID: 8081472946918196695}
   - component: {fileID: 7946481448393806056}
+  - component: {fileID: 3195766296645774975}
   m_Layer: 17
   m_Name: NPC Servant
   m_TagString: Untagged
@@ -345,6 +346,37 @@ MonoBehaviour:
   bezierTangentLength: 0.4
   offset: 0.2
   factor: 0.1
+--- !u!114 &3195766296645774975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 394583665564619696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 1237082114
+      Data2: 1135735223
+      Data3: -708143730
+      Data4: -284126951
+    Path: event:/Characters/Player/SFX/Footsteps Elf
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &474975227255455536
 GameObject:
   m_ObjectHideFlags: 0
