@@ -176,10 +176,15 @@ public class FootLiftedState : FootControlState
             return false;
         }
 
+        //Debug.DrawRay(footPos + Vector3.up * 1.5f, input.normalized, Color.white);
+
         var radius = Context.StepLength * 0.5f;
         var castHeight = otherPos.y + Context.StepHeight + radius;
         var castPos = new Vector3(footPos.x, castHeight, footPos.z);
+        // We want to offset the cast position in the direction of the input
+        castPos += input.normalized * 0.2f;
         var dist = Context.StepHeight * 2f + radius;
+
 
         var hitCount = Physics.SphereCastNonAlloc(castPos, radius, Vector3.down, _hits, dist, Context.GroundLayers);
         if (hitCount <= 0)
@@ -188,20 +193,19 @@ public class FootLiftedState : FootControlState
             return false;
         }
 
-        // We need to go through all the hits and compare the angle
-        // If the angle is too steep, we want to ignore it
         for (var i = 0; i < hitCount; i++)
         {
-            if (IsReachablePoint(_hits[i].point, otherPos))
+            if (IsReachablePoint(_hits[i].point, footPos, otherPos, input))
             {
-                Debug.DrawRay(_hits[i].point, Vector3.up * 0.5f, Color.red);
+                Debug.DrawRay(_hits[i].point, Vector3.up * 0.1f, Color.green);
             }
         }
+
         heightPos = Vector3.zero;
         return false;
     }
 
-    private bool IsReachablePoint(Vector3 point, Vector3 otherPos)
+    private bool IsReachablePoint(Vector3 point,Vector3 footPos, Vector3 otherPos, Vector3 input)
     {
         // Check if it is too far way
         if(Vector3.Distance(otherPos, point) > Context.StepLength)
@@ -209,6 +213,53 @@ public class FootLiftedState : FootControlState
         // Check if it is too high or too low
         if(point.y > otherPos.y + Context.StepHeight - 0.05f || point.y < otherPos.y - Context.StepHeight + 0.05f)
             return false;
+
+        // We need to go through all the hits and compare the angle
+        // If the angle is too steep, we want to ignore it
+        // but we need to define a left and right side to be able to 
+        // add with to the angle check.
+        var maxAngle = 20f;
+        var with = 0.03f;
+        var left = Vector3.Cross(Vector3.up, input.normalized) * with;
+        var leftAnglePos = footPos + left;
+        var rightAnglePos = footPos - left;
+        // Debugging
+        var leftRotation = Quaternion.AngleAxis(maxAngle, Vector3.up);
+        var rightRotation = Quaternion.AngleAxis(-maxAngle, Vector3.up);
+        var leftDir = (leftRotation * input.normalized).normalized;
+        var rightDir = (rightRotation * input.normalized).normalized;
+        var footToPoint = point - footPos;
+        Debug.DrawLine(leftAnglePos, rightAnglePos, Color.magenta);
+        Debug.DrawRay(leftAnglePos, leftDir * Context.StepLength, Color.magenta);
+        Debug.DrawRay(rightAnglePos, rightDir * Context.StepLength, Color.magenta);
+        Debug.DrawLine(footPos, point, Color.red);
+
+        // We dont care about the height, so we set the y to 0
+        leftAnglePos.y = 0f;
+        rightAnglePos.y = 0f;
+        point.y = 0f;
+        footToPoint.y = 0f;
+
+        var leftPosToPoint = point - leftAnglePos;
+        var rightPosToPoint = point - rightAnglePos;
+        leftPosToPoint.y = 0f;
+        rightPosToPoint.y = 0f;
+
+        // First we check if it is left or right by using the left dir
+        var isLeft = Vector3.Dot(left.normalized, footToPoint.normalized) > 0f;
+        // Find the correct dir to use based on if it is left or right
+        var dir = isLeft ? leftPosToPoint.normalized : rightPosToPoint.normalized;
+        var dirToCompare = isLeft ? left.normalized : -left.normalized;
+        // Now we check the angle between the left/right dir and the dir
+        var angle = Vector3.Angle(dirToCompare, dir);
+        // If the angle is too steep, we want to ignore it
+        // But the normal forward angle is now 90 degrees
+        if (angle < 90f - maxAngle)
+            return false;
+
+
+
+
         // If nothing is wrong, we can return true
         return true;
     }
