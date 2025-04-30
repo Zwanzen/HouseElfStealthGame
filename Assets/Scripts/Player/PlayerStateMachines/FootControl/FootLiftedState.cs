@@ -146,11 +146,13 @@ public class FootLiftedState : FootControlState
     {
         public readonly float Height;
         public readonly bool Stuck;
+        public readonly Vector3 FixDir;
 
-        public ScanInfo(float height, bool stuck)
+        public ScanInfo(float height, bool stuck, Vector3 fixDir)
         {
             Height = height;
             Stuck = stuck;
+            FixDir = fixDir;
         }
     }
 
@@ -425,6 +427,7 @@ public class FootLiftedState : FootControlState
         return true;
     }
 
+    /*
     private bool ScanGroundObject(Vector3 input, out ScanInfo scanInfo)
     {
         var footPos = Context.Foot.Target.position;
@@ -564,6 +567,7 @@ public class FootLiftedState : FootControlState
         scanInfo = new ScanInfo(height, false);
         return true;
     }
+    */
 
     private enum EOffsetDirection
     {
