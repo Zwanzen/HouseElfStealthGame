@@ -1,6 +1,7 @@
 using System;
 using FMOD.Studio;
 using FMODUnity;
+using Mono.Cecil;
 using Pathfinding;
 using UnityEngine;
 using static RigidbodyMovement;
@@ -113,9 +114,6 @@ public class NPC : MonoBehaviour
                 material = m;
         }
 
-        FootSoundInfo info = SoundTools.GetFootSound(material, transform.position, _rigidbody.linearVelocity.magnitude);
-        _soundEmitter.SetParameter("SurfaceType", info.MaterialIndex);
-        _soundEmitter.Play();
     }
 
     // Public Methods

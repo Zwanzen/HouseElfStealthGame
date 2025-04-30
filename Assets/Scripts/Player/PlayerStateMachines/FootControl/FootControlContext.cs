@@ -316,9 +316,10 @@ public class FootControlContext
         }
 
         FootSoundInfo info = SoundTools.GetFootSound(material, Foot.Position, Foot.Target.linearVelocity.magnitude);
-        Foot.SoundEmitter.EventInstance.setParameterByName("SurfaceType", info.MaterialIndex);
-        Foot.SoundEmitter.SetParameter("SurfaceType", info.MaterialIndex);
-        Foot.SoundEmitter.Play();
-
+        var step = RuntimeManager.CreateInstance("event:/Characters/Player/SFX/Footsteps Elf");
+        step.setParameterByName("SurfaceType", info.MaterialIndex);
+        step.set3DAttributes(FMODUnity.RuntimeUtils.To3DAttributes(Foot.Position));
+        step.start();
+        step.release();
     }
 }
