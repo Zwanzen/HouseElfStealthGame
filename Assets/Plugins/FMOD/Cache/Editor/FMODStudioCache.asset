@@ -15,7 +15,7 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 638816051328521995
+  lastModified: 638816130860555653
   FileSizes:
   - Name: Desktop
     Value: 660224
@@ -98,6 +98,35 @@ MonoBehaviour:
   IsGlobal: 0
   Labels: []
   Exists: 1
+--- !u!114 &-3834722090605681175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Environment & Props/Bottles, Cups & Flagons/Glass Bottles/Glass
+    Bottle Clunk
+  m_EditorClassIdentifier: 
+  Path: event:/Environment & Props/Bottles, Cups & Flagons/Glass Bottles/Glass Bottle
+    Clunk
+  Guid:
+    Data1: -418440684
+    Data2: 1218744250
+    Data3: -290803277
+    Data4: 722966725
+  Banks:
+  - {fileID: -2713093470380351121}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &-2713093470380351121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -113,10 +142,10 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Props.bank
   Name: Props
   StudioPath: bank:/Props
-  lastModified: 638816051328761367
+  lastModified: 638816130861852573
   FileSizes:
   - Name: Desktop
-    Value: 576448
+    Value: 577376
   Exists: 1
 --- !u!114 &-2540372102523804866
 MonoBehaviour:
@@ -133,7 +162,7 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Ambience.bank
   Name: Ambience
   StudioPath: bank:/Ambience
-  lastModified: 638816051328422262
+  lastModified: 638815693120065451
   FileSizes:
   - Name: Desktop
     Value: 2185760
@@ -164,7 +193,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 80269
+  Length: 75000
 --- !u!114 &-1991368888401087721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231,10 +260,10 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Mood.bank
   Name: Mood
   StudioPath: bank:/Mood
-  lastModified: 638816051328681577
+  lastModified: 638816071057867229
   FileSizes:
   - Name: Desktop
-    Value: 1580160
+    Value: 906880
   Exists: 1
 --- !u!114 &-490219299410870130
 MonoBehaviour:
@@ -251,10 +280,10 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Footsteps.bank
   Name: Footsteps
   StudioPath: bank:/Footsteps
-  lastModified: 638816051328472130
+  lastModified: 638816130860258181
   FileSizes:
   - Name: Desktop
-    Value: 276640
+    Value: 333056
   Exists: 1
 --- !u!114 &11400000
 MonoBehaviour:
@@ -288,12 +317,14 @@ MonoBehaviour:
   - {fileID: 5331863846457297039}
   - {fileID: 1253947965247420814}
   - {fileID: 6945046985202052911}
+  - {fileID: 6458863575269350956}
+  - {fileID: -3834722090605681175}
   EditorParameters: []
   MasterBanks:
   - {fileID: -8439421022672543075}
   StringsBanks:
   - {fileID: 1070774867235751490}
-  cacheTime: 638816051328761367
+  cacheTime: 638816130861852573
   cacheVersion: 131624
 --- !u!114 &781908994904860347
 MonoBehaviour:
@@ -334,10 +365,10 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 638816051328531971
+  lastModified: 638816130860580952
   FileSizes:
   - Name: Desktop
-    Value: 1704
+    Value: 1854
   Exists: 1
 --- !u!114 &1253947965247420814
 MonoBehaviour:
@@ -383,7 +414,7 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Musical Cues.bank
   Name: Musical Cues
   StudioPath: bank:/Musical Cues
-  lastModified: 638816051328691549
+  lastModified: 638815439906656213
   FileSizes:
   - Name: Desktop
     Value: 494
@@ -457,7 +488,7 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Dialogue.bank
   Name: Dialogue
   StudioPath: bank:/Dialogue
-  lastModified: 638816051328432237
+  lastModified: 638815439865094546
   FileSizes:
   - Name: Desktop
     Value: 494
@@ -472,9 +503,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
-  m_Name: parameter:/Footsteps Elf/WalkRun
+  m_Name: parameter:/Footsteps Elf/Magnitude
   m_EditorClassIdentifier: 
-  Name: WalkRun
+  Name: Magnitude
   StudioPath: 
   Min: 0
   Max: 1
@@ -513,6 +544,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 5442
+--- !u!114 &6458863575269350956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Squeaky Wood Floor
+  m_EditorClassIdentifier: 
+  Path: event:/Squeaky Wood Floor
+  Guid:
+    Data1: -1217248117
+    Data2: 1226781456
+    Data3: -276628322
+    Data4: -525968685
+  Banks:
+  - {fileID: -490219299410870130}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 1300
 --- !u!114 &6945046985202052911
 MonoBehaviour:
   m_ObjectHideFlags: 0
