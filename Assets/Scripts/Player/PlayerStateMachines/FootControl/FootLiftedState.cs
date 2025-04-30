@@ -36,7 +36,6 @@ public class FootLiftedState : FootControlState
     public override void ExitState()
     {
         _liftTimer = 0f;
-        Context.FootSoundPlayer.MakeFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
     }
 
     public override void UpdateState()
