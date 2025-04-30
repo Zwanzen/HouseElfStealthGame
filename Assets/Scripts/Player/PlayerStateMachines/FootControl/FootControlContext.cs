@@ -12,7 +12,6 @@ public class FootControlContext
     [Header("Components")]
     private readonly PlayerController _player;
     private readonly FullBodyBipedIK _bodyIK;
-    private PlayerFootSoundPlayer _footSoundPlayer;
 
     [Header("Common")]
     private LayerMask _groundLayers;
@@ -29,14 +28,13 @@ public class FootControlContext
     private readonly MovementSettings _minWalkSetting;
     private readonly MovementSettings _maxWalkSettings;
 
-    public FootControlContext(PlayerController player, FullBodyBipedIK bodyIK, PlayerFootSoundPlayer footSoundPlayer,
+    public FootControlContext(PlayerController player, FullBodyBipedIK bodyIK,
         LayerMask groundLayers, Foot foot, Foot otherFoot, float stepLength, float stepHeight,
         MovementSettings minSneakSetting, MovementSettings maxSneakSetting, MovementSettings minWalkSettings, MovementSettings maxWalkSettings,
         MovementSettings placementSettings, AnimationCurve speedCurve, AnimationCurve heightCurve, AnimationCurve placeCurve, AnimationCurve offsetCurve)
     {
         _player = player;
         _bodyIK = bodyIK;
-        _footSoundPlayer = footSoundPlayer;
         _groundLayers = groundLayers;
         _foot = foot;
         _otherFoot = otherFoot;
@@ -65,7 +63,6 @@ public class FootControlContext
     public IKEffector FootIKEffector { get; }
     public IKMappingLimb FootMapping { get; }
     public FullBodyBipedIK BodyIK => _bodyIK;
-    public PlayerFootSoundPlayer FootSoundPlayer => _footSoundPlayer;
     public Foot Foot => _foot;
     public Foot OtherFoot => _otherFoot;
     public Vector3 LowestFootPosition => _foot.Position.y < _otherFoot.Position.y ? _foot.Position : _otherFoot.Position;

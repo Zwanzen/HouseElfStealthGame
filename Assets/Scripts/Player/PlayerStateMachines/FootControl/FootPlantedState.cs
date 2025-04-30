@@ -24,7 +24,6 @@ public class FootPlantedState : FootControlState
     public override void EnterState()
     {
         //Context.Foot.Target.isKinematic = true;
-        Context.FootSoundPlayer.PlayFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
         _rb = Context.Foot.Target;
         _rb.constraints = PlacedConstraints;
         _rb.useGravity = true;

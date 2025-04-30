@@ -32,8 +32,6 @@ public class PlayerController : MonoBehaviour
     [Space(10f)]
     [Header("Common")]
     [SerializeField] private LayerMask _groundLayers;
-    [SerializeField] private PlayerFootSoundPlayer _leftFootSoundPlayer;
-    [SerializeField] private PlayerFootSoundPlayer _rightFootSoundPlayer;
     [SerializeField] private Transform[] _limbs;
 
     [Space(10f)]
@@ -184,10 +182,10 @@ public class PlayerController : MonoBehaviour
         _controlContext = new PlayerControlContext(this, _bodyIK, _bodyCollider, _fallCollider, _groundLayers,
             leftFoot, rightFoot, _bodyMovementSetting, _stepLength, _stepHeight);
         
-        _leftFootContext = new FootControlContext(this, _bodyIK, _leftFootSoundPlayer, _groundLayers,
+        _leftFootContext = new FootControlContext(this, _bodyIK, _groundLayers,
             leftFoot, rightFoot, _stepLength, _stepHeight, _minSneakSetting, _maxSneakSetting, _minWalkSetting, _maxWalkSetting, 
             _placeSettings, _speedCurve, _heightCurve, _placeSpeedCurve, _offsetCurve);
-        _rightFootContext = new FootControlContext(this, _bodyIK, _rightFootSoundPlayer, _groundLayers,
+        _rightFootContext = new FootControlContext(this, _bodyIK, _groundLayers,
             rightFoot, leftFoot, _stepLength, _stepHeight, _minSneakSetting, _maxSneakSetting, _minWalkSetting, _maxWalkSetting, _placeSettings, 
             _speedCurve, _heightCurve, _placeSpeedCurve, _offsetCurve);
         
@@ -279,10 +277,6 @@ public class PlayerController : MonoBehaviour
     // Movement input based on camera direction
     public Vector3 RelativeMoveInput => GetRelativeMoveInput();
     public PlayerCameraController Camera => _cameraController;
-    
-    // SOUND DEMO
-    public PlayerFootSoundPlayer LeftFootSoundPlayer => _leftFootSoundPlayer;
-    public PlayerFootSoundPlayer RightFootSoundPlayer => _rightFootSoundPlayer;
     
     // Private methods
     private Vector3 GetRelativeMoveInput()
