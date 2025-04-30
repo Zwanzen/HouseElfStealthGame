@@ -220,8 +220,13 @@
 	</object>
 	<object class="MixerBusEffectChain" id="{ae5d2bd4-6029-493e-8944-3cdb8dce9127}">
 		<relationship name="effects">
+<<<<<<< HEAD
 			<destination>{7acc3b7c-fde2-4a41-a25f-e1d972a60c86}</destination>
 			<destination>{9f964274-832f-4b3b-a7c6-8c2f507b2943}</destination>
+=======
+			<destination>{9f964274-832f-4b3b-a7c6-8c2f507b2943}</destination>
+			<destination>{7acc3b7c-fde2-4a41-a25f-e1d972a60c86}</destination>
+>>>>>>> Audio
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{10872a37-f703-40f7-96d4-5ff11de7a28b}" />
@@ -456,12 +461,19 @@
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{4dc4c22c-e42e-4423-8871-98a3a802247b}" />
+<<<<<<< HEAD
+=======
+	<object class="MixerBusFader" id="{9f964274-832f-4b3b-a7c6-8c2f507b2943}" />
+>>>>>>> Audio
 	<object class="PluginEffect" id="{7acc3b7c-fde2-4a41-a25f-e1d972a60c86}">
 		<relationship name="plugin">
 			<destination>{b4292ad5-665c-4ab4-8315-9580114861db}</destination>
 		</relationship>
 	</object>
+<<<<<<< HEAD
 	<object class="MixerBusFader" id="{9f964274-832f-4b3b-a7c6-8c2f507b2943}" />
+=======
+>>>>>>> Audio
 	<object class="MixerBusFader" id="{5e1670a8-73a8-4000-a4cb-123927b18d8e}" />
 	<object class="Plugin" id="{b4292ad5-665c-4ab4-8315-9580114861db}">
 		<property name="identifier">
@@ -568,7 +580,11 @@
 			<value>ApplyOccl</value>
 		</property>
 		<property name="value">
+<<<<<<< HEAD
 			<value>2</value>
+=======
+			<value>1</value>
+>>>>>>> Audio
 		</property>
 		<property name="minimumValue">
 			<value>0</value>
@@ -612,7 +628,11 @@
 			<value>Interpolation</value>
 		</property>
 		<property name="value">
+<<<<<<< HEAD
 			<value>1</value>
+=======
+			<value>0</value>
+>>>>>>> Audio
 		</property>
 		<property name="minimumValue">
 			<value>0</value>
@@ -637,7 +657,11 @@
 			<value>DAType</value>
 		</property>
 		<property name="value">
+<<<<<<< HEAD
 			<value>1</value>
+=======
+			<value>0</value>
+>>>>>>> Audio
 		</property>
 		<property name="minimumValue">
 			<value>0</value>
@@ -651,7 +675,11 @@
 			<value>DAMinDist</value>
 		</property>
 		<property name="value">
+<<<<<<< HEAD
 			<value>0</value>
+=======
+			<value>1</value>
+>>>>>>> Audio
 		</property>
 		<property name="curve">
 			<value>{(0.000000,0.000000)(1.000000,10000.000000)}</value>
@@ -662,7 +690,11 @@
 			<value>DAMaxDist</value>
 		</property>
 		<property name="value">
+<<<<<<< HEAD
 			<value>10000</value>
+=======
+			<value>20</value>
+>>>>>>> Audio
 		</property>
 		<property name="curve">
 			<value>{(0.000000,0.000000)(1.000000,10000.000000)}</value>
