@@ -305,4 +305,24 @@ public class PlayerControlContext
         _temporaryFallHeight = 0f;
     }
 
+    /// <summary>
+    /// If the body is too far away from the feet.
+    /// We need to turn off the body collider.
+    /// </summary>
+    public void HandleStretch()
+    {
+        var distToLeft = Vector3.Distance(Player.Rigidbody.position, LeftFoot.Position);
+        var distToRight = Vector3.Distance(Player.Rigidbody.position, RightFoot.Position);
+        var dist = Mathf.Min(distToLeft, distToRight);
+        // If the distance is greater than the step length, we need to turn off the body collider
+        if (dist > StepLength)
+        {
+            BodyCollider.enabled = false;
+        }
+        else
+        {
+            BodyCollider.enabled = true;
+        }
+    }
+
 }

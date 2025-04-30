@@ -66,5 +66,58 @@ public class Foot
     
     public CapsuleCollider Thigh { get; }
     public CapsuleCollider Calf { get; }
+    public BoxCastValues FootCastValues => GetBoxCastValues();
+
+
+    // Used to get values for box cast
+    public struct BoxCastValues
+    {
+        public readonly Vector3 Position;
+        public readonly Vector3 Size;
+        public readonly Quaternion Rotation;
+
+        public BoxCastValues(Vector3 position, Vector3 size, Quaternion rotation)
+        {
+            Position = position;
+            Size = size;
+            Rotation = rotation;
+        }
+    }
+
+    private BoxCastValues GetBoxCastValues()
+    {
+        // Get the global position of the foot collider
+        var position = Collider.transform.TransformPoint(Collider.center);
+
+        // Get the size of the box collider 
+        var size = Collider.size / 2f;
+        // Reduce the size slightly
+        size *= 0.98f;
+
+        // Get the y-axis rotation of the foot
+        var rotation = Target.rotation;
+        rotation.x = 0f;
+        rotation.z = 0f;
+        rotation.Normalize();
+
+        return new BoxCastValues(position, size, rotation);
+    }
+
+    // Public methods
+    public void TurnOffCollider()
+    {
+        Collider.enabled = false;
+        Thigh.enabled = false;
+        Calf.enabled = false;
+    }
+
+    public void TurnOnCollider()
+    {
+        Collider.enabled = true;
+        Thigh.enabled = true;
+        Calf.enabled = true;
+    }
+
+
 
 }

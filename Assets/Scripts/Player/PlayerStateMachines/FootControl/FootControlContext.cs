@@ -57,7 +57,7 @@ public class FootControlContext
     
     // Read only properties
     public PlayerController Player => _player;
-    public BoxCastValues FootCastValues => GetBoxCastValues();
+    public Foot.BoxCastValues FootCastValues => Foot.FootCastValues;
     public IKEffector FootIKEffector { get; }
     public IKMappingLimb FootMapping { get; }
     public FullBodyBipedIK BodyIK => _bodyIK;
@@ -135,46 +135,13 @@ public class FootControlContext
         return layers;
     }
     
-    // Used to get values for box cast
-    public struct BoxCastValues
-    {
-        public readonly Vector3 Position;
-        public readonly Vector3 Size;
-        public readonly Quaternion Rotation;
-        
-        public BoxCastValues(Vector3 position, Vector3 size, Quaternion rotation)
-        {
-            Position = position;
-            Size = size;
-            Rotation = rotation;
-        }
-    }
-
-    private BoxCastValues GetBoxCastValues()
-    {
-        // Get the global position of the foot collider
-        var position = _foot.Collider.transform.TransformPoint(_foot.Collider.center);
-        
-        // Get the size of the box collider 
-        var size = _foot.Collider.size / 2f;
-        // Reduce the size slightly
-        size *= 0.98f;
-        
-        // Get the y-axis rotation of the foot
-        var rotation = _foot.Target.rotation;
-        rotation.x = 0f;
-        rotation.z = 0f;
-        rotation.Normalize();
-        
-        return new BoxCastValues(position, size, rotation);
-    }
-    
     private bool GetFootGrounded()
     {
         var downOffset = Vector3.down * FootCastValues.Size.y;
         return Physics.CheckBox(FootCastValues.Position + downOffset, FootCastValues.Size, FootCastValues.Rotation,GroundLayers);
     }
-    
+
+    private float _placeTimer;
     private bool GetIsLifting()
     {
         var LMB = InputManager.Instance.IsHoldingLMB;
@@ -182,8 +149,26 @@ public class FootControlContext
         var otherNotLifted = OtherFoot.State != FootControlStateMachine.EFootState.Lifted;
         var input = _player.RelativeMoveInput.normalized;
         var closer = RelativeDistanceInDirection(_otherFoot.Target.position, _foot.Target.position, input) < 0f;
-        
-        if(LMB && Foot.Side == Foot.EFootSide.Left && otherNotLifted)
+
+        // Temp leap
+        var dist = Vector3.Distance(Foot.Position, OtherFoot.Position);
+        var relDown = Foot.Position.y - OtherFoot.Position.y;
+        var otherHasGround = FootGroundCast(OtherFoot, 0.23f);
+        if (OtherFoot.Placing && !otherHasGround)
+        {
+            _placeTimer += Time.deltaTime;
+            if (_placeTimer > 0.13f)
+            {
+                _placeTimer = 0f;
+                return true;
+            }
+        }
+        else
+        {
+            _placeTimer = 0f;
+        }
+
+        if (LMB && Foot.Side == Foot.EFootSide.Left && otherNotLifted)
             return true;
         if(RMB && Foot.Side == Foot.EFootSide.Right && otherNotLifted)
             return true;
@@ -303,7 +288,27 @@ public class FootControlContext
         
         return true;
     }
-    
+
+    public bool FootGroundCast(Foot foot, float dist)
+    {
+        // We need to move the start pos of the ray backwards relative to the line direction
+        var lineDir = Vector3.down;
+        var footPos = foot.Target.position;
+
+        var defaultValues = foot.FootCastValues;
+        var position = defaultValues.Position;
+        var size = defaultValues.Size;
+        var rotation = defaultValues.Rotation;
+        position.y += size.y;
+
+        // We use a sphere cast to check with a radius downwards
+        var upOffset = Vector3.up * _foot.Collider.size.y;
+        if (!Physics.BoxCast(position, size, Vector3.down, rotation, dist, GroundLayers))
+            return false;
+
+        return true;
+    }
+
     public float RelativeDistanceInDirection(Vector3 from, Vector3 to, Vector3 direction)
     {
         var fromTo = to - from;
