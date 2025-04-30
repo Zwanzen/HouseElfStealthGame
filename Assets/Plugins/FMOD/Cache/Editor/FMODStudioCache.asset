@@ -1,5 +1,25 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9005367977841760091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Clutter.bank
+  m_EditorClassIdentifier: 
+  Path: AudioStuff/Build/Desktop/Clutter.bank
+  Name: Clutter
+  StudioPath: bank:/Clutter
+  lastModified: 638816433627051347
+  FileSizes:
+  - Name: Desktop
+    Value: 503456
+  Exists: 1
 --- !u!114 &-8439421022672543075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15,7 +35,7 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 638816393168919755
+  lastModified: 638816433620935865
   FileSizes:
   - Name: Desktop
     Value: 660224
@@ -76,6 +96,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 60000
+--- !u!114 &-7147107855643743525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Environment & Props/Glass Shards/Glass Shards
+  m_EditorClassIdentifier: 
+  Path: event:/Environment & Props/Glass Shards/Glass Shards
+  Guid:
+    Data1: 2026115247
+    Data2: 1272590515
+    Data3: 763142304
+    Data4: 1572246569
+  Banks:
+  - {fileID: -9005367977841760091}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 1000
 --- !u!114 &-5562068941319250851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -142,7 +189,7 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Props.bank
   Name: Props
   StudioPath: bank:/Props
-  lastModified: 638816393180955832
+  lastModified: 638816433621390121
   FileSizes:
   - Name: Desktop
     Value: 1733408
@@ -280,7 +327,7 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Footsteps.bank
   Name: Footsteps
   StudioPath: bank:/Footsteps
-  lastModified: 638816393168340467
+  lastModified: 638816433620648437
   FileSizes:
   - Name: Desktop
     Value: 333056
@@ -306,6 +353,7 @@ MonoBehaviour:
   - {fileID: 2178090963170298982}
   - {fileID: -2713093470380351121}
   - {fileID: -830520927705705446}
+  - {fileID: -9005367977841760091}
   EditorEvents:
   - {fileID: -1991368888401087721}
   - {fileID: 7945147199824411675}
@@ -322,12 +370,13 @@ MonoBehaviour:
   - {fileID: -8293757806759668111}
   - {fileID: 2219597081314724073}
   - {fileID: 5512373729016979496}
+  - {fileID: -7147107855643743525}
   EditorParameters: []
   MasterBanks:
   - {fileID: -8439421022672543075}
   StringsBanks:
   - {fileID: 1070774867235751490}
-  cacheTime: 638816393180955832
+  cacheTime: 638816433627051347
   cacheVersion: 131624
 --- !u!114 &781908994904860347
 MonoBehaviour:
@@ -368,10 +417,10 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 638816393168935096
+  lastModified: 638816433620963914
   FileSizes:
   - Name: Desktop
-    Value: 2012
+    Value: 2106
   Exists: 1
 --- !u!114 &1253947965247420814
 MonoBehaviour:
@@ -624,6 +673,7 @@ MonoBehaviour:
     Data3: 1617850522
     Data4: -541837823
   Banks:
+  - {fileID: -9005367977841760091}
   - {fileID: -2713093470380351121}
   IsStream: 0
   Is3D: 1
