@@ -19,10 +19,6 @@ public class FootControlContext
     private readonly Foot _foot;
     private readonly Foot _otherFoot;
     
-    [Header("Foot Control Variables")]
-    private readonly float _stepLength;
-    private readonly float _stepHeight;
-
     private readonly MovementSettings _minSneakSetting;
     private readonly MovementSettings _maxSneakSettings;
 
@@ -40,8 +36,8 @@ public class FootControlContext
         _groundLayers = groundLayers;
         _foot = foot;
         _otherFoot = otherFoot;
-        _stepLength = stepLength;
-        _stepHeight = stepHeight;
+        StepLength = stepLength;
+        StepHeight = stepHeight;
 
         _minSneakSetting = minSneakSetting;
         _maxSneakSettings = maxSneakSetting;
@@ -70,8 +66,8 @@ public class FootControlContext
     public Foot OtherFoot => _otherFoot;
     public Vector3 LowestFootPosition => _foot.Position.y < _otherFoot.Position.y ? _foot.Position : _otherFoot.Position;
     public Quaternion RotationOffset { get; }
-    public float StepLength => _stepLength;
-    public float StepHeight => _stepLength;
+    public float StepLength { get; }
+    public float StepHeight { get; }
     public LayerMask GroundLayers => GetGroundLayers();
     public Vector3 FootPlaceOffset =>  Vector3.up * 0.05f;
     public float FootRadius => 0.05f;

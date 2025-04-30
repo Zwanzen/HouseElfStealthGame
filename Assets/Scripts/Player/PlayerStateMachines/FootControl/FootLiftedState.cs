@@ -3,6 +3,7 @@ using UnityEngine;
 using static CircleLineIntersection;
 using static RigidbodyMovement;
 using Pathfinding;
+using Unity.Collections;
 
 public class FootLiftedState : FootControlState
 {
@@ -78,27 +79,27 @@ public class FootLiftedState : FootControlState
 
     private void Movement()
     {
-        var footPos = Context.Foot.Target.position;
-        var otherFootPos = Context.OtherFoot.Target.position;
+        var footPos = Context.Foot.Position;
+        var otherFootPos = Context.OtherFoot.Position;
         var input = Context.Player.RelativeMoveInput;
-        TryWantedHeightPos(input, footPos, otherFootPos, out var r);
-        if (input.normalized == Vector3.zero)
-        {
-            _timerSinceInput += Time.fixedDeltaTime;
-        }
-        else
-        {
-            _timerSinceInput = 0f;
-        }
 
         var baseFootLiftedHeight = 0.1f;
         var wantedHeight = otherFootPos.y + baseFootLiftedHeight;
 
+        /*
         // Depending on obstacles, we want to move the foot up
         // We create a boxcast from the max step height, downwards to the max step height
         // If we don't hit anything, the pressed height is the wanted height
         if (ScanGroundObject(input, out var scanInfo) && !Input.GetKey(KeyCode.LeftShift))
             wantedHeight = scanInfo.Height + baseFootLiftedHeight;
+        */
+        if (TryWantedHeightPos(input, footPos, otherFootPos, out var r))
+        {
+            Physics.CheckSphere(r, 0.1f, 0);
+            if (r.y < otherFootPos.y)
+                r.y = otherFootPos.y - 0.15f;
+            wantedHeight = r.y + baseFootLiftedHeight;
+        }
 
         // This is the current position of the foot, but at the wanted height
         var wantedHeightPos = new Vector3(footPos.x, wantedHeight, footPos.z);
@@ -135,10 +136,6 @@ public class FootLiftedState : FootControlState
         if (currentHeight > maxHeight)
             pos = wantedPos;
 
-        // If scan is stuck, we want to move the foot backwards
-        if (scanInfo.Stuck)
-            pos = footPos - Context.Player.Rigidbody.transform.forward * 0.5f;
-
         // We get the direction towards the wanted position
         var dirToPos = pos - footPos;
 
@@ -170,13 +167,7 @@ public class FootLiftedState : FootControlState
     /// </summary>
     private bool TryWantedHeightPos(Vector3 input, Vector3 footPos, Vector3 otherPos, out Vector3 heightPos)
     {
-        if(input == Vector3.zero)
-        {
-            heightPos = Vector3.zero;
-            return false;
-        }
-
-        //Debug.DrawRay(footPos + Vector3.up * 1.5f, input.normalized, Color.white);
+        heightPos = Vector3.zero;
 
         var radius = Context.StepLength * 0.5f;
         var castHeight = otherPos.y + Context.StepHeight + radius;
@@ -185,23 +176,146 @@ public class FootLiftedState : FootControlState
         castPos += input.normalized * 0.2f;
         var dist = Context.StepHeight * 2f + radius;
 
-
         var hitCount = Physics.SphereCastNonAlloc(castPos, radius, Vector3.down, _hits, dist, Context.GroundLayers);
         if (hitCount <= 0)
-        {
-            heightPos = Vector3.zero;
             return false;
-        }
 
+        // We need to efficiently store the reachable points
+        // Create with maximum possible size (hitCount)
+        var hitPoints = new NativeArray<RaycastHit>(hitCount, Allocator.Temp);
+        int validPointCount = 0;
         for (var i = 0; i < hitCount; i++)
         {
             if (IsReachablePoint(_hits[i].point, footPos, otherPos, input))
             {
                 Debug.DrawRay(_hits[i].point, Vector3.up * 0.1f, Color.green);
+                // If the point is reachable, we want to add it to the list
+                hitPoints[validPointCount] = _hits[i];
+                validPointCount++;
             }
         }
 
-        heightPos = Vector3.zero;
+        // If there is no valid point, we want to return false
+        if (validPointCount == 0)
+        {
+            // Always dispose NativeArray when done
+            hitPoints.Dispose();
+            return false;
+        }
+
+        // If there is only one point, we want to use that point
+        // But only if we have pressed the input
+        if (validPointCount == 1 && input != Vector3.zero)
+        {
+            heightPos = hitPoints[0].point;
+            // Always dispose NativeArray when done
+            hitPoints.Dispose();
+            return true;
+        }
+
+        // If we have more than 1 point,
+        // And we there is no input, we want to get the closest point
+        // Used multiple times, so we store it
+        var footXZPos = new Vector3(footPos.x, 0f, footPos.z);
+        var closestPoint = Vector3.zero;
+        var xzPoint = Vector3.zero;
+        if (input == Vector3.zero)
+        {
+            for (var i = 0; i < validPointCount; i++)
+            {
+                // If it has no point, we want to use the first point
+                if (closestPoint == Vector3.zero)
+                {
+                    closestPoint = hitPoints[i].point;
+                    continue;
+                }
+                // Check if the point is closer than the closest point
+                if (Vector3.Distance(hitPoints[i].point, footPos) < Vector3.Distance(closestPoint, footPos))
+                    closestPoint = hitPoints[i].point;
+            }
+
+            // Only if it is close enough to the foot, we want to use it
+            xzPoint = closestPoint;
+            xzPoint.y = 0f;
+            if (Vector3.Distance(xzPoint, footXZPos) < 0.2f)
+            {
+                heightPos = closestPoint;
+                // Always dispose NativeArray when done
+                hitPoints.Dispose();
+                return true;
+            }
+        }
+
+        // If there are multiple points, we check if there are points above the foot
+        var hasAbove = false;
+        for (var i = 0; i < validPointCount; i++)
+        {
+            // Check if the point is above the foot
+            if (hitPoints[i].point.y > footPos.y)
+            {
+                hasAbove = true;
+                break;
+            }
+        }
+
+        if (hasAbove)
+        {
+            // If we have points above,
+            // we want to use the point closest to the foot on the xz plane
+            // but if they are below, and they are close, we skip them
+            var closestXZPoint = Vector3.zero;
+            for (var i = 0; i < validPointCount; i++)
+            {
+                var hitXZPos = new Vector3(hitPoints[i].point.x, 0f, hitPoints[i].point.z);
+                var d = Vector3.Distance(hitXZPos, footXZPos);
+                if (hitPoints[i].point.y < footPos.y)
+                    if (d < 0.25f)
+                        continue;
+                // If it has no point, we want to use the first point
+                if (closestXZPoint == Vector3.zero)
+                {
+                    closestXZPoint = hitPoints[i].point;
+                    continue;
+                }
+
+                // Check if the point is closer than the closest point
+                if (d < Vector3.Distance(closestXZPoint, footXZPos))
+                    closestXZPoint = hitPoints[i].point;
+            }
+            // We want to use the point closest to the foot on the xz plane
+            heightPos = closestXZPoint;
+            // Always dispose NativeArray when done
+            hitPoints.Dispose();
+            return true;
+        }
+
+        // If nothing is above, we want to use the point closest to the foot
+        for (var i = 0; i < validPointCount; i++)
+        {
+            // If it has no point, we want to use the first point
+            if (closestPoint == Vector3.zero)
+            {
+                closestPoint = hitPoints[i].point;
+                continue;
+            }
+            // Check if the point is closer than the closest point
+            if (Vector3.Distance(hitPoints[i].point, footPos) < Vector3.Distance(closestPoint, footPos))
+                closestPoint = hitPoints[i].point;
+        }
+
+        // Only if it is close enough to the foot, we want to use it
+        xzPoint = closestPoint;
+        xzPoint.y = 0f;
+        if (Vector3.Distance(xzPoint, footXZPos) < 0.2f)
+        {
+            heightPos = closestPoint;
+            // Always dispose NativeArray when done
+            hitPoints.Dispose();
+            return true;
+        }
+
+        // Always dispose NativeArray when done
+        hitPoints.Dispose();
         return false;
     }
 
@@ -210,54 +324,55 @@ public class FootLiftedState : FootControlState
         // Check if it is too far way
         if(Vector3.Distance(otherPos, point) > Context.StepLength)
             return false;
+
+        var maxHeight = Context.StepHeight + otherPos.y - 0.035;
+        var minHeight = otherPos.y - Context.StepHeight;
+
         // Check if it is too high or too low
-        if(point.y > otherPos.y + Context.StepHeight - 0.05f || point.y < otherPos.y - Context.StepHeight + 0.05f)
+        if (point.y > maxHeight || point.y < minHeight)
             return false;
 
-        // We need to go through all the hits and compare the angle
-        // If the angle is too steep, we want to ignore it
-        // but we need to define a left and right side to be able to 
-        // add with to the angle check.
-        var maxAngle = 20f;
-        var with = 0.03f;
-        var left = Vector3.Cross(Vector3.up, input.normalized) * with;
-        var leftAnglePos = footPos + left;
-        var rightAnglePos = footPos - left;
-        // Debugging
-        var leftRotation = Quaternion.AngleAxis(maxAngle, Vector3.up);
-        var rightRotation = Quaternion.AngleAxis(-maxAngle, Vector3.up);
-        var leftDir = (leftRotation * input.normalized).normalized;
-        var rightDir = (rightRotation * input.normalized).normalized;
-        var footToPoint = point - footPos;
-        Debug.DrawLine(leftAnglePos, rightAnglePos, Color.magenta);
-        Debug.DrawRay(leftAnglePos, leftDir * Context.StepLength, Color.magenta);
-        Debug.DrawRay(rightAnglePos, rightDir * Context.StepLength, Color.magenta);
-        Debug.DrawLine(footPos, point, Color.red);
+        if(input != Vector3.zero)
+        {
+            var maxAngle = 10f;
+            var with = 0.03f;
+            var left = Vector3.Cross(Vector3.up, input.normalized) * with;
+            var leftAnglePos = footPos + left;
+            var rightAnglePos = footPos - left;
+            // Debugging
+            var leftRotation = Quaternion.AngleAxis(maxAngle, Vector3.up);
+            var rightRotation = Quaternion.AngleAxis(-maxAngle, Vector3.up);
+            var leftDir = (leftRotation * input.normalized).normalized;
+            var rightDir = (rightRotation * input.normalized).normalized;
+            var footToPoint = point - footPos;
+            Debug.DrawLine(leftAnglePos, rightAnglePos, Color.magenta);
+            Debug.DrawRay(leftAnglePos, leftDir * Context.StepLength, Color.magenta);
+            Debug.DrawRay(rightAnglePos, rightDir * Context.StepLength, Color.magenta);
+            Debug.DrawLine(footPos, point, Color.red);
 
-        // We dont care about the height, so we set the y to 0
-        leftAnglePos.y = 0f;
-        rightAnglePos.y = 0f;
-        point.y = 0f;
-        footToPoint.y = 0f;
+            // We dont care about the height, so we set the y to 0
+            leftAnglePos.y = 0f;
+            rightAnglePos.y = 0f;
+            point.y = 0f;
+            footToPoint.y = 0f;
 
-        var leftPosToPoint = point - leftAnglePos;
-        var rightPosToPoint = point - rightAnglePos;
-        leftPosToPoint.y = 0f;
-        rightPosToPoint.y = 0f;
+            var leftPosToPoint = point - leftAnglePos;
+            var rightPosToPoint = point - rightAnglePos;
+            leftPosToPoint.y = 0f;
+            rightPosToPoint.y = 0f;
 
-        // First we check if it is left or right by using the left dir
-        var isLeft = Vector3.Dot(left.normalized, footToPoint.normalized) > 0f;
-        // Find the correct dir to use based on if it is left or right
-        var dir = isLeft ? leftPosToPoint.normalized : rightPosToPoint.normalized;
-        var dirToCompare = isLeft ? left.normalized : -left.normalized;
-        // Now we check the angle between the left/right dir and the dir
-        var angle = Vector3.Angle(dirToCompare, dir);
-        // If the angle is too steep, we want to ignore it
-        // But the normal forward angle is now 90 degrees
-        if (angle < 90f - maxAngle)
-            return false;
-
-
+            // First we check if it is left or right by using the left dir
+            var isLeft = Vector3.Dot(left.normalized, footToPoint.normalized) > 0f;
+            // Find the correct dir to use based on if it is left or right
+            var dir = isLeft ? leftPosToPoint.normalized : rightPosToPoint.normalized;
+            var dirToCompare = isLeft ? left.normalized : -left.normalized;
+            // Now we check the angle between the left/right dir and the dir
+            var angle = Vector3.Angle(dirToCompare, dir);
+            // If the angle is too steep, we want to ignore it
+            // But the normal forward angle is now 90 degrees
+            if (angle < 90f - maxAngle)
+                return false;
+        }
 
 
         // If nothing is wrong, we can return true
