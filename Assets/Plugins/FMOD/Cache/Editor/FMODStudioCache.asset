@@ -15,7 +15,7 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Clutter.bank
   Name: Clutter
   StudioPath: bank:/Clutter
-  lastModified: 638816433627051347
+  lastModified: 638817106757277038
   FileSizes:
   - Name: Desktop
     Value: 503456
@@ -35,7 +35,7 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 638816433620935865
+  lastModified: 638817127895703050
   FileSizes:
   - Name: Desktop
     Value: 660224
@@ -123,6 +123,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 1000
+--- !u!114 &-6227007243693401835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Characters/Player/Voice/Reactions/Falling Impact
+  m_EditorClassIdentifier: 
+  Path: event:/Characters/Player/Voice/Reactions/Falling Impact
+  Guid:
+    Data1: 351693277
+    Data2: 1109001744
+    Data3: 1709148849
+    Data4: 1918995324
+  Banks:
+  - {fileID: -1028436169900835884}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &-5562068941319250851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150,6 +177,30 @@ MonoBehaviour:
   MinDistance: 10
   MaxDistance: 30
   Length: 60000
+--- !u!114 &-4088399802906645852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/Crash Landing Surface Types/Magnitude
+  m_EditorClassIdentifier: 
+  Name: Magnitude
+  StudioPath: 
+  Min: 0
+  Max: 1
+  Default: 0
+  ID:
+    data1: 1888643554
+    data2: 52209272
+  Type: 0
+  IsGlobal: 0
+  Labels: []
+  Exists: 1
 --- !u!114 &-3847895325801598409
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,7 +240,7 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Props.bank
   Name: Props
   StudioPath: bank:/Props
-  lastModified: 638816433621390121
+  lastModified: 638817106773901306
   FileSizes:
   - Name: Desktop
     Value: 1733408
@@ -292,6 +343,26 @@ MonoBehaviour:
   IsGlobal: 0
   Labels: []
   Exists: 1
+--- !u!114 &-1028436169900835884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Voice Elf.bank
+  m_EditorClassIdentifier: 
+  Path: AudioStuff/Build/Desktop/Voice Elf.bank
+  Name: Voice Elf
+  StudioPath: bank:/Voice Elf
+  lastModified: 638817127895313847
+  FileSizes:
+  - Name: Desktop
+    Value: 159808
+  Exists: 1
 --- !u!114 &-830520927705705446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -312,7 +383,7 @@ MonoBehaviour:
   - Name: Desktop
     Value: 906880
   Exists: 1
---- !u!114 &-490219299410870130
+--- !u!114 &-200332046331718875
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -321,17 +392,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Footsteps.bank
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Characters/Player/Voice/Reactions/Falling Scream
   m_EditorClassIdentifier: 
-  Path: AudioStuff/Build/Desktop/Footsteps.bank
-  Name: Footsteps
-  StudioPath: bank:/Footsteps
-  lastModified: 638816433620648437
-  FileSizes:
-  - Name: Desktop
-    Value: 333056
-  Exists: 1
+  Path: event:/Characters/Player/Voice/Reactions/Falling Scream
+  Guid:
+    Data1: -82999213
+    Data2: 1093202108
+    Data3: -1166864726
+    Data4: -1151982333
+  Banks:
+  - {fileID: -1028436169900835884}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 30
+  MaxDistance: 300
+  Length: 12100
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -348,12 +426,13 @@ MonoBehaviour:
   - {fileID: 1070774867235751490}
   - {fileID: -8439421022672543075}
   - {fileID: -2540372102523804866}
-  - {fileID: 4552590408437242283}
-  - {fileID: -490219299410870130}
   - {fileID: 2178090963170298982}
   - {fileID: -2713093470380351121}
   - {fileID: -830520927705705446}
   - {fileID: -9005367977841760091}
+  - {fileID: 7854943078720504518}
+  - {fileID: -1028436169900835884}
+  - {fileID: 347208805368096278}
   EditorEvents:
   - {fileID: -1991368888401087721}
   - {fileID: 7945147199824411675}
@@ -371,13 +450,36 @@ MonoBehaviour:
   - {fileID: 2219597081314724073}
   - {fileID: 5512373729016979496}
   - {fileID: -7147107855643743525}
+  - {fileID: 6659853248768852786}
+  - {fileID: -200332046331718875}
+  - {fileID: -6227007243693401835}
   EditorParameters: []
   MasterBanks:
   - {fileID: -8439421022672543075}
   StringsBanks:
   - {fileID: 1070774867235751490}
-  cacheTime: 638816433627051347
+  cacheTime: 638817144008800099
   cacheVersion: 131624
+--- !u!114 &347208805368096278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Voice Human.bank
+  m_EditorClassIdentifier: 
+  Path: AudioStuff/Build/Desktop/Voice Human.bank
+  Name: Voice Human
+  StudioPath: bank:/Voice Human
+  lastModified: 638817127895391270
+  FileSizes:
+  - Name: Desktop
+    Value: 494
+  Exists: 1
 --- !u!114 &781908994904860347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -417,10 +519,10 @@ MonoBehaviour:
   Path: AudioStuff/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 638816433620963914
+  lastModified: 638817127895728106
   FileSizes:
   - Name: Desktop
-    Value: 2106
+    Value: 2356
   Exists: 1
 --- !u!114 &1253947965247420814
 MonoBehaviour:
@@ -441,7 +543,7 @@ MonoBehaviour:
     Data3: -708143730
     Data4: -284126951
   Banks:
-  - {fileID: -490219299410870130}
+  - {fileID: 7854943078720504518}
   IsStream: 0
   Is3D: 1
   IsOneShot: 1
@@ -529,6 +631,30 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 3542
+--- !u!114 &2894121340310716768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/Crash Landing Surface Types/SurfaceType
+  m_EditorClassIdentifier: 
+  Name: SurfaceType
+  StudioPath: 
+  Min: 0
+  Max: 5
+  Default: 0
+  ID:
+    data1: 3559188332
+    data2: 1532404273
+  Type: 1
+  IsGlobal: 0
+  Labels: []
+  Exists: 1
 --- !u!114 &2933542391311502379
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -583,26 +709,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 4
   Length: 54781
---- !u!114 &4552590408437242283
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Dialogue.bank
-  m_EditorClassIdentifier: 
-  Path: AudioStuff/Build/Desktop/Dialogue.bank
-  Name: Dialogue
-  StudioPath: bank:/Dialogue
-  lastModified: 638815439865094546
-  FileSizes:
-  - Name: Desktop
-    Value: 494
-  Exists: 1
 --- !u!114 &4718791157419587766
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -623,7 +729,7 @@ MonoBehaviour:
   ID:
     data1: 1888643554
     data2: 52209272
-  Type: 1
+  Type: 0
   IsGlobal: 0
   Labels: []
   Exists: 1
@@ -701,7 +807,7 @@ MonoBehaviour:
     Data3: -276628322
     Data4: -525968685
   Banks:
-  - {fileID: -490219299410870130}
+  - {fileID: 7854943078720504518}
   IsStream: 0
   Is3D: 1
   IsOneShot: 1
@@ -709,6 +815,35 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 1300
+--- !u!114 &6659853248768852786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Characters/Player/SFX/Crash Landing Surface Types
+  m_EditorClassIdentifier: 
+  Path: event:/Characters/Player/SFX/Crash Landing Surface Types
+  Guid:
+    Data1: -193851702
+    Data2: 1180522678
+    Data3: 1406794636
+    Data4: 922256214
+  Banks:
+  - {fileID: 7854943078720504518}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters:
+  - {fileID: -4088399802906645852}
+  - {fileID: 2894121340310716768}
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &6945046985202052911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -728,7 +863,7 @@ MonoBehaviour:
     Data3: -1733951559
     Data4: -128000627
   Banks:
-  - {fileID: -490219299410870130}
+  - {fileID: 7854943078720504518}
   IsStream: 0
   Is3D: 1
   IsOneShot: 1
@@ -738,6 +873,26 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &7854943078720504518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Movement.bank
+  m_EditorClassIdentifier: 
+  Path: AudioStuff/Build/Desktop/Movement.bank
+  Name: Movement
+  StudioPath: bank:/Movement
+  lastModified: 638817144008800099
+  FileSizes:
+  - Name: Desktop
+    Value: 469248
+  Exists: 1
 --- !u!114 &7945147199824411675
 MonoBehaviour:
   m_ObjectHideFlags: 0
