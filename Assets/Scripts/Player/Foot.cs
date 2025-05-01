@@ -49,8 +49,11 @@ public class Foot
     
     // Properties
     public Vector3 Position => Target.position;
+    public Quaternion Rotation => Target.rotation;
+    public Vector3 XZForward => GetXZForward();
     public Vector3 Velocity => Target.linearVelocity;
     public Rigidbody Target { get; }
+    public Transform Transform => Target.transform;
     public Vector3 RestPosition => _restTransform.position;
     public Vector3 FootBonePosition => _footBone.position;
     public Quaternion FootBoneRotation => _footBone.rotation;
@@ -82,6 +85,17 @@ public class Foot
             Size = size;
             Rotation = rotation;
         }
+    }
+
+    /// <summary>
+    /// Get the forward direction of the foot, based on world up.
+    /// </summary>
+    private Vector3 GetXZForward()
+    {
+        var dir = Target.transform.forward;
+        dir.y = 0f;
+        dir.Normalize();
+        return dir;
     }
 
     private BoxCastValues GetBoxCastValues()
