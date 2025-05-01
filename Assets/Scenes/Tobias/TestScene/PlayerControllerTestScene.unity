@@ -1177,6 +1177,48 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &244632792 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 988264027420393829, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+  m_PrefabInstance: {fileID: 1306531734261251089}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &244632798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244632792}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fd9ebf1401392e4bbd47fea32f47642, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentBakedListener: {fileID: 0}
+  applyReverb: 0
+  reverbType: 0
+  useAllProbeBatches: 0
+  probeBatches: []
+  mTotalDataSize: 0
+  mProbeDataSizes: 
+  mIdentifier:
+    type: 0
+    variation: 0
+    endpointInfluence:
+      center:
+        x: 0
+        y: 0
+        z: 0
+      radius: 0
+  mProbeBatchesUsed: []
+--- !u!81 &244632799
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244632792}
+  m_Enabled: 1
 --- !u!1 &287091510
 GameObject:
   m_ObjectHideFlags: 0
@@ -10189,9 +10231,121 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1242353019690759627, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: EventReference.Path
+      value: event:/Characters/Player/SFX/Footsteps Elf
+      objectReference: {fileID: 0}
+    - target: {fileID: 1242353019690759627, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: OverrideMaxDistance
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1242353019690759627, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: OverrideMinDistance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1242353019690759627, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: EventReference.Guid.Data1
+      value: 1237082114
+      objectReference: {fileID: 0}
+    - target: {fileID: 1242353019690759627, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: EventReference.Guid.Data2
+      value: 1135735223
+      objectReference: {fileID: 0}
+    - target: {fileID: 1242353019690759627, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: EventReference.Guid.Data3
+      value: -708143730
+      objectReference: {fileID: 0}
+    - target: {fileID: 1242353019690759627, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: EventReference.Guid.Data4
+      value: -284126951
+      objectReference: {fileID: 0}
+    - target: {fileID: 1304136785521265692, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: EventReference.Path
+      value: event:/Characters/Player/SFX/Footsteps Elf
+      objectReference: {fileID: 0}
+    - target: {fileID: 1304136785521265692, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: OverrideMaxDistance
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1304136785521265692, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: OverrideMinDistance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1304136785521265692, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: EventReference.Guid.Data1
+      value: 1237082114
+      objectReference: {fileID: 0}
+    - target: {fileID: 1304136785521265692, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: EventReference.Guid.Data2
+      value: 1135735223
+      objectReference: {fileID: 0}
+    - target: {fileID: 1304136785521265692, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: EventReference.Guid.Data3
+      value: -708143730
+      objectReference: {fileID: 0}
+    - target: {fileID: 1304136785521265692, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: EventReference.Guid.Data4
+      value: -284126951
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: MaxImageScale
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561511603138551857, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: MinImageScale
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2079457265984480961, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2079457265984480961, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2079457265984480961, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2079457265984480961, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 49
+      objectReference: {fileID: 0}
+    - target: {fileID: 2079457265984480961, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3078038350706577019, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3078038350706577019, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3078038350706577019, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3078038350706577019, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3078038350706577019, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -49
+      objectReference: {fileID: 0}
+    - target: {fileID: 3078038350706577019, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4155253440371799645, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5080905704056697243, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8224720807872870575, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
       propertyPath: m_AnchorMax.x
@@ -10201,10 +10355,20 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8355504587976395346, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 988264027420393829, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      insertIndex: 3
+      addedObject: {fileID: 244632799}
+    - targetCorrespondingSourceObject: {fileID: 988264027420393829, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 244632798}
   m_SourcePrefab: {fileID: 100100000, guid: 1678adcccf59b6e46b9b32303fb21ea7, type: 3}
 --- !u!1001 &5771995347948312397
 PrefabInstance:

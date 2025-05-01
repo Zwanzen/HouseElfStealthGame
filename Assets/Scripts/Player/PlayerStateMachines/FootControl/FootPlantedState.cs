@@ -30,6 +30,7 @@ public class FootPlantedState : FootControlState
         _rb = Context.Foot.Target;
         _rb.constraints = PlacedConstraints;
         _rb.useGravity = true;
+        Context.PlayFootSound();
     }
 
     

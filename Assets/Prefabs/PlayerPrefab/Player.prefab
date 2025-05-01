@@ -991,6 +991,7 @@ GameObject:
   - component: {fileID: 2648459860100371894}
   - component: {fileID: 5942876573651856225}
   - component: {fileID: 33694817915065860}
+  - component: {fileID: 1304136785521265692}
   m_Layer: 9
   m_Name: FOOT.TARGET.L
   m_TagString: Untagged
@@ -1078,6 +1079,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _forceMultiplier: 2
   _maxForce: 5
+--- !u!114 &1304136785521265692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 923914128698992341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: -1
+  OverrideMaxDistance: -1
 --- !u!1 &947164202671920193
 GameObject:
   m_ObjectHideFlags: 0
@@ -2941,6 +2973,7 @@ MonoBehaviour:
   _bodyCollider: {fileID: 5740850365112529706}
   _fallCollider: {fileID: 7599706450332201456}
   _leftFoot:
+    SoundEmitter: {fileID: 1304136785521265692}
     Side: 0
     Thigh: {fileID: 4380080638322855384}
     Calf: {fileID: 6647705460752297108}
@@ -2949,6 +2982,7 @@ MonoBehaviour:
     FootBone: {fileID: 8706248603335028441}
     Collider: {fileID: 5942876573651856225}
   _rightFoot:
+    SoundEmitter: {fileID: 1242353019690759627}
     Side: 1
     Thigh: {fileID: 8766170587493402233}
     Calf: {fileID: 7562087397886285850}
@@ -5023,6 +5057,7 @@ GameObject:
   - component: {fileID: 7148958524230573474}
   - component: {fileID: 3247732386027773977}
   - component: {fileID: 5296579081574074740}
+  - component: {fileID: 1242353019690759627}
   m_Layer: 9
   m_Name: FOOT.TARGET.R
   m_TagString: Untagged
@@ -5109,6 +5144,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _forceMultiplier: 2
   _maxForce: 5
+--- !u!114 &1242353019690759627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6519018212051452448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: -1
+  OverrideMaxDistance: -1
 --- !u!1 &6526384064095785845
 GameObject:
   m_ObjectHideFlags: 0

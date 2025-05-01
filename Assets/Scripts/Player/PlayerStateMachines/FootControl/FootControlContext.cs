@@ -318,7 +318,6 @@ public class FootControlContext
 
         FootSoundInfo info = SoundTools.GetFootSound(material, Foot.Position, Foot.Target.linearVelocity.magnitude);
         Foot.SoundEmitter.EventInstance.setParameterByName("SurfaceType", info.MaterialIndex);
-        Foot.SoundEmitter.SetParameter("SurfaceType", info.MaterialIndex);
         Foot.SoundEmitter.Play();
 
     }
