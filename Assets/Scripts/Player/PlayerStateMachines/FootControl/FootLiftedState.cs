@@ -27,7 +27,6 @@ public class FootLiftedState : FootControlState
         return StateKey;
     }
 
-    private Vector3 _storedPos;
     public override void EnterState()
     {
         // get the start angle
@@ -52,7 +51,6 @@ public class FootLiftedState : FootControlState
         _liftTimer += Time.deltaTime;
     }
 
-    private float _timerSinceInput;
     public override void FixedUpdateState()
     {
         // If the other foot is placing, we want to keep this foot close to the other foot
@@ -75,8 +73,6 @@ public class FootLiftedState : FootControlState
 
         HandleFootRotation();
     }
-
-
 
     private void Movement()
     {
