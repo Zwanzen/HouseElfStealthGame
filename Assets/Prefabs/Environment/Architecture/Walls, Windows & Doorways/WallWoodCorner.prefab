@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4240637778090543148}
   - component: {fileID: 7064996564409493711}
   - component: {fileID: 8393073881608976305}
+  - component: {fileID: -4880812376233908521}
   m_Layer: 28
   m_Name: WallWoodCorner
   m_TagString: Wood
@@ -133,6 +134,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 3, z: 0.1}
   m_Center: {x: -0.5, y: 1.5, z: 0}
+--- !u!114 &-4880812376233908521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054349535441368504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e829c87dc2a2ed2419c5f67848317fe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 11400000, guid: a086f686223eed942816c70be67841b0, type: 2}
+  exportAllChildren: 0
+  terrainSimplificationLevel: 0
 --- !u!1001 &6551574568290756680
 PrefabInstance:
   m_ObjectHideFlags: 0

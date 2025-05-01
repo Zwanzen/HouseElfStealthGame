@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 9126066762658084603}
   - component: {fileID: 4466023241459955644}
   - component: {fileID: 8293367290652498896}
+  - component: {fileID: -84285718954810659}
   m_Layer: 28
   m_Name: WallWoodSkirtingBoardWorn
   m_TagString: Wood
@@ -108,3 +109,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.2210665, y: 0.3165967, z: 1}
   m_Center: {x: 0.0014658719, y: 0.15, z: 0}
+--- !u!114 &-84285718954810659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1014363271152113494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e829c87dc2a2ed2419c5f67848317fe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 11400000, guid: a086f686223eed942816c70be67841b0, type: 2}
+  exportAllChildren: 0
+  terrainSimplificationLevel: 0

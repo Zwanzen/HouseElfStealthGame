@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8520858595036360385}
   - component: {fileID: 461997713486031624}
   - component: {fileID: 579410228448101038}
+  - component: {fileID: 1390269361531715326}
   m_Layer: 28
   m_Name: WallWoodDoorWayRectangular
   m_TagString: Wood
@@ -152,3 +153,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.37099272, y: 0.20065975, z: 1.2401122}
   m_Center: {x: 0.0017222762, y: 2.0954053, z: -0.020778477}
+--- !u!114 &1390269361531715326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8042509197748349772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e829c87dc2a2ed2419c5f67848317fe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 11400000, guid: a086f686223eed942816c70be67841b0, type: 2}
+  exportAllChildren: 0
+  terrainSimplificationLevel: 0

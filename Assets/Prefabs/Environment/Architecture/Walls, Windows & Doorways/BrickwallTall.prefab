@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6519464415964068234}
   - component: {fileID: 4502922554250500192}
+  - component: {fileID: -8925523204973613964}
   m_Layer: 28
   m_Name: BrickwallTall
   m_TagString: Stone
@@ -56,6 +57,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.24331391, y: 3, z: 1}
   m_Center: {x: 0, y: 1.5, z: 0}
+--- !u!114 &-8925523204973613964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6181907474542110556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e829c87dc2a2ed2419c5f67848317fe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 11400000, guid: a086f686223eed942816c70be67841b0, type: 2}
+  exportAllChildren: 0
+  terrainSimplificationLevel: 0
 --- !u!1001 &3442372953077513302
 PrefabInstance:
   m_ObjectHideFlags: 0

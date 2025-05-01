@@ -1,5 +1,7 @@
-﻿using UnityEngine;
-using static CircleLineIntersection;
+﻿using FMOD.Studio;
+using FMODUnity;
+using UnityEngine;
+using static SoundTools;
 
 public class FootPlantedState : FootControlState
 {
@@ -23,8 +25,8 @@ public class FootPlantedState : FootControlState
     
     public override void EnterState()
     {
+        Context.PlayFootSound();
         //Context.Foot.Target.isKinematic = true;
-        Context.FootSoundPlayer.PlayFootSound(PlayerFootSoundPlayer.EFootSoundType.Wood);
         _rb = Context.Foot.Target;
         _rb.constraints = PlacedConstraints;
         _rb.useGravity = true;

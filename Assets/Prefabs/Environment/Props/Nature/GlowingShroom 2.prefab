@@ -11,12 +11,12 @@ GameObject:
   - component: {fileID: 8206812695995424795}
   - component: {fileID: 4130293627931110323}
   - component: {fileID: 898421815697593740}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: GlowingShroom 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &8206812695995424795
 Transform:
@@ -98,12 +98,12 @@ GameObject:
   - component: {fileID: 5665996601586603339}
   - component: {fileID: 1278671046704633486}
   - component: {fileID: 1172435300868314495}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Mushroom Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5665996601586603339
 Transform:
@@ -131,8 +131,8 @@ Light:
   serializedVersion: 11
   m_Type: 2
   m_Color: {r: 1, g: 1, b: 0.5372549, a: 1}
-  m_Intensity: 0.6
-  m_Range: 2
+  m_Intensity: 0.1
+  m_Range: 8
   m_SpotAngle: 179
   m_InnerSpotAngle: 130.56158
   m_CookieSize: 10

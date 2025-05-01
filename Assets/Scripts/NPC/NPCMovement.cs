@@ -451,7 +451,7 @@ public class NPCMovement
     {
         var height = 1.8f;
         var heightOffset = Vector3.up * height;
-        var radius = 0.3f;
+        var radius = 0.18f;
 
         if(!Physics.SphereCast(_npc.Rigidbody .position + heightOffset, radius, Vector3.down, out var hit, Mathf.Infinity, _groundLayers))
             return;

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3923161363521913947}
   - component: {fileID: 8375777429433728745}
   - component: {fileID: -4904837976267927724}
+  - component: {fileID: 6516245247568662758}
   m_Layer: 28
   m_Name: CeilingSlanted56,5
   m_TagString: Wood
@@ -105,6 +106,21 @@ MonoBehaviour:
   useObjectScale: 1
   axisMapping: 0
   tilingMultiplier: {x: 1, y: 1}
+--- !u!114 &6516245247568662758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2588291369911493640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e829c87dc2a2ed2419c5f67848317fe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 11400000, guid: a086f686223eed942816c70be67841b0, type: 2}
+  exportAllChildren: 0
+  terrainSimplificationLevel: 0
 --- !u!1 &2903402873120912828
 GameObject:
   m_ObjectHideFlags: 0

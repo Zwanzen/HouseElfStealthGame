@@ -117,6 +117,7 @@ GameObject:
   - component: {fileID: 1761436428987159527}
   - component: {fileID: 2659512162411236397}
   - component: {fileID: 230825521358560380}
+  - component: {fileID: -9185484428430194669}
   m_Layer: 28
   m_Name: WallWoodWornPlank 2
   m_TagString: Wood
@@ -199,6 +200,21 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-9185484428430194669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3526883213453809198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e829c87dc2a2ed2419c5f67848317fe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 11400000, guid: a086f686223eed942816c70be67841b0, type: 2}
+  exportAllChildren: 0
+  terrainSimplificationLevel: 0
 --- !u!1 &8019504905722155331
 GameObject:
   m_ObjectHideFlags: 0
