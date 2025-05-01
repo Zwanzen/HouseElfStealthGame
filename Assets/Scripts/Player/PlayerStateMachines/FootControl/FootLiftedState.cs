@@ -366,9 +366,10 @@ public class FootLiftedState : FootControlState
         {
             var xzHit = hitPoints[i].point;
             xzHit.y = 0f;
+            // We need the closest pos on the foot forward compared to the hit
             var d = Vector3.Distance(xzHit, footXZPos);
             if (hitPoints[i].point.y < footPos.y && useMinDist)
-                if (d < 0.25f)
+                if (d < 4f)
                     continue;
 
             // If it has no point, we want to use the first point
@@ -408,6 +409,7 @@ public class FootLiftedState : FootControlState
         return closestPoint;
     }
 
+    private Collider[] _overlapColliders = new Collider[2];
     /// <summary>
     /// Checks if the point is reachable based on various conditions.
     /// Returns true if non of the fail conditions are met.
@@ -425,6 +427,7 @@ public class FootLiftedState : FootControlState
         if (point.y > maxHeight || point.y < minHeight)
             return false;
 
+        // If there is input, check if it is within a certain constraint
         if (input != Vector3.zero)
         {
             // If the point is behind the scan,
@@ -451,11 +454,12 @@ public class FootLiftedState : FootControlState
             // We dont care about the height, so we set the y to 0
             leftAnglePos.y = 0f;
             rightAnglePos.y = 0f;
-            point.y = 0f;
+            var tempPos = point;
+            tempPos.y = 0f;
             footToPoint.y = 0f;
 
-            var leftPosToPoint = point - leftAnglePos;
-            var rightPosToPoint = point - rightAnglePos;
+            var leftPosToPoint = tempPos - leftAnglePos;
+            var rightPosToPoint = tempPos - rightAnglePos;
             leftPosToPoint.y = 0f;
             rightPosToPoint.y = 0f;
 
@@ -505,6 +509,8 @@ public class FootLiftedState : FootControlState
 
         // If we are stuck, we want to find what direction to move
         // in order to not get stuck when moving up to point height.
+        // *** TODO ***
+        // Depending on camera and input, we need to change stuck dir
         stuckFixDir = -Context.Player.Camera.GetCameraYawTransform().forward;
         return true;
     }

@@ -317,8 +317,22 @@ public class FootControlContext
         }
 
         FootSoundInfo info = SoundTools.GetFootSound(material, Foot.Position, Foot.Target.linearVelocity.magnitude);
-        Foot.SoundEmitter.EventInstance.setParameterByName("SurfaceType", info.MaterialIndex);
-        Foot.SoundEmitter.Play();
+
+        if (true)
+        {
+            Foot.SoundEmitter.Play();
+            Foot.SoundEmitter.EventInstance.setParameterByName("SurfaceType", info.MaterialIndex);
+
+        }
+        else
+        {
+            var step = RuntimeManager.CreateInstance(Foot.SoundEmitter.EventReference);
+            step.setParameterByName("SurfaceType", 0);
+            RuntimeManager.AttachInstanceToGameObject(step, Foot.Transform, Foot.Target);
+            step.start();
+            step.release();
+        }
+
 
     }
 }
