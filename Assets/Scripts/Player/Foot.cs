@@ -7,6 +7,8 @@ using UnityEngine;
 [Serializable]
 public struct FootRef
 {
+    public FMODUnity.StudioEventEmitter SoundEmitter;
+
     [Header("Leg")]
     public Foot.EFootSide Side;
     public CapsuleCollider Thigh;
@@ -45,9 +47,11 @@ public class Foot
         _sm = sm;
         Thigh = footRef.Thigh;
         Calf = footRef.Calf;
+        SoundEmitter = footRef.SoundEmitter;
     }
     
     // Properties
+    public FMODUnity.StudioEventEmitter SoundEmitter { get; }
     public Vector3 Position => Target.position;
     public Vector3 Velocity => Target.linearVelocity;
     public Rigidbody Target { get; }
