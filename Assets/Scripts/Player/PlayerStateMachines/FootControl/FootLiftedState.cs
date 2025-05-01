@@ -481,7 +481,7 @@ public class FootLiftedState : FootControlState
         var forwaredFootPos = footPos + Context.Foot.Target.transform.forward * 0.1f;
         var footXZPos = new Vector3(forwaredFootPos.x, 0f, forwaredFootPos.z);
         var dist = Vector3.Distance(xzPos, footXZPos);
-        var maxDist = Mathf.Lerp(0.1f, Context.StepLength * 0.5f, Context.Player.CurrentPlayerSpeed);
+        var maxDist = Mathf.Lerp(0.25f, Context.StepLength * 0.5f, Context.Player.CurrentPlayerSpeed);
         // If the distance is too far, we want to ignore it
         if (dist > maxDist)
             return false;
