@@ -140,7 +140,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
+  m_StaticShadowCaster: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -434,6 +434,10 @@ PrefabInstance:
     - target: {fileID: 2625296011208664092, guid: 4f9f99f22f2cfe0499b1df2fe6cf5ac7, type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4425341775908035603, guid: 4f9f99f22f2cfe0499b1df2fe6cf5ac7, type: 3}
+      propertyPath: m_StaticShadowCaster
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4714446554239112492, guid: 4f9f99f22f2cfe0499b1df2fe6cf5ac7, type: 3}
       propertyPath: m_Name

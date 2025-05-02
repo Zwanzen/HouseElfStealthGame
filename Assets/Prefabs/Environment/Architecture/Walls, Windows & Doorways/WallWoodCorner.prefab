@@ -57,7 +57,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
+  m_StaticShadowCaster: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -157,6 +157,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 150875080408817993}
     m_Modifications:
+    - target: {fileID: 122935701951949389, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
+      propertyPath: m_StaticShadowCaster
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5892622478029927044, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
       propertyPath: m_Name
       value: WallWoodSkirtingBoardCorner
@@ -227,6 +231,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 150875080408817993}
     m_Modifications:
+    - target: {fileID: 122935701951949389, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
+      propertyPath: m_StaticShadowCaster
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5892622478029927044, guid: a7f1018b97f024045a71e4a1e797858f, type: 3}
       propertyPath: m_Name
       value: WallWoodSkirtingBoardCorner (1)

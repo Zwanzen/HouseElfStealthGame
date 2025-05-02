@@ -56,7 +56,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
+  m_StaticShadowCaster: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -192,6 +192,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4425341775908035603, guid: ef788024520a3e245917c59a7be0c0e9, type: 3}
+      propertyPath: m_StaticShadowCaster
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4714446554239112492, guid: ef788024520a3e245917c59a7be0c0e9, type: 3}
       propertyPath: m_Name
       value: CookingPotHandle
@@ -262,6 +266,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4425341775908035603, guid: 2adfbe199d8acaf489593cbe0a986ff4, type: 3}
+      propertyPath: m_StaticShadowCaster
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4714446554239112492, guid: 2adfbe199d8acaf489593cbe0a986ff4, type: 3}
       propertyPath: m_Name
       value: CookingPotBale
@@ -329,6 +337,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2625296011208664092, guid: ef788024520a3e245917c59a7be0c0e9, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4425341775908035603, guid: ef788024520a3e245917c59a7be0c0e9, type: 3}
+      propertyPath: m_StaticShadowCaster
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4714446554239112492, guid: ef788024520a3e245917c59a7be0c0e9, type: 3}
@@ -403,6 +415,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6149672468007053788, guid: 55b433a68006b9949a4fb97dcc3345c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426648141014079505, guid: 55b433a68006b9949a4fb97dcc3345c3, type: 3}
+      propertyPath: m_StaticShadowCaster
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

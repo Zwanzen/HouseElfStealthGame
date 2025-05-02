@@ -54,7 +54,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
+  m_StaticShadowCaster: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -153,6 +153,10 @@ PrefabInstance:
     - target: {fileID: 3017335098081655224, guid: 7c9cee223f89843439a9ca68b52583a9, type: 3}
       propertyPath: m_Name
       value: PipeMachineHatch
+      objectReference: {fileID: 0}
+    - target: {fileID: 5648792914468752834, guid: 7c9cee223f89843439a9ca68b52583a9, type: 3}
+      propertyPath: m_StaticShadowCaster
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6347653541277726290, guid: 7c9cee223f89843439a9ca68b52583a9, type: 3}
       propertyPath: m_LocalPosition.x
