@@ -329,11 +329,7 @@
 			<destination>{bf9bb0c6-a337-4c13-bc11-4e508eb41ee0}</destination>
 		</relationship>
 	</object>
-	<object class="MixerBusPanner" id="{c2d652ad-6214-4cbe-b6b7-9e37165bd582}">
-		<property name="overridingOutputFormat">
-			<value>5</value>
-		</property>
-	</object>
+	<object class="MixerBusPanner" id="{c2d652ad-6214-4cbe-b6b7-9e37165bd582}" />
 	<object class="MixerBusFader" id="{fcda2193-72eb-4b95-a157-fd1dd30d1c93}" />
 	<object class="PluginEffect" id="{023c2ca1-d1dd-4f06-baac-2b7931e4825e}">
 		<property name="bypass">
@@ -900,7 +896,7 @@
 			<value>ApplyTrans</value>
 		</property>
 		<property name="value">
-			<value>1</value>
+			<value>0</value>
 		</property>
 		<property name="minimumValue">
 			<value>0</value>
