@@ -180,7 +180,7 @@ public class SoundGameplayManager : MonoBehaviour
         emitter.EventReference = guardFootsteps;
         emitter.Play();
         emitter.SetParameter(PARAM.SURFACE, GetMaterialIndex(mat));
-        emitter.SetParameter(PARAM.MAGNITUDE, 1f);
+        emitter.SetParameter(PARAM.MAGNITUDE, 0.5f);
     }
 
 }

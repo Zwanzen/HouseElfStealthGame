@@ -314,7 +314,7 @@ public class FootControlContext
 
         // Now try play the sound using the SoundGameplayManager
         SoundGameplayManager.Instance.PlayPlayerStepAtPosition(
-            Foot.SoundEmitter, material, Foot.Position, Foot.Velocity.magnitude);
+            Foot.SoundEmitter, material, Foot.Position, Player.CurrentPlayerSpeed);
 
     }
 }
