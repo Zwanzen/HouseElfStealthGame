@@ -1,7 +1,6 @@
 ﻿using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
-using static SoundTools;
 
 public class FootPlantedState : FootControlState
 {
