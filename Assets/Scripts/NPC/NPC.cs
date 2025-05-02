@@ -4,7 +4,7 @@ using FMODUnity;
 using Pathfinding;
 using UnityEngine;
 using static RigidbodyMovement;
-using static SoundTools;
+using static SoundGameplayManager;
 
 [RequireComponent(typeof(Rigidbody), typeof(Seeker))]
 public class NPC : MonoBehaviour
@@ -26,7 +26,7 @@ public class NPC : MonoBehaviour
     // ___ Components ___
     private Rigidbody _rigidbody;
     private Animator _anim;
-    private FMODUnity.StudioEventEmitter _soundEmitter;
+    private StudioEventEmitter _soundEmitter;
 
     // ___ NPC Specific ___
     private NPCMovement _movement;
@@ -56,7 +56,7 @@ public class NPC : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody>();
         _anim = GetComponentInChildren<Animator>();
-        _soundEmitter = GetComponent<StudioEventEmitter>();
+        _soundEmitter = GetComponentInChildren<StudioEventEmitter>();
 
         _movement = new NPCMovement(this,_maxRecalcPathTime, _lookAhead, _groundLayers, _springStrength, _springDamper, _rotationSpeed);
         _animator = new NPCAnimator(this, _anim);
@@ -68,7 +68,9 @@ public class NPC : MonoBehaviour
 
     private void Start()
     {
-        _movement.SetTarget(_path);
+        if(_npcType == NPCType.Patrol)
+            _movement.SetTarget(_path);
+
     }
 
     private void Update()
@@ -106,16 +108,16 @@ public class NPC : MonoBehaviour
             var tag = _stepColliders[i].collider.tag;
             if (tag == "Untagged")
                 continue;
-            var m = GetMaterialFromTag(tag);
+            var m = SoundGameplayManager.Instance.TryGetMaterialFromTag(tag);
             if (m == EMaterialTag.None)
                 continue;
             else
                 material = m;
         }
 
-        FootSoundInfo info = SoundTools.GetFootSound(material, transform.position, _rigidbody.linearVelocity.magnitude);
-        _soundEmitter.SetParameter("SurfaceType", info.MaterialIndex);
-        _soundEmitter.Play();
+        // Try to play the sound
+        SoundGameplayManager.Instance.PlayGuardStep(_soundEmitter, material);
+
     }
 
     // Public Methods

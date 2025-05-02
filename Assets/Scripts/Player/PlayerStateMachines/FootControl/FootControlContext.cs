@@ -1,13 +1,9 @@
-﻿using System;
-using FMOD.Studio;
-using FMODUnity;
+﻿using FMODUnity;
 using RootMotion.FinalIK;
-using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Serialization;
 using static CircleLineIntersection;
 using static RigidbodyMovement;
-using static SoundTools;
+using static SoundGameplayManager;
 
 public class FootControlContext
 {
@@ -309,30 +305,16 @@ public class FootControlContext
             var tag = _stepColliders[i].tag;
             if(tag == "Untagged")
                 continue;
-            var m = GetMaterialFromTag(tag);
+            var m = SoundGameplayManager.Instance.TryGetMaterialFromTag(tag);
             if (m == EMaterialTag.None)
                 continue;
             else
                 material = m;
         }
 
-        FootSoundInfo info = SoundTools.GetFootSound(material, Foot.Position, Foot.Target.linearVelocity.magnitude);
-
-        if (true)
-        {
-            Foot.SoundEmitter.Play();
-            Foot.SoundEmitter.EventInstance.setParameterByName("SurfaceType", info.MaterialIndex);
-
-        }
-        else
-        {
-            var step = RuntimeManager.CreateInstance(Foot.SoundEmitter.EventReference);
-            step.setParameterByName("SurfaceType", 0);
-            RuntimeManager.AttachInstanceToGameObject(step, Foot.Transform, Foot.Target);
-            step.start();
-            step.release();
-        }
-
+        // Now try play the sound using the SoundGameplayManager
+        SoundGameplayManager.Instance.PlayPlayerStepAtPosition(
+            Foot.SoundEmitter, material, Foot.Position, Foot.Velocity.magnitude);
 
     }
 }
