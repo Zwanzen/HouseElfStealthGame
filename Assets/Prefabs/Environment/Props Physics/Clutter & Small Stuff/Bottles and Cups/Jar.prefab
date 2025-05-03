@@ -163,7 +163,7 @@ MonoBehaviour:
       Bottle Clunks
   Event: 
   EventPlayTrigger: 7
-  EventStopTrigger: 0
+  EventStopTrigger: 8
   AllowFadeout: 1
   TriggerOnce: 0
   Preload: 0
@@ -200,13 +200,13 @@ MonoBehaviour:
   dipoleWeight: 0
   dipolePower: 0
   directivityValue: 1
-  occlusion: 0
+  occlusion: 1
   occlusionInput: 0
   occlusionType: 0
   occlusionRadius: 1
   occlusionSamples: 16
   occlusionValue: 1
-  transmission: 0
+  transmission: 1
   transmissionType: 0
   transmissionInput: 0
   transmissionLow: 1
@@ -262,6 +262,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5327307529054038403}
     m_Modifications:
+    - target: {fileID: -27599520034226233, guid: 7d61e84cb9dd83e45a2b7db1039437a8, type: 3}
+      propertyPath: EventPlayTrigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -27599520034226233, guid: 7d61e84cb9dd83e45a2b7db1039437a8, type: 3}
+      propertyPath: EventStopTrigger
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2884568267112413657, guid: 7d61e84cb9dd83e45a2b7db1039437a8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -317,6 +325,14 @@ PrefabInstance:
     - target: {fileID: 4490757229379767038, guid: 7d61e84cb9dd83e45a2b7db1039437a8, type: 3}
       propertyPath: m_IsKinematic
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7095864622062477869, guid: 7d61e84cb9dd83e45a2b7db1039437a8, type: 3}
+      propertyPath: occlusion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7095864622062477869, guid: 7d61e84cb9dd83e45a2b7db1039437a8, type: 3}
+      propertyPath: transmission
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

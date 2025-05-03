@@ -64,8 +64,8 @@ MonoBehaviour:
       Data4: 0
     Path: 
   Event: 
-  EventPlayTrigger: 0
-  EventStopTrigger: 0
+  EventPlayTrigger: 7
+  EventStopTrigger: 8
   AllowFadeout: 1
   TriggerOnce: 0
   Preload: 0
@@ -102,13 +102,13 @@ MonoBehaviour:
   dipoleWeight: 0
   dipolePower: 0
   directivityValue: 1
-  occlusion: 0
+  occlusion: 1
   occlusionInput: 0
   occlusionType: 0
   occlusionRadius: 1
   occlusionSamples: 16
   occlusionValue: 1
-  transmission: 0
+  transmission: 1
   transmissionType: 0
   transmissionInput: 0
   transmissionLow: 1
@@ -164,6 +164,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8934976979116294425}
     m_Modifications:
+    - target: {fileID: -6486387541672972092, guid: cd40e14cd666e3f48bdbee64c310e120, type: 3}
+      propertyPath: occlusion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6486387541672972092, guid: cd40e14cd666e3f48bdbee64c310e120, type: 3}
+      propertyPath: transmission
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -4686666731269103244, guid: cd40e14cd666e3f48bdbee64c310e120, type: 3}
+      propertyPath: EventStopTrigger
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 1850460783634278339, guid: cd40e14cd666e3f48bdbee64c310e120, type: 3}
       propertyPath: m_Name
       value: BottleShard.002
@@ -226,6 +238,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8934976979116294425}
     m_Modifications:
+    - target: {fileID: -6060415817056602149, guid: 45816904ac2f0c641bb5a9c967f25474, type: 3}
+      propertyPath: EventStopTrigger
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -5035254148796702836, guid: 45816904ac2f0c641bb5a9c967f25474, type: 3}
+      propertyPath: occlusion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5035254148796702836, guid: 45816904ac2f0c641bb5a9c967f25474, type: 3}
+      propertyPath: transmission
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4446751321880522690, guid: 45816904ac2f0c641bb5a9c967f25474, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.14560488
@@ -288,6 +312,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8934976979116294425}
     m_Modifications:
+    - target: {fileID: -3839370210802019539, guid: 935be1fbea7e5f54ea50ed16cd52a0fe, type: 3}
+      propertyPath: EventStopTrigger
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4202196007993181369, guid: 935be1fbea7e5f54ea50ed16cd52a0fe, type: 3}
       propertyPath: m_Name
       value: BottleBrokenBottom
@@ -394,6 +422,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: BottleShard.007
       objectReference: {fileID: 0}
+    - target: {fileID: 8748815226433289505, guid: 4fc70ef8f9204bd4ea9902191ba45b25, type: 3}
+      propertyPath: EventStopTrigger
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8862316636118663495, guid: 4fc70ef8f9204bd4ea9902191ba45b25, type: 3}
+      propertyPath: occlusion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8862316636118663495, guid: 4fc70ef8f9204bd4ea9902191ba45b25, type: 3}
+      propertyPath: transmission
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -412,6 +452,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8934976979116294425}
     m_Modifications:
+    - target: {fileID: -58708237744382114, guid: 6d1dd09865367224eb09bf96351a2006, type: 3}
+      propertyPath: occlusion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -58708237744382114, guid: 6d1dd09865367224eb09bf96351a2006, type: 3}
+      propertyPath: transmission
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3809553391218905774, guid: 6d1dd09865367224eb09bf96351a2006, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.2159363
@@ -456,6 +504,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BottleShard.006
       objectReference: {fileID: 0}
+    - target: {fileID: 7245000855918475923, guid: 6d1dd09865367224eb09bf96351a2006, type: 3}
+      propertyPath: EventStopTrigger
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -474,6 +526,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8934976979116294425}
     m_Modifications:
+    - target: {fileID: -6674140269822980150, guid: 65363c08a4568694c972fc1f236878c6, type: 3}
+      propertyPath: occlusion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6674140269822980150, guid: 65363c08a4568694c972fc1f236878c6, type: 3}
+      propertyPath: transmission
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2036329886705392493, guid: 65363c08a4568694c972fc1f236878c6, type: 3}
       propertyPath: m_Name
       value: BottleShard.008
@@ -518,6 +578,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7287702331124044085, guid: 65363c08a4568694c972fc1f236878c6, type: 3}
+      propertyPath: EventStopTrigger
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -536,9 +600,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8934976979116294425}
     m_Modifications:
+    - target: {fileID: -9153213565930633035, guid: a74e79a0c482a7140b2db71f4dc56211, type: 3}
+      propertyPath: occlusion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -9153213565930633035, guid: a74e79a0c482a7140b2db71f4dc56211, type: 3}
+      propertyPath: transmission
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 527114750679381945, guid: a74e79a0c482a7140b2db71f4dc56211, type: 3}
       propertyPath: m_Name
       value: BottleShard.004
+      objectReference: {fileID: 0}
+    - target: {fileID: 6797305165831562997, guid: a74e79a0c482a7140b2db71f4dc56211, type: 3}
+      propertyPath: EventStopTrigger
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6997087234476718894, guid: a74e79a0c482a7140b2db71f4dc56211, type: 3}
       propertyPath: m_LocalPosition.x
@@ -598,6 +674,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8934976979116294425}
     m_Modifications:
+    - target: {fileID: -2738484487513793219, guid: 6d8dc3ec453fc464fab0822a6db128d8, type: 3}
+      propertyPath: EventStopTrigger
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1081663913912824910, guid: 6d8dc3ec453fc464fab0822a6db128d8, type: 3}
       propertyPath: m_Name
       value: BottleBrokenTop
@@ -700,6 +780,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6973388833113017971, guid: be3a2727722567649b52a0466ced958d, type: 3}
+      propertyPath: EventStopTrigger
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7022298660956672814, guid: be3a2727722567649b52a0466ced958d, type: 3}
+      propertyPath: occlusion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7022298660956672814, guid: be3a2727722567649b52a0466ced958d, type: 3}
+      propertyPath: transmission
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8147940200377240892, guid: be3a2727722567649b52a0466ced958d, type: 3}
       propertyPath: m_Name
       value: BottleShard.003
@@ -722,6 +814,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8934976979116294425}
     m_Modifications:
+    - target: {fileID: -3005508585908492634, guid: 44322e700bce9ad43806936aef4662ae, type: 3}
+      propertyPath: occlusion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -3005508585908492634, guid: 44322e700bce9ad43806936aef4662ae, type: 3}
+      propertyPath: transmission
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1583999878232223724, guid: 44322e700bce9ad43806936aef4662ae, type: 3}
+      propertyPath: EventStopTrigger
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 6093476169602173277, guid: 44322e700bce9ad43806936aef4662ae, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.24293908

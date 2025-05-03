@@ -232,7 +232,7 @@ MonoBehaviour:
       Bottle Clunks
   Event: 
   EventPlayTrigger: 7
-  EventStopTrigger: 0
+  EventStopTrigger: 8
   AllowFadeout: 1
   TriggerOnce: 0
   Preload: 0
@@ -269,13 +269,13 @@ MonoBehaviour:
   dipoleWeight: 0
   dipolePower: 0
   directivityValue: 1
-  occlusion: 0
+  occlusion: 1
   occlusionInput: 0
   occlusionType: 0
   occlusionRadius: 1
   occlusionSamples: 16
   occlusionValue: 1
-  transmission: 0
+  transmission: 1
   transmissionType: 0
   transmissionInput: 0
   transmissionLow: 1
@@ -331,6 +331,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 640638485227729044}
     m_Modifications:
+    - target: {fileID: 1002178741774041711, guid: 806b72e97910faf46b9467395f9d58e6, type: 3}
+      propertyPath: EventPlayTrigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1002178741774041711, guid: 806b72e97910faf46b9467395f9d58e6, type: 3}
+      propertyPath: EventStopTrigger
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6230705911906295086, guid: 806b72e97910faf46b9467395f9d58e6, type: 3}
       propertyPath: m_IsKinematic
       value: 1
