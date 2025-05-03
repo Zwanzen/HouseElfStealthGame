@@ -7,7 +7,7 @@ using static RigidbodyMovement;
 using static SoundGameplayManager;
 
 [RequireComponent(typeof(Rigidbody), typeof(Seeker))]
-public class NPC : MonoBehaviour
+public class NPC : MonoBehaviour, IHear
 {
     [Header("NPC Settings")]
     [SerializeField] private NPCType _npcType;
@@ -30,8 +30,8 @@ public class NPC : MonoBehaviour
 
     // ___ NPC Specific ___
     private NPCMovement _movement;
-    NPCAnimator _animator;
-    // NPCDetector _detector;
+    private NPCAnimator _animator;
+    private NPCDetector _detector;
     
     private enum NPCType
     {
@@ -120,5 +120,14 @@ public class NPC : MonoBehaviour
     public void OnStepAnimation()
     {
         PlayFootSound();
+    }
+
+    /// <summary>
+    /// Respond to a sound being made through the IHear interface.
+    /// Send it to the detector.
+    /// </summary>
+    public void RespondToSound(Sound sound)
+    {
+        _detector.OnSoundHeard(sound);
     }
 }
