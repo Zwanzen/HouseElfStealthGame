@@ -1,4 +1,6 @@
 using System;
+using FMOD.Studio;
+using FMODUnity;
 using RootMotion.Dynamics;
 using RootMotion.FinalIK;
 using Unity.Mathematics;
@@ -28,7 +30,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private FullBodyBipedIK _bodyIK;
     [SerializeField] private Animator _anim;
     [SerializeField] private PlayerCameraController _cameraController;
-    
+
     [Space(10f)]
     [Header("Common")]
     [SerializeField] private LayerMask _groundLayers;

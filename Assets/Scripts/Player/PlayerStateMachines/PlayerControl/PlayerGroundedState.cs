@@ -40,7 +40,7 @@ public class PlayerGroundedState : PlayerControlState
     public override void FixedUpdateState()
     {
         Context.MoveToHipPoint(GetHipPositionOffset());
-        
+        Context.HandleStretch();
         if(Context.Player.RelativeMoveInput != Vector3.zero)
             Context.UpdateBodyRotation(Context.Player.Camera.GetCameraYawTransform().forward);
     }

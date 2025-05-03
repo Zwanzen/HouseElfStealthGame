@@ -38,6 +38,8 @@ public class PlayerLeapState : PlayerControlState
         var hipPosOffset = Context.BetweenFeet(0.5f);
         hipPosOffset.y = 0;
 
+        Context.HandleStretch();
+
         Context.MoveToHipPoint(Context.CalculatePelvisPoint(hipPosOffset));
 
         var velDir = Context.Player.Rigidbody.linearVelocity;

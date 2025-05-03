@@ -1,7 +1,10 @@
 using System;
+using FMOD.Studio;
+using FMODUnity;
 using Pathfinding;
 using UnityEngine;
 using static RigidbodyMovement;
+using static SoundGameplayManager;
 
 [RequireComponent(typeof(Rigidbody), typeof(Seeker))]
 public class NPC : MonoBehaviour
@@ -23,7 +26,8 @@ public class NPC : MonoBehaviour
     // ___ Components ___
     private Rigidbody _rigidbody;
     private Animator _anim;
-    
+    private FMODUnity.StudioEventEmitter _soundEmitter;
+
     // ___ NPC Specific ___
     private NPCMovement _movement;
     NPCAnimator _animator;
@@ -52,7 +56,8 @@ public class NPC : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody>();
         _anim = GetComponentInChildren<Animator>();
-        
+        _soundEmitter = GetComponentInChildren<StudioEventEmitter>();
+
         _movement = new NPCMovement(this,_maxRecalcPathTime, _lookAhead, _groundLayers, _springStrength, _springDamper, _rotationSpeed);
         _animator = new NPCAnimator(this, _anim);
         
@@ -86,5 +91,34 @@ public class NPC : MonoBehaviour
     private void OnAnimStateChange(NPCAnimator.AnimState state)
     {
         _animator.SetNewAnimState(state);
+    }
+
+    private RaycastHit[] _stepColliders = new RaycastHit[10];
+    private void PlayFootSound()
+    {
+        // Check colliders below the foot for tag
+        var amouont = Physics.SphereCastNonAlloc(transform.position + Vector3.up * 0.3f, 0.18f,Vector3.down, _stepColliders, 1f, _groundLayers);
+
+        // Loop through and return the first working tag
+        var material = EMaterialTag.None;
+        for (int i = 0; i < amouont; i++)
+        {
+            var tag = _stepColliders[i].collider.tag;
+            if (tag == "Untagged")
+                continue;
+            var m = SoundGameplayManager.Instance.TryGetMaterialFromTag(tag);
+            if (m == EMaterialTag.None)
+                continue;
+            else
+                material = m;
+        }
+
+        SoundGameplayManager.Instance.PlayGuardStep(_soundEmitter, material);
+    }
+
+    // Public Methods
+    public void OnStepAnimation()
+    {
+        PlayFootSound();
     }
 }

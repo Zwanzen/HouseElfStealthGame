@@ -3,6 +3,8 @@ using UnityEngine;
 using static CircleLineIntersection;
 using static RigidbodyMovement;
 using Pathfinding;
+using Unity.Collections;
+using UnityEngine.Windows;
 
 public class FootLiftedState : FootControlState
 {
@@ -17,7 +19,7 @@ public class FootLiftedState : FootControlState
         // If not, we are in a leaping state, this is detected by the player control sm.
         if (!Context.IsFootLifting && Context.Player.IsSneaking && Context.OtherFoot.Planted)
             return FootControlStateMachine.EFootState.Placing;
-        
+
         // Used for auto walk rn
         if (GetDistanceFromOtherFoot() > Context.StepLength * 0.45f && !Context.Player.IsSneaking)
             return FootControlStateMachine.EFootState.Placing;
@@ -25,7 +27,6 @@ public class FootLiftedState : FootControlState
         return StateKey;
     }
 
-    private Vector3 _storedPos;
     public override void EnterState()
     {
         // get the start angle
@@ -49,7 +50,6 @@ public class FootLiftedState : FootControlState
         _liftTimer += Time.deltaTime;
     }
 
-    private float _timerSinceInput;
     public override void FixedUpdateState()
     {
         // If the other foot is placing, we want to keep this foot close to the other foot
@@ -73,103 +73,63 @@ public class FootLiftedState : FootControlState
         HandleFootRotation();
     }
 
-    private RaycastHit[] _hits = new RaycastHit[10];
-    private void Test()
-    {
-        // Clear the hits array before each cast
-        for (int i = 0; i < _hits.Length; i++)
-        {
-            _hits[i] = new RaycastHit();
-        }
-
-        // Get the number of actual hits
-        int hitCount = Physics.SphereCastNonAlloc(Context.Foot.Position + Vector3.up * 3,
-            0.5f, Vector3.down, _hits, 6f, Context.GroundLayers);
-
-        // Only process valid hits
-        for (int i = 0; i < hitCount; i++)
-        {
-            var hit = _hits[i];
-            // Debug With CheckSphere
-            var noLayer = 0;
-            Debug.DrawLine(_hits[i].point, _hits[i].point + Vector3.up, Color.green);
-        }
-
-        if (!Context.Player.IsMoving)
-            return;
-
-        var input = Context.Player.RelativeMoveInput.normalized;
-
-        CalculateIntersectionPoint(Context.OtherFoot.Position, Context.StepLength, Context.Foot.Position - input, input, out var intersectionPoint);
-
-        // Clamp the intersection point to the step height from the other foot
-        var maxHeight = Context.OtherFoot.Position.y + Context.StepHeight;
-        var minHeight = Context.OtherFoot.Position.y - Context.StepHeight;
-        if (intersectionPoint.y > maxHeight)
-            intersectionPoint.y = maxHeight;
-        else if (intersectionPoint.y < minHeight)
-            intersectionPoint.y = minHeight;
-
-
-        // Scan from the forward point
-        hitCount = Physics.SphereCastNonAlloc(intersectionPoint + Vector3.up * 3,
-            0.5f, Vector3.down, _hits, 6f, Context.GroundLayers);
-
-        // Only process valid hits
-        for (int i = 0; i < hitCount; i++)
-        {
-            var hit = _hits[i];
-            // Debug With CheckSphere
-            var noLayer = 0;
-            Debug.DrawLine(_hits[i].point, _hits[i].point + Vector3.up, Color.red);
-        }
-    }
-
     private void Movement()
     {
-        var footPos = Context.Foot.Target.position;
-        var otherFootPos = Context.OtherFoot.Target.position;
+        // Define main variables
+        var footPos = Context.Foot.Position;
+        var otherFootPos = Context.OtherFoot.Position;
         var input = Context.Player.RelativeMoveInput;
-        if (input.normalized == Vector3.zero)
-        {
-            _timerSinceInput += Time.fixedDeltaTime;
-        }
-        else
-        {
-            _timerSinceInput = 0f;
-        }
-        
+
+        // Define base heights
         var baseFootLiftedHeight = 0.1f;
         var wantedHeight = otherFootPos.y + baseFootLiftedHeight;
-        
-        // Depending on obstacles, we want to move the foot up
-        // We create a boxcast from the max step height, downwards to the max step height
-        // If we don't hit anything, the pressed height is the wanted height
-        if (ScanGroundObject(input, out var scanInfo) && !Input.GetKey(KeyCode.LeftShift))
-            wantedHeight = scanInfo.Height + baseFootLiftedHeight;
-        
+
+        // Now we get the height prediction info
+        // This is important, because the foot direction might need to change.
+        // If we want to move up, but are stuck, the prediction gives us a direction to move in.
+        if (TryHeightPrediction(input, footPos, otherFootPos, out var prediction))
+        {
+            // If we are stuck, we want to set the move position to the prediction direction + the foot position.
+            if (prediction.Stuck)
+            {
+                // We want to move in the direction of the prediction
+                var fixPos = footPos + prediction.FixDir;
+                // If the distance is too far, clamp it
+                if (Vector3.Distance(fixPos, otherFootPos) > Context.StepLength)
+                    fixPos = ClampedFootPosition(footPos, otherFootPos, (fixPos - footPos).normalized);
+                MoveToRigidbody(Context.Foot.Target, fixPos, Context.CurrentWalkSettings);
+                return;
+            }
+
+            // Decides that height the foot should be at
+            if (prediction.Height < otherFootPos.y - 0.15f)
+                wantedHeight = otherFootPos.y - 0.15f;
+            wantedHeight = prediction.Height + baseFootLiftedHeight;
+        }
+
+
         // This is the current position of the foot, but at the wanted height
         var wantedHeightPos = new Vector3(footPos.x, wantedHeight, footPos.z);
-        
+
         // We also calculate the input position based on the player input
         // But also take into account the wanted height
         var wantedInputPos = wantedHeightPos + input.normalized;
-        
+
         // *** TEMP ***
         // If the foot is behind the other foot,
         // We want to move this foot towards an offset to the side of the other foot
         // The position to the side of the other foot
-        var offsetPos = GetOffsetPosition(input,wantedHeight, 0.2f);
-        
+        var offsetPos = GetOffsetPosition(input, wantedHeight, 0.2f);
+
         // Depending on down angle, we dont care about offset
         var camAngle = Context.Player.Camera.CameraX;
         var offsetLerp = camAngle / 60f;
         offsetPos = Vector3.Lerp(offsetPos, wantedInputPos, offsetLerp);
-        
+
         // We lerp our input position with the offset position based on how far behind the foot is
         var distBehind = Context.RelativeDistanceInDirection(footPos, otherFootPos, input.normalized);
-        var wantedPos = Vector3.Lerp(wantedInputPos, offsetPos, Context.OffsetCurve.Evaluate(distBehind/Context.StepLength));
-        
+        var wantedPos = Vector3.Lerp(wantedInputPos, offsetPos, Context.OffsetCurve.Evaluate(distBehind / Context.StepLength));
+
         // Depending on our distance to the wanted height compared to our current height
         // We lerp what position we want to go to
         var currentHeight = footPos.y - otherFootPos.y;
@@ -177,177 +137,381 @@ public class FootLiftedState : FootControlState
         // Doesn't start to lerp until we are 50% of the way to the max height
         var posLerp = currentHeight / maxHeight;
         var pos = Vector3.Lerp(wantedHeightPos, wantedPos, Context.HeightCurve.Evaluate(posLerp));
-        
+
         // *** TEMP ***
         // If the wanted height is downwards, we dont care to lerp
-        if(currentHeight > maxHeight)
+        if (currentHeight > maxHeight)
             pos = wantedPos;
-        
-        // If scan is stuck, we want to move the foot backwards
-        if (scanInfo.Stuck)
-            pos = footPos - Context.Player.Rigidbody.transform.forward * 0.5f;
-        
+
         // We get the direction towards the wanted position
         var dirToPos = pos - footPos;
 
         // Now clamp if we are going out of step length
         if (Vector3.Distance(pos, otherFootPos) > Context.StepLength)
             pos = ClampedFootPosition(footPos, otherFootPos, dirToPos);
-        
+
         var settings = Context.Player.IsSneaking ? Context.CurrentSneakSettings : Context.CurrentWalkSettings;
         MoveToRigidbody(Context.Foot.Target, pos, settings);
 
     }
-    
-    private struct ScanInfo
+
+    /// <summary>
+    /// Struct used to store the prediction info for the foot.
+    /// </summary>
+    private struct PredictionInfo
     {
         public readonly float Height;
         public readonly bool Stuck;
-        
-        public ScanInfo(float height, bool stuck)
+        public readonly Vector3 FixDir;
+
+        public PredictionInfo(float height, bool stuck, Vector3 fixDir)
         {
             Height = height;
             Stuck = stuck;
+            FixDir = fixDir;
         }
     }
-    
-    private bool ScanGroundObject(Vector3 input, out ScanInfo scanInfo)
+
+    private RaycastHit[] _hits = new RaycastHit[20];
+
+    /// <summary>
+    /// Calculates the target height position we want to go to depending on the input.
+    /// </summary>
+    private bool TryHeightPrediction(Vector3 input, Vector3 footPos, Vector3 otherPos, out PredictionInfo predictionInfo)
     {
-        var footPos = Context.Foot.Target.position;
-        var otherFootPos = Context.OtherFoot.Target.position;
-        var height = 0f;
-        var defaultValues = Context.FootCastValues;
-        scanInfo = new ScanInfo();
-        
-        var position = defaultValues.Position;
-        var size = defaultValues.Size;
-        var rotation = defaultValues.Rotation;
-        
-        // How much we should check forwards
-        var forwardCheck = size.z * 1.5f;
-        // How much we should check side to side
-        var sideCheck = 0.1f;
-        
-        // Calculate the extensions
-        var forward = Vector3.zero;
+        // Sets it to default values
+        predictionInfo = new PredictionInfo(0f, false, Vector3.zero);
+
+        // Dynamic Check Position
+        var forwardFootPos = Context.Foot.XZForward * 0.1f + footPos;
+        var checkPos = forwardFootPos - input * 0.1f;
+
+        // We first scan for points and store the hits if there are any.
+        if (!ScanForPoints(checkPos, otherPos, input, _hits, out var hitCount))
+            return false; // If there are no points, we dont have any prediction info.
+
+        // If there are points, we want to find *The* valid point if there are any.
+        if(!FindValidPoint(hitCount, checkPos, footPos, otherPos, input, out var validPos))
+            return false; // If there are no valid points, we dont have any prediction info.
+
+        // If we have a valid point, we have to check if we are stuck getting there.
+        var stuck = IsStuckPoint(validPos, footPos, otherPos, input, out var stuckFixDir);
+
+        // Now assign the values to the prediction info for the movement to handle.
+        predictionInfo = new PredictionInfo(validPos.y, stuck, stuckFixDir);
+        return true; // We have a valid point, so we return true.
+    }
+
+    /// <summary>
+    /// Scans for points around the foot, and returns the amount of hits found.
+    /// And it also stores the hits in the a defined array using non alloc.
+    /// </summary>
+    /// <returns>If there are any points, and how many.</returns>
+    private bool ScanForPoints(Vector3 checkPos, Vector3 otherPos, Vector3 input, RaycastHit[] result, out int hitCount)
+    {
+        var radius = Context.StepLength * 0.5f;
+        var castHeight = otherPos.y + Context.StepHeight + radius;
+        var castPos = new Vector3(checkPos.x, castHeight, checkPos.z);
+        // We want to offset the cast position in the direction of the input
+        castPos += input.normalized * 0.2f;
+        var dist = Context.StepHeight * 2f + radius;
+
+        hitCount = Physics.SphereCastNonAlloc(castPos, radius, Vector3.down, result, dist, Context.GroundLayers);
+        return hitCount > 0;
+    }
+
+    /// <summary>
+    /// Used to sift through the points we found around the foot,
+    /// and find a valid point to use.
+    /// </summary>
+    /// <returns>The position of the valid hit.</returns>
+    private bool FindValidPoint(int hitCount, Vector3 checkPos, Vector3 footPos, Vector3 otherPos, Vector3 input, out Vector3 validPos)
+    {
+        // We need to efficiently store the reachable points
+        // Create with maximum possible size (hitCount)
+        validPos = Vector3.zero;
+        var hitPoints = new NativeArray<RaycastHit>(hitCount, Allocator.Temp);
+        int validPointCount = 0;
+        for (var i = 0; i < hitCount; i++)
+        {
+            if (IsReachablePoint(_hits[i].point, checkPos, footPos, otherPos, input))
+            {
+                Debug.DrawRay(_hits[i].point, Vector3.up * 0.1f, Color.green);
+                // If the point is reachable, we want to add it to the list
+                hitPoints[validPointCount] = _hits[i];
+                validPointCount++;
+            }
+        }
+
+        // If there is no valid point, we want to return false
+        if (validPointCount == 0)
+        {
+            // Always dispose NativeArray when done
+            hitPoints.Dispose();
+            return false;
+        }
+
+        // If there is no input, check if there is a close point,
+        // If not, we want to return false
+        var closestPoint = Vector3.zero;
+        var forwardFootPos = footPos + Context.Foot.Target.transform.forward * 0.1f;
+        var footXZPos = new Vector3(forwardFootPos.x, 0f, forwardFootPos.z);
+        var closestXZPoint = Vector3.zero;
+        if (input == Vector3.zero)
+        {
+            // Go throught all the points and check if they are close enough
+            var storedDist = 0f;
+            for (var i = 0; i < validPointCount; i++)
+            {
+                var d = Vector3.Distance(hitPoints[i].point, forwardFootPos);
+                var xzp = hitPoints[i].point;
+                xzp.y = 0f;
+                var xzDist = Vector3.Distance(xzp, footXZPos);
+                // If xz distance is too far, we skip it
+                if (xzDist > 0.1f)
+                    continue;
+                else if (closestPoint == Vector3.zero)
+                {
+                    // If it has no point, we want to use the first point
+                    closestPoint = hitPoints[i].point;
+                    storedDist = d;
+                    continue;
+                }
+                else
+                {
+                    // Check if the new point is closer
+                    if (d < storedDist)
+                    {
+                        storedDist = d;
+                        closestPoint = hitPoints[i].point;
+                    }
+                }
+            }
+
+            // If we have a point, we want to use it
+            if (closestPoint != Vector3.zero)
+            {
+                validPos = closestPoint;
+                // Always dispose NativeArray when done
+                hitPoints.Dispose();
+                return true;
+            }
+
+            // Always dispose NativeArray when done
+            hitPoints.Dispose();
+            return false;
+        }
+
+        // If there is only one point, we want to use that point
+        // But only if we have pressed the input
+        if (validPointCount == 1)
+        {
+            validPos = hitPoints[0].point;
+            // Always dispose NativeArray when done
+            hitPoints.Dispose();
+            return true;
+        }
+
+        // If there are multiple points, we check if there are points above the foot
+        var hasAbove = false;
+        for (var i = 0; i < validPointCount; i++)
+        {
+            // Check if the point is above the foot
+            if (hitPoints[i].point.y > footPos.y)
+            {
+                hasAbove = true;
+                break;
+            }
+        }
+
+        if (hasAbove)
+        {
+            // If we have points above,
+            // we want to use the point closest to the foot on the xz plane
+            // but if they are below, and they are close, we skip them
+            closestPoint = GetClosestXZPoint(hitPoints, validPointCount, footPos, out closestXZPoint, true);
+            // We want to use the point closest to the foot on the xz plane
+            validPos = closestPoint;
+            // Always dispose NativeArray when done
+            hitPoints.Dispose();
+            return true;
+        }
+
+        // If nothing is above, we want to use the point closest to the foot
+        closestPoint = GetClosestXZPoint(hitPoints, validPointCount, footPos, out closestXZPoint);
+        // Only if it is close enough to the foot, we want to use it
+        if (Vector3.Distance(closestXZPoint, footXZPos) < 0.2f)
+        {
+            validPos = closestPoint;
+            // Always dispose NativeArray when done
+            hitPoints.Dispose();
+            return true;
+        }
+
+        // Always dispose NativeArray when done
+        hitPoints.Dispose();
+        return false;
+    }
+
+    /// <summary>
+    /// Cluncky helper function for valid point finding.
+    /// </summary>
+    private Vector3 GetClosestXZPoint(NativeArray<RaycastHit> hitPoints, int count, Vector3 footPos, out Vector3 xzPoint, bool useMinDist = false)
+    {
+        var footXZPos = new Vector3(footPos.x, 0f, footPos.z);
+        var closestPoint = Vector3.zero;
+        xzPoint = Vector3.zero;
+        var storedDist = 0f;
+        for (var i = 0; i < count; i++)
+        {
+            var xzHit = hitPoints[i].point;
+            xzHit.y = 0f;
+            // We need the closest pos on the foot forward compared to the hit
+            var d = Vector3.Distance(xzHit, footXZPos);
+            if (hitPoints[i].point.y < footPos.y && useMinDist)
+                if (d < 4f)
+                    continue;
+
+            // If it has no point, we want to use the first point
+            if (closestPoint == Vector3.zero)
+            {
+                closestPoint = hitPoints[i].point;
+                storedDist = d;
+                xzPoint = xzHit;
+                continue;
+            }
+            // Check if the new point, has a similar distance as the stored point
+            // If they are similar, we want to use the one that is closest to the foot
+            var diff = Mathf.Abs(storedDist - d);
+            var threshold = 0.02f;
+
+            // If the distances are similar within the threshold
+            if (diff < threshold)
+            {
+                // If the new point is higher than the current point, use the new point
+                if (hitPoints[i].point.y > closestPoint.y)
+                {
+                    storedDist = d;
+                    xzPoint = xzHit;
+                    closestPoint = hitPoints[i].point;
+                }
+            }
+
+            // Check if the point is closer than the closest point
+            if (d < storedDist)
+            {
+                storedDist = d;
+                xzPoint = xzHit;
+                closestPoint = hitPoints[i].point;
+            }
+        }
+
+        return closestPoint;
+    }
+
+    private Collider[] _overlapColliders = new Collider[2];
+    /// <summary>
+    /// Checks if the point is reachable based on various conditions.
+    /// Returns true if non of the fail conditions are met.
+    /// </summary>
+    private bool IsReachablePoint(Vector3 point, Vector3 checkPos, Vector3 footPos, Vector3 otherPos, Vector3 input)
+    {
+        // Check if it is too far way
+        if (Vector3.Distance(otherPos, point) > Context.StepLength)
+            return false;
+
+        var maxHeight = Context.StepHeight + otherPos.y - 0.035;
+        var minHeight = otherPos.y - Context.StepHeight;
+
+        // Check if it is too high or too low
+        if (point.y > maxHeight || point.y < minHeight)
+            return false;
+
+        // If there is input, check if it is within a certain constraint
         if (input != Vector3.zero)
         {
-            forward = input.normalized * forwardCheck / 2f;
-            // Also set the rotation to the input direction
-            rotation = Quaternion.LookRotation(forward.normalized, Vector3.up);
-            // Add extensions
-            position += forward;
-            size.x = sideCheck;
-            size.z = forwardCheck;
-        }
-        
-        // Height 
-        var footSize = size.y;
-        var maxHeight = Context.StepHeight + otherFootPos.y;
-        
-        // Clamp the y height to the foot height + the step height
-        // Avoid too high checks
-        position.y = maxHeight + size.y;
-        position.y = Mathf.Clamp(position.y, otherFootPos.y - Context.StepHeight, footPos.y + Context.StepHeight);
-        
-        // Cast
-        if (!Physics.BoxCast(position, size, Vector3.down, out var hit, rotation, (Context.StepHeight * 2f) + size.y,
-                Context.GroundLayers))
-            return false;
-        height = hit.point.y;
-        var closestPoint = hit.collider.ClosestPoint(footPos);
-        
-        // Check if it is too high - If it is too far away, the highest point will be 0
-        CalculateIntersectionPoint(otherFootPos, Context.StepLength,
-            closestPoint + Vector3.down, Vector3.up, out var highestPoint);
-        
-        // Check if it is too far away
-        var tooFar = Vector3.Distance(otherFootPos, closestPoint) > Context.StepLength;
-        
-        var highest = highestPoint.y - footSize;
-        // If there is space above and the point is not too far away
-        // We want to continue
-        if (highest > height && !tooFar)
-        {
-            // If the thing we are trying to step on is lower than the other foot,
-            // We don't want to put our foot directly on it
-            // So we limit how far down we can go
-            if(otherFootPos.y -0.20f > height)
-                height = otherFootPos.y - 0.20f;
-                
-            // Do a check to see if there is anything above
-            position = defaultValues.Position;
-            size = defaultValues.Size;
-            rotation = defaultValues.Rotation;
-            position.y -= size.y;
-            var dist = height - position.y;
-            
-            // TODO
-            // If it hits above, we should not set a safe point, 
-            // We should set the correct height
-            // And even shove it to the side if needed
+            // If the point is behind the scan,
+            // its not reachable
+            var footToPoint = point - footPos;
+            if (Vector3.Dot(footToPoint.normalized, input.normalized) < 0f)
+                return false;
 
-            // DONE
-            // We are checking if it is stuck
-            // Then the movement is handled by the move logic
-            
-            var stuck = false;
-            // If we hit it, we set the height to the hit point - foot size
-            // -0.15f is to nullify the lifting default height
-            if (Physics.BoxCast(position, size, Vector3.up, out var upHit, rotation,
-                    dist + size.y,
-                    Context.GroundLayers))
-            {
-                height = otherFootPos.y; // Should potentially be the hit point
-                stuck = true;
-            }
-                
-            scanInfo = new ScanInfo(height, stuck);
-            return true;
+            var maxAngle = 10f;
+            var with = 0.03f;
+            var left = Vector3.Cross(Vector3.up, input.normalized) * with;
+            var leftAnglePos = checkPos + left;
+            var rightAnglePos = checkPos - left;
+            // Debugging
+            var leftRotation = Quaternion.AngleAxis(maxAngle, Vector3.up);
+            var rightRotation = Quaternion.AngleAxis(-maxAngle, Vector3.up);
+            var leftDir = (leftRotation * input.normalized).normalized;
+            var rightDir = (rightRotation * input.normalized).normalized;
+            Debug.DrawLine(leftAnglePos, rightAnglePos, Color.magenta);
+            Debug.DrawRay(leftAnglePos, leftDir * Context.StepLength, Color.magenta);
+            Debug.DrawRay(rightAnglePos, rightDir * Context.StepLength, Color.magenta);
+            Debug.DrawLine(checkPos, point, Color.red);
+
+            // We dont care about the height, so we set the y to 0
+            leftAnglePos.y = 0f;
+            rightAnglePos.y = 0f;
+            var tempPos = point;
+            tempPos.y = 0f;
+            footToPoint.y = 0f;
+
+            var leftPosToPoint = tempPos - leftAnglePos;
+            var rightPosToPoint = tempPos - rightAnglePos;
+            leftPosToPoint.y = 0f;
+            rightPosToPoint.y = 0f;
+
+            // First we check if it is left or right by using the left dir
+            var isLeft = Vector3.Dot(left.normalized, footToPoint.normalized) > 0f;
+            // Find the correct dir to use based on if it is left or right
+            var dir = isLeft ? leftPosToPoint.normalized : rightPosToPoint.normalized;
+            var dirToCompare = isLeft ? left.normalized : -left.normalized;
+            // Now we check the angle between the left/right dir and the dir
+            var angle = Vector3.Angle(dirToCompare, dir);
+            // If the angle is too steep, we want to ignore it
+            // But the normal forward angle is now 90 degrees
+            if (angle < 90f - maxAngle)
+                return false;
         }
-            
-        // Check if we are actually on the ground
-        if (Context.IsFootGrounded)
-        {
-            scanInfo = new ScanInfo(height, false);
-            return true;
-        }
-            
-        // If it's too high or too far away, we want to check a smaller box
-        position = defaultValues.Position;
-        size = defaultValues.Size;
-        rotation = defaultValues.Rotation;
-            
-        position.y = hit.point.y;
-            
-        // Smaller cast to see if we get better results
-        if (!Physics.BoxCast(position, size, Vector3.down, out var heightHit, rotation,
-                (Context.StepHeight * 2f) + size.y,
-                Context.GroundLayers))
+
+        // Adjust the xz distance check based on the player current speed
+        var xzPos = new Vector3(point.x, 0f, point.z);
+        var forwaredFootPos = footPos + Context.Foot.Target.transform.forward * 0.1f;
+        var footXZPos = new Vector3(forwaredFootPos.x, 0f, forwaredFootPos.z);
+        var dist = Vector3.Distance(xzPos, footXZPos);
+        var maxDist = Mathf.Lerp(0.25f, Context.StepLength * 0.5f, Context.Player.CurrentPlayerSpeed);
+        // If the distance is too far, we want to ignore it
+        if (dist > maxDist)
             return false;
-            
-        var highClosestPoint = heightHit.collider.ClosestPoint(footPos);
-        // Check if the new height is reachable
-        if (!CalculateIntersectionPoint(otherFootPos, Context.StepLength,
-                highClosestPoint + Vector3.down, Vector3.up, out highestPoint))
-            return false;
-            
-        height = heightHit.point.y;
-        highest = highestPoint.y - footSize;
-            
-        // If it has space, we check if it is too low before returning true
-        if (highest < height)
-            return false;
-            
-        if (!CalculateIntersectionPoint(otherFootPos, Context.StepLength,
-                highClosestPoint + Vector3.up, Vector3.down, out highestPoint))
-            return false;
-            
-        var lowest = highestPoint.y + footSize;
-        if (lowest > height)
-            return false;
-            
-        scanInfo = new ScanInfo(height, false);
+
+        // If nothing is wrong, we can return true
+        return true;
+    }
+
+    /// <summary>
+    /// Scans if moving up to the point is possible, and if not, - 
+    /// what direction we need to move to be able to reach the height of the point.
+    /// </summary>
+    private bool IsStuckPoint(Vector3 point, Vector3 footPos, Vector3 otherPos, Vector3 input, out Vector3 stuckFixDir)
+    {
+        stuckFixDir = Vector3.zero;
+        // Get the box cast values fitting our fot collider
+        var defaultValues = Context.FootCastValues;
+        var position = defaultValues.Position;
+        var size = defaultValues.Size;
+        var rotation = Context.Foot.Rotation;
+        size *= 1.01f;
+        position += Context.Foot.Transform.up * 0.01f;
+        if (!Physics.CheckBox(position, size, rotation, Context.GroundLayers))
+            return false; // If we are not stuck, we return.
+
+        // If we are stuck, we want to find what direction to move
+        // in order to not get stuck when moving up to point height.
+        // *** TODO ***
+        // Depending on camera and input, we need to change stuck dir
+        stuckFixDir = -Context.Player.Camera.GetCameraYawTransform().forward;
         return true;
     }
 
