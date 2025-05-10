@@ -18,11 +18,20 @@ public class NPCDetector
     /// </summary>
     public float Detection { get; private set; }
 
-    private List<Sound> _heardSounds;
+    private List<Sound> _storedSounds;
     private List<Sound> _soundsToDetect;
     public void OnSoundHeard(Sound sound)
     {
+        // If it is a looping sound
+        if (_storedSounds.Contains(sound))
+            return;
+
+        // Calculate the volume, and remove the sound if it is too low
         var volume = soundManager.GetSoundVolume(sound, npc.Position);
+        if (volume <= 0)
+            return;
+
+
     }
 
     /// <summary>
