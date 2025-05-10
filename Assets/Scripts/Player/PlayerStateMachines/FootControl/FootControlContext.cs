@@ -297,27 +297,13 @@ public class FootControlContext
         var position = defaultValues.Position;
         var size = defaultValues.Size;
         var rotation = defaultValues.Rotation;
-        size *= 1.1f;
-        size.y *= 2f;
-        position.y -= size.y/2;
-        var amouont = Physics.OverlapBoxNonAlloc(position, size, _stepColliders, rotation, GroundLayers);
-
-        // Loop through and return the first working tag
-        var material = EMaterialTag.None;
-        for (int i = 0; i < amouont; i++)
-        {
-            var tag = _stepColliders[i].tag;
-            if(tag == "Untagged")
-                continue;
-            var m = SoundGameplayManager.Instance.TryGetMaterialFromTag(tag);
-            if (m == EMaterialTag.None)
-                continue;
-            else
-                material = m;
-        }
-
-        SoundGameplayManager.Instance.PlayPlayerStepAtPosition(Foot.SoundEmitter, material, Foot.Position, Player.CurrentPlayerSpeed);
-
-
+        position.y += size.y/2;
+        var layers = GroundLayers;
+        // Exlude props layer
+        layers &= ~(1 << LayerMask.NameToLayer("Props"));
+        if (!Physics.BoxCast(position, size, Vector3.down, out var hit, rotation, size.y * 2f, layers))
+            return;
+        var material = SoundGameplayManager.Instance.TryGetMaterialFromTag(hit.collider.tag);
+        SoundGameplayManager.Instance.PlayPlayerStepAtPosition(Foot.SoundEmitter, material, Foot.Position, Mathf.Clamp(Foot.Momentum, 0.1f, Foot.Momentum));
     }
 }

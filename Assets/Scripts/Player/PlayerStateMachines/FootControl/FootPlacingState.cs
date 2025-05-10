@@ -32,6 +32,7 @@ public class FootPlacingState : FootControlState
     public override void ExitState()
     {
         Context.Foot.Target.useGravity = false;
+        Context.PlayFootSound();
     }
 
     public override void UpdateState()

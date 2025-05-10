@@ -50,6 +50,7 @@ public class NPC : MonoBehaviour, IHear
     
     // Properties
     public Rigidbody Rigidbody => _rigidbody;
+    public Vector3 Position => _rigidbody.position;
     public MovementSettings MovementSettings => _settings;
 
     private void Awake()

@@ -7,6 +7,11 @@ using FMODUnity;
 /// </summary>
 public class SoundGameplayManager : MonoBehaviour
 {
+    [Header("Gameplay Settings")]
+    // Adjust the sound volume based on the distance from the sound source.
+    [SerializeField, Tooltip("0 = close, 1 = far")] 
+    private AnimationCurve distanceCurve;
+
     [Space(10f)]
     [Header("Guard Settings")]
     [field: SerializeField] private EventReference guardFootsteps;
@@ -20,8 +25,11 @@ public class SoundGameplayManager : MonoBehaviour
     [Header("Step Settings")]
     [SerializeField] private float minMagnitude = 0.1f; // Minimum magnitude to play a sound
     [SerializeField] private float maxMagnitude = 1f; // the maximum player step magnitude
-    [SerializeField] private AnimationCurve rangeCurve;
-    [SerializeField] private AnimationCurve amplitudeCurve;
+    // Curves used to scale the sounds based on the magnitude of the step.
+    [SerializeField, Tooltip("0 = min, 1 = max")] 
+    private AnimationCurve rangeCurve;
+    [SerializeField, Tooltip("0 = min, 1 = max")] 
+    private AnimationCurve amplitudeCurve;
 
     [Space(10f)]
     [Header("Material Settings")]
@@ -170,7 +178,7 @@ public class SoundGameplayManager : MonoBehaviour
         // so we need to set them after we play the sound.
         emitter.Play();
         emitter.SetParameter(PARAM.SURFACE, GetMaterialIndex(mat));
-        emitter.SetParameter(PARAM.MAGNITUDE, GetMagnitudeScaled(mag));
+        emitter.SetParameter(PARAM.MAGNITUDE, GetMagnitudeScaled(mag/maxMagnitude));
     }
 
     public void PlayGuardStep(StudioEventEmitter emitter, EMaterialTag mat)
@@ -183,4 +191,14 @@ public class SoundGameplayManager : MonoBehaviour
         emitter.SetParameter(PARAM.MAGNITUDE, 0.5f);
     }
 
+    /// <summary>
+    /// Gets the volume of the sound at the given position, 
+    /// scaled by gameplay settings.
+    /// </summary>
+    public float GetSoundVolume(Sound sound, Vector3 position)
+    {
+        // Find the amount the detection value should be increased
+        var lerpValue = Vector3.Distance(sound.Pos, position) / sound.Range;
+        return sound.Amplitude * distanceCurve.Evaluate(lerpValue);
+    }
 }

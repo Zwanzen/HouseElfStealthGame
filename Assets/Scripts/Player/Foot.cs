@@ -74,7 +74,7 @@ public class Foot
     public CapsuleCollider Thigh { get; }
     public CapsuleCollider Calf { get; }
     public BoxCastValues FootCastValues => GetBoxCastValues();
-
+    public float Momentum { get; private set; } = 0f;
 
     // Used to get values for box cast
     public struct BoxCastValues
@@ -136,6 +136,20 @@ public class Foot
         Calf.enabled = true;
     }
 
+    /// <summary>
+    /// Used when lifting foot?
+    /// </summary>
+    public void ResetMomentum()
+    {
+        Momentum = 0f;
+    }
 
-
+    /// <summary>
+    /// Used to keep track of how fast the foot is moving.
+    /// </summary>
+    public void UpdateMomentum()
+    {
+        Momentum = Mathf.Lerp(Momentum, Velocity.magnitude, Time.deltaTime * 15f);
+        Debug.Log($"Momentum: {Momentum:F2}");
+    }
 }
