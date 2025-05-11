@@ -50,6 +50,7 @@ public class NPC : MonoBehaviour, IHear
     
     // Properties
     public Rigidbody Rigidbody => _rigidbody;
+    public Vector3 Position => _rigidbody.position;
     public MovementSettings MovementSettings => _settings;
 
     private void Awake()
@@ -68,7 +69,8 @@ public class NPC : MonoBehaviour, IHear
 
     private void Start()
     {
-        _movement.SetTarget(_path);
+        if(_npcType == NPCType.Patrol)
+            _movement.SetTarget(_path);
     }
 
     private void Update()

@@ -59,6 +59,7 @@ public class Foot
     public Rigidbody Target { get; }
     public Transform Transform => Target.transform;
     public Vector3 RestPosition => _restTransform.position;
+    public Vector3 RestDirection => _restTransform.forward;
     public Vector3 FootBonePosition => _footBone.position;
     public Quaternion FootBoneRotation => _footBone.rotation;
     public BoxCollider Collider { get; }
@@ -74,7 +75,7 @@ public class Foot
     public CapsuleCollider Thigh { get; }
     public CapsuleCollider Calf { get; }
     public BoxCastValues FootCastValues => GetBoxCastValues();
-
+    public float Momentum { get; private set; } = 0f;
 
     // Used to get values for box cast
     public struct BoxCastValues
@@ -136,6 +137,28 @@ public class Foot
         Calf.enabled = true;
     }
 
+    public void StopFoot()
+    {
+        _sm.TransitionToState(FootControlStateMachine.EFootState.Stop);
+    }
+    public void StartFoot()
+    {
+        _sm.TransitionToState(FootControlStateMachine.EFootState.Start);
+    }
 
+    /// <summary>
+    /// Used when lifting foot?
+    /// </summary>
+    public void ResetMomentum()
+    {
+        Momentum = 0f;
+    }
 
+    /// <summary>
+    /// Used to keep track of how fast the foot is moving.
+    /// </summary>
+    public void UpdateMomentum()
+    {
+        Momentum = Mathf.Lerp(Momentum, Velocity.magnitude, Time.deltaTime * 15f);
+    }
 }

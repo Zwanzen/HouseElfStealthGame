@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using FMOD.Studio;
 using FMODUnity;
 using RootMotion.Dynamics;
@@ -44,9 +45,9 @@ public class PlayerController : MonoBehaviour
 
     [Space(10f)] 
     [Header("Foot Control")] 
-    [SerializeField] private FootRef _leftFoot;
+    [SerializeField] private FootRef _leftFootRef;
     [Space(10f)]
-    [SerializeField] private FootRef _rightFoot;
+    [SerializeField] private FootRef _rightFootRef;
     [Space(10f)]
     [SerializeField] private float _stepLength = 0.5f;
     [SerializeField] private float _stepHeight = 0.5f;
@@ -76,6 +77,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Slider _movementSpeedSlider;
 
     // Private variables
+    private Foot leftFoot;
+    private Foot rightFoot;
+
     private float _wantedLScale;
     private float _wantedRScale;
     
@@ -98,8 +102,20 @@ public class PlayerController : MonoBehaviour
         Sneak
     }
 
+    // Singleton instance
+    public static PlayerController Instance { get; private set; }
+
     private void Awake()
     {
+        // Singleton pattern
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
         InitializeStateMachines();
         
         // setting private variables
@@ -177,8 +193,8 @@ public class PlayerController : MonoBehaviour
         
         // Then we construct the feet.
         // The feet need references to their state machine.
-        var leftFoot = new Foot(_leftFoot, _leftFootStateMachine);
-        var rightFoot = new Foot(_rightFoot, _rightFootStateMachine);
+        leftFoot = new Foot(_leftFootRef, _leftFootStateMachine);
+        rightFoot = new Foot(_rightFootRef, _rightFootStateMachine);
         
         // Then we construct the context files after the feet are created.
         _controlContext = new PlayerControlContext(this, _bodyIK, _bodyCollider, _fallCollider, _groundLayers,
@@ -226,8 +242,8 @@ public class PlayerController : MonoBehaviour
     public PlayerAnimator Animator { get; private set; }
 
     // Sneaking Properties
-    public Rigidbody LeftFootTarget => _leftFoot.Target;
-    public Rigidbody RightFootTarget => _rightFoot.Target;
+    public Rigidbody LeftFootTarget => _leftFootRef.Target;
+    public Rigidbody RightFootTarget => _rightFootRef.Target;
     public MovementSettings BodyMovementSettings => _bodyMovementSetting;
     public static float Height => 1.0f;
     public float StepLength => _stepLength;
@@ -344,6 +360,33 @@ public class PlayerController : MonoBehaviour
         OnStopFall.Invoke();
     }
 
+    public void Teleport(Vector3 position, Vector3 direction)
+    {
+        // Teleport the player to the new position
+        _rigidbody.isKinematic = true;
+        _rigidbody.position = position;
+        _rigidbody.rotation = Quaternion.LookRotation(direction, Vector3.up);
+
+        // Stops the feet, then after teleport frame, we start the feet again
+        leftFoot.StopFoot();
+        rightFoot.StopFoot();
+
+        // Reset the velocity of the player
+        _rigidbody.linearVelocity = Vector3.zero;
+        _rigidbody.angularVelocity = Vector3.zero;
+
+        StartCoroutine(ExecuteAfterTeleport());
+    }
+
+    private IEnumerator ExecuteAfterTeleport()
+    {
+        // wait to next frame
+        yield return new WaitForSeconds(0.1f);
+
+        _rigidbody.isKinematic = false;
+        leftFoot.StartFoot();
+        rightFoot.StartFoot();
+    }
     private void OnGUI()
     {
         // Create a background box for better readability

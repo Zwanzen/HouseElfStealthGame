@@ -25,11 +25,11 @@ public class FootStartState : FootControlState
         _hasStarted = false;
         
         // We set the positions and rotations to the bones
-        Context.Foot.Target.position = Context.Foot.FootBonePosition;
-        Context.Foot.Target.rotation = Context.Foot.FootBoneRotation;
-        
+        Context.Foot.Target.position = Context.Foot.RestPosition;
+        Context.Foot.Target.rotation = Quaternion.LookRotation(Context.Foot.RestDirection, Vector3.up);
+
         // Set the foot target position to the closest point on the ground
-        if(Context.FootGroundCast(0.2f,out var hit))
+        if (Context.FootGroundCast(0.2f,out var hit))
             Context.Foot.Target.position = hit.point + Vector3.up * Context.FootRadius;
 
         // Set everything to non-kinematic

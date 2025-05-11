@@ -9,6 +9,7 @@ public class Sound
     {
         Default = -1,
         Environment,
+        Props,
         Player,
     }
 
