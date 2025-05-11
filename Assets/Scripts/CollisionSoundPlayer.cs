@@ -1,30 +1,29 @@
-using System;
-using Unity.VisualScripting;
+using FMODUnity;
 using UnityEngine;
-using UnityEngine.Serialization;
-using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Collider), typeof(Rigidbody))]
 public class CollisionSoundPlayer : MonoBehaviour
 {
-    [SerializeField] private Sound.ESoundType _soundType;
-    [SerializeField] private float _soundRange = 3f;
-    [SerializeField] private float _soundAmplitude = 2f;
+    [SerializeField] private EventReference _soundEvent;
+    [SerializeField] private Sound.ESoundType _soundType = Sound.ESoundType.Props;
+    [SerializeField] private float _soundRange = 7f;
+    [SerializeField] private float _soundAmplitude = 7f;
     [SerializeField] private AudioClip[] _collisionSound;
-    [SerializeField] private float _maxCollisionForce = 50f;
+    [SerializeField] private float _maxCollisionForce = 3f;
     [SerializeField] private float _minCollisionForce = 0.2f;
+    [SerializeField, Range(0f,1f)] private float _minMagnitude = 0.1f;
     [SerializeField] private float _timeBetweenSounds = 0.1f;
-    [SerializeField] private AnimationCurve _volumeCollisionCurve;
-    [SerializeField] private AnimationCurve _amplitudeCollisionCurve;
     private float _timer;
     
-    private AudioSource _audioSource;
+    private StudioEventEmitter _eventEmitter;
 
     private void Awake()
     {
-        _audioSource = transform.AddComponent<AudioSource>();
-        _audioSource.playOnAwake = false;
-        _audioSource.spatialBlend = 1f; // 3D sound
+        if(_eventEmitter == null)
+        {
+            _eventEmitter = gameObject.AddComponent<StudioEventEmitter>();
+            _eventEmitter.EventReference = _soundEvent;
+        }
     }
 
     private void Update()
@@ -37,22 +36,18 @@ public class CollisionSoundPlayer : MonoBehaviour
     {
         if (_minCollisionForce <= collision.relativeVelocity.magnitude && _timer <= 0f)
         {
-            _audioSource.clip = _collisionSound[Random.Range(0, _collisionSound.Length)];
-            var lerp = collision.relativeVelocity.magnitude / _maxCollisionForce;
-            var volume = Mathf.Lerp(0.01f, 0.2f, _volumeCollisionCurve.Evaluate(lerp));
-            _audioSource.volume = volume;
-            _audioSource.pitch = Random.Range(0.9f, 1.1f);
-            
-            MakeSound(_amplitudeCollisionCurve.Evaluate(lerp));
-            _audioSource.Play();
+            var relMag = collision.relativeVelocity.magnitude / _maxCollisionForce;
+            MakeSound(relMag);
+            _eventEmitter.Play();
+            _eventEmitter.SetParameter("Magnitude", Mathf.Clamp(relMag, _minMagnitude, 1f));
             _timer = _timeBetweenSounds;
         }
     }
 
     private void MakeSound(float lerp)
     {
-        var volume = Mathf.Lerp(0.1f, _soundAmplitude * 1.5f, lerp);
-        var range = Mathf.Lerp(0.1f, _soundRange * 1.5f, lerp);
+        var volume = Mathf.Lerp(0.1f, _soundAmplitude, lerp);
+        var range = Mathf.Lerp(0.1f, _soundRange, lerp);
         var sound = new Sound(transform.position, range, volume)
         {
             SoundType = _soundType

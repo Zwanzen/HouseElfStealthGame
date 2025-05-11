@@ -40,7 +40,8 @@ public static class Sounds
         {
             Sound.ESoundType.Environment => 2,
             Sound.ESoundType.Player => 0,
-            _ => 1,
+            Sound.ESoundType.Props => 1,
+            _ => -1
         };
     }
 }
