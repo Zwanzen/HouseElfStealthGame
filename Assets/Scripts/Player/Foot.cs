@@ -59,6 +59,7 @@ public class Foot
     public Rigidbody Target { get; }
     public Transform Transform => Target.transform;
     public Vector3 RestPosition => _restTransform.position;
+    public Vector3 RestDirection => _restTransform.forward;
     public Vector3 FootBonePosition => _footBone.position;
     public Quaternion FootBoneRotation => _footBone.rotation;
     public BoxCollider Collider { get; }
@@ -136,6 +137,15 @@ public class Foot
         Calf.enabled = true;
     }
 
+    public void StopFoot()
+    {
+        _sm.TransitionToState(FootControlStateMachine.EFootState.Stop);
+    }
+    public void StartFoot()
+    {
+        _sm.TransitionToState(FootControlStateMachine.EFootState.Start);
+    }
+
     /// <summary>
     /// Used when lifting foot?
     /// </summary>
@@ -150,6 +160,5 @@ public class Foot
     public void UpdateMomentum()
     {
         Momentum = Mathf.Lerp(Momentum, Velocity.magnitude, Time.deltaTime * 15f);
-        Debug.Log($"Momentum: {Momentum:F2}");
     }
 }

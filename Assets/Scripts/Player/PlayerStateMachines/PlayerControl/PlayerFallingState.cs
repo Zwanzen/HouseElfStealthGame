@@ -200,9 +200,9 @@ public class PlayerFallingState : PlayerControlState
     {
         // We also force the default animation to play
         //Context.Player.Animator.ForceAnim(EAnimType.Stealth);
-        var pelvisPos = Context.BetweenFeet(0.5f);
-        pelvisPos.y = 0f;
-        pelvisPos = Context.CalculatePelvisPoint(pelvisPos);
+        var pelvisPos = Context.FallCollider.transform.position + Vector3.up * 0.5f;
+        //pelvisPos.y = 0f;
+        //pelvisPos = Context.CalculatePelvisPoint(pelvisPos);
         Context.Player.Transform.position = pelvisPos;
         Context.Player.Rigidbody.isKinematic = false;
         Context.FallCollider.enabled = false;

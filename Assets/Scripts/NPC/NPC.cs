@@ -69,7 +69,8 @@ public class NPC : MonoBehaviour, IHear
 
     private void Start()
     {
-        _movement.SetTarget(_path);
+        if(_npcType == NPCType.Patrol)
+            _movement.SetTarget(_path);
     }
 
     private void Update()
