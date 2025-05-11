@@ -31,7 +31,7 @@ public class FootLiftedState : FootControlState
     {
         // get the start angle
         _startAngle = Context.Foot.Target.transform.localRotation.x;
-
+        Context.Foot.ResetMomentum();
     }
 
     public override void ExitState()
@@ -48,6 +48,14 @@ public class FootLiftedState : FootControlState
             Context.Player.SetJump(false);
 
         _liftTimer += Time.deltaTime;
+
+        // If the foot has velocity above a certain threshold,
+        // we want to add momentum to the foot.
+        // if not, we want to subtract the momentup
+        if(Context.Foot.Velocity.magnitude > 0.05f)
+            Context.Foot.UpdateMomentum();
+        else
+            Context.Foot.UpdateMomentum();
     }
 
     public override void FixedUpdateState()

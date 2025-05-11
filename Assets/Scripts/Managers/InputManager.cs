@@ -31,6 +31,7 @@ public class InputManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -41,8 +42,6 @@ public class InputManager : MonoBehaviour
     private void Start()
     {
         DontDestroyOnLoad(gameObject);
-        
-        SceneManager.activeSceneChanged += OnSceneChange;
     }
     
     // Event used to update the player speed state more efficiently
@@ -64,13 +63,6 @@ public class InputManager : MonoBehaviour
     {
         _isHoldingRMB = context.ReadValueAsButton();
     }
-
-    private void OnSceneChange(Scene oldScene, Scene newScene)
-    {
-        // If we are loading into our world scene, enable 
-        //if(newScene.buildIndex ==)
-    }
-    
 
     private void OnEnable()
     {
@@ -98,12 +90,13 @@ public class InputManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // If we destroy the object, we need to unsubscribe from the events
-        SceneManager.activeSceneChanged -= OnSceneChange;
+        if (_inputActions != null)
+            _inputActions.Disable();
     }
 
     private void OnDisable()
     {
-        _inputActions.Disable();
+        if (_inputActions != null)
+            _inputActions.Disable();
     }
 }
