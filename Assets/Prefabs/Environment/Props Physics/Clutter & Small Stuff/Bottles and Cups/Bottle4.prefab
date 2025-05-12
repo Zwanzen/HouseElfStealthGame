@@ -285,12 +285,11 @@ MonoBehaviour:
       Data2: 1218744250
       Data3: -290803277
       Data4: 722966725
-    Path: event:/Environment & Props/Physics/Bottles, Cups & Flagons/Glass Bottles/Glass
-      Bottle Impacts
-  _soundType: 1
+    Path: event:/Environment & Props/Physics/Kitchenware/Glass Bottles/Glass Bottle
+      Impacts
+  _soundType: 2
   _soundRange: 10
   _soundAmplitude: 7
-  _collisionSound: []
   _maxCollisionForce: 3
   _minCollisionForce: 0.1
   _minMagnitude: 0.1
@@ -303,6 +302,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6093588074585759621}
     m_Modifications:
+    - target: {fileID: -6834461226642202098, guid: 806b72e97910faf46b9467395f9d58e6, type: 3}
+      propertyPath: _soundEvent.Path
+      value: event:/Environment & Props/Physics/Kitchenware/Cork/Cork Impact
+      objectReference: {fileID: 0}
     - target: {fileID: 1002178741774041711, guid: 806b72e97910faf46b9467395f9d58e6, type: 3}
       propertyPath: EventPlayTrigger
       value: 0
