@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.02.00">
 	<object class="Event" id="{84065173-1b0c-4dfb-a961-d9d8db6ef5fc}">
 		<property name="name">
-			<value>Bottle Clunk And Roll 1</value>
+			<value>Bottle Impact And Roll 1</value>
 		</property>
 		<property name="outputFormat">
 			<value>5</value>
@@ -146,6 +146,9 @@
 	<object class="MixerBusPanner" id="{fb3a5a98-133d-4306-8c7a-c948e8d9ae29}" />
 	<object class="MixerBusFader" id="{b49a8a24-52ba-443b-bb53-ad304f0806d6}" />
 	<object class="PluginEffect" id="{7bb60367-fe2f-4bf4-9e91-a7a508fbb58b}">
+		<property name="bypass">
+			<value>true</value>
+		</property>
 		<relationship name="plugin">
 			<destination>{1efa215d-d906-4fac-8faa-a9289dfb1f3d}</destination>
 		</relationship>
@@ -197,7 +200,6 @@
 		<property name="name">
 			<value>SourcePos</value>
 		</property>
-		<property name="value" />
 		<property name="dataType">
 			<value>-2</value>
 		</property>
@@ -206,7 +208,6 @@
 		<property name="name">
 			<value>OverallGain</value>
 		</property>
-		<property name="value" />
 		<property name="dataType">
 			<value>-1</value>
 		</property>
@@ -535,7 +536,6 @@
 		<property name="name">
 			<value>SimOutputs</value>
 		</property>
-		<property name="value" />
 		<property name="dataType">
 			<value>0</value>
 		</property>
@@ -552,7 +552,6 @@
 		<property name="name">
 			<value>DistRange</value>
 		</property>
-		<property name="value" />
 		<property name="dataType">
 			<value>-6</value>
 		</property>
