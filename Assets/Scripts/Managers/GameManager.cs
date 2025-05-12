@@ -30,6 +30,10 @@ public class GameManager : MonoBehaviour
         
         // Temp mouse lock
         Cursor.lockState = CursorLockMode.Locked;
+
+        // Teleport to the current checkpoint
+        var currentCheckpoint = CheckpointManager.Instance.ActiveCheckpoint;
+        PlayerController.Instance.Teleport(currentCheckpoint.RespawnPosition, currentCheckpoint.RespawnDirection);
     }
 
 
@@ -47,8 +51,10 @@ public class GameManager : MonoBehaviour
 
     private void OnLevelWasLoaded(int level)
     {
+        /*
         var currentCheckpoint = CheckpointManager.Instance.ActiveCheckpoint;
         PlayerController.Instance.Teleport(currentCheckpoint.RespawnPosition, currentCheckpoint.RespawnDirection);
+        */
     }
 
     // Public methods

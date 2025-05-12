@@ -2,33 +2,42 @@ using System;
 using FMOD.Studio;
 using FMODUnity;
 using Pathfinding;
+using SteamAudio;
 using UnityEngine;
 using UnityEngine.UI;
 using static RigidbodyMovement;
 using static SoundGameplayManager;
+using Vector3 = UnityEngine.Vector3;
 
 [RequireComponent(typeof(Rigidbody), typeof(Seeker))]
 public class NPC : MonoBehaviour, IHear
 {
+    [SerializeField] private bool DebugMode = false;
+
     [Header("NPC Settings")]
     [SerializeField] private NPCType _npcType;
     [SerializeField] private Slider _slider;
     [SerializeField] private NPCPath _path;
+    [SerializeField] private Transform _eyes;
 
     [Space(10)] [Header("Movement Settings")] [SerializeField]
     private float _maxRecalcPathTime = 0.5f;
     [SerializeField] private float _lookAhead = 1f;
     [Space(5)]
     [SerializeField] private LayerMask _groundLayers;
+    [SerializeField] private LayerMask _obstacleLayers;
     [SerializeField] private float _springStrength = 50f;
     [SerializeField] private float _springDamper = 5f;
     [SerializeField] private MovementSettings _settings;
     [SerializeField] private float _rotationSpeed = 100f;
 
-    // ___ Components ___
+    // ___ Private ___
     private Rigidbody _rigidbody;
     private Animator _anim;
     private FMODUnity.StudioEventEmitter _soundEmitter;
+    private PlayerController _player;
+
+    private Vector3 _startPos;
 
     // ___ NPC Specific ___
     private NPCMovement _movement;
@@ -39,41 +48,33 @@ public class NPC : MonoBehaviour, IHear
     {
         Patrol,
         Sleep,
-        Work,
+        Stationary,
     }
-    
-    private enum State
-    {
-        Default, // Does his job, patrols, etc.
-        Curious, // Will stop and look around
-        Alert, // Will look for the player
-    }
-    
-    
+
     // Properties
     public Rigidbody Rigidbody => _rigidbody;
     public Vector3 Position => _rigidbody.position;
     public MovementSettings MovementSettings => _settings;
+    public Vector3 EyesPos => _eyes.position;
 
+    SteamAudioListener listener;
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
         _anim = GetComponentInChildren<Animator>();
         _soundEmitter = GetComponentInChildren<StudioEventEmitter>();
 
-        _movement = new NPCMovement(this,_maxRecalcPathTime, _lookAhead, _groundLayers, _springStrength, _springDamper, _rotationSpeed);
-        _animator = new NPCAnimator(this, _anim);
-        
-        
-        _movement.ArrivedAtTarget += OnReachedTarget;
-        _movement.OnAnimStateChange += OnAnimStateChange;
+        listener = GetComponentInChildren<SteamAudioListener>();
 
-        _detector = new NPCDetector(this, _slider);
+        // Used for stationary NPCs
+        _startPos = transform.position;
     }
 
     private void Start()
     {
-        if(_npcType == NPCType.Patrol)
+        InitializeNPC();
+
+        if (_npcType == NPCType.Patrol)
             _movement.SetTarget(_path);
     }
 
@@ -81,6 +82,7 @@ public class NPC : MonoBehaviour, IHear
     {
         var delta = Time.deltaTime;
         _animator.Update(delta);
+        _detector.Update(delta);
     }
 
     private void FixedUpdate()
@@ -89,14 +91,66 @@ public class NPC : MonoBehaviour, IHear
         _movement.FixedUpdate(delta);
     }
     
+    private void InitializeNPC()
+    {
+        _player = PlayerController.Instance;
+        _movement = new NPCMovement(this, _maxRecalcPathTime, _lookAhead, _groundLayers, _springStrength, _springDamper, _rotationSpeed);
+        _animator = new NPCAnimator(this, _anim);
+
+        _movement.ArrivedAtTarget += OnReachedTarget;
+        _movement.OnAnimStateChange += OnAnimStateChange;
+
+        _detector = new NPCDetector(this, _player, _slider, _obstacleLayers);
+        _detector.OnDetectionStateChanged += OnDetectionStateChange;
+    }
+
     private void OnReachedTarget()
     {
-        _movement.SetTarget(_path);
+        // If we reached POI when NPC went looking for it
+        if (_detector.DetectionState != NPCDetector.EDetectionState.Default)
+            _detector.AtPointOfInterest();
+
     }
 
     private void OnAnimStateChange(NPCAnimator.AnimState state)
     {
         _animator.SetNewAnimState(state);
+    }
+
+    private NPCDetector.EDetectionState _lastDetectionState = NPCDetector.EDetectionState.Default;
+    private void OnDetectionStateChange(NPCDetector.EDetectionState state)
+    {
+        if (state != NPCDetector.EDetectionState.Default)
+        {
+            if(state == NPCDetector.EDetectionState.Curious)
+            {
+                // Stop movement
+                _movement.Stop();
+                _movement.SetTargetRotateTo(_detector.POI);
+            }
+
+            else if(state == NPCDetector.EDetectionState.Alert)
+            {
+                // Stop movement
+                _movement.Stop();
+                _movement.SetTarget(_detector.POI);
+            }
+
+            _lastDetectionState = state;
+        }
+        else if(state == NPCDetector.EDetectionState.Default)
+        {
+            _lastDetectionState = state;
+            // Go back to default behavior
+            if(_npcType == NPCType.Patrol)
+            {
+                _movement.SetTarget(_path);
+            }
+            else if (_npcType == NPCType.Stationary)
+            {
+                _movement.SetTarget(_startPos);
+            }
+        }
     }
 
     private RaycastHit[] _stepColliders = new RaycastHit[10];
@@ -120,6 +174,7 @@ public class NPC : MonoBehaviour, IHear
         }
 
         SoundGameplayManager.Instance.PlayGuardStep(_soundEmitter, material);
+
     }
 
     // Public Methods
@@ -134,6 +189,11 @@ public class NPC : MonoBehaviour, IHear
     /// </summary>
     public void RespondToSound(Sound sound)
     {
+        if(sound == null)
+        {
+            Debug.LogWarning("Sound is null");
+            return;
+        }
         _detector.OnSoundHeard(sound);
     }
 }

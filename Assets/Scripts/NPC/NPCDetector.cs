@@ -1,4 +1,4 @@
-﻿using Mono.Cecil.Cil;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
@@ -8,47 +8,113 @@ using UnityEngine.UI;
 
 public class NPCDetector
 {
-    private NPC npc;
+    private NPC _npc;
     private SoundGameplayManager soundManager;
+    private PlayerController _player;
+    private PlayerBrightnessDetector _brightnessDetector;
     private Slider _slider;
+    private Transform[] _limbs;
+    private LayerMask _obstacleLayerMask;
 
-    public NPCDetector(NPC npc, Slider slider)
+    public NPCDetector(NPC npc, PlayerController player, Slider slider, LayerMask Obsticle)
     {
-        this.npc = npc;
+        _npc = npc;
+        _player = player;
+        _brightnessDetector = player.GetComponent<PlayerBrightnessDetector>();
         soundManager = SoundGameplayManager.Instance;
         _slider = slider;
+        _limbs = player.Limbs;
+    }
+
+    public enum EDetectionState
+    {
+        Default, // Does his job, patrols, etc.
+        Curious, // Will stop and look around
+        Alert, // Will look for the player
     }
 
     // ___ Private Variables ___
     private float _detectionDecaySpeed = 10f; // The amount of detection to decay per second
-    private float _detectionDecayDelay = 1f; // The amount of time to wait before decaying the detection
+    // The amount of time to wait before decaying the detection
+    private float _detectionDecayDelay
+    {
+        get
+        {
+            if (DetectionState == EDetectionState.Alert)
+                return 5f;
+            else if (DetectionState == EDetectionState.Curious)
+                return 5f;
+            else
+                return 1f;
+        }
+    } 
     private float _decayTimer = 0f;
     private float _bufferTime = 0.2f; // The amount of time to wait before detecting the sound
 
+    // ___ Events ___
+    public event Action<EDetectionState> OnDetectionStateChanged;
 
     // ___ Properties ___
     /// <summary>
     /// The current detection level of the NPC.
     /// </summary>
     public float Detection { get; private set; }
+    /// <summary>
+    /// The current detection state of the NPC. Changes behavior.
+    /// </summary>
+    public EDetectionState DetectionState { get; private set; } = EDetectionState.Default;
+    /// <summary>
+    /// The point of interest for the NPC. This is the last known position of sound or sight.
+    /// </summary>
+    public Vector3 POI { get; private set; }
+
 
     // ___ Private Methods ___
     /// <summary>
     /// Main method to add detection to the NPC.
     /// </summary>
-    private void AddDetection(float amount)
+    private void AddDetection(float amount, Vector3 pos)
     {
         Detection = Mathf.Clamp(Detection + amount, 0f, 1f);
+        // Set decay timer to 0
+        _decayTimer = 0f;
+        // Update to correct state, setting to default handled elsewhere
+        if (Detection > 0.66f)
+            UpdateDetection(EDetectionState.Alert, pos);
+        else if (Detection > 0.33f)
+            UpdateDetection(EDetectionState.Curious, pos);
+
+    }
+
+    private void UpdateDetection(EDetectionState state, Vector3 pos)
+    {
+        DetectionState = state;
+        POI = pos;
+        OnDetectionStateChanged?.Invoke(DetectionState);
     }
 
     /// <summary>
     /// Handle the sound decay of the NPC.
     /// </summary>
-    private void HandleSoundDecay(float delta)
+    private void HandleDetectionDecay(float delta)
     {
+        // If we are in alert state, we dont want to decay the detection
+        // Movement will tell state to be curious, then we will decay
+        if (DetectionState == EDetectionState.Alert)
+            return;
+
         // If the decay timer is greater than the decay delay, decay the detection
-        if (_decayTimer > _detectionDecayDelay)
+        if (_decayTimer >= _detectionDecayDelay)
             Detection = Mathf.Clamp(Detection - _detectionDecaySpeed * delta, 0f, 1f);
+        else
+            _decayTimer += delta;
+
+        // If detection is less than 33%, set the state to default
+        if (Detection < 0.33f && DetectionState != EDetectionState.Default)
+        {
+            DetectionState = EDetectionState.Default;
+            OnDetectionStateChanged?.Invoke(DetectionState);
+        }
     }
 
     /// <summary>
@@ -90,7 +156,8 @@ public class NPCDetector
             var soundInfo = soundPair.Value;
 
             // Updated sound values
-            var newVolume = soundManager.GetSoundVolume(sound, npc.Position);
+            var newVolume = sound.SoundType != Sound.ESoundType.Player ||
+                sound.SoundType != Sound.ESoundType.Props ? soundManager.GetSoundVolume(sound, _npc.Position) : soundInfo.Volume;
             var newBufferTime = soundInfo.BufferTime - delta;
             var newDuration = soundInfo.Duration;
             if (newBufferTime <= 0)
@@ -129,7 +196,7 @@ public class NPCDetector
                 if (!soundInfo.Heard && newBufferTime <= 0)
                 {
                     // Add detection
-                    AddDetection(newVolume);
+                    AddDetection(soundInfo.Volume, sound.Pos);
                     // Set the sound as heard
                     newSoundInfo.Heard = true;
                 }
@@ -164,7 +231,52 @@ public class NPCDetector
         soundsToRemove.Dispose();
     }
 
+    private void HandleVisionUpdate(float delta)
+    {
+        // If out of range, return
+        if (Vector3.Distance(_npc.Position, _player.Position) > 7f)
+            return;
+        // If the player is outside vision cone, return
+        var dirToPlayer = _player.Position - _npc.EyesPos;
+        var angle = Vector3.Angle(_npc.transform.forward, dirToPlayer);
+        if (angle > 45f)
+            return;
+
+        // Limbs
+        var valueToAdd = 0f;
+        valueToAdd += LimbVisible(_limbs[0]) ? 0.2f : 0f; // Head
+        valueToAdd += LimbVisible(_limbs[1]) ? 0.1f : 0f; // Left Arm
+        valueToAdd += LimbVisible(_limbs[2]) ? 0.1f : 0f; // Right Arm
+        valueToAdd += LimbVisible(_limbs[3]) ? 0.1f : 0f; // Left Leg
+        valueToAdd += LimbVisible(_limbs[4]) ? 0.1f : 0f; // Right Leg
+        valueToAdd += LimbVisible(_limbs[5]) ? 0.4f : 0f; // Torso
+
+        // Brightness Controls multiplier
+        valueToAdd *= _brightnessDetector.CurrentBrightness;
+        // Detection is between 0 and 1
+        valueToAdd /= 100f;
+        // Make it delta time dependent
+        valueToAdd *= delta;
+        AddDetection(valueToAdd, _player.Position);
+    }
+    private bool LimbVisible(Transform limb)
+    {
+        return !Physics.Linecast(_npc.EyesPos, limb.position, _obstacleLayerMask);
+    }
+
     // ___ Public Methods ___
+
+    /// <summary>
+    /// Update the detector with the given delta time.
+    /// </summary>
+    public void Update(float delta)
+    {
+        HandleSoundUpdate(delta);
+        HandleDetectionDecay(delta);
+        HandleVisionUpdate(delta);
+        if (_slider)
+            _slider.value = Detection;
+    }
 
     private struct SoundInfo
     {
@@ -184,7 +296,7 @@ public class NPCDetector
             return;
 
         // Calculate the volume, and remove the sound if it is too low
-        var volume = soundManager.GetSoundVolume(sound, npc.Position);
+        var volume = soundManager.GetSoundVolume(sound, _npc.Position);
         if (volume <= 0)
             return;
 
@@ -235,20 +347,18 @@ public class NPCDetector
         {
             _heardSounds.Remove(s);
         }
-
-        // Set decay timer to 0
-        _decayTimer = 0f;
     }
 
     /// <summary>
-    /// Update the detector with the given delta time.
+    /// Called when the NPC reaches the point of interest.
     /// </summary>
-    public void Update(float delta)
+    public void AtPointOfInterest()
     {
-        HandleSoundUpdate(delta);
-        HandleSoundDecay(delta);
-        if(_slider)
-            _slider.value = Detection;
+        // If the NPC is in alert, we want to set the state to curious
+        if (DetectionState == EDetectionState.Alert)
+        {
+            DetectionState = EDetectionState.Curious;
+            OnDetectionStateChanged?.Invoke(DetectionState);
+        }
     }
-
 }

@@ -276,9 +276,11 @@ namespace SteamAudio
             }
         }
 
-        public void SetInputs(SimulationFlags flags)
+        public void SetInputs(SimulationFlags flags, bool x = false, SteamAudioListener listenerX = default)
         {
             var listener = SteamAudioManager.GetSteamAudioListener();
+            if (x)
+                listener = listenerX;
 
             var inputs = new SimulationInputs { };
             inputs.source.origin = Common.ConvertVector(transform.position);

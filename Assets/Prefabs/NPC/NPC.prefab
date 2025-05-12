@@ -254,6 +254,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8345905109214948535}
   - component: {fileID: 4058854715227135346}
+  - component: {fileID: 8763200272152760477}
   - component: {fileID: 8802524605627599701}
   - component: {fileID: 4602181039776387677}
   - component: {fileID: 1480043606591080447}
@@ -312,6 +313,29 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!136 &8763200272152760477
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 394583665564619696}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.23
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.33, z: 0}
 --- !u!95 &8802524605627599701
 Animator:
   serializedVersion: 7
@@ -374,14 +398,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99aa185d93b2b5042a4465e4ffff6cfa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DebugMode: 0
   _npcType: 0
   _slider: {fileID: 8019975796014076668}
   _path: {fileID: 11400000, guid: 120a8a23b00bfdb42893f4dedf2b844b, type: 2}
+  _eyes: {fileID: 781019922810207775}
   _maxRecalcPathTime: 0.5
   _lookAhead: 1
   _groundLayers:
     serializedVersion: 2
     m_Bits: 1073741832
+  _obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 1879048200
   _springStrength: 200
   _springDamper: 1
   _settings:
@@ -666,6 +695,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 560586531505329206}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1456981795453821339
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 781019922810207775}
+  m_Layer: 0
+  m_Name: Eyes
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &781019922810207775
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1456981795453821339}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.08, z: 0.095}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5449774683386339488}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1491403651708654717
 GameObject:
@@ -1860,6 +1920,7 @@ Transform:
   - {fileID: 4307527129226114674}
   - {fileID: 8886415666584735969}
   - {fileID: 4071822747427327440}
+  - {fileID: 781019922810207775}
   m_Father: {fileID: 2198358640230800202}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3526602101896216070
@@ -2663,7 +2724,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3650840787562970164}
-  - component: {fileID: 2780427663904290190}
   - component: {fileID: 3957580535682767437}
   - component: {fileID: 8781667825295727020}
   m_Layer: 17
@@ -2694,29 +2754,6 @@ Transform:
   - {fileID: 3815804408741441698}
   m_Father: {fileID: 8345905109214948535}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &2780427663904290190
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5444231239530785762}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.23
-  m_Height: 1
-  m_Direction: 1
-  m_Center: {x: 0, y: 1.33, z: 0}
 --- !u!114 &3957580535682767437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2739,13 +2776,13 @@ MonoBehaviour:
     rightThigh: {fileID: 0}
     rightCalf: {fileID: 0}
     rightFoot: {fileID: 0}
-    leftUpperArm: {fileID: 0}
-    leftForearm: {fileID: 0}
-    leftHand: {fileID: 0}
-    rightUpperArm: {fileID: 0}
-    rightForearm: {fileID: 0}
-    rightHand: {fileID: 0}
-    head: {fileID: 0}
+    leftUpperArm: {fileID: 2994326658646335277}
+    leftForearm: {fileID: 5449101378710956251}
+    leftHand: {fileID: 7706375528483975155}
+    rightUpperArm: {fileID: 4180176698663096658}
+    rightForearm: {fileID: 2307367152688061619}
+    rightHand: {fileID: 1025475490199737957}
+    head: {fileID: 5449774683386339488}
     spine:
     - {fileID: 0}
     - {fileID: 0}

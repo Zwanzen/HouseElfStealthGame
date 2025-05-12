@@ -35,7 +35,8 @@ public class NPCMovement
     {
         None,
         Path,
-        Position
+        Position,
+        Rotation,
     }
     // ___ Pathing ___
     private TargetType _targetType;
@@ -54,6 +55,8 @@ public class NPCMovement
     // ___ Rotation ___
     private Vector3 _targetPathRotation;
     private Vector3 _dirToRotate;
+
+    private Vector3 _posToRotateTo;
     
     // ___ Anim ___
     private bool _readyForAnimChange = false;
@@ -75,6 +78,12 @@ public class NPCMovement
         ClearTargets();
         _targetPosition = position;
         FindPathToTargetPosition(_targetPosition);
+    }
+    public void SetTargetRotateTo(Vector3 posToLookAt)
+    {
+        ClearTargets();
+        _posToRotateTo = posToLookAt;
+        _targetType = TargetType.Rotation;
     }
     
     // Stop Movement
@@ -364,13 +373,13 @@ public class NPCMovement
         RecalculateMove(delta);
         UpdateSeekerPath();
         
-        if (_targetType == TargetType.None)
+        if (_targetType == TargetType.None || _targetType == TargetType.Rotation)
         {
             // Make sure the the y position is the same as the npc
             _stopPosition.y = _npc.Rigidbody.position.y;
             MoveToRigidbody(_npc.Rigidbody,_stopPosition, _npc.MovementSettings);
         }
-        else
+        else if (_targetType != TargetType.Rotation)
         {
             // Now the seekerPath is valid, we need to check if we are close to the next point
             var nextPoint = _seekerPath.vectorPath[_seekerPathIndex];
@@ -420,7 +429,7 @@ public class NPCMovement
     private void HandleRotation(float delta)
     {
         // We set the rotation if we are moving
-        if (_targetType != TargetType.None && !_isStopped)
+        if (_targetType != TargetType.None && _targetType != TargetType.Rotation && !_isStopped)
         {
             var dir = _stopPosition - _npc.Rigidbody.position;
             dir.y = 0f;
@@ -439,13 +448,22 @@ public class NPCMovement
         }
         
         // Rotate towards the direction we are moving
-        if (_dirToRotate != Vector3.zero)
+        if (_dirToRotate != Vector3.zero && _targetType != TargetType.Rotation)
         {
             RotateRigidbody(_npc.Rigidbody, _dirToRotate, _rotationSpeed);
         }
+
+        // If we are rotating to a position, we need to rotate to that position
+        if (_targetType == TargetType.Rotation)
+        {
+            var dir = _posToRotateTo - _npc.Rigidbody.position;
+            dir.y = 0f;
+            dir.Normalize();
+            RotateRigidbody(_npc.Rigidbody, dir, _rotationSpeed);
+        }
     }
 
-        // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
+    // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
     // Modified
     public void RigidbodyFloat()
     {

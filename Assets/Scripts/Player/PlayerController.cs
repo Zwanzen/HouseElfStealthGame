@@ -252,8 +252,7 @@ public class PlayerController : MonoBehaviour
     /// The player's offset position from the rigidbody's position, adjusted by the character height.
     /// The player rigidbody is actually at the feet of the player, so we need to add the character height to the position.
     /// </summary>
-    [Obsolete]
-    public Vector3 Position => _rigidbody.position + new Vector3(0, Height, 0); 
+    public Vector3 Position => _rigidbody.position; 
     /// <summary>
     /// This is the new player position^
     /// </summary>

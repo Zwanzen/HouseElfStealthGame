@@ -2,6 +2,8 @@
 using System.Collections;
 using System;
 using FMODUnity;
+using SteamAudio;
+using Vector3 = UnityEngine.Vector3;
 /// <summary>
 /// Handles the sounds played in the game.
 /// </summary>
@@ -167,7 +169,7 @@ public class SoundGameplayManager : MonoBehaviour
     public void PlayPlayerStepAtPosition(StudioEventEmitter emitter, EMaterialTag mat, Vector3 pos, float mag)
     {
         // First, create and play the game logic sound.
-        var settings = GetPlayerMaterialSettingsScaled(mat, mag);
+        var settings = GetPlayerMaterialSettingsScaled(mat, GetMagnitudeScaled(mag));
         var sound = new Sound(pos, settings.Range, settings.Amplitude);
         sound.SoundType = Sound.ESoundType.Player;
         Sounds.MakeSound(sound);
@@ -178,7 +180,7 @@ public class SoundGameplayManager : MonoBehaviour
         // so we need to set them after we play the sound.
         emitter.Play();
         emitter.SetParameter(PARAM.SURFACE, GetMaterialIndex(mat));
-        emitter.SetParameter(PARAM.MAGNITUDE, GetMagnitudeScaled(mag/maxMagnitude));
+        emitter.SetParameter(PARAM.MAGNITUDE, GetMagnitudeScaled(mag));
     }
 
     public void PlayGuardStep(StudioEventEmitter emitter, EMaterialTag mat)
