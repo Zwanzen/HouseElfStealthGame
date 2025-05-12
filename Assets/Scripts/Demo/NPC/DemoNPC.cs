@@ -5,8 +5,9 @@ using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DemoNpc : MonoBehaviour, IHear
+public class DemoNpc : MonoBehaviour
 {
+    /*
     [Header("Debug")] 
     [SerializeField] private bool _enableSoundReaction = true;
     [SerializeField] private bool _debugVisual = false;
@@ -562,5 +563,5 @@ public class DemoNpc : MonoBehaviour, IHear
 
         return brightness /= count;
     }
-    
+    */
 }

@@ -9,6 +9,7 @@ public class Sound
     {
         Default = -1,
         Environment,
+        NPC,
         Props,
         Player,
     }
@@ -32,10 +33,5 @@ public class Sound
     public readonly float Range;
     public float Amplitude;
     public readonly bool Loop;
-    
-    public float CurrentVolume;
-    
-    // NPC
-    public float BufferTime;
-    public float Duration = 20f;
+
 }
