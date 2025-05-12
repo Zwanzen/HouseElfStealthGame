@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 1105966998136759682}
   - component: {fileID: 906939609758740574}
   - component: {fileID: 2870939906612890431}
-  - component: {fileID: 1583999878232223724}
   - component: {fileID: -3005508585908492634}
   - component: {fileID: -4867196340068951143}
+  - component: {fileID: 2017276890857075221}
   m_Layer: 0
   m_Name: BottleShard.005
   m_TagString: Untagged
@@ -112,37 +112,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2376628356616418958, guid: f1896cbee205fdc40bed85ce01d94d58, type: 3}
---- !u!114 &1583999878232223724
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8570496148619230395}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: 2026115247
-      Data2: 1272590515
-      Data3: 763142304
-      Data4: 1572246569
-    Path: event:/Environment & Props/Physics/Glass Shards/Glass Shards
-  Event: 
-  EventPlayTrigger: 7
-  EventStopTrigger: 8
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: 1
-  OverrideMaxDistance: 20
 --- !u!114 &-3005508585908492634
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,3 +221,30 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &2017276890857075221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8570496148619230395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundEvent:
+    Guid:
+      Data1: 2026115247
+      Data2: 1272590515
+      Data3: 763142304
+      Data4: 1572246569
+    Path: event:/Environment & Props/Physics/Glass Shards/Glass Shards
+  _soundType: 1
+  _soundRange: 6
+  _soundAmplitude: 7
+  _collisionSound: []
+  _maxCollisionForce: 3
+  _minCollisionForce: 1
+  _minMagnitude: 0.1
+  _timeBetweenSounds: 0.1

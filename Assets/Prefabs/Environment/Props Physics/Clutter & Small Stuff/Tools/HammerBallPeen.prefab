@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 4384120605694695024}
   - component: {fileID: 7355512048951873631}
   - component: {fileID: 2591977000046255481}
+  - component: {fileID: 741206352904589333}
   m_Layer: 30
   m_Name: HammerBallPeen
   m_TagString: Untagged
@@ -267,6 +268,33 @@ MonoBehaviour:
   - 0
   applyHRTFToPathing: 0
   pathingMixLevel: 1
+--- !u!114 &741206352904589333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269969555346421496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundEvent:
+    Guid:
+      Data1: 1696974498
+      Data2: 1257587859
+      Data3: 1821396648
+      Data4: -1093816792
+    Path: event:/Environment & Props/Physics/Hammers/Hammer Impact
+  _soundType: 1
+  _soundRange: 7
+  _soundAmplitude: 7
+  _collisionSound: []
+  _maxCollisionForce: 3
+  _minCollisionForce: 1.5
+  _minMagnitude: 0.1
+  _timeBetweenSounds: 0.1
 --- !u!1 &2857472728535459637
 GameObject:
   m_ObjectHideFlags: 0

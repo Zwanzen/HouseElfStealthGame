@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 5437695377036860657}
   - component: {fileID: 8658403553566701686}
   - component: {fileID: 7566638733406145928}
-  - component: {fileID: 1192016963002445677}
   - component: {fileID: 1625014022526457505}
+  - component: {fileID: -7843206724355656563}
   m_Layer: 30
   m_Name: Cup
   m_TagString: Untagged
@@ -162,37 +162,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.06, y: 0.17995209, z: 0.06}
   m_Center: {x: 0, y: 0.08997604, z: 0}
---- !u!114 &1192016963002445677
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6075148102933221970}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
-  Event: 
-  EventPlayTrigger: 7
-  EventStopTrigger: 8
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: -1
-  OverrideMaxDistance: -1
 --- !u!114 &1625014022526457505
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275,3 +244,30 @@ MonoBehaviour:
   - 0
   applyHRTFToPathing: 0
   pathingMixLevel: 1
+--- !u!114 &-7843206724355656563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6075148102933221970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundEvent:
+    Guid:
+      Data1: -748673956
+      Data2: 1248309397
+      Data3: 844666251
+      Data4: -1541148750
+    Path: event:/Environment & Props/Physics/Bottles, Cups & Flagons/Cup/Cup Impact
+  _soundType: 1
+  _soundRange: 7
+  _soundAmplitude: 7
+  _collisionSound: []
+  _maxCollisionForce: 3
+  _minCollisionForce: 0.1
+  _minMagnitude: 0.1
+  _timeBetweenSounds: 0.1

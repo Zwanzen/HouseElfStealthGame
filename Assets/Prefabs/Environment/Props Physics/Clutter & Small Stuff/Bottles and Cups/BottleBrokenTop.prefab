@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 2061569318084726572}
   - component: {fileID: 7556944105211020971}
   - component: {fileID: 7078735695470907488}
-  - component: {fileID: -2738484487513793219}
   - component: {fileID: -2812715541620753566}
+  - component: {fileID: -2577801334010728513}
   m_Layer: 30
   m_Name: BottleBrokenTop
   m_TagString: Untagged
@@ -164,38 +164,6 @@ CapsuleCollider:
   m_Height: 0.14200075
   m_Direction: 1
   m_Center: {x: 0, y: -0.03885506, z: 0}
---- !u!114 &-2738484487513793219
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1081663913912824910}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: -418440684
-      Data2: 1218744250
-      Data3: -290803277
-      Data4: 722966725
-    Path: event:/Environment & Props/Physics/Bottles, Cups & Flagons/Glass Bottles/Glass
-      Bottle Impacts
-  Event: 
-  EventPlayTrigger: 7
-  EventStopTrigger: 8
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: 1
-  OverrideMaxDistance: 20
 --- !u!114 &-2812715541620753566
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278,3 +246,31 @@ MonoBehaviour:
   - 0
   applyHRTFToPathing: 0
   pathingMixLevel: 1
+--- !u!114 &-2577801334010728513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1081663913912824910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundEvent:
+    Guid:
+      Data1: -418440684
+      Data2: 1218744250
+      Data3: -290803277
+      Data4: 722966725
+    Path: event:/Environment & Props/Physics/Bottles, Cups & Flagons/Glass Bottles/Glass
+      Bottle Impacts
+  _soundType: 1
+  _soundRange: 10
+  _soundAmplitude: 7
+  _collisionSound: []
+  _maxCollisionForce: 3
+  _minCollisionForce: 0.1
+  _minMagnitude: 0.1
+  _timeBetweenSounds: 0.1

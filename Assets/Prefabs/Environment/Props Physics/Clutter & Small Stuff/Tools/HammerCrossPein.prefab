@@ -121,8 +121,8 @@ GameObject:
   - component: {fileID: 5391127607979701990}
   - component: {fileID: 8234064626611632236}
   - component: {fileID: 2726555305193255040}
-  - component: {fileID: 1164993918115421054}
   - component: {fileID: 1186640593964422540}
+  - component: {fileID: -5961851847404997018}
   m_Layer: 30
   m_Name: HammerCrossPein
   m_TagString: Untagged
@@ -290,37 +290,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.060071804, y: 0.03999999, z: 0.060000002}
   m_Center: {x: -0.069964096, y: 0.45999998, z: -0.0000000018626451}
---- !u!114 &1164993918115421054
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7467617154275688096}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
-  Event: 
-  EventPlayTrigger: 7
-  EventStopTrigger: 8
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: -1
-  OverrideMaxDistance: -1
 --- !u!114 &1186640593964422540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -403,3 +372,30 @@ MonoBehaviour:
   - 0
   applyHRTFToPathing: 0
   pathingMixLevel: 1
+--- !u!114 &-5961851847404997018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7467617154275688096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundEvent:
+    Guid:
+      Data1: 1696974498
+      Data2: 1257587859
+      Data3: 1821396648
+      Data4: -1093816792
+    Path: event:/Environment & Props/Physics/Hammers/Hammer Impact
+  _soundType: 1
+  _soundRange: 7
+  _soundAmplitude: 7
+  _collisionSound: []
+  _maxCollisionForce: 3
+  _minCollisionForce: 1.5
+  _minMagnitude: 0.1
+  _timeBetweenSounds: 0.1
