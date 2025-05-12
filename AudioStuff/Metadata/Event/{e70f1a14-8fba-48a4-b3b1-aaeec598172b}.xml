@@ -112,8 +112,11 @@
 		<property name="name">
 			<value>Audio 1</value>
 		</property>
+		<relationship name="automators">
+			<destination>{e04a18cd-8b38-4737-a48c-65c70cd75e92}</destination>
+		</relationship>
 		<relationship name="modulators">
-			<destination>{d7a8a490-f0a0-4b6e-a0f5-058d3d18f2b4}</destination>
+			<destination>{505dd622-cf97-4cce-986a-23e771034df0}</destination>
 		</relationship>
 		<relationship name="effectChain">
 			<destination>{76684425-3548-4b9a-8aa0-14e4f3eb16ce}</destination>
@@ -171,7 +174,15 @@
 			<destination>{e47fc46d-9448-4b57-bd37-de018cc3e4c6}</destination>
 		</relationship>
 	</object>
-	<object class="ADSRModulator" id="{d7a8a490-f0a0-4b6e-a0f5-058d3d18f2b4}">
+	<object class="Automator" id="{e04a18cd-8b38-4737-a48c-65c70cd75e92}">
+		<property name="nameOfPropertyBeingAutomated">
+			<value>volume</value>
+		</property>
+		<relationship name="automationCurves">
+			<destination>{5a9fa567-6d7f-47ec-96cb-ee1593cb6512}</destination>
+		</relationship>
+	</object>
+	<object class="ADSRModulator" id="{505dd622-cf97-4cce-986a-23e771034df0}">
 		<property name="nameOfPropertyBeingModulated">
 			<value>volume</value>
 		</property>
@@ -198,6 +209,15 @@
 	<object class="PluginEffect" id="{b4172bb8-a393-4974-8aa0-25b1d10758d3}">
 		<relationship name="plugin">
 			<destination>{366f7fa1-cf3a-43ee-a501-207b6ba18278}</destination>
+		</relationship>
+	</object>
+	<object class="AutomationCurve" id="{5a9fa567-6d7f-47ec-96cb-ee1593cb6512}">
+		<relationship name="parameter">
+			<destination>{3d2313b6-8bbd-4c80-bb34-e54af072eb58}</destination>
+		</relationship>
+		<relationship name="automationPoints">
+			<destination>{d9330875-d3c5-4a73-b60f-fe6bfce3dcae}</destination>
+			<destination>{eb817f14-9a2a-4801-9e55-8c2080421c7b}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusFader" id="{4f4f5d9c-8683-4cb2-a3d8-1959f738c078}" />
@@ -242,6 +262,22 @@
 			<destination>{aa2e181d-aaee-4a42-86e3-65936218a2bc}</destination>
 			<destination>{9f31c6e2-ef88-419b-8bdb-a9cd3685b16a}</destination>
 		</relationship>
+	</object>
+	<object class="AutomationPoint" id="{d9330875-d3c5-4a73-b60f-fe6bfce3dcae}">
+		<property name="position">
+			<value>0</value>
+		</property>
+		<property name="value">
+			<value>-16</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{eb817f14-9a2a-4801-9e55-8c2080421c7b}">
+		<property name="position">
+			<value>1</value>
+		</property>
+		<property name="value">
+			<value>6</value>
+		</property>
 	</object>
 	<object class="DataPluginParameter" id="{aefbe352-97cf-4cf6-b81f-c69851af39e5}">
 		<property name="name">
@@ -306,7 +342,7 @@
 			<value>ApplyOccl</value>
 		</property>
 		<property name="value">
-			<value>0</value>
+			<value>1</value>
 		</property>
 		<property name="minimumValue">
 			<value>0</value>

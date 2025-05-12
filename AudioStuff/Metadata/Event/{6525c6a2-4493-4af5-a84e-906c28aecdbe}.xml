@@ -206,6 +206,9 @@
 		<property name="nameOfPropertyBeingAutomated">
 			<value>volume</value>
 		</property>
+		<relationship name="automationCurves">
+			<destination>{2b201efb-0c5d-4605-a624-92f69d392661}</destination>
+		</relationship>
 	</object>
 	<object class="ADSRModulator" id="{13f91027-110d-416e-a41f-52b689ebc6ae}">
 		<property name="nameOfPropertyBeingModulated">
@@ -255,6 +258,15 @@
 			<value>0</value>
 		</property>
 	</object>
+	<object class="AutomationCurve" id="{2b201efb-0c5d-4605-a624-92f69d392661}">
+		<relationship name="parameter">
+			<destination>{3d2313b6-8bbd-4c80-bb34-e54af072eb58}</destination>
+		</relationship>
+		<relationship name="automationPoints">
+			<destination>{d411d5bd-cf5d-41ed-8f1d-e04d79a069c0}</destination>
+			<destination>{b046f561-9e89-4d9a-a705-dee08113626e}</destination>
+		</relationship>
+	</object>
 	<object class="MixerBusFader" id="{c98868ce-6820-47a7-bed6-2ef9250ae0e5}" />
 	<object class="Plugin" id="{ce5f3c83-c84c-445d-a411-5a394d98bf3d}">
 		<property name="identifier">
@@ -297,6 +309,22 @@
 			<destination>{41418b9a-5963-4aa1-96bc-ff0c4a190097}</destination>
 			<destination>{6cd58813-659b-4352-ba43-247dd84cbfc9}</destination>
 		</relationship>
+	</object>
+	<object class="AutomationPoint" id="{d411d5bd-cf5d-41ed-8f1d-e04d79a069c0}">
+		<property name="position">
+			<value>0</value>
+		</property>
+		<property name="value">
+			<value>-42</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{b046f561-9e89-4d9a-a705-dee08113626e}">
+		<property name="position">
+			<value>1</value>
+		</property>
+		<property name="value">
+			<value>0</value>
+		</property>
 	</object>
 	<object class="DataPluginParameter" id="{ed34fcea-09ab-4456-b449-da27db9c5ce0}">
 		<property name="name">
