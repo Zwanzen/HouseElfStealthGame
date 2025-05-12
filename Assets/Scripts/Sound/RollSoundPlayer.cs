@@ -53,8 +53,6 @@ public class RollSoundPlayer : MonoBehaviour
             _isSoundPlaying = false;
         }
 
-        Debug.Log($"Should: {shouldPlaySound}");
-
         // Update audio properties
         if (_isSoundPlaying)
         {

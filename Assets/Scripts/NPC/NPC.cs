@@ -3,6 +3,7 @@ using FMOD.Studio;
 using FMODUnity;
 using Pathfinding;
 using UnityEngine;
+using UnityEngine.UI;
 using static RigidbodyMovement;
 using static SoundGameplayManager;
 
@@ -11,6 +12,7 @@ public class NPC : MonoBehaviour, IHear
 {
     [Header("NPC Settings")]
     [SerializeField] private NPCType _npcType;
+    [SerializeField] private Slider _slider;
     [SerializeField] private NPCPath _path;
 
     [Space(10)] [Header("Movement Settings")] [SerializeField]
@@ -65,6 +67,8 @@ public class NPC : MonoBehaviour, IHear
         
         _movement.ArrivedAtTarget += OnReachedTarget;
         _movement.OnAnimStateChange += OnAnimStateChange;
+
+        _detector = new NPCDetector(this, _slider);
     }
 
     private void Start()

@@ -35,7 +35,7 @@ public class NPCFootStepper : MonoBehaviour
     {
         var sound = new Sound(transform.position, 5, 20)
         {
-            Duration = 0.2f
+            //Duration = 0.2f
         };
         Sounds.MakeSound(sound);
         _audioSource.clip = _footstepSounds[UnityEngine.Random.Range(0, _footstepSounds.Length)];
