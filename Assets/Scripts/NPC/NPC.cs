@@ -14,8 +14,6 @@ using Vector3 = UnityEngine.Vector3;
 [RequireComponent(typeof(Rigidbody), typeof(Seeker))]
 public class NPC : MonoBehaviour, IHear
 {
-    [SerializeField] private bool DebugMode = false;
-
     [Header("NPC Settings")]
     [SerializeField] private NPCType _npcType;
     [SerializeField] private Slider _slider;
