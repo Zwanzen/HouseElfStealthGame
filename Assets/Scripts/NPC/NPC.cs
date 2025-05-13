@@ -109,7 +109,6 @@ public class NPC : MonoBehaviour, IHear
         // If we reached POI when NPC went looking for it
         if (_detector.DetectionState != NPCDetector.EDetectionState.Default)
             _detector.AtPointOfInterest();
-
     }
 
     private void OnAnimStateChange(NPCAnimator.AnimState state)

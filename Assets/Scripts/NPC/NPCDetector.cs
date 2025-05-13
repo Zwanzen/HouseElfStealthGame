@@ -24,6 +24,7 @@ public class NPCDetector
         soundManager = SoundGameplayManager.Instance;
         _slider = slider;
         _limbs = player.Limbs;
+        _obstacleLayerMask = Obsticle;
     }
 
     public enum EDetectionState
@@ -195,8 +196,12 @@ public class NPCDetector
                 // we want to add detection
                 if (!soundInfo.Heard && newBufferTime <= 0)
                 {
+                    // Sound should not allow for 100% detection
+                    var maxDetection = 0.8f;
+                    var clampedVolume = Mathf.Clamp(soundInfo.Volume, 0, maxDetection - Detection);
+                    clampedVolume = Mathf.Max(0, clampedVolume); // Make sure it is not negative
                     // Add detection
-                    AddDetection(soundInfo.Volume, sound.Pos);
+                    AddDetection(clampedVolume, sound.Pos);
                     // Set the sound as heard
                     newSoundInfo.Heard = true;
                 }
@@ -251,16 +256,23 @@ public class NPCDetector
         valueToAdd += LimbVisible(_limbs[4]) ? 0.1f : 0f; // Right Leg
         valueToAdd += LimbVisible(_limbs[5]) ? 0.4f : 0f; // Torso
 
+
+
         // Brightness Controls multiplier
         valueToAdd *= _brightnessDetector.CurrentBrightness;
         // Detection is between 0 and 1
         valueToAdd /= 100f;
         // Make it delta time dependent
-        valueToAdd *= delta;
+        valueToAdd *= delta * 20f;
+        Debug.Log(valueToAdd);
+        if (valueToAdd <= 0)
+            return;
         AddDetection(valueToAdd, _player.Position);
     }
     private bool LimbVisible(Transform limb)
     {
+        var lineColor = !Physics.Linecast(_npc.EyesPos, limb.position, _obstacleLayerMask) ? Color.green : Color.red;
+        Debug.DrawLine(_npc.EyesPos, limb.position, lineColor);
         return !Physics.Linecast(_npc.EyesPos, limb.position, _obstacleLayerMask);
     }
 
