@@ -22,12 +22,14 @@ public class NPCAnimator
         {
             Idle,
             Walk,
+            WalkAlert,
         }
         
         private readonly Dictionary<AnimState, string> _animStateToBool = new Dictionary<AnimState, string>
         {
             { AnimState.Idle, "Idle" },
             { AnimState.Walk, "Walk" },
+            { AnimState.WalkAlert, "WalkAlert" },
         };
 
         // Used to set up new state

@@ -68,6 +68,7 @@ public class NPCDetector
     /// The point of interest for the NPC. This is the last known position of sound or sight.
     /// </summary>
     public Vector3 POI { get; private set; }
+    public bool PlayerInSight => IsPlayerVisible();
 
 
     // ___ Private Methods ___
@@ -247,27 +248,48 @@ public class NPCDetector
         if (angle > 45f)
             return;
 
-        // Limbs
-        var valueToAdd = 0f;
-        valueToAdd += LimbVisible(_limbs[0]) ? 0.2f : 0f; // Head
-        valueToAdd += LimbVisible(_limbs[1]) ? 0.1f : 0f; // Left Arm
-        valueToAdd += LimbVisible(_limbs[2]) ? 0.1f : 0f; // Right Arm
-        valueToAdd += LimbVisible(_limbs[3]) ? 0.1f : 0f; // Left Leg
-        valueToAdd += LimbVisible(_limbs[4]) ? 0.1f : 0f; // Right Leg
-        valueToAdd += LimbVisible(_limbs[5]) ? 0.4f : 0f; // Torso
+        // If the player is not visible, return
+        if (!IsPlayerVisible(out float valueToAdd))
+            return;
 
-
-
-        // Brightness Controls multiplier
-        valueToAdd *= _brightnessDetector.CurrentBrightness;
-        // Detection is between 0 and 1
-        valueToAdd /= 100f;
         // Make it delta time dependent
-        valueToAdd *= delta * 20f;
-        Debug.Log(valueToAdd);
+        valueToAdd *= delta * 0.2f;
         if (valueToAdd <= 0)
             return;
         AddDetection(valueToAdd, _player.Position);
+    }
+    /// <summary>
+    /// Check if the player is visible to the NPC. Output the value of the detection.
+    /// </summary>
+    private bool IsPlayerVisible(out float value)
+    {
+        value = 0f;
+        value += LimbVisible(_limbs[0]) ? 0.2f : 0f; // Head
+        value += LimbVisible(_limbs[1]) ? 0.1f : 0f; // Left Arm
+        value += LimbVisible(_limbs[2]) ? 0.1f : 0f; // Right Arm
+        value += LimbVisible(_limbs[3]) ? 0.1f : 0f; // Left Leg
+        value += LimbVisible(_limbs[4]) ? 0.1f : 0f; // Right Leg
+        value += LimbVisible(_limbs[5]) ? 0.4f : 0f; // Torso
+
+        // Brightness Controls multiplier
+        value *= _brightnessDetector.CurrentBrightness;
+        // If value is not over a threshold, return false
+        return value > 0.1f;
+    }
+    private bool IsPlayerVisible()
+    {
+        var value = 0f;
+        value += LimbVisible(_limbs[0]) ? 0.2f : 0f; // Head
+        value += LimbVisible(_limbs[1]) ? 0.1f : 0f; // Left Arm
+        value += LimbVisible(_limbs[2]) ? 0.1f : 0f; // Right Arm
+        value += LimbVisible(_limbs[3]) ? 0.1f : 0f; // Left Leg
+        value += LimbVisible(_limbs[4]) ? 0.1f : 0f; // Right Leg
+        value += LimbVisible(_limbs[5]) ? 0.4f : 0f; // Torso
+
+        // Brightness Controls multiplier
+        value *= _brightnessDetector.CurrentBrightness;
+        // If value is not over a threshold, return false
+        return value > 0.1f;
     }
     private bool LimbVisible(Transform limb)
     {

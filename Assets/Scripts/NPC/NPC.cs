@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using FMOD.Studio;
 using FMODUnity;
 using Pathfinding;
@@ -7,6 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static RigidbodyMovement;
 using static SoundGameplayManager;
+using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
 
 [RequireComponent(typeof(Rigidbody), typeof(Seeker))]
@@ -119,29 +121,29 @@ public class NPC : MonoBehaviour, IHear
     private NPCDetector.EDetectionState _lastDetectionState = NPCDetector.EDetectionState.Default;
     private void OnDetectionStateChange(NPCDetector.EDetectionState state)
     {
-        if (state != NPCDetector.EDetectionState.Default)
+        if (_lastDetectionState != NPCDetector.EDetectionState.Curious
+            && state == NPCDetector.EDetectionState.Curious)
         {
-            if(state == NPCDetector.EDetectionState.Curious)
-            {
-                // Stop movement
-                _movement.Stop();
-                _movement.SetTargetRotateTo(_detector.POI);
-            }
-
-            else if(state == NPCDetector.EDetectionState.Alert)
-            {
-                // Stop movement
-                _movement.Stop();
-                _movement.SetTarget(_detector.POI);
-            }
-
+            // Stop movement
+            _movement.Stop();
+            // After a few seconds, turn to the POI
+            StartCoroutine(CheckOutPOI(state, Random.Range(0.5f, 1.5f)));
             _lastDetectionState = state;
         }
-        else if(state == NPCDetector.EDetectionState.Default)
+        else if(_lastDetectionState!= NPCDetector.EDetectionState.Alert 
+            && state == NPCDetector.EDetectionState.Alert)
+        {
+            // Stop movement
+            _movement.Stop();
+            // After a few seconds, move to the POI
+            StartCoroutine(CheckOutPOI(state, Random.Range(0.5f, 1.5f)));
+            _lastDetectionState = state;
+        }
+        else if (state == NPCDetector.EDetectionState.Default)
         {
             _lastDetectionState = state;
             // Go back to default behavior
-            if(_npcType == NPCType.Patrol)
+            if (_npcType == NPCType.Patrol)
             {
                 _movement.SetTarget(_path);
             }
@@ -150,6 +152,17 @@ public class NPC : MonoBehaviour, IHear
                 _movement.SetTarget(_startPos);
             }
         }
+    }
+
+    private IEnumerator CheckOutPOI(NPCDetector.EDetectionState state,float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        // If we are curious, we want to turn to the POI
+        if (state == NPCDetector.EDetectionState.Curious)
+            _movement.SetTargetRotateTo(_detector.POI);
+        // If we are alert, we want to move to the POI
+        else if (state == NPCDetector.EDetectionState.Alert)
+            _movement.SetTarget(_detector.POI);
     }
 
     private RaycastHit[] _stepColliders = new RaycastHit[10];

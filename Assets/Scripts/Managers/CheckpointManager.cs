@@ -25,8 +25,13 @@ public class CheckpointManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        if(ActiveCheckpoint != null)
+        {
+            ActiveCheckpoint.Activate();
+        }
+
         // Set the starting checkpoint
-        if (startPoint != null)
+        if (startPoint != null && ActiveCheckpoint == null)
         {
             ActiveCheckpoint = startPoint;
             ActiveCheckpoint.Activate();

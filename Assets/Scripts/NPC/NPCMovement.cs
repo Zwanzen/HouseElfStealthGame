@@ -62,9 +62,12 @@ public class NPCMovement
     // ___ Anim ___
     private bool _readyForAnimChange = false;
     
-    // Events
+    // ___ Events ___
     public Action ArrivedAtTarget;
     public Action<NPCAnimator.AnimState> OnAnimStateChange;
+
+    // ___ Properties ___
+    public bool IsMoving => _targetType != TargetType.None;
 
     #region Pathing
     // Used by NPC to set either a path or a single point
