@@ -38,9 +38,7 @@ public class PlayerCameraController : MonoBehaviour
     
     private void Initialize()
     {
-        transform.SetParent(null);
         _player = PlayerController.Instance;
-        _followTarget = _player.Eyes;
         _cameraYTransform = transform;
         _cameraXTransform = transform.GetChild(0);
         _cameraTransform = _cameraXTransform.GetChild(0);
@@ -184,6 +182,7 @@ public class PlayerCameraController : MonoBehaviour
     public void TeleportToFollowTarget()
     {
         transform.position = _followTarget.position;
+        transform.parent = null;
     }
 
     public float CameraX => _xRotation;

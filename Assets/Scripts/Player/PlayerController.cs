@@ -256,7 +256,7 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// This is the new player position^
     /// </summary>
-    public Transform Eyes => _limbs[0];
+    public Vector3 EyePosition => _limbs[0].position;
     
     /// <summary>
     /// The threshold for the height difference to consider the player grounded.
@@ -385,6 +385,7 @@ public class PlayerController : MonoBehaviour
         // wait to next frame
         yield return new WaitForSeconds(0.1f);
 
+        _cameraController.TeleportToFollowTarget();
         _rigidbody.isKinematic = false;
         leftFoot.StartFoot();
         rightFoot.StartFoot();

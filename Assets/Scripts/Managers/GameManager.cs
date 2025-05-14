@@ -109,7 +109,7 @@ public class GameManager : MonoBehaviour
 
         // Now reload scene
         SceneManager.LoadScene(0);
-        isTransitioning = false; // Loaded the scene, so we are no longer transitioning
+        StartCoroutine(StopTransitionWithDelay()); 
 
         // Now decide what to do after the scene is loaded
         if (toState == MAINMENU)
@@ -122,10 +122,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private IEnumerator StopTransitionWithDelay()
+    {
+        yield return new WaitForSeconds(5);
+
+        isTransitioning = false;
+    }
+
     private IEnumerator TeleportAfterDelay()
     {
-        // Wait for the end of the frame to ensure all objects are initialized
-        yield return null;
+        yield return new WaitForSeconds(0.2f);
 
         // Teleport to the last checkpoint
         CheckpointManager.Instance.TeleportToLastCheckpoint();
