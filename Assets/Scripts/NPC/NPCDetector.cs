@@ -171,6 +171,7 @@ public class NPCDetector
                 Volume = newVolume,
                 BufferTime = newBufferTime,
                 Duration = newDuration,
+                Heard = soundInfo.Heard
             };
 
             // ___ Looping ___
@@ -196,6 +197,13 @@ public class NPCDetector
                 // we want to add detection
                 if (!soundInfo.Heard && newBufferTime <= 0)
                 {
+                    // Check if it is masked
+                    if (IsMasked(newVolume))
+                    {
+                        // If it is masked, remove the sound
+                        soundsToRemove.Add(sound);
+                        continue;
+                    }
                     // Sound should not allow for 100% detection
                     var maxDetection = 0.8f;
                     var clampedVolume = Mathf.Clamp(soundInfo.Volume, 0, maxDetection - Detection);
@@ -347,8 +355,8 @@ public class NPCDetector
         var soundInfo = new SoundInfo
         {
             Volume = volume,
-            BufferTime = 0.2f,
-            Duration = 0.3f
+            BufferTime = 0.05f,
+            Duration = 0.25f
         };
 
         // If the sound is not made by the player or a prop, set the buffer time to 0

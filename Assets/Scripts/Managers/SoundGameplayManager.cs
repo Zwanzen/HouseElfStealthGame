@@ -190,6 +190,7 @@ public class SoundGameplayManager : MonoBehaviour
         var settings = GetPlayerMaterialSettingsScaled(mat, GetMagnitudeScaled(mag));
         var sound = new Sound(pos, settings.Range, settings.Amplitude);
         sound.SoundType = Sound.ESoundType.Player;
+
         Sounds.MakeSound(sound);
 
         // Then, play the FMOD sound.
