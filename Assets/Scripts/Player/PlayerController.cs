@@ -256,7 +256,7 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// This is the new player position^
     /// </summary>
-    public Vector3 EyePosition => _limbs[0].position;
+    public Transform Eyes => _limbs[0];
     
     /// <summary>
     /// The threshold for the height difference to consider the player grounded.
@@ -373,6 +373,9 @@ public class PlayerController : MonoBehaviour
         // Reset the velocity of the player
         _rigidbody.linearVelocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
+
+        // Teleport Camera
+        _cameraController.TeleportToFollowTarget();
 
         StartCoroutine(ExecuteAfterTeleport());
     }

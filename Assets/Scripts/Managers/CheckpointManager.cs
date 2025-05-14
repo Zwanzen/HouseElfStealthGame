@@ -4,7 +4,8 @@ using UnityEngine;
 /// This class is responsible for managing checkpoints in the game.
 /// </summary>
 public class CheckpointManager : MonoBehaviour
-{ 
+{
+    [SerializeField] private Checkpoint[] checkpoints;
     [SerializeField] private Checkpoint startPoint;
 
     // Properties
@@ -24,25 +25,39 @@ public class CheckpointManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
 
-        if(ActiveCheckpoint != null)
+    // ___ Private methods ___
+    private void SetFirstCheckpoint()
+    {
+        // Reset all checkpoints
+        foreach (var checkpoint in checkpoints)
         {
-            ActiveCheckpoint.Activate();
+            checkpoint.Reset();
         }
 
-        // Set the starting checkpoint
-        if (startPoint != null && ActiveCheckpoint == null)
+        // Set the first checkpoint as the active checkpoint
+        if (startPoint != null)
         {
             ActiveCheckpoint = startPoint;
             ActiveCheckpoint.Activate();
         }
         else
         {
-            Debug.LogWarning("No starting checkpoint assigned.");
+            ActiveCheckpoint = checkpoints[0];
+            ActiveCheckpoint.Activate();
         }
     }
 
-    // Public methods
+    // ___ Public methods ___
+    /// <summary>
+    /// Called when the game starts, or initilizes.
+    /// </summary>
+    public void OnGameInitialize()
+    {
+        SetFirstCheckpoint();
+    }
+
     public void ActivateCheckpoint(Checkpoint checkpoint)
     {
         // Deactivate the previous checkpoint if it exists
@@ -55,5 +70,16 @@ public class CheckpointManager : MonoBehaviour
         ActiveCheckpoint = checkpoint;
         ActiveCheckpoint.Activate();
 
+    }
+
+    public void TeleportToLastCheckpoint()
+    {
+        if(ActiveCheckpoint == null)
+        {
+            Debug.LogError("No active checkpoint to teleport to.");
+            return;
+        }
+        Debug.Log($"Teleporting to checkpoint: {ActiveCheckpoint}");
+        PlayerController.Instance.Teleport(ActiveCheckpoint.RespawnPosition, ActiveCheckpoint.RespawnDirection);
     }
 }
