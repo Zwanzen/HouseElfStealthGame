@@ -4,6 +4,7 @@ using FMOD.Studio;
 using FMODUnity;
 using Pathfinding;
 using SteamAudio;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static RigidbodyMovement;
@@ -14,6 +15,10 @@ using Vector3 = UnityEngine.Vector3;
 [RequireComponent(typeof(Rigidbody), typeof(Seeker))]
 public class NPC : MonoBehaviour, IHear
 {
+    [Header("Debug")]
+    [SerializeField] private TextMeshProUGUI _debugText;
+
+    [Space(10)]
     [Header("NPC Settings")]
     [SerializeField] private NPCType _npcType;
     [SerializeField] private Slider _slider;
@@ -36,6 +41,7 @@ public class NPC : MonoBehaviour, IHear
     private Animator _anim;
     private FMODUnity.StudioEventEmitter _soundEmitter;
     private PlayerController _player;
+    private Vector3 _soundPosOffset;
 
     private Vector3 _startPos;
 
@@ -54,20 +60,21 @@ public class NPC : MonoBehaviour, IHear
     // Properties
     public Rigidbody Rigidbody => _rigidbody;
     public Vector3 Position => _rigidbody.position;
+    public Vector3 SoundPosition => _rigidbody.position + _soundPosOffset;
     public MovementSettings MovementSettings => _settings;
     public Vector3 EyesPos => _eyes.position;
+    public TextMeshProUGUI DebugText => _debugText;
 
-    SteamAudioListener listener;
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
         _anim = GetComponentInChildren<Animator>();
         _soundEmitter = GetComponentInChildren<StudioEventEmitter>();
 
-        listener = GetComponentInChildren<SteamAudioListener>();
-
         // Used for stationary NPCs
         _startPos = transform.position;
+        // Used to calculate the sound position
+        _soundPosOffset = Position - _soundEmitter.transform.position;
     }
 
     private void Start()
@@ -163,27 +170,19 @@ public class NPC : MonoBehaviour, IHear
             _movement.SetTarget(_detector.POI);
     }
 
-    private RaycastHit[] _stepColliders = new RaycastHit[10];
     private void PlayFootSound()
     {
         // Check colliders below the foot for tag
-        var amouont = Physics.SphereCastNonAlloc(transform.position + Vector3.up * 0.3f, 0.18f,Vector3.down, _stepColliders, 1f, _groundLayers);
+        var layer = _groundLayers;
+        // Ignore Props
+        layer &= ~(1 << LayerMask.NameToLayer("Props"));
+        var amouont = Physics.SphereCast(transform.position + Vector3.up * 0.3f, 0.18f,Vector3.down, out var hit, 1f, layer);
 
-        // Loop through and return the first working tag
-        var material = EMaterialTag.None;
-        for (int i = 0; i < amouont; i++)
-        {
-            var tag = _stepColliders[i].collider.tag;
-            if (tag == "Untagged")
-                continue;
-            var m = SoundGameplayManager.Instance.TryGetMaterialFromTag(tag);
-            if (m == EMaterialTag.None)
-                continue;
-            else
-                material = m;
-        }
+        var tag = hit.collider.tag;
+        var material = SoundGameplayManager.Instance.TryGetMaterialFromTag(tag);
 
-        SoundGameplayManager.Instance.PlayGuardStep(_soundEmitter, material);
+
+        SoundGameplayManager.Instance.PlayGuardStep(_soundEmitter, material,SoundPosition);
 
     }
 

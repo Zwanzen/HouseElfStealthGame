@@ -79,7 +79,6 @@ public class CheckpointManager : MonoBehaviour
             Debug.LogError("No active checkpoint to teleport to.");
             return;
         }
-        Debug.Log($"Teleporting to checkpoint: {ActiveCheckpoint}");
         PlayerController.Instance.Teleport(ActiveCheckpoint.RespawnPosition, ActiveCheckpoint.RespawnDirection);
     }
 }

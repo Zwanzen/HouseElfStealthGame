@@ -119,6 +119,24 @@ public class SoundGameplayManager : MonoBehaviour
         return settings;
     }
 
+    private MaterialSettings GetGuardMaterialSettingsScaled(EMaterialTag mat)
+    {
+        MaterialSettings settings = mat switch
+        {
+            EMaterialTag.Carpet => carpetSettings,
+            EMaterialTag.Metal => metalSettings,
+            EMaterialTag.Stone => stoneSettings,
+            EMaterialTag.Water => waterSettings,
+            EMaterialTag.Wood => woodSettings,
+            // Default case to Wood
+            _ => woodSettings
+        };
+        // Scale the settings to guard settings.
+        settings.Range *= 1f;
+        settings.Amplitude *= 1f;
+        return settings;
+    }
+
     /// <summary>
     /// FMOD magnitude only goes from 0 to 1, so we need to scale the magnitude.
     /// It should also be scaled by the min and max magnitude settings.
@@ -183,8 +201,14 @@ public class SoundGameplayManager : MonoBehaviour
         emitter.SetParameter(PARAM.MAGNITUDE, GetMagnitudeScaled(mag));
     }
 
-    public void PlayGuardStep(StudioEventEmitter emitter, EMaterialTag mat)
+    public void PlayGuardStep(StudioEventEmitter emitter, EMaterialTag mat, Vector3 pos)
     {
+        // First, create and play the game logic sound.
+        var settings = GetGuardMaterialSettingsScaled(mat);
+        var sound = new Sound(pos, settings.Range, settings.Amplitude);
+        sound.SoundType = Sound.ESoundType.Environment;
+        Sounds.MakeSound(sound);
+
         // We dont need game logic sound rn
         // Play the FMOD sound.
         emitter.EventReference = guardFootsteps;

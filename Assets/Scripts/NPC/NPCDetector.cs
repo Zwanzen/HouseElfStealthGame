@@ -144,13 +144,16 @@ public class NPCDetector
 
     private void HandleSoundUpdate(float delta)
     {
+        DebugHeardSounds();
+
         // If we dont have any sounds, return
         if (_heardSounds.Count == 0)
             return;
 
         // Now we want to update buffer times, durations, and volumes
         // We can use native arrays to make this more performant by storing the index instead of the sound
-        NativeArray<int> soundsToRemove = new NativeArray<int>(_heardSounds.Count, Allocator.Temp);
+        List<Sound> soundsToRemove = new List<Sound>();
+
         for (int i = 0; i < _heardSounds.Count; i++)
         {
             var soundPair = _heardSounds.ElementAt(i);
@@ -159,14 +162,10 @@ public class NPCDetector
 
             // Updated sound values
             var newVolume = sound.SoundType != Sound.ESoundType.Player ||
-                sound.SoundType != Sound.ESoundType.Props ? soundManager.GetSoundVolume(sound, _npc.Position) : soundInfo.Volume;
+                sound.SoundType != Sound.ESoundType.Props ? soundManager.GetSoundVolume(sound, _npc.Position)
+                : soundInfo.Volume;
             var newBufferTime = soundInfo.BufferTime - delta;
-            var newDuration = soundInfo.Duration;
-            if (newBufferTime <= 0)
-            {
-                newBufferTime = 0;
-                newDuration -= delta;
-            }
+            var newDuration = newBufferTime <= 0? soundInfo.Duration - delta : soundInfo.Duration;
             var newSoundInfo = new SoundInfo
             {
                 Volume = newVolume,
@@ -182,7 +181,7 @@ public class NPCDetector
 
                 // If the volume is less than 0, remove the sound
                 if (newVolume <= 0)
-                    soundsToRemove[i] = i;
+                    soundsToRemove.Add(sound);
                 // Else update the sound info
                 else
                     _heardSounds[sound] = newSoundInfo;
@@ -208,7 +207,7 @@ public class NPCDetector
                 }
                 // If the duration is less than 0, remove the sound
                 if (newDuration <= 0)
-                    soundsToRemove[i] = i;
+                    soundsToRemove.Add(sound);
                 // Else update the sound info
                 else
                     _heardSounds[sound] = newSoundInfo;
@@ -219,22 +218,18 @@ public class NPCDetector
             {
                 // If the duration is less than 0, remove the sound
                 if (newDuration <= 0)
-                    soundsToRemove[i] = i;
+                    soundsToRemove.Add(sound);
                 // Else update the sound info
                 else
                     _heardSounds[sound] = newSoundInfo;
             }
         }
         // Remove the sounds
-        for (int i = 0; i < soundsToRemove.Length; i++)
+        foreach (var sound in soundsToRemove)
         {
-            if (soundsToRemove[i] == -1)
-                continue;
-            var sound = _heardSounds.ElementAt(soundsToRemove[i]).Key;
+            // Remove the sound from the heard sounds
             _heardSounds.Remove(sound);
         }
-        // Dispose of the native array
-        soundsToRemove.Dispose();
     }
 
     private void HandleVisionUpdate(float delta)
@@ -298,6 +293,21 @@ public class NPCDetector
         return !Physics.Linecast(_npc.EyesPos, limb.position, _obstacleLayerMask);
     }
 
+    private void DebugHeardSounds()
+    {
+        // Display the heard sounds, duration, buffer time, and volume
+        // Do this in the debug text on NPC
+        if (_npc.DebugText == null)
+            return;
+        _npc.DebugText.text = "Heard Sounds:\n";
+        foreach (var soundPair in _heardSounds)
+        {
+            var sound = soundPair.Key;
+            var soundInfo = soundPair.Value;
+            _npc.DebugText.text += $"{sound.SoundType} - Buffer Time: {soundInfo.BufferTime} - Duration {soundInfo.Duration}\n";
+        }
+    }
+
     // ___ Public Methods ___
 
     /// <summary>
@@ -337,13 +347,12 @@ public class NPCDetector
         var soundInfo = new SoundInfo
         {
             Volume = volume,
-            BufferTime = _bufferTime,
-            Duration = 0.5f
+            BufferTime = 0.2f,
+            Duration = 0.3f
         };
 
         // If the sound is not made by the player or a prop, set the buffer time to 0
-        if (sound.SoundType != Sound.ESoundType.Player ||
-           sound.SoundType != Sound.ESoundType.Props)
+        if (sound.SoundType == Sound.ESoundType.Environment)
             soundInfo.BufferTime = 0f;
 
 
@@ -365,7 +374,9 @@ public class NPCDetector
 
         // Now if a sound is added, we want to make sure any lower sounds
         // are removed from the heard sounds. This is to make sure sounds,
-        // with buffer times are removed.
+        // with buffer times are removed. Unless this added sound is also a buffer time sound
+        if (soundInfo.BufferTime > 0)
+            return;
         var soundsToRemove = new List<Sound>();
         foreach (var soundPair in _heardSounds)
         {
