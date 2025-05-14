@@ -15,8 +15,8 @@ GameObject:
   - component: {fileID: 1663945105526961626}
   - component: {fileID: 55311588262013152}
   - component: {fileID: 1821510774503487857}
-  - component: {fileID: 1524966291886331027}
   - component: {fileID: -7555541726600914444}
+  - component: {fileID: 495121459513179329}
   m_Layer: 30
   m_Name: Bottle4
   m_TagString: Untagged
@@ -185,38 +185,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.09056779
   m_Center: {x: -0.000040113926, y: 0.09095376, z: -0.00002925843}
---- !u!114 &1524966291886331027
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2941117294501594556}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: -418440684
-      Data2: 1218744250
-      Data3: -290803277
-      Data4: 722966725
-    Path: event:/Environment & Props/Physics/Bottles, Cups & Flagons/Glass Bottles/Glass
-      Bottle Impacts
-  Event: 
-  EventPlayTrigger: 7
-  EventStopTrigger: 8
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: 1
-  OverrideMaxDistance: 20
 --- !u!114 &-7555541726600914444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299,6 +267,33 @@ MonoBehaviour:
   - 0
   applyHRTFToPathing: 0
   pathingMixLevel: 1
+--- !u!114 &495121459513179329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2941117294501594556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundEvent:
+    Guid:
+      Data1: -418440684
+      Data2: 1218744250
+      Data3: -290803277
+      Data4: 722966725
+    Path: event:/Environment & Props/Physics/Kitchenware/Glass Bottles/Glass Bottle
+      Impacts
+  _soundType: 2
+  _soundRange: 10
+  _soundAmplitude: 7
+  _maxCollisionForce: 3
+  _minCollisionForce: 0.1
+  _minMagnitude: 0.1
+  _timeBetweenSounds: 0.1
 --- !u!1001 &2818661732772939436
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -307,6 +302,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6093588074585759621}
     m_Modifications:
+    - target: {fileID: -6834461226642202098, guid: 806b72e97910faf46b9467395f9d58e6, type: 3}
+      propertyPath: _soundEvent.Path
+      value: event:/Environment & Props/Physics/Kitchenware/Cork/Cork Impact
+      objectReference: {fileID: 0}
     - target: {fileID: 1002178741774041711, guid: 806b72e97910faf46b9467395f9d58e6, type: 3}
       propertyPath: EventPlayTrigger
       value: 0

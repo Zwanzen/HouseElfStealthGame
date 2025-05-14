@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 6896817335435368269}
   - component: {fileID: -2905661904853570477}
   - component: {fileID: 4490757229379767038}
-  - component: {fileID: -27599520034226233}
   - component: {fileID: 7095864622062477869}
+  - component: {fileID: 1387657592069560167}
   m_Layer: 30
   m_Name: JarCork
   m_TagString: Untagged
@@ -139,37 +139,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &-27599520034226233
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4074988461468056564}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
-  Event: 
-  EventPlayTrigger: 7
-  EventStopTrigger: 8
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: -1
-  OverrideMaxDistance: -1
 --- !u!114 &7095864622062477869
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,3 +221,29 @@ MonoBehaviour:
   - 0
   applyHRTFToPathing: 0
   pathingMixLevel: 1
+--- !u!114 &1387657592069560167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4074988461468056564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundEvent:
+    Guid:
+      Data1: -1119614999
+      Data2: 1092180195
+      Data3: 1625870487
+      Data4: -1617262561
+    Path: event:/Environment & Props/Physics/Kitchenware/Cork/Cork Impact
+  _soundType: 2
+  _soundRange: 4
+  _soundAmplitude: 4
+  _maxCollisionForce: 3
+  _minCollisionForce: 0.1
+  _minMagnitude: 0.1
+  _timeBetweenSounds: 0.1

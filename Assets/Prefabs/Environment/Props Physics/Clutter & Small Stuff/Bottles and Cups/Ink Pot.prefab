@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 4666070247577048065}
   - component: {fileID: 3527476060363492782}
   - component: {fileID: 8069765344327862720}
-  - component: {fileID: -1823333894363586967}
   - component: {fileID: 5993047382098021658}
+  - component: {fileID: 8891168577907987521}
   m_Layer: 30
   m_Name: Ink Pot
   m_TagString: Untagged
@@ -141,37 +141,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &-1823333894363586967
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1224355906482197276}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
-  Event: 
-  EventPlayTrigger: 7
-  EventStopTrigger: 8
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: -1
-  OverrideMaxDistance: -1
 --- !u!114 &5993047382098021658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -254,6 +223,33 @@ MonoBehaviour:
   - 0
   applyHRTFToPathing: 0
   pathingMixLevel: 1
+--- !u!114 &8891168577907987521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1224355906482197276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundEvent:
+    Guid:
+      Data1: -418440684
+      Data2: 1218744250
+      Data3: -290803277
+      Data4: 722966725
+    Path: event:/Environment & Props/Physics/Kitchenware/Glass Bottles/Glass Bottle
+      Impacts
+  _soundType: 2
+  _soundRange: 8
+  _soundAmplitude: 6
+  _maxCollisionForce: 3
+  _minCollisionForce: 0.1
+  _minMagnitude: 0.1
+  _timeBetweenSounds: 0.1
 --- !u!1001 &3719826811491479419
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -331,6 +327,10 @@ PrefabInstance:
     - target: {fileID: -27599520034226233, guid: 7d61e84cb9dd83e45a2b7db1039437a8, type: 3}
       propertyPath: EventStopTrigger
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1387657592069560167, guid: 7d61e84cb9dd83e45a2b7db1039437a8, type: 3}
+      propertyPath: _soundEvent.Path
+      value: event:/Environment & Props/Physics/Kitchenware/Cork/Cork Impact
       objectReference: {fileID: 0}
     - target: {fileID: 2884568267112413657, guid: 7d61e84cb9dd83e45a2b7db1039437a8, type: 3}
       propertyPath: m_LocalPosition.x

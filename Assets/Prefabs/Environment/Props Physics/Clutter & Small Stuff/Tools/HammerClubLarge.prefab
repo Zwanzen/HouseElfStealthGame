@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 1623922083006079019}
   - component: {fileID: 5605148625339949132}
   - component: {fileID: 7821287029265302298}
-  - component: {fileID: -180982175909678338}
   - component: {fileID: 6742491020971563302}
+  - component: {fileID: 8079602046545173671}
   m_Layer: 30
   m_Name: HammerClubLarge
   m_TagString: Untagged
@@ -102,7 +102,7 @@ Rigidbody:
   m_Mass: 8
   m_Drag: 0
   m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_CenterOfMass: {x: 0, y: 0.44, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
@@ -111,7 +111,7 @@ Rigidbody:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_ImplicitCom: 1
+  m_ImplicitCom: 0
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
@@ -125,7 +125,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 475734620318371617}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 9e1dc1a50da09e249885f1509bb4264c, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -148,7 +148,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 475734620318371617}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: f0ea1395ed2a35344b70ea160559dde9, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -162,37 +162,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.20000005, y: 0.100000024, z: 0.100000024}
   m_Center: {x: 0, y: 0.44333333, z: 0}
---- !u!114 &-180982175909678338
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 475734620318371617}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
-  Event: 
-  EventPlayTrigger: 7
-  EventStopTrigger: 8
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: -1
-  OverrideMaxDistance: -1
 --- !u!114 &6742491020971563302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275,3 +244,29 @@ MonoBehaviour:
   - 0
   applyHRTFToPathing: 0
   pathingMixLevel: 1
+--- !u!114 &8079602046545173671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 475734620318371617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundEvent:
+    Guid:
+      Data1: 1696974498
+      Data2: 1257587859
+      Data3: 1821396648
+      Data4: -1093816792
+    Path: event:/Environment & Props/Physics/Hammers/Hammer Impact
+  _soundType: 2
+  _soundRange: 7
+  _soundAmplitude: 7
+  _maxCollisionForce: 3
+  _minCollisionForce: 1.5
+  _minMagnitude: 0.1
+  _timeBetweenSounds: 0.1

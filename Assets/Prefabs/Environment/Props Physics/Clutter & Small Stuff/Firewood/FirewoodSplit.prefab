@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 79843513520313129}
   - component: {fileID: -3840560972824139515}
   - component: {fileID: -5692480055649907660}
-  - component: {fileID: 6758165648359818077}
   - component: {fileID: 7539163161594430823}
+  - component: {fileID: 2435800542708706655}
   m_Layer: 30
   m_Name: FirewoodSplit
   m_TagString: Untagged
@@ -139,37 +139,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &6758165648359818077
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3350619555372357487}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
-  Event: 
-  EventPlayTrigger: 0
-  EventStopTrigger: 0
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: -1
-  OverrideMaxDistance: -1
 --- !u!114 &7539163161594430823
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,13 +167,13 @@ MonoBehaviour:
   dipoleWeight: 0
   dipolePower: 0
   directivityValue: 1
-  occlusion: 0
+  occlusion: 1
   occlusionInput: 0
   occlusionType: 0
   occlusionRadius: 1
   occlusionSamples: 16
   occlusionValue: 1
-  transmission: 0
+  transmission: 1
   transmissionType: 0
   transmissionInput: 0
   transmissionLow: 1
@@ -252,3 +221,29 @@ MonoBehaviour:
   - 0
   applyHRTFToPathing: 0
   pathingMixLevel: 1
+--- !u!114 &2435800542708706655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3350619555372357487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98c08d1847159044b2bd869482f973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundEvent:
+    Guid:
+      Data1: -1987510621
+      Data2: 1296956569
+      Data3: -1714881916
+      Data4: -960111519
+    Path: event:/Environment & Props/Physics/Firewood & Planks/Log Impact
+  _soundType: 2
+  _soundRange: 6
+  _soundAmplitude: 6
+  _maxCollisionForce: 3
+  _minCollisionForce: 0.2
+  _minMagnitude: 0.1
+  _timeBetweenSounds: 0.1
