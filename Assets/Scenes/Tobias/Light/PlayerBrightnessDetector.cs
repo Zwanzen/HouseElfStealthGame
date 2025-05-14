@@ -22,6 +22,10 @@ public class PlayerBrightnessDetector : MonoBehaviour
     private const float MAX_UPDATE_INTERVAL = 1.0f;   // Max 1 sec interval
 
     // --- Inspector Variables ---
+    [Header("Visibility UI")]
+    [SerializeField] private Image visibilityImage; // UI Image to show visibility level
+    [SerializeField] private Sprite[] visibilitySprites; // Array of 4 sprites (0 = hidden, 3 = fully visible)
+
     [Header("Core Settings")]
     [Tooltip("Center of the detection sphere. Uses this GameObject if null.")]
     [SerializeField] private Transform detectionCenterTransform;
@@ -59,8 +63,6 @@ public class PlayerBrightnessDetector : MonoBehaviour
     [SerializeField] private int sphereResolution = 16;
 
     [Header("Debugging & UI")]
-    [Tooltip("Optional UI Slider for brightness.")]
-    [SerializeField] private Slider brightnessSlider;
     [Tooltip("How quickly the UI slider interpolates to the target brightness.")]
     [Range(1f, 20f)]
     [SerializeField] private float sliderLerpSpeed = 8f;
@@ -136,11 +138,19 @@ public class PlayerBrightnessDetector : MonoBehaviour
                 DrawPlayModeDebugLines(center);
             }
         }
+        UpdateVisibilityUI();
+    }
 
-        if (brightnessSlider != null)
-        {
-            brightnessSlider.value = Mathf.Lerp(brightnessSlider.value, _currentBrightness, Time.deltaTime * sliderLerpSpeed);
-        }
+    private void UpdateVisibilityUI()
+    {
+        if (visibilityImage == null || visibilitySprites == null || visibilitySprites.Length == 0)
+            return;
+
+        // Map brightness (0-1) to an index
+        int index = Mathf.Clamp(Mathf.FloorToInt(_currentBrightness * (visibilitySprites.Length - 0.01f)), 0, visibilitySprites.Length - 1);
+        if (index == 0 && CurrentBrightness >= 0.05)
+            index = 1;
+        visibilityImage.sprite = visibilitySprites[index];
     }
 
     // --- Core Logic ---
