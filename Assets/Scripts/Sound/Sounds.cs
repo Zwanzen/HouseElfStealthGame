@@ -16,11 +16,9 @@ public static class Sounds
             if (col.TryGetComponent(out IHear hear))
             {
                 hear.RespondToSound(sound);
-                SpawnDebug(col.ClosestPoint(sound.Pos), 0.2f, -1);
             }
         }
 
-        SpawnDebug(sound.Pos, sound.Range*2, GetSoundTypeColor(sound.SoundType));
     }
 
     private static void SpawnDebug(Vector3 pos, float radius, int color)
