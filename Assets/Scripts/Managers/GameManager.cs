@@ -1,3 +1,4 @@
+using FMOD.Studio;
 using FMODUnity;
 using System;
 using System.Collections;
@@ -56,6 +57,7 @@ public class GameManager : MonoBehaviour
     private bool isMainMenu = false; // Is the main menu currently open
 
     private InputManager inputManager; // Reference to the input manager
+    public Bus masterBus;
 
     private void Awake()
     {
@@ -69,6 +71,8 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        masterBus = RuntimeManager.GetBus("bus:/");
     }
 
     private void Start()
@@ -308,6 +312,7 @@ public class GameManager : MonoBehaviour
             sensitivitySlider2.value = _storedSensitivity;
             brightnessSlider2.value = _storedBrightness;
         }
+
     }
 
     private bool isSettings;
@@ -317,7 +322,7 @@ public class GameManager : MonoBehaviour
         if(!isSettings)
             return;
 
-        if (isMainMenu)
+        if (!isMainMenu)
         {
             _storedBrightness = brightnessSlider.value;
             _storedSensitivity = sensitivitySlider.value;
@@ -329,6 +334,11 @@ public class GameManager : MonoBehaviour
             _storedSensitivity = sensitivitySlider2.value;
             _storedVolume = volumeSlider2.value;
         }
+
+
+
+        masterBus.setVolume(_storedVolume);
+
     }
 
     public void GoSettings(bool isMenu)

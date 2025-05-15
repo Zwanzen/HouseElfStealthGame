@@ -513,7 +513,7 @@ public class NPCMovement
     {
         HandleMovement(delta);
         HandleRotation(delta);
-        HandleStuck(delta);
+        //HandleStuck(delta);
         RigidbodyFloat();
     }
 
