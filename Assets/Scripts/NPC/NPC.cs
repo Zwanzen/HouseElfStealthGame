@@ -137,7 +137,16 @@ public class NPC : MonoBehaviour, IHear
     {
         // If we reached POI when NPC went looking for it
         if (_detector.DetectionState != NPCDetector.EDetectionState.Default)
+        {
             _detector.AtPointOfInterest();
+            return;
+        }
+
+        // If we got stuck, we want to restart npc movement
+        if (Type == NPCType.Patrol)
+            _movement.SetTarget(_path);
+        else if (Type == NPCType.Stationary)
+            _movement.SetTarget(_startPos);
     }
 
     private void OnAnimStateChange(NPCAnimator.AnimState state)
@@ -292,6 +301,14 @@ public class NPC : MonoBehaviour, IHear
     public void OnSnoreAnimation()
     {
         SoundGameplayManager.Instance.PlayGuardSnore(_snoreEmitter, SnorePosition);
+    }
+
+    public void FoundPlayer()
+    {
+        // Play reaction sound
+        PlayReactionSound(3);
+        // Loose
+        GameManager.Instance.GameOver();
     }
 
     /// <summary>

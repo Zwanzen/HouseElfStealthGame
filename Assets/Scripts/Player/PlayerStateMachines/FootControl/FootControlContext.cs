@@ -303,6 +303,8 @@ public class FootControlContext
         if (!Physics.BoxCast(position, size, Vector3.down, out var hit, rotation, size.y * 2f, layers))
             return;
         var material = SoundGameplayManager.Instance.TryGetMaterialFromTag(hit.collider.tag);
-        SoundGameplayManager.Instance.PlayPlayerStepAtPosition(Foot.SoundEmitter, material, Foot.Position, Mathf.Clamp(Foot.Momentum, 0.1f, Foot.Momentum));
+        var mag = Mathf.Clamp(Foot.Momentum, 0.1f, Foot.Momentum);
+        mag *= _player.CurrentPlayerSpeed;
+        SoundGameplayManager.Instance.PlayPlayerStepAtPosition(Foot.SoundEmitter, material, Foot.Position, mag);
     }
 }

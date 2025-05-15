@@ -85,6 +85,12 @@ public class NPCDetector
         else if (Detection > 0.33f)
             UpdateDetection(EDetectionState.Curious, pos);
 
+        // If detection == 1, we loose
+        if(Detection >= 1f)
+        {
+            _npc.FoundPlayer();
+        }
+
     }
 
     private void UpdateDetection(EDetectionState state, Vector3 pos)

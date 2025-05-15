@@ -513,8 +513,38 @@ public class NPCMovement
     {
         HandleMovement(delta);
         HandleRotation(delta);
+        HandleStuck(delta);
         RigidbodyFloat();
     }
 
-    
+    // In case we get stuck
+    private float _stuckTimer = 0f;
+    private void HandleStuck(float delta)
+    {
+        if(_targetType == TargetType.None)
+            return;
+
+        // We need to check if we are stuck
+        var velocity = _npc.Rigidbody.linearVelocity;
+        velocity.y = 0f;
+        var speed = velocity.magnitude;
+        if (speed < 0.1f)
+        {
+            _stuckTimer += delta;
+            if (_stuckTimer > 2f)
+            {
+                // We need to end the path
+                _reachedEndOfPath = true;
+                ArrivedAtTarget?.Invoke();
+                ClearTargets();
+                _stuckTimer = 0f;
+            }
+        }
+        else
+        {
+            _stuckTimer = 0f;
+        }
+    }
+
+
 }
