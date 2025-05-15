@@ -82,9 +82,6 @@
 		</relationship>
 	</object>
 	<object class="EventMixerMaster" id="{29265d17-1f45-46fd-98a1-972ab38551bb}">
-		<property name="volume">
-			<value>10</value>
-		</property>
 		<relationship name="effectChain">
 			<destination>{2cbf0e9d-e174-48ca-860a-5b5442ac4a4a}</destination>
 		</relationship>
@@ -225,7 +222,6 @@
 		<property name="name">
 			<value>SourcePos</value>
 		</property>
-		<property name="value" />
 		<property name="dataType">
 			<value>-2</value>
 		</property>
@@ -234,7 +230,6 @@
 		<property name="name">
 			<value>OverallGain</value>
 		</property>
-		<property name="value" />
 		<property name="dataType">
 			<value>-1</value>
 		</property>
@@ -322,7 +317,7 @@
 			<value>ApplyPath</value>
 		</property>
 		<property name="value">
-			<value>false</value>
+			<value>true</value>
 		</property>
 	</object>
 	<object class="IntPluginParameter" id="{4c73aca2-1de9-4f3c-a67a-de8bd530dc08}">
@@ -355,7 +350,7 @@
 			<value>DAType</value>
 		</property>
 		<property name="value">
-			<value>0</value>
+			<value>2</value>
 		</property>
 		<property name="minimumValue">
 			<value>0</value>
@@ -369,7 +364,7 @@
 			<value>DAMinDist</value>
 		</property>
 		<property name="value">
-			<value>20</value>
+			<value>5</value>
 		</property>
 		<property name="curve">
 			<value>{(0.000000,0.000000)(1.000000,10000.000000)}</value>
@@ -380,7 +375,7 @@
 			<value>DAMaxDist</value>
 		</property>
 		<property name="value">
-			<value>100</value>
+			<value>50</value>
 		</property>
 		<property name="curve">
 			<value>{(0.000000,0.000000)(1.000000,10000.000000)}</value>
@@ -563,7 +558,6 @@
 		<property name="name">
 			<value>SimOutputs</value>
 		</property>
-		<property name="value" />
 		<property name="dataType">
 			<value>0</value>
 		</property>
@@ -573,14 +567,13 @@
 			<value>DirectBinaural</value>
 		</property>
 		<property name="value">
-			<value>true</value>
+			<value>false</value>
 		</property>
 	</object>
 	<object class="DataPluginParameter" id="{b17c5e47-ffc2-4ffe-abc1-0bdcbb16b77a}">
 		<property name="name">
 			<value>DistRange</value>
 		</property>
-		<property name="value" />
 		<property name="dataType">
 			<value>-6</value>
 		</property>
