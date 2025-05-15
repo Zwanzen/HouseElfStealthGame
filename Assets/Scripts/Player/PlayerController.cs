@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private FullBodyBipedIK _bodyIK;
     [SerializeField] private Animator _anim;
     [SerializeField] private PlayerCameraController _cameraController;
+    [SerializeField] private Canvas _playerUI;
 
     [Space(10f)]
     [Header("Common")]
@@ -391,6 +392,11 @@ public class PlayerController : MonoBehaviour
         // Start the feet
         leftFoot.StartFoot();
         rightFoot.StartFoot();
+    }
+
+    public void ToggleUI(bool active)
+    {
+        _playerUI.gameObject.SetActive(active);
     }
 
     private IEnumerator ExecuteAfterTeleport()

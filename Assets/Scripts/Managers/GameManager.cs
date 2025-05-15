@@ -78,10 +78,11 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        GameInitialize();
 
         // Get the input manager
         inputManager = InputManager.Instance;
+        GameInitialize();
+
     }
 
 
@@ -248,6 +249,10 @@ public class GameManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         // Stop input
         inputManager.DisableInputs();
+
+        // Stop anything else
+        _isCollectingTreasure = false;
+        PlayerController.Instance.ToggleUI(false);
     }
 
     /// <summary>
@@ -423,5 +428,29 @@ public class GameManager : MonoBehaviour
         // Teleport to the last checkpoint
         // Add a small delay to ensure player is initialized
         StartCoroutine(TeleportAfterDelay());
+    }
+
+
+    private bool _isCollectingTreasure = false; // Is the player currently collecting treasure
+    public void CollectTreasure()
+    {
+        // Collect the treasure
+        _isCollectingTreasure = true;
+        // Inputs off
+        inputManager.DisableInputs();
+
+        // Turn on fade
+        fadeTimer = 1;
+
+    }
+
+    public void TreasureCollected()
+    {
+        // Turn on fade
+        fadeTimer = 1;
+        // Collect the treasure
+        _isCollectingTreasure = false;
+        // Inputs on
+        inputManager.EnableInputs();
     }
 }
