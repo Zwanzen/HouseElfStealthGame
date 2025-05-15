@@ -3,6 +3,7 @@ using System.Collections;
 using FMOD.Studio;
 using FMODUnity;
 using Pathfinding;
+using RootMotion.FinalIK;
 using SteamAudio;
 using TMPro;
 using UnityEngine;
@@ -15,10 +16,6 @@ using Vector3 = UnityEngine.Vector3;
 [RequireComponent(typeof(Rigidbody), typeof(Seeker))]
 public class NPC : MonoBehaviour, IHear
 {
-    [Header("Debug")]
-    [SerializeField] private TextMeshProUGUI _debugText;
-
-    [Space(10)]
     [Header("NPC Settings")]
     [SerializeField] private NPCType _npcType;
     [SerializeField] private Slider _slider;
@@ -50,7 +47,7 @@ public class NPC : MonoBehaviour, IHear
     private NPCAnimator _animator;
     private NPCDetector _detector;
     
-    private enum NPCType
+    public enum NPCType
     {
         Patrol,
         Sleep,
@@ -61,9 +58,9 @@ public class NPC : MonoBehaviour, IHear
     public Rigidbody Rigidbody => _rigidbody;
     public Vector3 Position => _rigidbody.position;
     public Vector3 SoundPosition => _rigidbody.position + _soundPosOffset;
+    public NPCType Type => _npcType;
     public MovementSettings MovementSettings => _settings;
     public Vector3 EyesPos => _eyes.position;
-    public TextMeshProUGUI DebugText => _debugText;
 
     private void Awake()
     {
@@ -75,6 +72,15 @@ public class NPC : MonoBehaviour, IHear
         _startPos = transform.position;
         // Used to calculate the sound position
         _soundPosOffset = Position - _soundEmitter.transform.position;
+        // If sleep
+        if (_npcType == NPCType.Sleep)
+        {
+            _rigidbody.isKinematic = true;
+            _rigidbody.useGravity = false;
+            // Turn off the grounder
+            GetComponentInChildren<GrounderFBBIK>().enabled = false;
+        }
+
     }
 
     private void Start()
@@ -95,7 +101,8 @@ public class NPC : MonoBehaviour, IHear
     private void FixedUpdate()
     {
         var delta = Time.fixedDeltaTime;
-        _movement.FixedUpdate(delta);
+        if(_npcType != NPCType.Sleep)
+            _movement.FixedUpdate(delta);
     }
     
     private void InitializeNPC()
@@ -109,6 +116,11 @@ public class NPC : MonoBehaviour, IHear
 
         _detector = new NPCDetector(this, _player, _slider, _obstacleLayers);
         _detector.OnDetectionStateChanged += OnDetectionStateChange;
+
+        // If NPC is Sleeping, set the animation state to sleep
+        if(_npcType == NPCType.Sleep)
+            _animator.SetAnimStateForced(NPCAnimator.AnimState.Sleep);
+
     }
 
     private void OnReachedTarget()
@@ -129,23 +141,44 @@ public class NPC : MonoBehaviour, IHear
         if (_lastDetectionState != NPCDetector.EDetectionState.Curious
             && state == NPCDetector.EDetectionState.Curious)
         {
-            // Stop movement
-            _movement.Stop();
-            // After a few seconds, turn to the POI
-            StartCoroutine(CheckOutPOI(state, Random.Range(0.5f, 1.5f)));
+            // Sleeping NPCs will not move
+            if (_npcType != NPCType.Sleep)
+            {
+                // Stop movement
+                _movement.Stop();
+                // After a few seconds, turn to the POI
+                StartCoroutine(CheckOutPOI(state, Random.Range(1f, 1.5f)));
+            }
+
+            // Set emotion curious
+            _animator.SetEmotion(NPCAnimator.EmotionType.Curious);
             _lastDetectionState = state;
         }
         else if(_lastDetectionState!= NPCDetector.EDetectionState.Alert 
             && state == NPCDetector.EDetectionState.Alert)
         {
-            // Stop movement
-            _movement.Stop();
-            // After a few seconds, move to the POI
-            StartCoroutine(CheckOutPOI(state, Random.Range(0.5f, 1.5f)));
+
+            // Sleeping NPCs will not move
+            if (_npcType != NPCType.Sleep)
+            {
+                // Stop movement
+                _movement.Stop();
+                // After a few seconds, turn to the POI
+                StartCoroutine(CheckOutPOI(state, Random.Range(1f, 1.5f)));
+            }
+            else
+            {
+                // Wake up the sleeping NPC
+                _animator.SetNewAnimState(NPCAnimator.AnimState.SleepAlert);
+            }
+            // Set emotion alert
+            _animator.SetEmotion(NPCAnimator.EmotionType.Alert);
             _lastDetectionState = state;
         }
         else if (state == NPCDetector.EDetectionState.Default)
         {
+            // Set emotion normal
+            _animator.SetEmotion(NPCAnimator.EmotionType.Normal);
             _lastDetectionState = state;
             // Go back to default behavior
             if (_npcType == NPCType.Patrol)
@@ -155,6 +188,11 @@ public class NPC : MonoBehaviour, IHear
             else if (_npcType == NPCType.Stationary)
             {
                 _movement.SetTarget(_startPos);
+            }
+            else
+            {
+                // Make the NPC go back to sleep
+                _animator.SetNewAnimState(NPCAnimator.AnimState.Sleep);
             }
         }
     }

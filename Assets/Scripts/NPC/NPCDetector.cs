@@ -56,6 +56,7 @@ public class NPCDetector
     public event Action<EDetectionState> OnDetectionStateChanged;
 
     // ___ Properties ___
+    public float MaxPlayerAngle => _npc.Type == NPC.NPCType.Sleep ? 85f : 45f;
     /// <summary>
     /// The current detection level of the NPC.
     /// </summary>
@@ -102,7 +103,8 @@ public class NPCDetector
     {
         // If we are in alert state, we dont want to decay the detection
         // Movement will tell state to be curious, then we will decay
-        if (DetectionState == EDetectionState.Alert)
+        // Unless we are sleeping, then we want to decay
+        if (DetectionState == EDetectionState.Alert && _npc.Type != NPC.NPCType.Sleep)
             return;
 
         // If the decay timer is greater than the decay delay, decay the detection
@@ -144,8 +146,6 @@ public class NPCDetector
 
     private void HandleSoundUpdate(float delta)
     {
-        DebugHeardSounds();
-
         // If we dont have any sounds, return
         if (_heardSounds.Count == 0)
             return;
@@ -248,7 +248,7 @@ public class NPCDetector
         // If the player is outside vision cone, return
         var dirToPlayer = _player.Position - _npc.EyesPos;
         var angle = Vector3.Angle(_npc.transform.forward, dirToPlayer);
-        if (angle > 45f)
+        if (angle > MaxPlayerAngle)
             return;
 
         // If the player is not visible, return
@@ -301,6 +301,7 @@ public class NPCDetector
         return !Physics.Linecast(_npc.EyesPos, limb.position, _obstacleLayerMask);
     }
 
+    /*
     private void DebugHeardSounds()
     {
         // Display the heard sounds, duration, buffer time, and volume
@@ -315,7 +316,7 @@ public class NPCDetector
             _npc.DebugText.text += $"{sound.SoundType} - Buffer Time: {soundInfo.BufferTime} - Duration {soundInfo.Duration}\n";
         }
     }
-
+    */
     // ___ Public Methods ___
 
     /// <summary>
