@@ -289,7 +289,6 @@ public class FootControlContext
             GroundLayers);
     }
 
-    private Collider[] _stepColliders = new Collider[10];
     public void PlayFootSound()
     {
         // Check colliders below the foot for tag

@@ -86,7 +86,8 @@ public class PlayerController : MonoBehaviour
     private Color _wantedLColor;
     private Color _wantedRColor;
     
-    private bool _isSneaking;
+    // Removed Autowalk
+    private bool _isSneaking = true;
 
     // This is the maximum speed range for the player
     // Helps determine the speed state of the player
@@ -219,7 +220,6 @@ public class PlayerController : MonoBehaviour
     {
         // Subscribe to the input events
         InputManager.Instance.OnScroll += UpdateMovementSpeed;
-        InputManager.Instance.OnToggleMovement += UpdateIsSneaking;
     }
 
     // Events
@@ -252,8 +252,7 @@ public class PlayerController : MonoBehaviour
     /// The player's offset position from the rigidbody's position, adjusted by the character height.
     /// The player rigidbody is actually at the feet of the player, so we need to add the character height to the position.
     /// </summary>
-    [Obsolete]
-    public Vector3 Position => _rigidbody.position + new Vector3(0, Height, 0); 
+    public Vector3 Position => _rigidbody.position; 
     /// <summary>
     /// This is the new player position^
     /// </summary>
@@ -333,12 +332,6 @@ public class PlayerController : MonoBehaviour
         UpdateMovementSpeedSlider();
     }
 
-    private void UpdateIsSneaking()
-    {
-        // Toggle sneaking
-        _isSneaking = !_isSneaking;
-    }
-
     // Public methods
     public void SetJump(bool state)
     {
@@ -375,18 +368,25 @@ public class PlayerController : MonoBehaviour
         _rigidbody.linearVelocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
 
+        // Teleport Camera
+        _cameraController.TeleportToFollowTarget();
+
         StartCoroutine(ExecuteAfterTeleport());
     }
+
+    private bool isFrozen = false;
 
     private IEnumerator ExecuteAfterTeleport()
     {
         // wait to next frame
         yield return new WaitForSeconds(0.1f);
 
+        _cameraController.TeleportToFollowTarget();
         _rigidbody.isKinematic = false;
         leftFoot.StartFoot();
         rightFoot.StartFoot();
     }
+    /*
     private void OnGUI()
     {
         // Create a background box for better readability
@@ -403,7 +403,7 @@ public class PlayerController : MonoBehaviour
         GUI.Label(new Rect(20, 75, 240, 20), $"Player Sneak: {_isSneaking}", style);
         GUI.Label(new Rect(20, 95, 240, 20), $"Player Speed: {_currentPlayerSpeed}", style);
     }
-    
+    */
     private void OnDestroy()
     {
         // Unsubscribe items

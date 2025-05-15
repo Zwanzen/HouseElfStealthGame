@@ -1,4 +1,4 @@
-﻿using Mono.Cecil.Cil;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
@@ -8,47 +8,115 @@ using UnityEngine.UI;
 
 public class NPCDetector
 {
-    private NPC npc;
+    private NPC _npc;
     private SoundGameplayManager soundManager;
-    private Slider _slider;
+    private PlayerController _player;
+    private PlayerBrightnessDetector _brightnessDetector;
+    private Transform[] _limbs;
+    private LayerMask _obstacleLayerMask;
 
-    public NPCDetector(NPC npc, Slider slider)
+    public NPCDetector(NPC npc, PlayerController player, LayerMask Obsticle)
     {
-        this.npc = npc;
+        _npc = npc;
+        _player = player;
+        _brightnessDetector = player.GetComponent<PlayerBrightnessDetector>();
         soundManager = SoundGameplayManager.Instance;
-        _slider = slider;
+        _limbs = player.Limbs;
+        _obstacleLayerMask = Obsticle;
+    }
+
+    public enum EDetectionState
+    {
+        Default, // Does his job, patrols, etc.
+        Curious, // Will stop and look around
+        Alert, // Will look for the player
     }
 
     // ___ Private Variables ___
     private float _detectionDecaySpeed = 10f; // The amount of detection to decay per second
-    private float _detectionDecayDelay = 1f; // The amount of time to wait before decaying the detection
+    // The amount of time to wait before decaying the detection
+    private float _detectionDecayDelay
+    {
+        get
+        {
+            if (DetectionState == EDetectionState.Alert)
+                return 5f;
+            else if (DetectionState == EDetectionState.Curious)
+                return 5f;
+            else
+                return 1f;
+        }
+    } 
     private float _decayTimer = 0f;
     private float _bufferTime = 0.2f; // The amount of time to wait before detecting the sound
 
+    // ___ Events ___
+    public event Action<EDetectionState> OnDetectionStateChanged;
 
     // ___ Properties ___
+    public float MaxPlayerAngle => _npc.Type == NPC.NPCType.Sleep ? 85f : 45f;
     /// <summary>
     /// The current detection level of the NPC.
     /// </summary>
     public float Detection { get; private set; }
+    /// <summary>
+    /// The current detection state of the NPC. Changes behavior.
+    /// </summary>
+    public EDetectionState DetectionState { get; private set; } = EDetectionState.Default;
+    /// <summary>
+    /// The point of interest for the NPC. This is the last known position of sound or sight.
+    /// </summary>
+    public Vector3 POI { get; private set; }
+    public bool PlayerInSight => IsPlayerVisible();
+
 
     // ___ Private Methods ___
     /// <summary>
     /// Main method to add detection to the NPC.
     /// </summary>
-    private void AddDetection(float amount)
+    private void AddDetection(float amount, Vector3 pos)
     {
         Detection = Mathf.Clamp(Detection + amount, 0f, 1f);
+        // Set decay timer to 0
+        _decayTimer = 0f;
+        // Update to correct state, setting to default handled elsewhere
+        if (Detection > 0.66f)
+            UpdateDetection(EDetectionState.Alert, pos);
+        else if (Detection > 0.33f)
+            UpdateDetection(EDetectionState.Curious, pos);
+
+    }
+
+    private void UpdateDetection(EDetectionState state, Vector3 pos)
+    {
+        DetectionState = state;
+        POI = pos;
+        OnDetectionStateChanged?.Invoke(DetectionState);
     }
 
     /// <summary>
     /// Handle the sound decay of the NPC.
     /// </summary>
-    private void HandleSoundDecay(float delta)
+    private void HandleDetectionDecay(float delta)
     {
+        // If we are in alert state, we dont want to decay the detection
+        // Movement will tell state to be curious, then we will decay
+        // Unless we are sleeping, then we want to decay
+        if (DetectionState == EDetectionState.Alert && _npc.Type != NPC.NPCType.Sleep)
+            return;
+
         // If the decay timer is greater than the decay delay, decay the detection
-        if (_decayTimer > _detectionDecayDelay)
+        if (_decayTimer >= _detectionDecayDelay)
             Detection = Mathf.Clamp(Detection - _detectionDecaySpeed * delta, 0f, 1f);
+        else
+            _decayTimer += delta;
+
+        // If detection is less than 33%, set the state to default
+        if (Detection < 0.33f && DetectionState != EDetectionState.Default)
+        {
+            DetectionState = EDetectionState.Default;
+            OnDetectionStateChanged?.Invoke(DetectionState);
+        }
     }
 
     /// <summary>
@@ -82,7 +150,8 @@ public class NPCDetector
 
         // Now we want to update buffer times, durations, and volumes
         // We can use native arrays to make this more performant by storing the index instead of the sound
-        NativeArray<int> soundsToRemove = new NativeArray<int>(_heardSounds.Count, Allocator.Temp);
+        List<Sound> soundsToRemove = new List<Sound>();
+
         for (int i = 0; i < _heardSounds.Count; i++)
         {
             var soundPair = _heardSounds.ElementAt(i);
@@ -90,19 +159,17 @@ public class NPCDetector
             var soundInfo = soundPair.Value;
 
             // Updated sound values
-            var newVolume = soundManager.GetSoundVolume(sound, npc.Position);
+            var newVolume = sound.SoundType != Sound.ESoundType.Player ||
+                sound.SoundType != Sound.ESoundType.Props ? soundManager.GetSoundVolume(sound, _npc.Position)
+                : soundInfo.Volume;
             var newBufferTime = soundInfo.BufferTime - delta;
-            var newDuration = soundInfo.Duration;
-            if (newBufferTime <= 0)
-            {
-                newBufferTime = 0;
-                newDuration -= delta;
-            }
+            var newDuration = newBufferTime <= 0? soundInfo.Duration - delta : soundInfo.Duration;
             var newSoundInfo = new SoundInfo
             {
                 Volume = newVolume,
                 BufferTime = newBufferTime,
                 Duration = newDuration,
+                Heard = soundInfo.Heard
             };
 
             // ___ Looping ___
@@ -113,7 +180,7 @@ public class NPCDetector
 
                 // If the volume is less than 0, remove the sound
                 if (newVolume <= 0)
-                    soundsToRemove[i] = i;
+                    soundsToRemove.Add(sound);
                 // Else update the sound info
                 else
                     _heardSounds[sound] = newSoundInfo;
@@ -128,14 +195,25 @@ public class NPCDetector
                 // we want to add detection
                 if (!soundInfo.Heard && newBufferTime <= 0)
                 {
+                    // Check if it is masked
+                    if (IsMasked(newVolume))
+                    {
+                        // If it is masked, remove the sound
+                        soundsToRemove.Add(sound);
+                        continue;
+                    }
+                    // Sound should not allow for 100% detection
+                    var maxDetection = 0.8f;
+                    var clampedVolume = Mathf.Clamp(soundInfo.Volume, 0, maxDetection - Detection);
+                    clampedVolume = Mathf.Max(0, clampedVolume); // Make sure it is not negative
                     // Add detection
-                    AddDetection(newVolume);
+                    AddDetection(clampedVolume, sound.Pos);
                     // Set the sound as heard
                     newSoundInfo.Heard = true;
                 }
                 // If the duration is less than 0, remove the sound
                 if (newDuration <= 0)
-                    soundsToRemove[i] = i;
+                    soundsToRemove.Add(sound);
                 // Else update the sound info
                 else
                     _heardSounds[sound] = newSoundInfo;
@@ -146,25 +224,116 @@ public class NPCDetector
             {
                 // If the duration is less than 0, remove the sound
                 if (newDuration <= 0)
-                    soundsToRemove[i] = i;
+                    soundsToRemove.Add(sound);
                 // Else update the sound info
                 else
                     _heardSounds[sound] = newSoundInfo;
             }
         }
         // Remove the sounds
-        for (int i = 0; i < soundsToRemove.Length; i++)
+        foreach (var sound in soundsToRemove)
         {
-            if (soundsToRemove[i] == -1)
-                continue;
-            var sound = _heardSounds.ElementAt(soundsToRemove[i]).Key;
+            // Remove the sound from the heard sounds
             _heardSounds.Remove(sound);
         }
-        // Dispose of the native array
-        soundsToRemove.Dispose();
+    }
+
+    private void HandleVisionUpdate(float delta)
+    {
+        // If type is sleep, and we are not in alert state, return
+        if (_npc.Type == NPC.NPCType.Sleep && DetectionState != EDetectionState.Alert)
+            return;
+        // If out of range, return
+        if (Vector3.Distance(_npc.Position, _player.Position) > 7f)
+            return;
+        // If the player is outside vision cone, return
+        var dirToPlayer = _player.Position - _npc.EyesPos;
+        var angle = Vector3.Angle(_npc.transform.forward, dirToPlayer);
+        if (angle > MaxPlayerAngle)
+            return;
+
+        // If the player is not visible, return
+        if (!IsPlayerVisible(out float valueToAdd))
+            return;
+
+        // Make it delta time dependent
+        valueToAdd *= delta * 0.2f;
+        if (valueToAdd <= 0)
+            return;
+        AddDetection(valueToAdd, _player.Position);
+    }
+    /// <summary>
+    /// Check if the player is visible to the NPC. Output the value of the detection.
+    /// </summary>
+    private bool IsPlayerVisible(out float value)
+    {
+        value = 0f;
+        value += LimbVisible(_limbs[0]) ? 0.2f : 0f; // Head
+        value += LimbVisible(_limbs[1]) ? 0.1f : 0f; // Left Arm
+        value += LimbVisible(_limbs[2]) ? 0.1f : 0f; // Right Arm
+        value += LimbVisible(_limbs[3]) ? 0.1f : 0f; // Left Leg
+        value += LimbVisible(_limbs[4]) ? 0.1f : 0f; // Right Leg
+        value += LimbVisible(_limbs[5]) ? 0.4f : 0f; // Torso
+
+        // Brightness Controls multiplier
+        value *= _brightnessDetector.CurrentBrightness;
+        // If value is not over a threshold, return false
+        return value > 0.1f;
+    }
+    private bool IsPlayerVisible()
+    {
+        var value = 0f;
+        value += LimbVisible(_limbs[0]) ? 0.2f : 0f; // Head
+        value += LimbVisible(_limbs[1]) ? 0.1f : 0f; // Left Arm
+        value += LimbVisible(_limbs[2]) ? 0.1f : 0f; // Right Arm
+        value += LimbVisible(_limbs[3]) ? 0.1f : 0f; // Left Leg
+        value += LimbVisible(_limbs[4]) ? 0.1f : 0f; // Right Leg
+        value += LimbVisible(_limbs[5]) ? 0.4f : 0f; // Torso
+
+        // Brightness Controls multiplier
+        value *= _brightnessDetector.CurrentBrightness;
+        // If value is not over a threshold, return false
+        return value > 0.1f;
+    }
+    private bool LimbVisible(Transform limb)
+    {
+        var lineColor = !Physics.Linecast(_npc.EyesPos, limb.position, _obstacleLayerMask) ? Color.green : Color.red;
+        Debug.DrawLine(_npc.EyesPos, limb.position, lineColor);
+        return !Physics.Linecast(_npc.EyesPos, limb.position, _obstacleLayerMask);
+    }
+
+    private void HandleProximityDetection(float delta)
+    {
+        // If the player is not in range, return
+        var dist = Vector3.Distance(_npc.Position, _player.Position);
+        if (dist > 1)
+            return;
+        // Based on distance, we want to add detection
+        var valueToAdd = Mathf.Lerp(0.5f, 0.1f, dist/1);
+        AddDetection(valueToAdd * delta, _player.Position);
+    }
+
+    private void HandleSlider()
+    {
+        // Only update slider if the state is not default
+        if (DetectionState == EDetectionState.Default)
+            return;
+        _npc.CurrentSlider.value = Detection;
     }
 
     // ___ Public Methods ___
+
+    /// <summary>
+    /// Update the detector with the given delta time.
+    /// </summary>
+    public void Update(float delta)
+    {
+        HandleSlider();
+        HandleSoundUpdate(delta);
+        HandleDetectionDecay(delta);
+        HandleVisionUpdate(delta);
+        HandleProximityDetection(delta);
+    }
 
     private struct SoundInfo
     {
@@ -184,20 +353,19 @@ public class NPCDetector
             return;
 
         // Calculate the volume, and remove the sound if it is too low
-        var volume = soundManager.GetSoundVolume(sound, npc.Position);
+        var volume = soundManager.GetSoundVolume(sound, _npc.Position);
         if (volume <= 0)
             return;
 
         var soundInfo = new SoundInfo
         {
             Volume = volume,
-            BufferTime = _bufferTime,
-            Duration = 0.5f
+            BufferTime = 0.05f,
+            Duration = 0.25f
         };
 
         // If the sound is not made by the player or a prop, set the buffer time to 0
-        if (sound.SoundType != Sound.ESoundType.Player ||
-           sound.SoundType != Sound.ESoundType.Props)
+        if (sound.SoundType == Sound.ESoundType.Environment)
             soundInfo.BufferTime = 0f;
 
 
@@ -219,7 +387,9 @@ public class NPCDetector
 
         // Now if a sound is added, we want to make sure any lower sounds
         // are removed from the heard sounds. This is to make sure sounds,
-        // with buffer times are removed.
+        // with buffer times are removed. Unless this added sound is also a buffer time sound
+        if (soundInfo.BufferTime > 0)
+            return;
         var soundsToRemove = new List<Sound>();
         foreach (var soundPair in _heardSounds)
         {
@@ -235,20 +405,18 @@ public class NPCDetector
         {
             _heardSounds.Remove(s);
         }
-
-        // Set decay timer to 0
-        _decayTimer = 0f;
     }
 
     /// <summary>
-    /// Update the detector with the given delta time.
+    /// Called when the NPC reaches the point of interest.
     /// </summary>
-    public void Update(float delta)
+    public void AtPointOfInterest()
     {
-        HandleSoundUpdate(delta);
-        HandleSoundDecay(delta);
-        if(_slider)
-            _slider.value = Detection;
+        // If the NPC is in alert, we want to set the state to curious
+        if (DetectionState == EDetectionState.Alert)
+        {
+            DetectionState = EDetectionState.Curious;
+            OnDetectionStateChanged?.Invoke(DetectionState);
+        }
     }
-
 }

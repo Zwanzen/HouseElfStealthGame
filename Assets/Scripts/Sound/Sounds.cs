@@ -2,27 +2,38 @@ using UnityEngine;
 
 public static class Sounds
 {
+    private static Collider[] _colliders = new Collider[10];
+
     public static void MakeSound(Sound sound)
     {
         // Detect objects within the sound range
-        Collider[] col = Physics.OverlapSphere(sound.Pos, sound.Range);
+        var layerMask = LayerMask.GetMask("NPC");
+        var amount = Physics.OverlapSphereNonAlloc(sound.Pos, sound.Range, _colliders, layerMask);
         
-        for (int i = 0; i < col.Length; i++)
+        for (int i = 0; i < amount; i++)
         {
-            if (col[i].TryGetComponent(out IHear hear))
+            var col = _colliders[i];
+            if (col.TryGetComponent(out IHear hear))
+            {
                 hear.RespondToSound(sound);
+                SpawnDebug(col.ClosestPoint(sound.Pos), 0.2f, -1);
+            }
         }
 
+        SpawnDebug(sound.Pos, sound.Range*2, GetSoundTypeColor(sound.SoundType));
+    }
+
+    private static void SpawnDebug(Vector3 pos, float radius, int color)
+    {
         // Spawn a debug prefab
         var prefab = Resources.Load<GameObject>("Debug/DebugSphere");
         if (prefab != null)
         {
-            var obj = Object.Instantiate(prefab, sound.Pos, Quaternion.identity);
-            obj.transform.localScale = Vector3.one * sound.Range;
+            var obj = Object.Instantiate(prefab, pos, Quaternion.identity);
+            obj.transform.localScale = Vector3.one * radius;
 
             // Set the material color (int) property
             var mat = obj.GetComponent<Renderer>().material;
-            var color = GetSoundTypeColor(sound.SoundType);
             mat.SetInt("_ColorInt", color);
 
             // Destroy the debug object after 2 seconds

@@ -5,6 +5,8 @@ public class Checkpoint : MonoBehaviour
 {
     [SerializeField] private Transform respawnPoint;
 
+    private BoxCollider boxCollider;
+
     // Constants
     private const string PlayerTag = "Player";
     private const float HeightOffset = 0.55f;
@@ -32,7 +34,7 @@ public class Checkpoint : MonoBehaviour
     private void Awake()
     {
         // Ensure the collider is set as a trigger
-        BoxCollider boxCollider = GetComponent<BoxCollider>();
+        boxCollider = GetComponent<BoxCollider>();
         if (boxCollider != null)
         {
             boxCollider.isTrigger = true;
@@ -46,7 +48,6 @@ public class Checkpoint : MonoBehaviour
         // Set the checkpoint as active
         IsActive = true;
         // Turn off collider to prevent multiple activations
-        BoxCollider boxCollider = GetComponent<BoxCollider>();
         if (boxCollider != null)
             boxCollider.enabled = false;
     }
@@ -55,7 +56,13 @@ public class Checkpoint : MonoBehaviour
         // Set the checkpoint as inactive
         IsActive = false;
     }
-
+    public void Reset()
+    {
+        // Reset the checkpoint to its initial state
+        IsActive = false;
+        if (boxCollider != null)
+            boxCollider.enabled = true;
+    }
     private void OnTriggerEnter(Collider other)
     {
         // Check if the player has entered the checkpoint

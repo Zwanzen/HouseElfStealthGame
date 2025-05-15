@@ -24,7 +24,6 @@ public class FootPlantedState : FootControlState
     
     public override void EnterState()
     {
-        Context.PlayFootSound();
         //Context.Foot.Target.isKinematic = true;
         _rb = Context.Foot.Target;
         _rb.constraints = PlacedConstraints;
@@ -46,7 +45,7 @@ public class FootPlantedState : FootControlState
 
     public override void FixedUpdateState()
     {
-        HandleRotation();
+        //HandleRotation();
         //MoveToGround();
     }
     

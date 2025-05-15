@@ -2,6 +2,8 @@
 using System.Collections;
 using System;
 using FMODUnity;
+using SteamAudio;
+using Vector3 = UnityEngine.Vector3;
 /// <summary>
 /// Handles the sounds played in the game.
 /// </summary>
@@ -15,6 +17,8 @@ public class SoundGameplayManager : MonoBehaviour
     [Space(10f)]
     [Header("Guard Settings")]
     [field: SerializeField] private EventReference guardFootsteps;
+    [field: SerializeField] private EventReference snoreEvent;
+
 
     [Space(10f)]
     [Header("Player Settings")]
@@ -117,6 +121,24 @@ public class SoundGameplayManager : MonoBehaviour
         return settings;
     }
 
+    private MaterialSettings GetGuardMaterialSettingsScaled(EMaterialTag mat)
+    {
+        MaterialSettings settings = mat switch
+        {
+            EMaterialTag.Carpet => carpetSettings,
+            EMaterialTag.Metal => metalSettings,
+            EMaterialTag.Stone => stoneSettings,
+            EMaterialTag.Water => waterSettings,
+            EMaterialTag.Wood => woodSettings,
+            // Default case to Wood
+            _ => woodSettings
+        };
+        // Scale the settings to guard settings.
+        settings.Range *= 1f;
+        settings.Amplitude *= 1f;
+        return settings;
+    }
+
     /// <summary>
     /// FMOD magnitude only goes from 0 to 1, so we need to scale the magnitude.
     /// It should also be scaled by the min and max magnitude settings.
@@ -167,9 +189,10 @@ public class SoundGameplayManager : MonoBehaviour
     public void PlayPlayerStepAtPosition(StudioEventEmitter emitter, EMaterialTag mat, Vector3 pos, float mag)
     {
         // First, create and play the game logic sound.
-        var settings = GetPlayerMaterialSettingsScaled(mat, mag);
+        var settings = GetPlayerMaterialSettingsScaled(mat, GetMagnitudeScaled(mag));
         var sound = new Sound(pos, settings.Range, settings.Amplitude);
         sound.SoundType = Sound.ESoundType.Player;
+
         Sounds.MakeSound(sound);
 
         // Then, play the FMOD sound.
@@ -178,17 +201,33 @@ public class SoundGameplayManager : MonoBehaviour
         // so we need to set them after we play the sound.
         emitter.Play();
         emitter.SetParameter(PARAM.SURFACE, GetMaterialIndex(mat));
-        emitter.SetParameter(PARAM.MAGNITUDE, GetMagnitudeScaled(mag/maxMagnitude));
+        emitter.SetParameter(PARAM.MAGNITUDE, GetMagnitudeScaled(mag));
     }
 
-    public void PlayGuardStep(StudioEventEmitter emitter, EMaterialTag mat)
+    public void PlayGuardStep(StudioEventEmitter emitter, EMaterialTag mat, Vector3 pos)
     {
-        // We dont need game logic sound rn
+        // First, create and play the game logic sound.
+        var settings = GetGuardMaterialSettingsScaled(mat);
+        var sound = new Sound(pos, settings.Range, settings.Amplitude);
+        sound.SoundType = Sound.ESoundType.Environment;
+        Sounds.MakeSound(sound);
+
         // Play the FMOD sound.
         emitter.EventReference = guardFootsteps;
         emitter.Play();
         emitter.SetParameter(PARAM.SURFACE, GetMaterialIndex(mat));
         emitter.SetParameter(PARAM.MAGNITUDE, 0.5f);
+    }
+
+    public void PlayGuardSnore(StudioEventEmitter emitter, Vector3 pos)
+    {
+        // First, create and play the game logic sound.
+        var sound = new Sound(pos, 5f, 0.5f);
+        sound.SoundType = Sound.ESoundType.Environment;
+        Sounds.MakeSound(sound);
+        // Play the FMOD sound.
+        emitter.EventReference = snoreEvent;
+        emitter.Play();
     }
 
     /// <summary>

@@ -4,7 +4,8 @@ using UnityEngine;
 /// This class is responsible for managing checkpoints in the game.
 /// </summary>
 public class CheckpointManager : MonoBehaviour
-{ 
+{
+    [SerializeField] private Checkpoint[] checkpoints;
     [SerializeField] private Checkpoint startPoint;
 
     // Properties
@@ -24,8 +25,18 @@ public class CheckpointManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
 
-        // Set the starting checkpoint
+    // ___ Private methods ___
+    private void SetFirstCheckpoint()
+    {
+        // Reset all checkpoints
+        foreach (var checkpoint in checkpoints)
+        {
+            checkpoint.Reset();
+        }
+
+        // Set the first checkpoint as the active checkpoint
         if (startPoint != null)
         {
             ActiveCheckpoint = startPoint;
@@ -33,11 +44,20 @@ public class CheckpointManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("No starting checkpoint assigned.");
+            ActiveCheckpoint = checkpoints[0];
+            ActiveCheckpoint.Activate();
         }
     }
 
-    // Public methods
+    // ___ Public methods ___
+    /// <summary>
+    /// Called when the game starts, or initilizes.
+    /// </summary>
+    public void OnGameInitialize()
+    {
+        SetFirstCheckpoint();
+    }
+
     public void ActivateCheckpoint(Checkpoint checkpoint)
     {
         // Deactivate the previous checkpoint if it exists
@@ -50,5 +70,15 @@ public class CheckpointManager : MonoBehaviour
         ActiveCheckpoint = checkpoint;
         ActiveCheckpoint.Activate();
 
+    }
+
+    public void TeleportToLastCheckpoint()
+    {
+        if(ActiveCheckpoint == null)
+        {
+            Debug.LogError("No active checkpoint to teleport to.");
+            return;
+        }
+        PlayerController.Instance.Teleport(ActiveCheckpoint.RespawnPosition, ActiveCheckpoint.RespawnDirection);
     }
 }

@@ -35,7 +35,8 @@ public class NPCMovement
     {
         None,
         Path,
-        Position
+        Position,
+        Rotation,
     }
     // ___ Pathing ___
     private TargetType _targetType;
@@ -50,17 +51,23 @@ public class NPCMovement
     private bool _isStopped;
     private float _stopTimer = 0f;
     private float _recalculatePathTimer = 0f;
-    
+    private bool _reachedEndOfPath;
+
     // ___ Rotation ___
     private Vector3 _targetPathRotation;
     private Vector3 _dirToRotate;
+
+    private Vector3 _posToRotateTo;
     
     // ___ Anim ___
     private bool _readyForAnimChange = false;
     
-    // Events
+    // ___ Events ___
     public Action ArrivedAtTarget;
     public Action<NPCAnimator.AnimState> OnAnimStateChange;
+
+    // ___ Properties ___
+    public bool IsMoving => _targetType != TargetType.None;
 
     #region Pathing
     // Used by NPC to set either a path or a single point
@@ -76,6 +83,12 @@ public class NPCMovement
         _targetPosition = position;
         FindPathToTargetPosition(_targetPosition);
     }
+    public void SetTargetRotateTo(Vector3 posToLookAt)
+    {
+        ClearTargets();
+        _posToRotateTo = posToLookAt;
+        _targetType = TargetType.Rotation;
+    }
     
     // Stop Movement
     public void Stop()
@@ -86,6 +99,7 @@ public class NPCMovement
     // Used to clear current target, stopping movement
     private void ClearTargets()
     {
+        _reachedEndOfPath = false;
         _readyForAnimChange = true;
         _targetType = TargetType.None;
         _targetNPCPath = null;
@@ -200,13 +214,17 @@ public class NPCMovement
             Debug.LogError("Error finding path to path point: " + p.errorLog);
             return;
         }
-        
+        // Make sure we are not stopped
+        _isStopped = false;
+        _reachedEndOfPath = false;
+
         // We set the seekerPath to the path found
         _seekerPath = p;
         // We set the seekerPathIndex to 0
         _seekerPathIndex = 0;
         // We now set target type
         _targetType = TargetType.Path;
+
         OnAnimStateChange(NPCAnimator.AnimState.Walk);
     }
 
@@ -247,16 +265,15 @@ public class NPCMovement
     private void UpdateSeekerPath()
     {
         // Only update seeker path if we have a path
-        if (_seekerPath == null)
+        if (_seekerPath == null || _reachedEndOfPath)
             return;
         
         // Check in a loop if we are close enough to the current waypoint to switch to the next one.
         // We do this in a loop because many waypoints might be close to each other and we may reach
         // several of them in the same frame.
-        var reachedEndOfPath = false;
         // The distance to the next waypoint in the path
         float distanceToWaypoint;
-        while (true) {
+        while (true && !_reachedEndOfPath) {
             // If you want maximum performance you can check the squared distance instead to get rid of a
             // square root calculation. But that is outside the scope of this tutorial.
             distanceToWaypoint = Vector3.Distance(_npc.transform.position, _seekerPath.vectorPath[_seekerPathIndex]);
@@ -266,7 +283,7 @@ public class NPCMovement
                     _seekerPathIndex++;
                     _stopPosition = _seekerPath.vectorPath[_seekerPathIndex];
                 } else {
-                    reachedEndOfPath = true;
+                    _reachedEndOfPath = true;
                     break;
                 }
             } else {
@@ -274,7 +291,8 @@ public class NPCMovement
             }
         }
 
-        if (reachedEndOfPath)
+        // If we have reached end of path, we want to move to the last point
+        if (_reachedEndOfPath)
         {
             if (_targetType == TargetType.Path)
             {
@@ -299,20 +317,24 @@ public class NPCMovement
                     NextPathPoint();
                 }
             }
-            else
+            else if(_targetType == TargetType.Position)
             {
+                // We need to check if we are already stopped
+                if (_isStopped)
+                    return;
+
                 // We set the stop position to the last point
                 _stopPosition = _seekerPath.vectorPath[^1];
-                ClearTargets();
-                
-                // Call the arrived at target event after clear
-                ArrivedAtTarget.Invoke();
+                // We need to register stop
+                _isStopped = true;
+
+                // NEW: We dont want to do this here, since we are not at the stop position potentially
+                //ClearTargets(); // We want to Clear target after reaching the stop position
+                //ArrivedAtTarget.Invoke();
             }
             _recalculatePathTimer = 0f;
-            _readyForAnimChange = true;
-                
+            _readyForAnimChange = true;  
         }
-        
     }
     
     private void RecalculateMove(float delta)
@@ -364,15 +386,14 @@ public class NPCMovement
         RecalculateMove(delta);
         UpdateSeekerPath();
         
-        if (_targetType == TargetType.None)
+        if (_targetType == TargetType.None || _targetType == TargetType.Rotation)
         {
             // Make sure the the y position is the same as the npc
             _stopPosition.y = _npc.Rigidbody.position.y;
             MoveToRigidbody(_npc.Rigidbody,_stopPosition, _npc.MovementSettings);
         }
-        else
+        else if (_targetType != TargetType.Rotation)
         {
-            // Now the seekerPath is valid, we need to check if we are close to the next point
             var nextPoint = _seekerPath.vectorPath[_seekerPathIndex];
             var adjustedPos = new Vector3(nextPoint.x, _npc.Rigidbody.position.y, nextPoint.z);
             Move(_npc.Rigidbody, adjustedPos, _npc.MovementSettings);
@@ -386,28 +407,38 @@ public class NPCMovement
             // If we are not close enough, we dont do anything
             if (distanceToStop > 0.1f)
                 return;
-            // If we are not rotated correctly, we dont do anything
-            if (_dirToRotate != Vector3.zero)
+            if(_targetType == TargetType.Path)
             {
-                var angle = Vector3.SignedAngle(_npc.Rigidbody.transform.forward, _dirToRotate, Vector3.up);
-                if (Mathf.Abs(angle) > 1f)
-                    return;
+                // If we are not rotated correctly, we dont do anything
+                if (_dirToRotate != Vector3.zero)
+                {
+                    var angle = Vector3.SignedAngle(_npc.Rigidbody.transform.forward, _dirToRotate, Vector3.up);
+                    if (Mathf.Abs(angle) > 1f)
+                        return;
+                }
+
+                // now we check if we should update animation to idle
+                if (_readyForAnimChange)
+                {
+                    _readyForAnimChange = false;
+                    OnAnimStateChange(NPCAnimator.AnimState.Idle);
+                }
+
+                _stopTimer -= delta;
+                if (_stopTimer <= 0f)
+                {
+                    _isStopped = false;
+                    _stopTimer = 0f;
+                    // We need to go to the next point
+                    NextPathPoint();
+                }
             }
-            
-            // now we check if we should update animation to idle
-            if (_readyForAnimChange)
+            else if (_targetType == TargetType.Position)
             {
-                _readyForAnimChange = false;
-                OnAnimStateChange(NPCAnimator.AnimState.Idle);
-            }
-            
-            _stopTimer -= delta;
-            if (_stopTimer <= 0f)
-            {
-                _isStopped = false;
-                _stopTimer = 0f;
-                // We need to go to the next point
-                NextPathPoint();
+                // If we should stop, we invoke the arrived at target event
+                // And clear the target
+                ClearTargets();
+                ArrivedAtTarget?.Invoke();
             }
         }
         
@@ -420,7 +451,7 @@ public class NPCMovement
     private void HandleRotation(float delta)
     {
         // We set the rotation if we are moving
-        if (_targetType != TargetType.None && !_isStopped)
+        if (_targetType != TargetType.None && _targetType != TargetType.Rotation && !_isStopped)
         {
             var dir = _stopPosition - _npc.Rigidbody.position;
             dir.y = 0f;
@@ -439,13 +470,22 @@ public class NPCMovement
         }
         
         // Rotate towards the direction we are moving
-        if (_dirToRotate != Vector3.zero)
+        if (_dirToRotate != Vector3.zero && _targetType != TargetType.Rotation)
         {
             RotateRigidbody(_npc.Rigidbody, _dirToRotate, _rotationSpeed);
         }
+
+        // If we are rotating to a position, we need to rotate to that position
+        if (_targetType == TargetType.Rotation)
+        {
+            var dir = _posToRotateTo - _npc.Rigidbody.position;
+            dir.y = 0f;
+            dir.Normalize();
+            RotateRigidbody(_npc.Rigidbody, dir, _rotationSpeed);
+        }
     }
 
-        // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
+    // Credit: https://youtu.be/qdskE8PJy6Q?si=hSfY9B58DNkoP-Yl
     // Modified
     public void RigidbodyFloat()
     {

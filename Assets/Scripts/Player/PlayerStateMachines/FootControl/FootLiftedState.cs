@@ -89,7 +89,7 @@ public class FootLiftedState : FootControlState
         var input = Context.Player.RelativeMoveInput;
 
         // Define base heights
-        var baseFootLiftedHeight = 0.1f;
+        var baseFootLiftedHeight = 0.15f;
         var wantedHeight = otherFootPos.y + baseFootLiftedHeight;
 
         // Now we get the height prediction info

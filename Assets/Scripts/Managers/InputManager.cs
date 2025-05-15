@@ -48,9 +48,6 @@ public class InputManager : MonoBehaviour
     // This is called twice, but doesn't seem like it can double the value
     public event Action<int> OnScroll;
 
-    // Event to toggle sneaking / walking
-    public event Action OnToggleMovement;
-
     // Event for interact attempt
     public event Action OnInteract;
     
@@ -62,6 +59,25 @@ public class InputManager : MonoBehaviour
     private void OnRMB(InputAction.CallbackContext context)
     {
         _isHoldingRMB = context.ReadValueAsButton();
+    }
+
+    /// <summary>
+    /// Disables the input actions, feks when the game is paused.
+    /// </summary>
+    public void DisableInputs()
+    {
+        // Reset the input values
+        _moveInput = Vector2.zero;
+        _cameraInput = Vector2.zero;
+        _inputActions.Disable();
+    }
+
+    /// <summary>
+    /// Enables the input actions, feks when the game is unpaused.
+    /// </summary>
+    public void EnableInputs()
+    {
+        _inputActions.Enable();
     }
 
     private void OnEnable()
@@ -80,9 +96,6 @@ public class InputManager : MonoBehaviour
             _inputActions.Player.RightFoot.canceled += OnRMB;
             
             _inputActions.Player.Interact.performed += i => OnInteract?.Invoke();
-
-            // When we press toggle movement, we want to call the event
-            _inputActions.Player.ToggleMovement.performed += i => OnToggleMovement?.Invoke();
         }
 
         _inputActions.Enable();

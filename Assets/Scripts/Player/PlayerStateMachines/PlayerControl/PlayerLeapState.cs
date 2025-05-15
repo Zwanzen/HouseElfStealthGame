@@ -25,6 +25,7 @@ public class PlayerLeapState : PlayerControlState
 
     public override void ExitState()
     {
+        Context.Player.Animator.ResetTriggers();
         Context.Player.Animator.SetAnim(PlayerAnimator.EAnimType.Land);
         Context.Player.Camera.Stumble();
     }

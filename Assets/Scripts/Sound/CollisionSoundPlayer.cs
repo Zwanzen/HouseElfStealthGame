@@ -16,6 +16,11 @@ public class CollisionSoundPlayer : MonoBehaviour
     
     private StudioEventEmitter _eventEmitter;
 
+    // For startup delay
+    private float _startDelay = 3f;
+    private float _startTimer;
+
+
     private void Awake()
     {
         if(_eventEmitter == null)
@@ -29,10 +34,17 @@ public class CollisionSoundPlayer : MonoBehaviour
     {
         if(_timer > 0f)
             _timer -= Time.deltaTime;
+
+        if(_startTimer < _startDelay)
+            _startTimer += Time.deltaTime;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
+        // Only play sound after a delay (Game Start)
+        if (_startTimer < _startDelay)
+            return;
+
         if (_minCollisionForce <= collision.relativeVelocity.magnitude && _timer <= 0f)
         {
             var relMag = collision.relativeVelocity.magnitude / _maxCollisionForce;

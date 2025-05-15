@@ -36,10 +36,9 @@ public class PlayerCameraController : MonoBehaviour
         return (_xRotation - offset) / (60f - offset);
     }
     
-    private void Awake()
+    private void Initialize()
     {
-        // Initialize
-        _player = GetComponentInParent<PlayerController>();
+        _player = PlayerController.Instance;
         _cameraYTransform = transform;
         _cameraXTransform = transform.GetChild(0);
         _cameraTransform = _cameraXTransform.GetChild(0);
@@ -48,6 +47,7 @@ public class PlayerCameraController : MonoBehaviour
 
     private void Start()
     {
+        Initialize();
         _aimIK = _player.AimIK;
 
         _player.OnFall += OnFall;
@@ -177,6 +177,11 @@ public class PlayerCameraController : MonoBehaviour
         // set the camera fov to 60
         _camera.fieldOfView = _minFov;
         _timer = 0f;
+    }
+
+    public void TeleportToFollowTarget()
+    {
+        transform.position = _followTarget.position;
     }
 
     public float CameraX => _xRotation;
