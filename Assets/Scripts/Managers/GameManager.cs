@@ -130,7 +130,7 @@ public class GameManager : MonoBehaviour
         fadeImage.color = Color.Lerp(Color.clear, Color.black, fadeTimer / fadeDuration);
 
         // Also fade the game audio
-
+        masterBus.setVolume(Mathf.Lerp(_storedVolume, 0, fadeTimer));
 
         if (fadeTimer >= fadeDuration && !startedDelayedSceneLoading)
         {
