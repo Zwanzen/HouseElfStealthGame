@@ -250,7 +250,7 @@ public class PlayerControlContext
                 _temporaryFallHeight = Player.Transform.position.y;
             }
             // If we fall 1 meter or more, we set the fall condition to falling
-            if ((_temporaryFallHeight - Player.Transform.position.y) > 2 && _isTemporaryFall)
+            if ((_temporaryFallHeight - Player.Transform.position.y) > 1.5f && _isTemporaryFall)
             {
                 SetFallCondition(EFallCondition.Falling);
                 return true;

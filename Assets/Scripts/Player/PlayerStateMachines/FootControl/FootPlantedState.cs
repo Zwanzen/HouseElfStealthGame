@@ -45,7 +45,7 @@ public class FootPlantedState : FootControlState
 
     public override void FixedUpdateState()
     {
-        HandleRotation();
+        //HandleRotation();
         //MoveToGround();
     }
     

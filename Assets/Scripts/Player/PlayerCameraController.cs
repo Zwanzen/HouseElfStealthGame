@@ -182,7 +182,6 @@ public class PlayerCameraController : MonoBehaviour
     public void TeleportToFollowTarget()
     {
         transform.position = _followTarget.position;
-        transform.parent = null;
     }
 
     public float CameraX => _xRotation;

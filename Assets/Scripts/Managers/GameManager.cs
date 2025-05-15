@@ -1,7 +1,6 @@
 using FMODUnity;
 using System;
 using System.Collections;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -12,7 +11,36 @@ using UnityEngine.UI;
 /// </summary>
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private Animator menuAnimator; // The animator for all menus
+    [SerializeField] private Camera menuCamera;
     [SerializeField] private Image fadeImage; // The image that fades the screen to black when reloading the scene
+
+    [Header("Settings")]
+    [SerializeField] private Slider volumeSlider; // The slider for the volume
+    [SerializeField] private Slider sensitivitySlider; // The slider for the sensitivity
+    [SerializeField] private Slider brightnessSlider; // The slider for the brightness
+
+    // v2
+    [SerializeField] private Slider volumeSlider2;
+    [SerializeField] private Slider sensitivitySlider2;
+    [SerializeField] private Slider brightnessSlider2;
+
+    private float _storedVolume = 0.5f; // The stored volume
+    private float _storedSensitivity = 0.5f; // The stored sensitivity
+    private float _storedBrightness = 0.5f; // The stored brightness
+
+    // For MenuAnimator
+    private struct MenuTrigger
+    {
+        public static readonly int Pause = Animator.StringToHash("Pause");
+        public static readonly int Nothing = Animator.StringToHash("Nothing");
+        public static readonly int MainMenu = Animator.StringToHash("MainMenu");
+        public static readonly int MainMenuSettings = Animator.StringToHash("MainMenuToSettings");
+        public static readonly int SettingsMainMenu = Animator.StringToHash("SettingsToMainMenu");
+        public static readonly int PauseSettings = Animator.StringToHash("PauseToSettings");
+        public static readonly int SettingsPause = Animator.StringToHash("SettingsToPause");
+
+    }
 
     // Singleton instance
     public static GameManager Instance;
@@ -25,6 +53,9 @@ public class GameManager : MonoBehaviour
     private bool startedDelayedSceneLoading = false; // Has the delayed scene loading started
     private bool isTransitioning = false; // Is the game currently transitioning between scenes
     private EToState toState = EToState.MainMenu; // The state we are transitioning to
+    private bool isMainMenu = false; // Is the main menu currently open
+
+    private InputManager inputManager; // Reference to the input manager
 
     private void Awake()
     {
@@ -42,22 +73,22 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // Temp mouse lock
-        Cursor.lockState = CursorLockMode.Locked;
         GameInitialize();
+
+        // Get the input manager
+        inputManager = InputManager.Instance;
     }
 
 
     private void Update()
     {
-        // Temp
-        if(Input.GetKeyDown(KeyCode.O))
+        if(Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Escape))
         {
-            // Unlock the cursor
-            Loose();
+            Pause();
         }
 
         HandleTransition();
+        HandleSettings();
     }
 
     // ___ Other ___
@@ -67,10 +98,12 @@ public class GameManager : MonoBehaviour
     private enum EToState
     {
         MainMenu,
+        GameStart,
         LastCheckpoint,
     }
     private const EToState MAINMENU = EToState.MainMenu;
     private const EToState LASTCHECKPOINT = EToState.LastCheckpoint;
+    private const EToState GAMESTART = EToState.GameStart;
 
 
     // ___ Private methods ___
@@ -87,15 +120,26 @@ public class GameManager : MonoBehaviour
     private void HandleTransition()
     {
         // Handle the fade effect
-        fadeTimer += isTransitioning? Time.deltaTime : - Time.deltaTime;
+        fadeTimer += isTransitioning? Time.unscaledDeltaTime : - Time.unscaledDeltaTime;
         // Clamp the timer to be between 0 and fadeDuration
         fadeTimer = Mathf.Clamp(fadeTimer, 0, fadeDuration);
         fadeImage.color = Color.Lerp(Color.clear, Color.black, fadeTimer / fadeDuration);
 
         // Also fade the game audio
 
+        // If we are in main menu, and main menu camera is active,
+        // We want to slowly move the camera forward
+        if (isMainMenu && menuCamera.gameObject.activeSelf && isTransitioning)
+        {
+            // Move the camera forward
+            menuCamera.transform.position += menuCamera.transform.forward * Time.unscaledDeltaTime * 0.5f;
+        }
+
         if (fadeTimer >= fadeDuration && !startedDelayedSceneLoading)
         {
+            // Make sure we are resumed
+            Resume();
+
             // Start the delayed scene loading coroutine
             StartCoroutine(LoadSceneWithDelay());
             startedDelayedSceneLoading = true;
@@ -115,6 +159,10 @@ public class GameManager : MonoBehaviour
         if (toState == MAINMENU)
         {
             MainMenu(false);
+        }
+        else if (toState == GAMESTART)
+        {
+            GameStart(false);
         }
         else if (toState == LASTCHECKPOINT)
         {
@@ -166,13 +214,64 @@ public class GameManager : MonoBehaviour
             return;
         }
         // Start anything that needs to be started when the main menu is opened
+        isMainMenu = true;
+        // Turn off player
+        PlayerController.Instance.gameObject.SetActive(false);
+        // Turn on menu camera
+        menuCamera.gameObject.SetActive(true);
+        // Turn on the menu 
+        menuAnimator.SetTrigger(MenuTrigger.MainMenu);
+        Cursor.lockState = CursorLockMode.None;
+    }
+
+    /// <summary>
+    /// Pause the game.
+    /// </summary>
+    public void Pause()
+    {
+        if(isMainMenu || isTransitioning)
+            return;
+
+        // Pause the game
+        Time.timeScale = 0;
+        // Unlock the cursor
+        Cursor.lockState = CursorLockMode.None;
+        // Disable the player input
+        inputManager.DisableInputs();
+        // Show the pause menu
+        menuAnimator.SetTrigger(MenuTrigger.Pause);
+    }
+
+    /// <summary>
+    /// Resume the game.
+    /// </summary>
+    public void Resume()
+    {
+        // Resume the game
+        Time.timeScale = 1;
+        // Lock the cursor
+        Cursor.lockState = CursorLockMode.Locked;
+        // Enable the player input
+        inputManager.EnableInputs();
+        // Hide the pause menu
+        menuAnimator.SetTrigger(MenuTrigger.Nothing);
     }
 
     /// <summary>
     /// When pressed play.
     /// </summary>
-    public void GameStart()
+    public void GameStart(bool reloadScene)
     {
+        if (reloadScene)
+        {
+            ReloadScene(GAMESTART);
+            return;
+        }
+        isMainMenu = false;
+        // Set animator to nothing
+        menuAnimator.SetTrigger(MenuTrigger.Nothing);
+        // Turn off menu camera
+        menuCamera.gameObject.SetActive(false);
 
     }
 
@@ -184,6 +283,97 @@ public class GameManager : MonoBehaviour
         LoadLastCheckpoint(true); // Temp
     }
 
+    /// <summary>
+    /// When the player wins.
+    /// </summary>
+    public void Win()
+    {
+
+    }
+
+    /// <summary>
+    /// When the player wants to exit the game.
+    /// </summary>
+    public void ExitGame()
+    {
+        // Exit the game
+        Application.Quit();
+    }
+
+    private void UpdateSliders(bool isMenu)
+    {
+        // Update the sliders with the stored values
+        if (isMenu)
+        {
+            volumeSlider.value = _storedVolume;
+            sensitivitySlider.value = _storedSensitivity;
+            brightnessSlider.value = _storedBrightness;
+        }
+        else
+        {
+            volumeSlider2.value = _storedVolume;
+            sensitivitySlider2.value = _storedSensitivity;
+            brightnessSlider2.value = _storedBrightness;
+        }
+    }
+
+    private bool isSettings;
+
+    private void HandleSettings()
+    {
+        if(!isSettings)
+            return;
+
+        if (isMainMenu)
+        {
+            _storedBrightness = brightnessSlider.value;
+            _storedSensitivity = sensitivitySlider.value;
+            _storedVolume = volumeSlider.value;
+        }
+        else
+        {
+            _storedBrightness = brightnessSlider2.value;
+            _storedSensitivity = sensitivitySlider2.value;
+            _storedVolume = volumeSlider2.value;
+        }
+    }
+
+    public void GoSettings(bool isMenu)
+    {
+        // Find out if we are in the main menu or in the game
+        if (isMenu)
+        {
+            // Go to the settings menu
+            menuAnimator.SetTrigger(MenuTrigger.MainMenuSettings);
+            UpdateSliders(true);
+        }
+        else
+        {
+            // Go to the settings menu
+            menuAnimator.SetTrigger(MenuTrigger.PauseSettings);
+            UpdateSliders(false);
+        }
+
+        isSettings = true;
+    }
+
+    public void LeaveSettings(bool isMenu)
+    {
+        // Find out if we are in the main menu or in the game
+        if (isMenu)
+        {
+            // Go to the settings menu
+            menuAnimator.SetTrigger(MenuTrigger.SettingsMainMenu);
+        }
+        else
+        {
+            // Go to the settings menu
+            menuAnimator.SetTrigger(MenuTrigger.SettingsPause);
+        }
+
+        isSettings = false;
+    }
+
     public void LoadLastCheckpoint(bool reloadScene)
     {
         if (reloadScene)
@@ -191,6 +381,7 @@ public class GameManager : MonoBehaviour
             ReloadScene(LASTCHECKPOINT);
             return;
         }
+
         // Teleport to the last checkpoint
         // Add a small delay to ensure player is initialized
         StartCoroutine(TeleportAfterDelay());
