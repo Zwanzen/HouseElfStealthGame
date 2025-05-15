@@ -191,8 +191,6 @@ public class GameManager : MonoBehaviour
         inputManager.DisableInputs();
         // Unlock the cursor
         Cursor.lockState = CursorLockMode.None;
-        // Start coroutine som venter før den pauser
-        StartCoroutine(HandleGameOverSequence());
         // Pause the game
         Time.timeScale = 0;
     }
@@ -248,6 +246,8 @@ public class GameManager : MonoBehaviour
         // Turn on the menu 
         menuAnimator.SetTrigger(MenuTrigger.MainMenu);
         Cursor.lockState = CursorLockMode.None;
+        // Stop input
+        inputManager.DisableInputs();
     }
 
     /// <summary>
@@ -298,6 +298,8 @@ public class GameManager : MonoBehaviour
         menuAnimator.SetTrigger(MenuTrigger.Nothing);
         // Turn off menu camera
         menuCamera.gameObject.SetActive(false);
+        // Start input
+        inputManager.EnableInputs();
 
     }
 
