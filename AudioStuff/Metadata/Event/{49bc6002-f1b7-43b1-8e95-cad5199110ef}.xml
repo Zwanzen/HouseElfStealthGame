@@ -66,7 +66,7 @@
 			<destination>{458ccea7-9143-4b96-8903-745ab7c1d616}</destination>
 		</relationship>
 		<relationship name="output">
-			<destination>{564bfc67-57a5-4d58-aa95-d938f0afe524}</destination>
+			<destination>{af455c9c-f5db-44dc-bcce-a236c5cfd3ec}</destination>
 		</relationship>
 	</object>
 	<object class="EventAutomatableProperties" id="{2f13189d-d977-4718-b096-6c52006d3762}" />
@@ -682,6 +682,9 @@
 	</object>
 	<object class="MixerBusFader" id="{9f964274-832f-4b3b-a7c6-8c2f507b2943}" />
 	<object class="PluginEffect" id="{7acc3b7c-fde2-4a41-a25f-e1d972a60c86}">
+		<property name="bypass">
+			<value>true</value>
+		</property>
 		<relationship name="plugin">
 			<destination>{b4292ad5-665c-4ab4-8315-9580114861db}</destination>
 		</relationship>
@@ -763,7 +766,7 @@
 			<value>0</value>
 		</property>
 		<property name="value">
-			<value>-23</value>
+			<value>-12.1000004</value>
 		</property>
 	</object>
 	<object class="AutomationPoint" id="{d4ad4970-0a91-4783-9e5b-3835cbc70d6d}">
@@ -771,7 +774,7 @@
 			<value>1</value>
 		</property>
 		<property name="value">
-			<value>0</value>
+			<value>10</value>
 		</property>
 	</object>
 	<object class="Plugin" id="{b4292ad5-665c-4ab4-8315-9580114861db}">

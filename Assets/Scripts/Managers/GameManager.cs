@@ -40,7 +40,8 @@ public class GameManager : MonoBehaviour
         public static readonly int SettingsMainMenu = Animator.StringToHash("SettingsToMainMenu");
         public static readonly int PauseSettings = Animator.StringToHash("PauseToSettings");
         public static readonly int SettingsPause = Animator.StringToHash("SettingsToPause");
-
+        public static readonly int Success = Animator.StringToHash("Success");
+        public static readonly int Failure = Animator.StringToHash("Failure");
     }
 
     // Singleton instance
@@ -182,6 +183,34 @@ public class GameManager : MonoBehaviour
         CheckpointManager.Instance.TeleportToLastCheckpoint();
     }
 
+    private IEnumerator HandleGameOverSequence()
+    {
+        yield return new WaitForSeconds(2f); // Wait 2 seconds
+
+        // Disable the player input
+        inputManager.DisableInputs();
+        // Unlock the cursor
+        Cursor.lockState = CursorLockMode.None;
+        // Start coroutine som venter før den pauser
+        StartCoroutine(HandleGameOverSequence());
+        // Pause the game
+        Time.timeScale = 0;
+    }
+
+    private IEnumerator HandleWinSequence()
+    {
+        yield return new WaitForSeconds(2f); // Wait 2 seconds
+
+        // Disable the player input
+        inputManager.DisableInputs();
+        // Unlock the cursor
+        Cursor.lockState = CursorLockMode.None;
+        // Start coroutine som venter før den pauser
+        StartCoroutine(HandleWinSequence());
+        // Pause the game
+        Time.timeScale = 0;
+    }
+
     // ___ Public methods ___
 
     /// <summary>
@@ -277,7 +306,9 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void GameOver()
     {
-        LoadLastCheckpoint(true); // Temp
+        menuAnimator.SetTrigger(MenuTrigger.Failure);
+        StartCoroutine(HandleGameOverSequence());
+        //LoadLastCheckpoint(true); // Temp
     }
 
     /// <summary>
@@ -285,7 +316,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void Win()
     {
-
+        menuAnimator.SetTrigger(MenuTrigger.Success);
+        StartCoroutine(HandleWinSequence());
     }
 
     /// <summary>
@@ -379,6 +411,7 @@ public class GameManager : MonoBehaviour
 
     public void LoadLastCheckpoint(bool reloadScene)
     {
+
         if (reloadScene)
         {
             ReloadScene(LASTCHECKPOINT);

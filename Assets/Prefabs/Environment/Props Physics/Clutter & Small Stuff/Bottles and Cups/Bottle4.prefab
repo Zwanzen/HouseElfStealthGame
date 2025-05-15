@@ -240,7 +240,7 @@ MonoBehaviour:
   hybridReverbDelay: 0
   applyHRTFToReflections: 0
   reflectionsMixLevel: 1
-  pathing: 0
+  pathing: 1
   pathingProbeBatch: {fileID: 0}
   pathValidation: 1
   findAlternatePaths: 1
@@ -328,6 +328,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7032428184709631149, guid: 806b72e97910faf46b9467395f9d58e6, type: 3}
       propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7594714971637545897, guid: 806b72e97910faf46b9467395f9d58e6, type: 3}
+      propertyPath: pathing
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8115462671523513022, guid: 806b72e97910faf46b9467395f9d58e6, type: 3}
