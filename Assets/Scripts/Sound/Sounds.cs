@@ -9,7 +9,9 @@ public static class Sounds
         // Detect objects within the sound range
         var layerMask = LayerMask.GetMask("NPC");
         var amount = Physics.OverlapSphereNonAlloc(sound.Pos, sound.Range, _colliders, layerMask);
-        
+
+        //SpawnDebug(sound.Pos, sound.Range, GetSoundTypeColor(sound.SoundType));
+
         for (int i = 0; i < amount; i++)
         {
             var col = _colliders[i];

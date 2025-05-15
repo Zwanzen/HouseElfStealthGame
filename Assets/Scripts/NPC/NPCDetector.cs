@@ -30,6 +30,7 @@ public class NPCDetector
         Default, // Does his job, patrols, etc.
         Curious, // Will stop and look around
         Alert, // Will look for the player
+        Detected // Detected the player
     }
 
     // ___ Private Variables ___
@@ -76,6 +77,8 @@ public class NPCDetector
     /// </summary>
     private void AddDetection(float amount, Vector3 pos)
     {
+        if (DetectionState == EDetectionState.Detected)
+            return;
         Detection = Mathf.Clamp(Detection + amount, 0f, 1f);
         // Set decay timer to 0
         _decayTimer = 0f;
@@ -86,8 +89,9 @@ public class NPCDetector
             UpdateDetection(EDetectionState.Curious, pos);
 
         // If detection == 1, we loose
-        if(Detection >= 1f)
+        if(Detection >= 1f && DetectionState != EDetectionState.Detected)
         {
+            DetectionState = EDetectionState.Detected;
             _npc.FoundPlayer();
         }
 
