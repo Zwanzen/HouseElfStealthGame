@@ -446,6 +446,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nonRigidbodyVelocity: 0
   attenuationObject: {fileID: 0}
+--- !u!95 &1156033808 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 4372910922054044433, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+  m_PrefabInstance: {fileID: 2899386644246608981}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1482268453
 GameObject:
   m_ObjectHideFlags: 0
@@ -541,9 +546,73 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1256169382827337839, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1256169382827337839, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1256169382827337839, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1156033808}
+    - target: {fileID: 1256169382827337839, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetTrigger
+      objectReference: {fileID: 0}
+    - target: {fileID: 1256169382827337839, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UnityEngine.Animator, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 1256169382827337839, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1256169382827337839, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: SuccessFadeOut
+      objectReference: {fileID: 0}
+    - target: {fileID: 1888959295078177682, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2850260767998719919, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
       propertyPath: m_Color.a
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5053068076105364682, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5053068076105364682, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5053068076105364682, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1156033808}
+    - target: {fileID: 5053068076105364682, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5053068076105364682, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetTrigger
+      objectReference: {fileID: 0}
+    - target: {fileID: 5053068076105364682, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UnityEngine.Animator, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 5053068076105364682, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: FailureFadeOut
+      objectReference: {fileID: 0}
+    - target: {fileID: 5053068076105364682, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5088406890147101929, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
       propertyPath: m_IsActive
@@ -568,6 +637,30 @@ PrefabInstance:
     - target: {fileID: 5934010992769065815, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6211272947455485647, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6211272947455485647, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6211272947455485647, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1156033808}
+    - target: {fileID: 6211272947455485647, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetTrigger
+      objectReference: {fileID: 0}
+    - target: {fileID: 6211272947455485647, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UnityEngine.Animator, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 6211272947455485647, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: FailureFadeOut
       objectReference: {fileID: 0}
     - target: {fileID: 6690758426305061004, guid: f9027f5689c95ca4499eeff835512e9e, type: 3}
       propertyPath: m_Pivot.x
