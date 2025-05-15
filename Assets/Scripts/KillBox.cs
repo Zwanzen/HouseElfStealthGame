@@ -19,7 +19,7 @@ public class KillBox : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             // Call the GameOver method from the GameManager
-            GameManager.Instance.Loose();
+            GameManager.Instance.GameOver();
         }
     }
 }

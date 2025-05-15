@@ -127,13 +127,6 @@ public class GameManager : MonoBehaviour
 
         // Also fade the game audio
 
-        // If we are in main menu, and main menu camera is active,
-        // We want to slowly move the camera forward
-        if (isMainMenu && menuCamera.gameObject.activeSelf && isTransitioning)
-        {
-            // Move the camera forward
-            menuCamera.transform.position += menuCamera.transform.forward * Time.unscaledDeltaTime * 0.5f;
-        }
 
         if (fadeTimer >= fadeDuration && !startedDelayedSceneLoading)
         {
@@ -278,7 +271,7 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// When the player looses.
     /// </summary>
-    public void Loose()
+    public void GameOver()
     {
         LoadLastCheckpoint(true); // Temp
     }
