@@ -1,0 +1,158 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &289656941188247751
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8608562364059427261}
+  - component: {fileID: 336955687213368691}
+  m_Layer: 0
+  m_Name: SoundGameplayManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8608562364059427261
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289656941188247751}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.3086243, y: 2.5434697, z: -39.285126}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &336955687213368691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289656941188247751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 405d894d404e50b43add94a0eeea9330, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  distanceCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -0.00020336975
+      outSlope: -0.00020336975
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 1
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -3.2556052
+      outSlope: -3.2556052
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.03279966
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  guardFootsteps:
+    Guid:
+      Data1: 1979831474
+      Data2: 1331981966
+      Data3: -1733951559
+      Data4: -128000627
+    Path: event:/Characters/Humans/SFX/Footsteps Human
+  snoreEvent:
+    Guid:
+      Data1: -2015241939
+      Data2: 1160505223
+      Data3: 702569638
+      Data4: -1307395769
+    Path: event:/Characters/Humans/Voice/Muttering/NPC Snoring 1
+  playerFootsteps:
+    Guid:
+      Data1: 1237082114
+      Data2: 1135735223
+      Data3: -708143730
+      Data4: -284126951
+    Path: event:/Characters/Player/SFX/Footsteps Elf
+  rangeMultiplier: 1
+  amplitudeMultiplier: 1
+  minMagnitude: 0.1
+  maxMagnitude: 1
+  rangeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  amplitudeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  carpetSettings:
+    Range: 5
+    Amplitude: 5
+  metalSettings:
+    Range: 5
+    Amplitude: 5
+  stoneSettings:
+    Range: 5
+    Amplitude: 0.2
+  waterSettings:
+    Range: 5
+    Amplitude: 5
+  woodSettings:
+    Range: 5
+    Amplitude: 5

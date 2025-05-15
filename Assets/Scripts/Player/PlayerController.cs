@@ -374,7 +374,24 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(ExecuteAfterTeleport());
     }
 
-    private bool isFrozen = false;
+
+    public void Freeze()
+    {
+        // Freeze the player
+        _rigidbody.isKinematic = true;
+        // Stop the feet
+        leftFoot.StopFoot();
+        rightFoot.StopFoot();
+    }
+
+    public void Unfreeze()
+    {
+        // Unfreeze the player
+        _rigidbody.isKinematic = false;
+        // Start the feet
+        leftFoot.StartFoot();
+        rightFoot.StartFoot();
+    }
 
     private IEnumerator ExecuteAfterTeleport()
     {
