@@ -242,6 +242,9 @@ public class NPCDetector
 
     private void HandleVisionUpdate(float delta)
     {
+        // If type is sleep, and we are not in alert state, return
+        if (_npc.Type == NPC.NPCType.Sleep && DetectionState != EDetectionState.Alert)
+            return;
         // If out of range, return
         if (Vector3.Distance(_npc.Position, _player.Position) > 7f)
             return;
