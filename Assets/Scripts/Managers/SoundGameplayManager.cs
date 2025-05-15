@@ -17,6 +17,8 @@ public class SoundGameplayManager : MonoBehaviour
     [Space(10f)]
     [Header("Guard Settings")]
     [field: SerializeField] private EventReference guardFootsteps;
+    [field: SerializeField] private EventReference snoreEvent;
+
 
     [Space(10f)]
     [Header("Player Settings")]
@@ -210,12 +212,22 @@ public class SoundGameplayManager : MonoBehaviour
         sound.SoundType = Sound.ESoundType.Environment;
         Sounds.MakeSound(sound);
 
-        // We dont need game logic sound rn
         // Play the FMOD sound.
         emitter.EventReference = guardFootsteps;
         emitter.Play();
         emitter.SetParameter(PARAM.SURFACE, GetMaterialIndex(mat));
         emitter.SetParameter(PARAM.MAGNITUDE, 0.5f);
+    }
+
+    public void PlayGuardSnore(StudioEventEmitter emitter, Vector3 pos)
+    {
+        // First, create and play the game logic sound.
+        var sound = new Sound(pos, 5f, 0.5f);
+        sound.SoundType = Sound.ESoundType.Environment;
+        Sounds.MakeSound(sound);
+        // Play the FMOD sound.
+        emitter.EventReference = snoreEvent;
+        emitter.Play();
     }
 
     /// <summary>

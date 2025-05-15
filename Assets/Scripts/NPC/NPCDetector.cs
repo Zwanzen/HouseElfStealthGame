@@ -12,17 +12,15 @@ public class NPCDetector
     private SoundGameplayManager soundManager;
     private PlayerController _player;
     private PlayerBrightnessDetector _brightnessDetector;
-    private Slider _slider;
     private Transform[] _limbs;
     private LayerMask _obstacleLayerMask;
 
-    public NPCDetector(NPC npc, PlayerController player, Slider slider, LayerMask Obsticle)
+    public NPCDetector(NPC npc, PlayerController player, LayerMask Obsticle)
     {
         _npc = npc;
         _player = player;
         _brightnessDetector = player.GetComponent<PlayerBrightnessDetector>();
         soundManager = SoundGameplayManager.Instance;
-        _slider = slider;
         _limbs = player.Limbs;
         _obstacleLayerMask = Obsticle;
     }
@@ -304,22 +302,25 @@ public class NPCDetector
         return !Physics.Linecast(_npc.EyesPos, limb.position, _obstacleLayerMask);
     }
 
-    /*
-    private void DebugHeardSounds()
+    private void HandleProximityDetection(float delta)
     {
-        // Display the heard sounds, duration, buffer time, and volume
-        // Do this in the debug text on NPC
-        if (_npc.DebugText == null)
+        // If the player is not in range, return
+        var dist = Vector3.Distance(_npc.Position, _player.Position);
+        if (dist > 1)
             return;
-        _npc.DebugText.text = "Heard Sounds:\n";
-        foreach (var soundPair in _heardSounds)
-        {
-            var sound = soundPair.Key;
-            var soundInfo = soundPair.Value;
-            _npc.DebugText.text += $"{sound.SoundType} - Buffer Time: {soundInfo.BufferTime} - Duration {soundInfo.Duration}\n";
-        }
+        // Based on distance, we want to add detection
+        var valueToAdd = Mathf.Lerp(0.5f, 0.1f, dist/1);
+        AddDetection(valueToAdd * delta, _player.Position);
     }
-    */
+
+    private void HandleSlider()
+    {
+        // Only update slider if the state is not default
+        if (DetectionState == EDetectionState.Default)
+            return;
+        _npc.CurrentSlider.value = Detection;
+    }
+
     // ___ Public Methods ___
 
     /// <summary>
@@ -327,11 +328,11 @@ public class NPCDetector
     /// </summary>
     public void Update(float delta)
     {
+        HandleSlider();
         HandleSoundUpdate(delta);
         HandleDetectionDecay(delta);
         HandleVisionUpdate(delta);
-        if (_slider)
-            _slider.value = Detection;
+        HandleProximityDetection(delta);
     }
 
     private struct SoundInfo
