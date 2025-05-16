@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
     private float _storedSensitivity = 0.5f; // The stored sensitivity
     private float _storedBrightness = 0.5f; // The stored brightness
 
+
     // For MenuAnimator
     private struct MenuTrigger
     {
@@ -59,6 +60,9 @@ public class GameManager : MonoBehaviour
 
     private InputManager inputManager; // Reference to the input manager
     public Bus masterBus;
+
+    // ___ Properties ___
+    public float StoredSensitivity => _storedSensitivity;
 
     private void Awake()
     {

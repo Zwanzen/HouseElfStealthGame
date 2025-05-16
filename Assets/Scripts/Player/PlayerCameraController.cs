@@ -52,6 +52,8 @@ public class PlayerCameraController : MonoBehaviour
 
         _player.OnFall += OnFall;
         _player.OnStopFall += OnStopFall;
+
+        _cameraSensitivityPC = Mathf.Lerp(0.001f, 0.080f, GameManager.Instance.StoredSensitivity);
     }
 
     private void Update()
@@ -185,6 +187,11 @@ public class PlayerCameraController : MonoBehaviour
     }
 
     public float CameraX => _xRotation;
+
+    public void SetSensetivity(float sensitivity)
+    {
+        _cameraSensitivityPC = Mathf.Lerp(0.001f, 0.080f, sensitivity);
+    }
 
     private void OnDestroy()
     {
